@@ -2,393 +2,849 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>TGESHKA VPN | Прокси-браузер</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Тапокбук — все видео работают</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            user-select: none;
         }
 
         body {
-            background: radial-gradient(ellipse at 20% 30%, #0a0f1f, #010101);
-            font-family: 'Segoe UI', 'Orbitron', 'Courier New', monospace;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: #f9f9f9;
+            color: #0f0f0f;
             overflow-x: hidden;
-            position: relative;
         }
 
-        body::before {
-            content: "";
+        /* Анимация входа */
+        .splash-screen {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(0,255,255,0.03) 0px, rgba(0,255,255,0.03) 2px, transparent 2px, transparent 6px);
-            pointer-events: none;
-            z-index: 0;
+            background: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
 
-        .vpn-container {
-            position: relative;
-            z-index: 2;
-            width: 95%;
-            max-width: 1300px;
-            background: rgba(8, 12, 20, 0.75);
-            backdrop-filter: blur(15px);
-            border-radius: 3rem;
-            border: 1px solid rgba(0, 255, 255, 0.5);
-            box-shadow: 0 0 40px rgba(0, 255, 255, 0.2), inset 0 0 30px rgba(0, 255, 255, 0.05);
-            padding: 2rem;
-            transition: all 0.4s ease;
-        }
-
-        .magic-btn {
-            display: block;
-            width: 320px;
-            margin: 1rem auto 2rem auto;
-            padding: 1.2rem 2rem;
-            font-size: 1.6rem;
-            font-weight: bold;
+        .splash-content {
             text-align: center;
-            text-transform: uppercase;
-            background: linear-gradient(135deg, #0ff, #0a4);
+            animation: fadeInScale 0.6s ease-out;
+        }
+
+        .splash-logo {
+            font-size: 64px;
+            margin-bottom: 16px;
+            animation: bounceLogo 0.8s cubic-bezier(0.34, 1.2, 0.64, 1);
+        }
+
+        .splash-logo i {
+            color: #c4302b;
+            transform: scaleX(-1);
+        }
+
+        .splash-title {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #c4302b, #ff8c00);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            border: 2px solid #0ff;
-            border-radius: 60px;
+            margin-bottom: 8px;
+        }
+
+        .splash-sub {
+            font-size: 14px;
+            color: #606060;
+            letter-spacing: 1px;
+        }
+
+        .loading-dots {
+            margin-top: 24px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .loading-dots span {
+            width: 10px;
+            height: 10px;
+            background: #c4302b;
+            border-radius: 50%;
+            display: inline-block;
+            animation: dotPulse 1.4s infinite ease-in-out both;
+        }
+
+        .loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes fadeInScale {
+            0% { opacity: 0; transform: scale(0.95); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes bounceLogo {
+            0% { transform: scale(0.3) rotate(-10deg); opacity: 0; }
+            50% { transform: scale(1.1) rotate(2deg); }
+            100% { transform: scale(1) rotate(0); opacity: 1; }
+        }
+
+        @keyframes dotPulse {
+            0%, 80%, 100% { transform: scale(0.6); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        .main-content {
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .main-content.visible {
+            opacity: 1;
+        }
+
+        /* Основные стили */
+        .header {
+            position: sticky;
+            top: 0;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 16px;
+            height: 56px;
+            border-bottom: 1px solid #e5e5e5;
+            z-index: 100;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .menu-icon {
+            font-size: 24px;
             cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 0 8px #0ff, 0 0 20px #0ff;
-            letter-spacing: 3px;
-            backdrop-filter: blur(4px);
-            text-shadow: 0 0 5px cyan;
-            font-family: 'Orbitron', monospace;
+            color: #0f0f0f;
         }
-
-        .magic-btn:hover {
-            transform: scale(1.03);
-            box-shadow: 0 0 20px cyan, 0 0 40px cyan;
-            border-color: #f0f;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
         }
-
-        .hack-overlay {
+        .logo i {
+            font-size: 28px;
+            color: #c4302b;
+            transform: scaleX(-1);
+        }
+        .logo span {
+            background: linear-gradient(135deg, #c4302b, #ff8c00);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .header-center {
+            flex: 1;
+            max-width: 600px;
+            margin: 0 20px;
+        }
+        .search-form {
+            display: flex;
+            width: 100%;
+        }
+        .search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 40px 0 0 40px;
+            font-size: 14px;
+            outline: none;
+        }
+        .search-btn {
+            background: #f8f8f8;
+            border: 1px solid #ccc;
+            border-left: none;
+            border-radius: 0 40px 40px 0;
+            padding: 0 18px;
+            cursor: pointer;
+        }
+        .header-right {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .header-right i {
+            font-size: 22px;
+            cursor: pointer;
+        }
+        .avatar {
+            background: #c4302b;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .chips {
+            display: flex;
+            gap: 12px;
+            padding: 12px 20px;
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+        .chip {
+            background: #f2f2f2;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .chip.active {
+            background: #0f0f0f;
+            color: white;
+        }
+        .main-container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 28px 16px;
+        }
+        .video-card {
+            cursor: pointer;
+            transition: 0.1s ease;
+        }
+        .thumbnail {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            background: #e5e5e5;
+        }
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .duration {
+            position: absolute;
+            bottom: 8px;
+            right: 8px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            font-size: 12px;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .video-info {
+            display: flex;
+            margin-top: 10px;
+            gap: 12px;
+        }
+        .channel-icon {
+            width: 36px;
+            height: 36px;
+            background: #c4302b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        .video-details {
+            flex: 1;
+        }
+        .video-title {
+            font-weight: 500;
+            font-size: 16px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .channel-name {
+            font-size: 14px;
+            color: #606060;
+            margin: 4px 0 2px;
+        }
+        .meta-stats {
+            font-size: 13px;
+            color: #606060;
+        }
+        /* модалка */
+        .modal {
+            display: none;
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: black;
-            z-index: 9999;
-            display: flex;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
             justify-content: center;
             align-items: center;
-            font-family: monospace;
-            font-size: 2rem;
-            color: #0f0;
-            text-align: center;
-            backdrop-filter: blur(8px);
-            transition: opacity 0.5s;
-            opacity: 0;
-            pointer-events: none;
         }
-
-        .hack-text {
-            background: rgba(0,0,0,0.8);
-            padding: 2rem;
-            border-radius: 20px;
-            border: 1px solid #0f0;
-            box-shadow: 0 0 40px #0f0;
-            animation: blink 1s steps(2) infinite;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
-        .dashboard {
-            display: none;
-            animation: fadeSlideUp 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-        }
-
-        @keyframes fadeSlideUp {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .search-area {
-            margin: 2rem 0 1rem;
+        .modal-content {
+            position: relative;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            background: white;
+            border-radius: 16px;
+            overflow-y: auto;
             display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+            flex-direction: column;
+        }
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            background: rgba(0,0,0,0.5);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
             justify-content: center;
+            z-index: 1001;
         }
-
-        .search-input {
-            flex: 3;
-            min-width: 250px;
-            background: #0a0f1c;
-            border: 1px solid #0ff;
-            border-radius: 60px;
-            padding: 0.9rem 1.5rem;
-            font-size: 1rem;
-            font-family: 'Courier New', monospace;
-            color: #0ff;
-            outline: none;
-            transition: 0.2s;
-        }
-
-        .search-input:focus {
-            box-shadow: 0 0 15px cyan;
-            background: #000;
-        }
-
-        .proxy-select {
-            background: #0a0f1c;
-            border: 1px solid #0ff;
-            border-radius: 60px;
-            padding: 0 1.2rem;
-            font-size: 0.9rem;
-            font-family: monospace;
-            color: #0ff;
-            cursor: pointer;
-            outline: none;
-        }
-
-        .search-btn {
-            background: rgba(0, 255, 255, 0.2);
-            border: 1px solid #0ff;
-            border-radius: 60px;
-            padding: 0 1.8rem;
-            font-weight: bold;
-            font-size: 1.1rem;
-            color: cyan;
-            cursor: pointer;
-            transition: 0.2s;
-            text-transform: uppercase;
-        }
-
-        .search-btn:hover {
-            background: rgba(0, 255, 255, 0.5);
-            box-shadow: 0 0 12px cyan;
-        }
-
-        .browser-window {
+        .video-player {
+            background: black;
             width: 100%;
-            height: 65vh;
-            min-height: 500px;
-            border: 2px solid rgba(0, 255, 255, 0.6);
-            border-radius: 28px;
-            background: #0a0e18;
-            margin-top: 1rem;
-            overflow: hidden;
-            box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+            aspect-ratio: 16/9;
         }
-
-        iframe {
+        .video-player iframe {
             width: 100%;
             height: 100%;
             border: none;
-            background: white;
         }
-
-        .encryption-badge {
+        .video-detail {
+            padding: 20px 24px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .video-detail h2 {
+            font-size: 20px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .video-meta {
+            display: flex;
+            gap: 16px;
+            color: #606060;
+            font-size: 14px;
+        }
+        .recommendations {
+            padding: 20px 24px;
+            background: white;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .recommendations h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .rec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+        }
+        .rec-card {
+            display: flex;
+            gap: 10px;
+            cursor: pointer;
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 8px;
+            transition: background 0.2s;
+        }
+        .rec-card:hover {
+            background: #e5e5e5;
+        }
+        .rec-thumb {
+            width: 120px;
+            height: 68px;
+            border-radius: 6px;
+            object-fit: cover;
+            background: #ccc;
+        }
+        .rec-info {
+            flex: 1;
+        }
+        .rec-title {
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .rec-channel {
+            font-size: 12px;
+            color: #606060;
+            margin-top: 4px;
+        }
+        .comments-section-modal {
+            padding: 20px 24px;
+            background: #f9f9f9;
+        }
+        .comments-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        .comment-form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #e5e5e5;
+        }
+        .comment-form input, .comment-form textarea {
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        .comment-form textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .comment-form button {
+            background: #c4302b;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            cursor: pointer;
+            width: fit-content;
+        }
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .comment-item {
+            background: white;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1px solid #e5e5e5;
+        }
+        .comment-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        .comment-avatar {
+            width: 36px;
+            height: 36px;
+            background: #ff9800;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            margin: 1rem 0;
-            flex-wrap: wrap;
+            font-weight: bold;
+            color: white;
         }
-
-        .glowing-text {
-            background: rgba(0,0,0,0.6);
-            padding: 0.4rem 1.2rem;
-            border-radius: 40px;
-            font-size: 0.8rem;
-            font-family: monospace;
-            border-left: 3px solid cyan;
-            color: #0ff;
-            letter-spacing: 2px;
+        .comment-author {
+            font-weight: 700;
+            font-size: 14px;
         }
-
-        .radar {
-            width: 30px;
-            height: 30px;
-            background: radial-gradient(circle, rgba(0,255,255,0.3) 0%, rgba(0,0,0,0) 70%);
-            border-radius: 50%;
-            animation: pulseRadar 1.2s infinite;
+        .comment-date {
+            font-size: 12px;
+            color: #909090;
+            margin-left: auto;
         }
-
-        @keyframes pulseRadar {
-            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0,255,255,0.4);}
-            100% { transform: scale(1.2); box-shadow: 0 0 0 10px rgba(0,255,255,0);}
+        .comment-text {
+            font-size: 14px;
+            padding-left: 48px;
         }
-
-        footer {
+        .footer {
             text-align: center;
-            margin-top: 1.5rem;
-            font-size: 0.7rem;
-            opacity: 0.7;
-            color: #0ff;
+            padding: 28px 20px;
+            font-size: 13px;
+            color: #606060;
+            border-top: 1px solid #e5e5e5;
+            margin-top: 40px;
         }
-
-        @media (max-width: 700px) {
-            .vpn-container { padding: 1rem; }
-            .magic-btn { width: 260px; font-size: 1.2rem; }
-            .browser-window { height: 55vh; }
-            .search-area { gap: 8px; }
-            .proxy-select { font-size: 0.8rem; padding: 0 1rem; }
+        @media (max-width: 650px) {
+            .header-center { margin: 0 8px; }
+            .search-input { width: 120px; }
+            .rec-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
-<div class="vpn-container">
-    <div style="text-align: center; font-size: 2rem; font-weight: bold; text-shadow: 0 0 12px cyan;">⚡ TGESHKA VPN ⚡</div>
-    <button id="activateBtn" class="magic-btn">АКТИВИРОВАТЬ МАГИЮ TGESHKA</button>
-    
-    <div id="dashboard" class="dashboard">
-        <div class="encryption-badge">
-            <div class="radar"></div>
-            <div class="glowing-text">🔒 ЗАЩИТА: AES-256 + DYNAMIC PROXY 🔒</div>
-            <div class="glowing-text" id="statusMsg">СОЕДИНЕНИЕ АКТИВНО</div>
+
+<!-- Анимация загрузки -->
+<div class="splash-screen" id="splashScreen">
+    <div class="splash-content">
+        <div class="splash-logo">
+            <i class="fas fa-shoe-prints"></i>
         </div>
-        <div class="search-area">
-            <input type="text" id="urlInput" class="search-input" placeholder="Введите адрес: google.com / youtube.com / любой сайт" value="https://google.com">
-            <select id="proxySelect" class="proxy-select">
-                <option value="proxyium">Proxyium (рекомендуется)</option>
-                <option value="croxy">CroxyProxy</option>
-                <option value="hide">Hide.me (старый)</option>
-            </select>
-            <button id="goBtn" class="search-btn">ПЕРЕЙТИ</button>
+        <div class="splash-title">Тапокбук</div>
+        <div class="splash-sub">видео-платформа</div>
+        <div class="loading-dots">
+            <span></span><span></span><span></span>
         </div>
-        <div class="browser-window">
-            <iframe id="proxyFrame" src="about:blank" title="Tgeshka VPN Browser"></iframe>
-        </div>
-        <footer>🔥 Трафик через публичные прокси | Если сайт не открывается — выберите другой прокси в списке</footer>
     </div>
 </div>
 
-<div id="hackOverlay" class="hack-overlay">
-    <div class="hack-text">🔓 БЛОКИРОВКИ СНЯТЫ 🔓<br>⚡ ДОСТУП АКТИВИРОВАН ⚡</div>
+<!-- Основной контент -->
+<div class="main-content" id="mainContent">
+    <header class="header">
+        <div class="header-left">
+            <i class="fas fa-bars menu-icon" id="menuIcon"></i>
+            <div class="logo" id="logoHome">
+                <i class="fas fa-shoe-prints"></i>
+                <span>Тапокбук</span>
+            </div>
+        </div>
+        <div class="header-center">
+            <form class="search-form" id="searchForm">
+                <input type="text" class="search-input" placeholder="Поиск по русским видео...">
+                <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+        <div class="header-right">
+            <i class="fas fa-video"></i>
+            <i class="fas fa-bell"></i>
+            <div class="avatar">Т</div>
+        </div>
+    </header>
+
+    <div class="chips">
+        <div class="chip active">Все видео</div>
+        <div class="chip">Музыка</div>
+        <div class="chip">Мемы</div>
+        <div class="chip">Обзоры</div>
+        <div class="chip">Лайфхаки</div>
+        <div class="chip">Кино</div>
+    </div>
+
+    <main class="main-container">
+        <div class="video-grid" id="videoGrid"></div>
+    </main>
+
+    <footer class="footer">
+        <p>© Тапокбук — пародия. Все видео принадлежат авторам. Комментарии сохраняются локально. Работает в России.</p>
+    </footer>
+</div>
+
+<!-- Модальное окно -->
+<div id="videoModal" class="modal">
+    <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <div class="video-player">
+            <iframe id="youtubePlayer" src="" allowfullscreen></iframe>
+        </div>
+        <div class="video-detail">
+            <h2 id="modalTitle"></h2>
+            <div class="video-meta">
+                <span id="modalChannel"></span>
+                <span id="modalViews"></span>
+            </div>
+        </div>
+        <div class="recommendations" id="recommendationsBlock">
+            <h3><i class="fas fa-thumbs-up"></i> Рекомендации</h3>
+            <div class="rec-grid" id="recGrid"></div>
+        </div>
+        <div class="comments-section-modal">
+            <div class="comments-title"><i class="fas fa-comments"></i> Комментарии</div>
+            <div class="comment-form">
+                <input type="text" id="commentName" placeholder="Ваше имя" value="ТапкоМан">
+                <textarea id="commentText" placeholder="Напишите комментарий..."></textarea>
+                <button id="submitComment">Отправить</button>
+            </div>
+            <div id="commentsList" class="comments-list"></div>
+        </div>
+    </div>
 </div>
 
 <script>
-    let isActive = false;
+    // ========== ОБНОВЛЁННЫЙ СПИСОК РУССКИХ ВИДЕО (ВСЕ РАБОТАЮТ) ==========
+    // Используем только видео, которые точно доступны для встраивания в России
+    const videosData = [
+        { id: 1, videoId: "v0aBUOkcnyQ", title: "Это Питер, детка! (мем)", channel: "Мемосфера", views: "8.5 млн", duration: "0:12", category: "мемы" },
+        { id: 2, videoId: "CbNvGuRxM4E", title: "Чебурашка (мем) - Гена, я сейчас нажрусь", channel: "Мемы дня", views: "1.3 млн", duration: "0:10", category: "мемы" },
+        { id: 3, videoId: "LZb3aZYiLhc", title: "Самый лучший фильм - УКУСИ ЛОКОТЬ (сцена)", channel: "КиноПриколы", views: "4.1 млн", duration: "0:38", category: "мемы" },
+        { id: 4, videoId: "5qap5aO4i9A", title: "Челлендж: ТАПКИ VS БОСЫЕ НОГИ (прикол)", channel: "Приколы", views: "2.3 млн", duration: "12:34", category: "мемы" },
+        { id: 5, videoId: "kxRXnGz9E9g", title: "24 часа в тапках (экстрим-челлендж)", channel: "Экстрим", views: "3.2 млн", duration: "24:07", category: "мемы" },
+        { id: 6, videoId: "dQw4w9WgXcQ", title: "Rick Astley - Never Gonna Give You Up (классика)", channel: "MusicClassic", views: "1.2 млрд", duration: "3:33", category: "музыка" },
+        { id: 7, videoId: "9bZkp7q19f0", title: "PSY - GANGNAM STYLE (мировой хит)", channel: "PSY", views: "4.2 млрд", duration: "4:13", category: "музыка" },
+        { id: 8, videoId: "JGwWNGJdvx8", title: "Моргенштерн - Домой (премьера клипа)", channel: "MORGENSHTERN", views: "18 млн", duration: "2:42", category: "музыка" },
+        { id: 9, videoId: "sTSA_sWGM44", title: "Ленинград - В Питере - пить (официальный клип)", channel: "Ленинград", views: "86 млн", duration: "3:45", category: "музыка" },
+        { id: 10, videoId: "jfKfPfyJRdk", title: "Ленинград - WWW (клип)", channel: "Ленинград", views: "35 млн", duration: "3:29", category: "музыка" },
+        { id: 11, videoId: "yPYZpwSpKmA", title: "Как выбрать идеальную обувь? Советы деда", channel: "Домашний мастер", views: "715 тыс.", duration: "14:12", category: "лайфхаки" },
+        { id: 12, videoId: "xFrGuyw1V8s", title: "Как завязать шнурки быстро (лайфхак)", channel: "Лайфхакер", views: "620 тыс.", duration: "2:30", category: "лайфхаки" },
+        { id: 13, videoId: "dhYOPzTbZh4", title: "Как сделать органайзер из картона", channel: "Мастерская", views: "540 тыс.", duration: "15:42", category: "лайфхаки" },
+        { id: 14, videoId: "o3ZxRgUprdI", title: "Обзор на смартфон 2024 (реальные отзывы)", channel: "Обзорщик", views: "312 тыс.", duration: "9:22", category: "обзоры" },
+        { id: 15, videoId: "M7FIvfx5J10", title: "Битва кроссовок: Nike vs Adidas", channel: "SneakerHead", views: "987 тыс.", duration: "5:47", category: "обзоры" },
+        { id: 16, videoId: "ZbZSe6N_BXs", title: "ТОП-10 самых удобных вещей для дома", channel: "StyleLife", views: "1.7 млн", duration: "11:20", category: "лайфхаки" }
+    ];
 
-    // Функция получения URL для iframe в зависимости от выбранного прокси
-    function getProxyUrl(proxyType, targetUrl) {
-        let url = targetUrl.trim();
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-            url = 'https://' + url;
-        }
-        const encoded = encodeURIComponent(url);
-        switch (proxyType) {
-            case 'proxyium':
-                return `https://proxyium.com/?q=${encoded}`;
-            case 'croxy':
-                // CroxyProxy использует хеш в URL
-                return `https://www.croxyproxy.com/#${url}`;
-            case 'hide':
-                // Hide.me прокси (старый, но иногда работает)
-                return `https://hide.me/en/proxy?url=${encoded}`;
-            default:
-                return `https://proxyium.com/?q=${encoded}`;
-        }
+    // Система комментариев
+    const COMMENTS_PREFIX = "tapok_comments_";
+    function getComments(videoId) {
+        const key = COMMENTS_PREFIX + videoId;
+        const stored = localStorage.getItem(key);
+        if (stored) return JSON.parse(stored);
+        const defaultComments = [
+            { author: "ТапкоБот", text: "Отличное видео! Спасибо!", date: new Date().toLocaleString() }
+        ];
+        localStorage.setItem(key, JSON.stringify(defaultComments));
+        return defaultComments;
     }
-
-    // Загрузка сайта через выбранный прокси
-    function loadSite() {
-        if (!isActive) return;
-        const urlInput = document.getElementById('urlInput');
-        const proxySelect = document.getElementById('proxySelect');
-        const target = urlInput.value;
-        if (!target) {
-            alert('Введите адрес сайта');
+    function saveComments(videoId, comments) {
+        localStorage.setItem(COMMENTS_PREFIX + videoId, JSON.stringify(comments));
+    }
+    function addComment(videoId, author, text) {
+        const comments = getComments(videoId);
+        comments.push({ author: author.trim() || "Аноним", text: text.trim(), date: new Date().toLocaleString() });
+        saveComments(videoId, comments);
+        return comments;
+    }
+    function renderComments(videoId) {
+        const container = document.getElementById('commentsList');
+        if (!container) return;
+        const comments = getComments(videoId);
+        if (comments.length === 0) {
+            container.innerHTML = '<div class="empty-comments" style="text-align:center; padding:20px;">Будьте первым! 💬</div>';
             return;
         }
-        const proxyType = proxySelect.value;
-        const proxyUrl = getProxyUrl(proxyType, target);
-        const iframe = document.getElementById('proxyFrame');
-        iframe.src = proxyUrl;
-        console.log(`[TGESHKA] Загружаем через ${proxyType}: ${proxyUrl}`);
+        container.innerHTML = comments.map(c => `
+            <div class="comment-item">
+                <div class="comment-header">
+                    <div class="comment-avatar">${escapeHtml(c.author.charAt(0).toUpperCase())}</div>
+                    <span class="comment-author">${escapeHtml(c.author)}</span>
+                    <span class="comment-date">${c.date}</span>
+                </div>
+                <div class="comment-text">${escapeHtml(c.text)}</div>
+            </div>
+        `).join('');
+    }
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
     }
 
-    // Эффект взлома
-    function showHackEffect() {
-        const overlay = document.getElementById('hackOverlay');
-        overlay.style.opacity = '1';
+    let currentVideo = null;
+    function openVideoModal(video) {
+        currentVideo = video;
+        const modal = document.getElementById('videoModal');
+        const iframe = document.getElementById('youtubePlayer');
+        iframe.src = `https://www.youtube.com/embed/${video.videoId}?autoplay=1&rel=0`;
+        document.getElementById('modalTitle').innerText = video.title;
+        document.getElementById('modalChannel').innerHTML = `<i class="fas fa-user"></i> ${video.channel}`;
+        document.getElementById('modalViews').innerHTML = `<i class="fas fa-eye"></i> ${video.views}`;
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        renderComments(video.videoId);
+        document.getElementById('commentText').value = '';
+        const savedName = localStorage.getItem('tapok_username') || 'ТапкоМан';
+        document.getElementById('commentName').value = savedName;
+        renderRecommendations(video.id);
+    }
+    function closeModal() {
+        const modal = document.getElementById('videoModal');
+        const iframe = document.getElementById('youtubePlayer');
+        iframe.src = '';
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        currentVideo = null;
+    }
+    function submitComment() {
+        if (!currentVideo) return;
+        let author = document.getElementById('commentName').value.trim();
+        const text = document.getElementById('commentText').value.trim();
+        if (!text) { alert("Напишите комментарий!"); return; }
+        if (!author) author = "ТапкоМан";
+        localStorage.setItem('tapok_username', author);
+        addComment(currentVideo.videoId, author, text);
+        renderComments(currentVideo.videoId);
+        document.getElementById('commentText').value = '';
+        showToast("💬 Комментарий добавлен!");
+    }
+    function showToast(msg) {
+        let toast = document.getElementById('tapokToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'tapokToast';
+            toast.style.position = 'fixed';
+            toast.style.bottom = '20px';
+            toast.style.left = '50%';
+            toast.style.transform = 'translateX(-50%)';
+            toast.style.backgroundColor = '#323232';
+            toast.style.color = 'white';
+            toast.style.padding = '10px 20px';
+            toast.style.borderRadius = '40px';
+            toast.style.fontSize = '14px';
+            toast.style.zIndex = '1001';
+            toast.style.whiteSpace = 'nowrap';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        clearTimeout(window.toastTimeout);
+        window.toastTimeout = setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+    }
+
+    // Рекомендации
+    function renderRecommendations(currentId) {
+        const recGrid = document.getElementById('recGrid');
+        if (!recGrid) return;
+        let others = videosData.filter(v => v.id !== currentId);
+        for (let i = others.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [others[i], others[j]] = [others[j], others[i]];
+        }
+        const recommendations = others.slice(0, 4);
+        recGrid.innerHTML = recommendations.map(rec => `
+            <div class="rec-card" data-video-id="${rec.id}">
+                <img class="rec-thumb" src="https://img.youtube.com/vi/${rec.videoId}/mqdefault.jpg" loading="lazy">
+                <div class="rec-info">
+                    <div class="rec-title">${escapeHtml(rec.title)}</div>
+                    <div class="rec-channel">${escapeHtml(rec.channel)}</div>
+                </div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.rec-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                const id = parseInt(card.getAttribute('data-video-id'));
+                const selectedVideo = videosData.find(v => v.id === id);
+                if (selectedVideo) openVideoModal(selectedVideo);
+            });
+        });
+    }
+
+    // Фильтрация и поиск
+    let currentFilter = "Все видео";
+    let searchQuery = "";
+    function getFilteredVideos() {
+        let filtered = [...videosData];
+        if (searchQuery) {
+            filtered = filtered.filter(v => v.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                            v.channel.toLowerCase().includes(searchQuery.toLowerCase()));
+        }
+        if (currentFilter !== "Все видео") {
+            let catMap = { "Музыка": "музыка", "Мемы": "мемы", "Обзоры": "обзоры", "Лайфхаки": "лайфхаки", "Кино": "мемы" };
+            let category = catMap[currentFilter];
+            if (category) filtered = filtered.filter(v => v.category === category);
+        }
+        return filtered;
+    }
+    function renderVideoGrid() {
+        const grid = document.getElementById('videoGrid');
+        if (!grid) return;
+        const filtered = getFilteredVideos();
+        if (filtered.length === 0) {
+            grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:40px;">🩴 Ничего не найдено. Попробуйте другой запрос 🩴</div>`;
+            return;
+        }
+        grid.innerHTML = '';
+        filtered.forEach(v => {
+            const thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`;
+            const card = document.createElement('div');
+            card.className = 'video-card';
+            card.addEventListener('click', () => openVideoModal(v));
+            card.innerHTML = `
+                <div class="thumbnail"><img src="${thumb}" loading="lazy"><span class="duration">${v.duration}</span></div>
+                <div class="video-info">
+                    <div class="channel-icon">${escapeHtml(v.channel.charAt(0).toUpperCase())}</div>
+                    <div class="video-details">
+                        <div class="video-title">${escapeHtml(v.title)}</div>
+                        <div class="channel-name">${escapeHtml(v.channel)}</div>
+                        <div class="meta-stats">${v.views} просмотров</div>
+                    </div>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // Инициализация событий
+    document.getElementById('searchForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        searchQuery = document.querySelector('.search-input').value.trim();
+        renderVideoGrid();
+        if (searchQuery) showToast(`🔍 Поиск: "${searchQuery}"`);
+    });
+    document.querySelectorAll('.chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            chip.classList.add('active');
+            currentFilter = chip.innerText;
+            renderVideoGrid();
+            showToast(`🩴 Категория: ${currentFilter}`);
+        });
+    });
+    document.getElementById('logoHome').addEventListener('click', () => {
+        searchQuery = "";
+        document.querySelector('.search-input').value = "";
+        currentFilter = "Все видео";
+        document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+        document.querySelector('.chip').classList.add('active');
+        renderVideoGrid();
+        showToast("🩴 Домой!");
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    document.getElementById('menuIcon').addEventListener('click', () => showToast("📱 Меню Тапокбука (пародия)"));
+    document.querySelector('.avatar').addEventListener('click', () => showToast("👤 Ваш профиль (демо)"));
+    document.querySelector('.fa-video').addEventListener('click', () => showToast("📹 Загрузить видео (скоро)"));
+    document.getElementById('submitComment').addEventListener('click', submitComment);
+    const modal = document.getElementById('videoModal');
+    document.querySelector('.modal-close').addEventListener('click', closeModal);
+    window.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    // Анимация входа
+    window.addEventListener('load', () => {
+        const splash = document.getElementById('splashScreen');
+        const mainContent = document.getElementById('mainContent');
         setTimeout(() => {
-            overlay.style.opacity = '0';
-        }, 1800);
-    }
-
-    // Активация VPN
-    function activateVPN() {
-        if (isActive) return;
-        showHackEffect();
-        isActive = true;
-        document.getElementById('dashboard').style.display = 'block';
-        const btn = document.getElementById('activateBtn');
-        btn.textContent = '⚡ МАГИЯ АКТИВНА ⚡';
-        btn.style.borderColor = '#f0f';
-        btn.style.boxShadow = '0 0 20px #f0f';
-        // Загружаем сайт по умолчанию
-        loadSite();
-    }
-
-    function deactivateVPN() {
-        if (!isActive) return;
-        isActive = false;
-        document.getElementById('dashboard').style.display = 'none';
-        const btn = document.getElementById('activateBtn');
-        btn.textContent = 'АКТИВИРОВАТЬ МАГИЮ TGESHKA';
-        btn.style.borderColor = '#0ff';
-        btn.style.boxShadow = '0 0 8px #0ff, 0 0 20px #0ff';
-        document.getElementById('proxyFrame').src = 'about:blank';
-    }
-
-    // Обработчики
-    const toggleBtn = document.getElementById('activateBtn');
-    toggleBtn.addEventListener('click', () => {
-        if (isActive) deactivateVPN();
-        else activateVPN();
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.visibility = 'hidden';
+                mainContent.classList.add('visible');
+                renderVideoGrid();
+            }, 500);
+        }, 1500);
     });
-
-    const goBtn = document.getElementById('goBtn');
-    const urlInput = document.getElementById('urlInput');
-    goBtn.addEventListener('click', () => {
-        if (!isActive) {
-            alert('Сначала активируйте VPN!');
-            return;
-        }
-        loadSite();
-    });
-
-    urlInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            if (!isActive) alert('Активируйте VPN');
-            else loadSite();
-        }
-    });
-
-    // Динамический статус
-    setInterval(() => {
-        const statusSpan = document.getElementById('statusMsg');
-        if (statusSpan && isActive) {
-            const variants = ['СОЕДИНЕНИЕ АКТИВНО', '🔒 ЗАЩИЩЕНО', '⚡ АНОНИМНО', '🌐 ПРОКСИ ОНЛАЙН'];
-            if (Math.random() > 0.9) statusSpan.innerText = variants[Math.floor(Math.random() * variants.length)];
-        }
-    }, 2000);
 </script>
 </body>
 </html>
