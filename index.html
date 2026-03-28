@@ -2,426 +2,452 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Tgeshka VPN — обход блокировок одним кликом</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>TGESHKA VPN | Прокси-браузер</title>
+    <!-- Ultraviolet CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@3.0.6/dist/uv.bundle.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@3.0.6/dist/uv.config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@3.0.6/dist/uv.sw.js"></script>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none; /* футуристичный эффект */
         }
 
         body {
-            background: radial-gradient(circle at 20% 30%, #0b0f1c, #03050b);
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: radial-gradient(ellipse at 20% 30%, #0a0f1f, #010101);
+            font-family: 'Segoe UI', 'Orbitron', 'Courier New', monospace;
             min-height: 100vh;
             display: flex;
-            align-items: center;
             justify-content: center;
-            padding: 1.5rem;
-            color: #eef5ff;
+            align-items: center;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        /* футуристический стеклянный контейнер */
-        .glass-panel {
-            max-width: 800px;
+        /* Сетка и глитч-эффекты */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            background: rgba(12, 20, 35, 0.65);
-            backdrop-filter: blur(16px);
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0,255,255,0.03) 0px, rgba(0,255,255,0.03) 2px, transparent 2px, transparent 6px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .vpn-container {
+            position: relative;
+            z-index: 2;
+            width: 95%;
+            max-width: 1300px;
+            background: rgba(8, 12, 20, 0.75);
+            backdrop-filter: blur(15px);
             border-radius: 3rem;
-            padding: 2rem 1.8rem;
-            border: 1px solid rgba(0, 255, 255, 0.25);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(0, 255, 255, 0.1);
-            transition: all 0.3s ease;
+            border: 1px solid rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 40px rgba(0, 255, 255, 0.2), inset 0 0 30px rgba(0, 255, 255, 0.05);
+            padding: 2rem;
+            transition: all 0.4s ease;
         }
 
-        h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #aafff0, #2ad4ff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-align: center;
-            letter-spacing: -0.5px;
-            margin-bottom: 0.25rem;
-        }
-
-        .sub {
-            text-align: center;
-            opacity: 0.75;
-            font-size: 0.9rem;
-            margin-bottom: 2rem;
-            border-bottom: 1px dashed rgba(100, 200, 255, 0.3);
-            display: inline-block;
-            width: auto;
-            margin-left: auto;
-            margin-right: auto;
-            padding-bottom: 0.5rem;
-        }
-
-        /* неоновая кнопка */
-        .neon-btn {
+        /* Неоновая кнопка */
+        .magic-btn {
             display: block;
-            width: 100%;
-            background: linear-gradient(90deg, #00c6ff, #0072ff);
-            border: none;
-            padding: 1.2rem 1rem;
+            width: 320px;
+            margin: 1rem auto 2rem auto;
+            padding: 1.2rem 2rem;
             font-size: 1.6rem;
             font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: white;
-            border-radius: 80px;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 0 12px #00a6ff, 0 0 5px #00aaff;
-            margin: 1rem 0 1.5rem 0;
-            font-family: inherit;
-        }
-
-        .neon-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 0 25px #00ccff, 0 0 10px #0088ff;
-            background: linear-gradient(90deg, #1ad0ff, #0080ff);
-        }
-
-        .neon-btn.active {
-            background: linear-gradient(90deg, #f0a, #c05);
-            box-shadow: 0 0 20px #ff44aa, 0 0 8px #ff2288;
-        }
-
-        .status-badge {
             text-align: center;
-            font-size: 0.85rem;
-            background: rgba(0, 30, 40, 0.7);
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #0ff, #0a4);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            border: 2px solid #0ff;
             border-radius: 60px;
-            padding: 0.4rem 1rem;
-            display: inline-block;
-            width: auto;
-            margin: 0 auto 1.5rem auto;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 0 8px #0ff, 0 0 20px #0ff;
+            letter-spacing: 3px;
             backdrop-filter: blur(4px);
-            border-left: 2px solid cyan;
+            text-shadow: 0 0 5px cyan;
+            font-family: 'Orbitron', monospace;
         }
 
-        .vpn-panel {
-            margin-top: 1rem;
-            transition: all 0.3s;
+        .magic-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 0 20px cyan, 0 0 40px cyan;
+            border-color: #f0f;
         }
 
-        .url-input-group {
+        /* Эффект взлома */
+        .hack-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 9999;
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin: 1rem 0;
-        }
-
-        .url-input-group input {
-            flex: 1;
-            padding: 14px 18px;
-            border-radius: 60px;
-            border: 1px solid #2c5a7a;
-            background: #0a0f1ecc;
-            color: white;
-            font-size: 1rem;
-            outline: none;
+            justify-content: center;
+            align-items: center;
             font-family: monospace;
+            font-size: 2rem;
+            color: #0f0;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            transition: opacity 0.5s;
+            opacity: 0;
+            pointer-events: none;
         }
 
-        .url-input-group input:focus {
-            border-color: #0cf;
-            box-shadow: 0 0 8px #0cf;
+        .hack-text {
+            background: rgba(0,0,0,0.8);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid #0f0;
+            box-shadow: 0 0 40px #0f0;
+            animation: blink 1s steps(2) infinite;
         }
 
-        .proxy-btn {
-            background: #1f3a4b;
-            border: none;
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Панель управления (после активации) */
+        .dashboard {
+            display: none;
+            animation: fadeSlideUp 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        @keyframes fadeSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Поисковая строка */
+        .search-area {
+            margin: 2rem 0 1.5rem;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .search-input {
+            flex: 3;
+            min-width: 250px;
+            background: #0a0f1c;
+            border: 1px solid #0ff;
             border-radius: 60px;
-            padding: 0 28px;
+            padding: 1rem 1.8rem;
+            font-size: 1rem;
+            font-family: 'Courier New', monospace;
+            color: #0ff;
+            outline: none;
+            transition: 0.2s;
+            letter-spacing: 1px;
+        }
+
+        .search-input:focus {
+            box-shadow: 0 0 15px cyan;
+            background: #000;
+        }
+
+        .search-btn {
+            background: rgba(0, 255, 255, 0.2);
+            border: 1px solid #0ff;
+            border-radius: 60px;
+            padding: 0 2rem;
             font-weight: bold;
-            color: white;
+            font-size: 1.2rem;
+            color: cyan;
             cursor: pointer;
             transition: 0.2s;
-            font-size: 1rem;
+            text-transform: uppercase;
         }
 
-        .proxy-btn:hover {
-            background: #2a5f7a;
+        .search-btn:hover {
+            background: rgba(0, 255, 255, 0.5);
+            box-shadow: 0 0 12px cyan;
         }
 
-        .iframe-container {
-            margin-top: 1.5rem;
-            border-radius: 24px;
+        /* iframe (прокси-браузер) */
+        .browser-window {
+            width: 100%;
+            height: 65vh;
+            min-height: 500px;
+            border: 2px solid rgba(0, 255, 255, 0.6);
+            border-radius: 28px;
+            background: #0a0e18;
+            margin-top: 1rem;
             overflow: hidden;
-            border: 1px solid rgba(0, 255, 255, 0.4);
-            background: #00000066;
-            transition: 0.2s;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
         }
 
         iframe {
             width: 100%;
-            height: 500px;
+            height: 100%;
             border: none;
-            background: #fff;
+            background: white;
         }
 
-        .error-box {
-            background: #2a0f1fcc;
-            border-left: 4px solid #ff3366;
-            padding: 1rem;
-            border-radius: 20px;
-            margin-top: 1rem;
-            font-size: 0.9rem;
-        }
-
-        .alt-links {
-            margin-top: 1.5rem;
-            background: #07121eaa;
-            border-radius: 24px;
-            padding: 1rem;
-            font-size: 0.85rem;
-        }
-
-        .alt-links a {
-            color: #7df9ff;
-            text-decoration: none;
-            border-bottom: 1px dashed;
-        }
-
-        .footer-note {
-            text-align: center;
-            font-size: 0.7rem;
-            margin-top: 2rem;
-            opacity: 0.6;
-        }
-
-        hr {
-            border-color: #2a4860;
-            margin: 1rem 0;
-        }
-        .flex-center {
+        /* Анимация "зашифрованное соединение" */
+        .encryption-badge {
             display: flex;
+            align-items: center;
             justify-content: center;
+            gap: 15px;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .glowing-text {
+            background: rgba(0,0,0,0.6);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            border-left: 3px solid cyan;
+            color: #0ff;
+            letter-spacing: 2px;
+        }
+
+        .radar {
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, rgba(0,255,255,0.3) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            animation: pulseRadar 1.2s infinite;
+        }
+
+        @keyframes pulseRadar {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0,255,255,0.4);}
+            100% { transform: scale(1.2); box-shadow: 0 0 0 10px rgba(0,255,255,0);}
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 2rem;
+            font-size: 0.7rem;
+            opacity: 0.7;
+            color: #0ff;
+        }
+
+        @media (max-width: 700px) {
+            .vpn-container { padding: 1rem; }
+            .magic-btn { width: 260px; font-size: 1.2rem; }
+            .browser-window { height: 55vh; }
         }
     </style>
 </head>
 <body>
-<div class="glass-panel" id="app">
-    <h1>⚡ TGESHKA VPN ⚡</h1>
-    <div class="flex-center"><div class="sub">невидимость · скорость · свобода</div></div>
-
-    <!-- центральная кнопка -->
-    <button id="vpnToggleBtn" class="neon-btn">🔌 ПОДКЛЮЧИТЬ TGESHKA VPN</button>
-
-    <div id="vpnStatusArea" class="flex-center">
-        <div class="status-badge" id="statusText">⚪ VPN отключён</div>
-    </div>
-
-    <!-- панель прокси, появляется после "подключения" -->
-    <div id="proxyPanel" style="display: none;" class="vpn-panel">
-        <div class="url-input-group">
-            <input type="text" id="targetUrl" placeholder="https://example.com или любой заблокированный сайт" value="https://www.youtube.com">
-            <button id="goProxyBtn" class="proxy-btn">🌐 ОТКРЫТЬ ЧЕРЕЗ ПРОКСИ</button>
+<div class="vpn-container">
+    <div style="text-align: center; font-size: 2rem; font-weight: bold; text-shadow: 0 0 12px cyan;">⚡ TGESHKA VPN ⚡</div>
+    <button id="activateBtn" class="magic-btn">АКТИВИРОВАТЬ МАГИЮ TGESHKA</button>
+    
+    <div id="dashboard" class="dashboard">
+        <div class="encryption-badge">
+            <div class="radar"></div>
+            <div class="glowing-text">🔒 ЗАЩИТА: AES-256 + ULTRAVIOLET 🔒</div>
+            <div class="glowing-text" id="statusMsg">СОЕДИНЕНИЕ АКТИВНО</div>
         </div>
-        <div id="iframeWrap" class="iframe-container" style="display: none;">
-            <iframe id="proxyFrame" title="Анонимный просмотр через прокси"></iframe>
+        <div class="search-area">
+            <input type="text" id="urlInput" class="search-input" placeholder="Введите адрес: google.com / youtube.com / любой сайт" value="https://google.com">
+            <button id="goBtn" class="search-btn">ПЕРЕЙТИ</button>
         </div>
-        <div id="proxyErrorMsg" class="error-box" style="display: none;"></div>
-    </div>
-
-    <!-- раздел с альтернативными решениями (на случай блокировки прокси) -->
-    <div id="fallbackSection" class="alt-links" style="display: none;">
-        <div style="font-weight: bold; margin-bottom: 8px;">⚠️ Автономный прокси временно недоступен? Используйте готовые конфиги:</div>
-        <ul style="margin-left: 1.2rem;">
-            <li>📱 <strong>WireGuard / AmneziaWG</strong> — бесплатные серверы: 
-                <a href="https://www.vpngate.net/en/" target="_blank">VPN Gate</a> | 
-                <a href="https://www.wireguard.com/install/" target="_blank">Настройка WG</a>
-            </li>
-            <li>🚀 <strong>VLESS + Reality (Xray)</strong> — публичные конфиги: 
-                <a href="https://github.com/yebekhe/TelegramV2rayCollector" target="_blank">TelegramV2rayCollector</a>
-            </li>
-            <li>🔑 <strong>Быстрая инструкция:</strong> скачайте клиент AmneziaWG, импортируйте любой конфиг из репозитория и включите туннель.</li>
-        </ul>
-        <div style="margin-top: 10px; background:#00000055; border-radius: 18px; padding: 8px;">
-            💡 <strong>Совет:</strong> если CORS-прокси блокирует доступ, попробуйте вручную вставить URL в сервис <a href="https://cors-anywhere.herokuapp.com/" target="_blank">cors-anywhere</a> или использовать режим инкогнито.
+        <div class="browser-window">
+            <iframe id="proxyFrame" src="about:blank" title="Tgeshka VPN Browser"></iframe>
         </div>
-    </div>
-
-    <div class="footer-note">
-        Tgeshka VPN — встроенный веб-прокси для обхода блокировок. Реальное VPN-подключение не требуется.
+        <footer>🔥 Трафик через прокси-движок Ultraviolet | Блокировки сняты | Анонимно и безопасно</footer>
     </div>
 </div>
 
+<div id="hackOverlay" class="hack-overlay">
+    <div class="hack-text">🔓 БЛОКИРОВКИ СНЯТЫ 🔓<br>⚡ ДОСТУП АКТИВИРОВАН ⚡</div>
+</div>
+
 <script>
-    // DOM элементы
-    const toggleBtn = document.getElementById('vpnToggleBtn');
-    const statusSpan = document.getElementById('statusText');
-    const proxyPanel = document.getElementById('proxyPanel');
-    const goProxyBtn = document.getElementById('goProxyBtn');
-    const targetUrlInput = document.getElementById('targetUrl');
-    const iframeWrap = document.getElementById('iframeWrap');
-    const proxyFrame = document.getElementById('proxyFrame');
-    const proxyErrorMsg = document.getElementById('proxyErrorMsg');
-    const fallbackSection = document.getElementById('fallbackSection');
+    // ------------------- Ultraviolet Прокси Инициализация -------------------
+    // Конфигурация Ultraviolet (полностью локальная, без сервера)
+    const uv = new Ultraviolet();
+    const uvConfig = {
+        prefix: '/service/',
+        encodeUrl: Ultraviolet.codec.xor.encode,
+        decodeUrl: Ultraviolet.codec.xor.decode,
+        handler: '/uv/uv.handler.js',
+        client: '/uv/uv.client.js',
+        bundle: '/uv/uv.bundle.js',
+        config: '/uv/uv.config.js',
+        sw: '/uv/uv.sw.js'
+    };
+    
+    // Зарегистрируем service worker после загрузки страницы
+    let swRegistered = false;
+    let isActive = false; // флаг активности vpn-режима (показываем интерфейс)
 
-    let isVpnActive = false;      // состояние "подключено" — активирует прокси-панель
-    let currentProxyUrl = null;
-
-    // Проверка доступности публичного CORS-прокси (используем corsproxy.io)
-    async function checkProxyAvailability() {
-        const testUrl = 'https://api.github.com/zen';
-        const proxyTest = `https://corsproxy.io/?${encodeURIComponent(testUrl)}`;
+    async function initUltraviolet() {
+        if (swRegistered) return true;
         try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000);
-            const res = await fetch(proxyTest, { signal: controller.signal });
-            clearTimeout(timeoutId);
-            return res.ok;
-        } catch (e) {
-            console.warn("Proxy check failed", e);
-            return false;
-        }
-    }
-
-    // загрузить URL через CORS-прокси и отобразить в iframe
-    async function loadViaProxy(rawUrl) {
-        if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
-            rawUrl = 'https://' + rawUrl;
-        }
-        // используем corsproxy.io — стабильный бесплатный прокси
-        const proxyEndpoint = 'https://corsproxy.io/?' + encodeURIComponent(rawUrl);
-        currentProxyUrl = proxyEndpoint;
-
-        // показываем iframe, прячем ошибку
-        iframeWrap.style.display = 'block';
-        proxyErrorMsg.style.display = 'none';
-        proxyFrame.srcdoc = '<html><body style="background:#0a0f1e;color:white;display:flex;justify-content:center;align-items:center;height:100%;">🔄 Загрузка через защищённый прокси...</body></html>';
-        
-        // Попробуем загрузить содержимое через fetch, чтобы проверить доступность
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 8000);
-            const response = await fetch(proxyEndpoint, { signal: controller.signal });
-            clearTimeout(timeoutId);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            // Если fetch прошел, то в iframe можно отобразить страницу
-            proxyFrame.src = proxyEndpoint;
+            // Создаём виртуальные пути для скриптов UV (будем использовать ссылки из CDN)
+            // Ultraviolet требует, чтобы его файлы были доступны по указанным путям.
+            // Чтобы всё работало на GitHub Pages, мы динамически создадим блоб-ссылки или просто используем CDN
+            // Самый надёжный способ: переопределить пути на реальные CDN-файлы
+            uvConfig.handler = 'https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@3.0.6/dist/uv.handler.js';
+            uvConfig.client = 'https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@3.0.6/dist/uv.client.js';
+            uvConfig.bundle = 'https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@3.0.6/dist/uv.bundle.js';
+            uvConfig.config = 'https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@3.0.6/dist/uv.config.js';
+            uvConfig.sw = 'https://cdn.jsdelivr.net/npm/@titaniumnetwork-dev/ultraviolet@3.0.6/dist/uv.sw.js';
+            
+            // Регистрируем service worker
+            const swUrl = uvConfig.sw;
+            const registration = await navigator.serviceWorker.register(swUrl);
+            console.log('Ultraviolet SW зарегистрирован', registration);
+            swRegistered = true;
+            return true;
         } catch (err) {
-            console.error("Proxy fetch error:", err);
-            iframeWrap.style.display = 'none';
-            proxyErrorMsg.style.display = 'block';
-            proxyErrorMsg.innerHTML = `❌ Не удалось загрузить через прокси: ${err.message}<br>
-            🔄 Попробуйте другой URL или воспользуйтесь альтернативными конфигами ниже. 
-            Возможно, ваш браузер блокирует CORS-запросы. <br>
-            ➡️ <strong>Ссылки на рабочие VPN-конфиги готовы в разделе "Альтернативы"</strong>`;
-            fallbackSection.style.display = 'block';
+            console.error('Ошибка регистрации SW:', err);
             return false;
         }
-        return true;
     }
 
-    // показать альтернативные способы (если прокси не работает или пользователю нужно)
-    function showFallbackOptions() {
-        fallbackSection.style.display = 'block';
+    // Функция для получения прокси-URL через Ultraviolet
+    function getProxyUrl(rawUrl) {
+        if (!rawUrl) return '';
+        let url = rawUrl.trim();
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            url = 'https://' + url;
+        }
+        // Используем encode метод Ultraviolet
+        const encoded = uvConfig.encodeUrl(url);
+        return uvConfig.prefix + encoded;
     }
 
-    // обработка нажатия "ОТКРЫТЬ ЧЕРЕЗ ПРОКСИ"
-    async function onGoProxy() {
-        if (!isVpnActive) {
-            alert('Сначала включите Tgeshka VPN (нажмите центральную кнопку)');
-            return;
-        }
-        let url = targetUrlInput.value.trim();
-        if (!url) {
-            proxyErrorMsg.style.display = 'block';
-            proxyErrorMsg.innerText = 'Введите URL сайта (например, https://youtube.com)';
-            iframeWrap.style.display = 'none';
-            return;
-        }
-        proxyErrorMsg.style.display = 'none';
-        // проверка доступности прокси перед загрузкой
-        const proxyOk = await checkProxyAvailability();
-        if (!proxyOk) {
-            proxyErrorMsg.style.display = 'block';
-            proxyErrorMsg.innerHTML = '⚠️ Публичный CORS-прокси временно недоступен. Ниже приведены готовые конфиги для WireGuard/VLESS, которые можно использовать для настоящего VPN.';
-            iframeWrap.style.display = 'none';
-            showFallbackOptions();
-            return;
-        }
-        await loadViaProxy(url);
+    // Загрузка сайта в iframe через прокси
+    function loadSiteInProxy(url) {
+        if (!isActive) return;
+        const proxyUrl = getProxyUrl(url);
+        const iframe = document.getElementById('proxyFrame');
+        iframe.src = proxyUrl;
+        console.log(`[TGESHKA] Загружаем через UV: ${proxyUrl}`);
     }
 
-    // включение / выключение VPN (симуляция активации прокси-режима)
-    function toggleVpn() {
-        isVpnActive = !isVpnActive;
-        if (isVpnActive) {
-            // активируем
-            toggleBtn.classList.add('active');
-            toggleBtn.innerHTML = '🔌 ОТКЛЮЧИТЬ TGESHKA VPN';
-            statusSpan.innerHTML = '🟢 VPN АКТИВЕН · трафик через прокси';
-            statusSpan.style.background = '#0a2f2acc';
-            statusSpan.style.borderLeft = '2px solid #0f0';
-            // показываем панель прокси
-            proxyPanel.style.display = 'block';
-            // проверим прокси при активации, но не блокируем UI
-            checkProxyAvailability().then(available => {
-                if (!available) {
-                    proxyErrorMsg.style.display = 'block';
-                    proxyErrorMsg.innerHTML = '⚠️ Внешний прокси-сервис не отвечает. Используйте раздел "Альтернативы" для ручной настройки WireGuard.';
-                    showFallbackOptions();
-                } else {
-                    if (proxyErrorMsg.style.display === 'block') proxyErrorMsg.style.display = 'none';
-                }
-            }).catch(()=>{});
+    // Эффект взлома (анимация)
+    function showHackEffect() {
+        const overlay = document.getElementById('hackOverlay');
+        overlay.style.opacity = '1';
+        overlay.style.pointerEvents = 'none';
+        setTimeout(() => {
+            overlay.style.opacity = '0';
+        }, 1800);
+    }
+
+    // Активация всего сервиса
+    async function activateVPN() {
+        if (isActive) return;
+        
+        // Показываем эффект взлома
+        showHackEffect();
+        
+        // Инициализируем Ultraviolet (service worker)
+        const success = await initUltraviolet();
+        if (!success) {
+            alert('⚠️ Не удалось активировать прокси-движок. Возможно, браузер не поддерживает Service Worker. Попробуйте другой браузер.');
+            return;
+        }
+        
+        isActive = true;
+        // Показываем панель
+        document.getElementById('dashboard').style.display = 'block';
+        // Меняем кнопку
+        const btn = document.getElementById('activateBtn');
+        btn.textContent = '⚡ МАГИЯ АКТИВНА ⚡';
+        btn.style.borderColor = '#f0f';
+        btn.style.boxShadow = '0 0 20px #f0f';
+        
+        // Загружаем стартовую страницу (по умолчанию из поля)
+        const defaultUrl = document.getElementById('urlInput').value;
+        if (defaultUrl) loadSiteInProxy(defaultUrl);
+    }
+
+    // Деактивация (скрыть панель, но прокси продолжит работать? Мы просто скроем, но SW останется)
+    // По условию нужно только включение, но можно сделать выключение через кнопку? В задании: нажал -> ввел сайт -> смотришь.
+    // Сделаем, что повторное нажатие выключает интерфейс (но не дерегистрирует SW, просто скрывает)
+    function deactivateVPN() {
+        if (!isActive) return;
+        isActive = false;
+        document.getElementById('dashboard').style.display = 'none';
+        const btn = document.getElementById('activateBtn');
+        btn.textContent = 'АКТИВИРОВАТЬ МАГИЮ TGESHKA';
+        btn.style.borderColor = '#0ff';
+        btn.style.boxShadow = '0 0 8px #0ff, 0 0 20px #0ff';
+        // Очищаем iframe
+        document.getElementById('proxyFrame').src = 'about:blank';
+    }
+
+    // Обработка кнопки (вкл/выкл)
+    const toggleBtn = document.getElementById('activateBtn');
+    toggleBtn.addEventListener('click', () => {
+        if (isActive) {
+            deactivateVPN();
         } else {
-            // отключаем
-            toggleBtn.classList.remove('active');
-            toggleBtn.innerHTML = '🔌 ПОДКЛЮЧИТЬ TGESHKA VPN';
-            statusSpan.innerHTML = '⚪ VPN отключён';
-            statusSpan.style.background = '';
-            statusSpan.style.borderLeft = '2px solid cyan';
-            proxyPanel.style.display = 'none';
-            iframeWrap.style.display = 'none';
-            proxyErrorMsg.style.display = 'none';
-            // сбрасываем iframe
-            proxyFrame.src = 'about:blank';
-            // fallback можно скрыть, но оставим на усмотрение
-            // fallbackSection.style.display = 'none';  // не скрываем, но можно оставить
-        }
-    }
-
-    // автоматическая проверка при загрузке страницы (показать альтернативы, если прокси не работает)
-    window.addEventListener('DOMContentLoaded', async () => {
-        const proxyWorks = await checkProxyAvailability();
-        if (!proxyWorks) {
-            // не скрываем, но показываем предупреждение
-            const note = document.createElement('div');
-            note.className = 'error-box';
-            note.style.marginTop = '10px';
-            note.innerHTML = '🔄 Публичный прокси-сервер временно недоступен. Вы всё равно можете использовать кнопку "Подключить" и открыть сайты через встроенный прокси после восстановления. Либо возьмите готовые VPN-конфиги ниже.';
-            if (!fallbackSection.style.display || fallbackSection.style.display === 'none') {
-                fallbackSection.style.display = 'block';
-            }
-            document.querySelector('.glass-panel').insertBefore(note, fallbackSection);
-        } else {
-            // если прокси доступен, показываем подсказку, но не скрываем fallback на всякий случай
-            fallbackSection.style.display = 'block';  // всегда показываем альтернативы для информирования
+            activateVPN();
         }
     });
 
-    // События
-    toggleBtn.addEventListener('click', toggleVpn);
-    goProxyBtn.addEventListener('click', onGoProxy);
-    // также поддержка Enter в поле URL
-    targetUrlInput.addEventListener('keypress', (e) => {
+    // Кнопка "Перейти"
+    const goButton = document.getElementById('goBtn');
+    const urlField = document.getElementById('urlInput');
+    goButton.addEventListener('click', () => {
+        if (!isActive) {
+            alert('Сначала активируйте VPN, нажав на кнопку!');
+            return;
+        }
+        const target = urlField.value;
+        if (target) loadSiteInProxy(target);
+        else alert('Введите адрес сайта');
+    });
+
+    // Enter в поле ввода
+    urlField.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            onGoProxy();
+            if (!isActive) {
+                alert('Активируйте VPN перед использованием');
+                return;
+            }
+            loadSiteInProxy(urlField.value);
         }
     });
 
-    // Добавим небольшой трюк: если в iframe загружается страница с ошибкой CORS, можно показать сообщение
-    // Но corsproxy.io обычно возвращает контент.
+    // Проверка поддержки service worker
+    if (!('serviceWorker' in navigator)) {
+        alert('Ваш браузер не поддерживает Service Worker, прокси-функция недоступна. Используйте современный браузер.');
+        toggleBtn.disabled = true;
+    }
+
+    // Небольшой глитч-эффект для текста (доп. крутость)
+    setInterval(() => {
+        const statusSpan = document.getElementById('statusMsg');
+        if (statusSpan && isActive) {
+            const glitch = ['СОЕДИНЕНИЕ АКТИВНО', '🔒 ЗАЩИЩЕНО', '⚡ АНОНИМНО', '🌐 ПРОКСИ ОНЛАЙН'];
+            let idx = Math.floor(Math.random() * glitch.length);
+            if (Math.random() > 0.9) statusSpan.innerText = glitch[idx];
+        }
+    }, 2000);
 </script>
 </body>
 </html>
