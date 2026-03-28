@@ -69,9 +69,13 @@
             font-family: monospace;
         }
 
-        .error-badge {
-            color: #ffaa00;
-            background: #2c1e00;
+        .last-update {
+            font-size: 0.7rem;
+            color: #88ff88;
+            background: #1a2a1a;
+            padding: 4px 10px;
+            border-radius: 30px;
+            font-family: monospace;
         }
 
         .threat-panel {
@@ -179,46 +183,56 @@
             border-radius: 4px;
         }
 
+        /* Анимация пульсации для полигонов (свечение) */
         @keyframes threatPulse {
             0% {
-                fill-opacity: 0.6;
-                stroke-opacity: 0.9;
-                stroke-width: 2.5;
-            }
-            50% {
-                fill-opacity: 1;
-                stroke-opacity: 1;
-                stroke-width: 4;
-                filter: drop-shadow(0 0 3px #ff0000);
+                filter: drop-shadow(0 0 2px #ff0000) drop-shadow(0 0 4px #ff0000);
+                stroke-width: 2;
             }
             100% {
-                fill-opacity: 0.6;
-                stroke-opacity: 0.9;
-                stroke-width: 2.5;
+                filter: drop-shadow(0 0 12px #ff0000) drop-shadow(0 0 8px #ff6600);
+                stroke-width: 3.5;
             }
         }
 
         .pulse-geometry {
-            animation: threatPulse 0.9s ease-in-out infinite;
-            transition: fill 0.1s;
+            animation: threatPulse 0.9s ease-in-out infinite alternate;
+            transition: filter 0.2s;
         }
 
+        /* НЕОНОВЫЙ КРУГЛЫЙ МАРКЕР С ПУЛЬСАЦИЕЙ */
         .custom-warning-icon {
-            background: #e32;
+            background: #ff3333;
             border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 20px;
+            font-size: 22px;
             color: white;
-            border: 2px solid white;
-            box-shadow: 0 0 12px rgba(255,0,0,0.8);
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
             text-align: center;
             line-height: 1;
             font-family: monospace;
+            animation: markerPulse 1.5s infinite;
+        }
+
+        @keyframes markerPulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0.7);
+                transform: scale(1);
+            }
+            70% {
+                box-shadow: 0 0 0 12px rgba(255, 0, 0, 0);
+                transform: scale(1.05);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255, 0, 0, 0);
+                transform: scale(1);
+            }
         }
     </style>
 </head>
@@ -227,7 +241,10 @@
 
 <div class="status-bar">
     <span class="status-title">⚡ МОНИТОРИНГ: РАДАР ВРВ</span>
-    <span class="status-badge" id="updateStatus">🟢 ОБНОВЛЯЕТСЯ...</span>
+    <div style="display: flex; gap: 8px;">
+        <span class="status-badge" id="updateStatus">🟢 ОБНОВЛЯЕТСЯ...</span>
+        <span class="last-update" id="lastUpdateTime">—:—:—</span>
+    </div>
 </div>
 
 <div class="threat-panel" id="threatPanel">
@@ -279,20 +296,21 @@
     let activeMarkers = [];
     let currentHighlights = new Set();
 
+    // Новый стиль для опасного региона: полупрозрачная тёмная заливка + неоновое свечение (добавится через класс)
+    const alertStyle = {
+        color: "#ff6666",       // яркая обводка
+        weight: 3,
+        fillColor: "#330000",   // тёмно-красная заливка
+        fillOpacity: 0.35,
+        opacity: 1
+    };
+
     const defaultStyle = {
         color: "#666",
         weight: 1.5,
         fillColor: "#222",
         fillOpacity: 0.45,
         opacity: 0.7
-    };
-
-    const alertStyle = {
-        color: "#ff5555",
-        weight: 3,
-        fillColor: "#ff0000",
-        fillOpacity: 0.75,
-        opacity: 1
     };
 
     function initGeoJson() {
@@ -329,14 +347,16 @@
                 layer.setStyle(alertStyle);
                 currentHighlights.add(regionName);
                 const svgElem = layer._path;
-                if (svgElem && svgElem.classList) svgElem.classList.add('pulse-geometry');
+                if (svgElem && svgElem.classList) {
+                    svgElem.classList.add('pulse-geometry');
+                }
                 const centerCoord = regionCenters[regionName];
                 if (centerCoord) {
                     const warningIcon = L.divIcon({
                         className: 'custom-warning-icon',
                         html: '!',
-                        iconSize: [32, 32],
-                        popupAnchor: [0, -12]
+                        iconSize: [34, 34],
+                        popupAnchor: [0, -15]
                     });
                     const marker = L.marker(centerCoord, { icon: warningIcon }).addTo(map);
                     marker.bindTooltip(`⚠️ ${regionName} · УГРОЗА`, { sticky: true });
@@ -346,14 +366,13 @@
         });
     }
 
-    // ---------------------- 3. ПАРСИНГ ИСТОЧНИКА ----------------------------
+    // ---------------------- 3. ПАРСИНГ ИСТОЧНИКА С АНТИКЕШИРОВАНИЕМ ----------------------------
     const triggerKeywords = ["БПЛА", "Ракетная опасность", "Тревога", "Взрывы", "удар", "атака", "прилёт"];
     const targetRegions = ["Белгородская область", "Курская область", "Воронежская область", "Ставропольский край", "Харьковская область", "Сумская область", "Краснодарский край", "Ростовская область", "Киевская область"];
 
     function normalizeRegionName(text) {
         for (let reg of targetRegions) {
             if (text.includes(reg)) return reg;
-            // Дополнительные сокращения
             if (reg === "Белгородская область" && (text.includes("Белгород") || text.includes("Белгородская"))) return reg;
             if (reg === "Курская область" && (text.includes("Курск") || text.includes("Курская"))) return reg;
             if (reg === "Воронежская область" && (text.includes("Воронеж") || text.includes("Воронежская"))) return reg;
@@ -423,15 +442,17 @@
         ];
     }
 
-    // Улучшенный fetch с таймаутом и обработкой CORS через allorigins
+    // Добавляем timestamp к URL источника, чтобы обойти кеширование прокси
     async function fetchAlerts() {
         const statusSpan = document.getElementById('updateStatus');
         statusSpan.innerHTML = "🟡 ЗАПРОС...";
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 сек таймаут
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
 
         try {
-            const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent('https://max.ru/vrv_radar');
+            // Уникальный параметр t=Date.now() для принудительного обновления
+            const sourceUrl = 'https://max.ru/vrv_radar?t=' + Date.now();
+            const proxyUrl = 'https://api.allorigins.win/get?url=' + encodeURIComponent(sourceUrl);
             const response = await fetch(proxyUrl, { signal: controller.signal });
             clearTimeout(timeoutId);
 
@@ -445,17 +466,20 @@
             if (threats.length === 0) {
                 console.warn("Реальных угроз не найдено, используем демо-данные.");
                 threats = getDemoThreats();
-                statusSpan.innerHTML = "⚠️ ДЕМО-ДАННЫЕ (источник не содержит угроз)";
+                statusSpan.innerHTML = "⚠️ ДЕМО-ДАННЫЕ";
             } else {
-                statusSpan.innerHTML = `✅ ОБНОВЛЕНО ${new Date().toLocaleTimeString()}`;
+                statusSpan.innerHTML = `✅ ОБНОВЛЕНО`;
+                // обновляем время последнего успешного получения
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                document.getElementById('lastUpdateTime').innerText = timeStr;
             }
             return threats;
         } catch (err) {
             clearTimeout(timeoutId);
             console.error("Ошибка при загрузке данных:", err);
-            statusSpan.innerHTML = "❌ Ошибка связи с источником";
-            // Возвращаем демо-данные, чтобы интерфейс не был пустым
-            return getDemoThreats();
+            statusSpan.innerHTML = "❌ Ошибка связи";
+            return getDemoThreats(); // всё равно показываем демо, чтобы интерфейс работал
         }
     }
 
@@ -492,7 +516,6 @@
             }
         } catch (globalErr) {
             console.error("refreshMonitoring fatal:", globalErr);
-            document.getElementById('updateStatus').innerHTML = "⚠️ СБОЙ ОБНОВЛЕНИЯ";
         }
     }
 
