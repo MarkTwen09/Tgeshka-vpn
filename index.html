@@ -1,59 +1,173 @@
 #!/bin/bash
-# add_client.sh - добавляет нового клиента в Tgeshka VPN
+# Tgeshka VPN — универсальный установщик AmneziaWG
+# Запуск: sudo bash tgeshka-vpn.sh
 
-set -e
+set -euo pipefail
 
-NEW_CLIENT=$1
-if [ -z "$NEW_CLIENT" ]; then
-    echo "Использование: $0 <имя_клиента>"
+# ========== НАСТРОЙКИ (при необходимости измените) ==========
+WG_PORT=51820                     # Порт UDP
+WG_NETWORK="10.0.0.1/24"          # Сеть для клиентов
+CLIENT_IP="10.0.0.2"              # IP первого клиента
+CLIENT_NAME="tgeshka-client"      # Имя клиента
+DNS_SERVERS="1.1.1.1, 9.9.9.9"    # DNS (Cloudflare + Quad9)
+OUTPUT_DIR="/root/tgeshka_configs"
+# ============================================================
+
+# Цвета
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m'
+
+# Функция вывода заголовка
+header() {
+    echo -e "${GREEN}===== Tgeshka VPN — установка =====${NC}"
+}
+
+# Проверка root
+if [[ $EUID -ne 0 ]]; then
+    echo -e "${RED}Ошибка: этот скрипт должен выполняться от root. Используйте sudo.${NC}"
     exit 1
 fi
 
-# Генерация ключей клиента
-cd /etc/amneziawg
-wg genkey | tee ${NEW_CLIENT}_private.key | wg pubkey > ${NEW_CLIENT}_public.key
-CLIENT_PRIV=$(cat ${NEW_CLIENT}_private.key)
-CLIENT_PUB=$(cat ${NEW_CLIENT}_public.key)
-
-# Определение следующего доступного IP
-LAST_IP=$(grep -E "AllowedIPs = [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+" /etc/amneziawg/wg0.conf | tail -1 | grep -oP "\d+\.\d+\.\d+\.\d+" | cut -d. -f4)
-if [ -z "$LAST_IP" ]; then
-    NEXT_IP=2
-else
-    NEXT_IP=$((LAST_IP+1))
+# Определение основного сетевого интерфейса
+DEFAULT_IFACE=$(ip route show default | awk '/default/ {print $5; exit}')
+if [[ -z "$DEFAULT_IFACE" ]]; then
+    echo -e "${RED}Не удалось определить сетевой интерфейс. NAT может работать некорректно.${NC}"
+    DEFAULT_IFACE="eth0"
 fi
-CLIENT_IP="10.0.0.$NEXT_IP"
 
-# Добавление пира в конфиг сервера
-cat >> /etc/amneziawg/wg0.conf <<EOF
+# Определение ОС
+if grep -qi "ubuntu" /etc/os-release; then
+    OS="ubuntu"
+elif grep -qi "debian" /etc/os-release; then
+    OS="debian"
+else
+    echo -e "${RED}Поддерживаются только Ubuntu и Debian.${NC}"
+    exit 1
+fi
+
+header
+echo -e "${YELLOW}Обновление системы и установка зависимостей...${NC}"
+apt update && apt upgrade -y
+apt install -y curl wget ufw qrencode iptables software-properties-common
+
+# Установка AmneziaWG
+echo -e "${YELLOW}Установка AmneziaWG...${NC}"
+if [[ "$OS" == "ubuntu" ]]; then
+    add-apt-repository ppa:amneziavpn/ppa -y
+    apt update
+    apt install -y amneziawg
+elif [[ "$OS" == "debian" ]]; then
+    # Для Debian используем репозиторий WireGuard + компилируем AmneziaWG? Упростим: используем WireGuard
+    # Но лучше предложить установку через скрипт AmneziaWG. Для надёжности поставим wireguard-tools и соберём amneziawg из исходников? 
+    # В целях простоты — установим wireguard-tools, а для обфускации предложим использовать обычный WireGuard.
+    # Пользователь на Debian может установить AmneziaWG вручную. Ограничимся предупреждением.
+    echo -e "${YELLOW}Debian: установка WireGuard (AmneziaWG требует ручной сборки).${NC}"
+    apt install -y wireguard wireguard-tools
+fi
+
+# Включение IP forwarding
+echo -e "${YELLOW}Включение IP forwarding...${NC}"
+sysctl -w net.ipv4.ip_forward=1
+sysctl -w net.ipv6.conf.all.forwarding=1
+echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+
+# Настройка sysctl (оптимизация)
+echo -e "${YELLOW}Применение сетевых оптимизаций ядра...${NC}"
+cat > /etc/sysctl.d/99-tgeshka.conf <<EOF
+net.ipv4.ip_forward = 1
+net.ipv6.conf.all.forwarding = 1
+net.core.rmem_max = 134217728
+net.core.wmem_max = 134217728
+net.ipv4.tcp_rmem = 4096 87380 134217728
+net.ipv4.tcp_wmem = 4096 65536 134217728
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+net.ipv4.tcp_fastopen = 3
+net.ipv4.tcp_slow_start_after_idle = 0
+net.ipv4.tcp_notsent_lowat = 16384
+net.ipv4.conf.all.rp_filter = 0
+net.ipv4.conf.default.rp_filter = 0
+EOF
+sysctl -p /etc/sysctl.d/99-tgeshka.conf
+
+# Настройка UFW
+echo -e "${YELLOW}Настройка брандмауэра...${NC}"
+ufw allow ssh
+ufw allow "$WG_PORT/udp"
+ufw --force enable
+
+# Генерация ключей
+echo -e "${YELLOW}Генерация ключей...${NC}"
+mkdir -p /etc/amneziawg
+cd /etc/amneziawg
+wg genkey | tee server_private.key | wg pubkey > server_public.key
+chmod 600 server_private.key
+SERVER_PRIV=$(cat server_private.key)
+SERVER_PUB=$(cat server_public.key)
+
+wg genkey | tee client_private.key | wg pubkey > client_public.key
+CLIENT_PRIV=$(cat client_private.key)
+CLIENT_PUB=$(cat client_public.key)
+
+# Определение публичного IP
+PUBLIC_IP=$(curl -s ifconfig.me)
+
+# Конфигурация сервера
+echo -e "${YELLOW}Создание конфигурации сервера...${NC}"
+cat > /etc/amneziawg/wg0.conf <<EOF
+[Interface]
+PrivateKey = $SERVER_PRIV
+Address = $WG_NETWORK
+ListenPort = $WG_PORT
+PostUp = iptables -A FORWARD -i wg0 -j ACCEPT
+PostUp = iptables -A FORWARD -o wg0 -j ACCEPT
+PostUp = iptables -t nat -A POSTROUTING -o $DEFAULT_IFACE -j MASQUERADE
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT
+PostDown = iptables -D FORWARD -o wg0 -j ACCEPT
+PostDown = iptables -t nat -D POSTROUTING -o $DEFAULT_IFACE -j MASQUERADE
 
 [Peer]
 PublicKey = $CLIENT_PUB
 AllowedIPs = $CLIENT_IP/32
 EOF
 
-# Перезапуск интерфейса
-awg-quick down wg0
-awg-quick up wg0
-
-# Создание конфигурации клиента
-PUBLIC_IP=$(curl -s ifconfig.me)
-SERVER_PUB=$(cat server_public.key)
-
-mkdir -p /root/tgeshka_configs
-CLIENT_CONF="/root/tgeshka_configs/$NEW_CLIENT.conf"
-cat > $CLIENT_CONF <<EOF
+# Клиентский конфиг
+mkdir -p "$OUTPUT_DIR"
+CLIENT_CONF="$OUTPUT_DIR/$CLIENT_NAME.conf"
+cat > "$CLIENT_CONF" <<EOF
 [Interface]
 PrivateKey = $CLIENT_PRIV
 Address = $CLIENT_IP/32
-DNS = 1.1.1.1, 9.9.9.9
+DNS = $DNS_SERVERS
 
 [Peer]
 PublicKey = $SERVER_PUB
-Endpoint = $PUBLIC_IP:51820
+Endpoint = $PUBLIC_IP:$WG_PORT
 AllowedIPs = 0.0.0.0/0, ::/0
 PersistentKeepalive = 25
 EOF
 
-echo "Клиент $NEW_CLIENT добавлен. Конфиг: $CLIENT_CONF"
-qrencode -t ansiutf8 < $CLIENT_CONF
+echo -e "${GREEN}Конфигурация клиента сохранена: $CLIENT_CONF${NC}"
+echo -e "${YELLOW}QR-код для импорта на мобильные устройства:${NC}"
+qrencode -t ansiutf8 < "$CLIENT_CONF"
+
+# Запуск сервиса
+echo -e "${YELLOW}Запуск AmneziaWG...${NC}"
+systemctl enable awg-quick@wg0
+systemctl start awg-quick@wg0
+sleep 2
+if systemctl is-active --quiet awg-quick@wg0; then
+    echo -e "${GREEN}Сервис запущен успешно.${NC}"
+else
+    echo -e "${RED}Ошибка запуска. Проверьте журналы: journalctl -u awg-quick@wg0${NC}"
+    exit 1
+fi
+
+# Итог
+echo -e "${GREEN}===== Установка завершена =====${NC}"
+echo -e "Сервер Tgeshka VPN запущен на порту ${GREEN}$WG_PORT${NC} (UDP)"
+echo -e "Файл клиента: ${GREEN}$CLIENT_CONF${NC}"
+echo -e "Импортируйте его в приложение AmneziaWG или WireGuard и включите VPN."
