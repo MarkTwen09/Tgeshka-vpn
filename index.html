@@ -1,131 +1,427 @@
-#!/bin/bash
-# Tgeshka VPN — автоматическая установка сервера AmneziaWG
-# Запуск: curl -sSL https://raw.githubusercontent.com/ваш-аккаунт/tgeshka-vpn/main/setup.sh | sudo bash
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Tgeshka VPN — обход блокировок одним кликом</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-set -euo pipefail
+        body {
+            background: radial-gradient(circle at 20% 30%, #0b0f1c, #03050b);
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            color: #eef5ff;
+        }
 
-# Настройки
-WG_PORT=51820
-WG_NETWORK="10.0.0.1/24"
-CLIENT_IP="10.0.0.2"
-CLIENT_NAME="tgeshka-client"
-DNS_SERVERS="1.1.1.1, 9.9.9.9"
-OUTPUT_DIR="/root/tgeshka_configs"
+        /* футуристический стеклянный контейнер */
+        .glass-panel {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(12, 20, 35, 0.65);
+            backdrop-filter: blur(16px);
+            border-radius: 3rem;
+            padding: 2rem 1.8rem;
+            border: 1px solid rgba(0, 255, 255, 0.25);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(0, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m'
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #aafff0, #2ad4ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.25rem;
+        }
 
-# Проверка root
-if [[ $EUID -ne 0 ]]; then
-    echo -e "${RED}Запустите с sudo: curl -sSL <ссылка> | sudo bash${NC}"
-    exit 1
-fi
+        .sub {
+            text-align: center;
+            opacity: 0.75;
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px dashed rgba(100, 200, 255, 0.3);
+            display: inline-block;
+            width: auto;
+            margin-left: auto;
+            margin-right: auto;
+            padding-bottom: 0.5rem;
+        }
 
-# Определение интерфейса
-DEFAULT_IFACE=$(ip route show default | awk '/default/ {print $5; exit}')
-[[ -z "$DEFAULT_IFACE" ]] && DEFAULT_IFACE="eth0"
+        /* неоновая кнопка */
+        .neon-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            border: none;
+            padding: 1.2rem 1rem;
+            font-size: 1.6rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: white;
+            border-radius: 80px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 12px #00a6ff, 0 0 5px #00aaff;
+            margin: 1rem 0 1.5rem 0;
+            font-family: inherit;
+        }
 
-echo -e "${GREEN}===== Tgeshka VPN — установка =====${NC}"
+        .neon-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px #00ccff, 0 0 10px #0088ff;
+            background: linear-gradient(90deg, #1ad0ff, #0080ff);
+        }
 
-# Обновление и зависимости
-apt update && apt upgrade -y
-apt install -y curl wget ufw qrencode iptables software-properties-common
+        .neon-btn.active {
+            background: linear-gradient(90deg, #f0a, #c05);
+            box-shadow: 0 0 20px #ff44aa, 0 0 8px #ff2288;
+        }
 
-# Установка AmneziaWG (для Ubuntu) или WireGuard (для Debian)
-if grep -qi "ubuntu" /etc/os-release; then
-    add-apt-repository ppa:amneziavpn/ppa -y
-    apt update
-    apt install -y amneziawg
-else
-    apt install -y wireguard wireguard-tools
-    echo -e "${YELLOW}Установлен WireGuard (на Debian AmneziaWG требует ручной сборки).${NC}"
-fi
+        .status-badge {
+            text-align: center;
+            font-size: 0.85rem;
+            background: rgba(0, 30, 40, 0.7);
+            border-radius: 60px;
+            padding: 0.4rem 1rem;
+            display: inline-block;
+            width: auto;
+            margin: 0 auto 1.5rem auto;
+            backdrop-filter: blur(4px);
+            border-left: 2px solid cyan;
+        }
 
-# Включение IP forwarding
-sysctl -w net.ipv4.ip_forward=1
-sysctl -w net.ipv6.conf.all.forwarding=1
-echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
-echo "net.ipv6.conf.all.forwarding=1" >> /etc/sysctl.conf
+        .vpn-panel {
+            margin-top: 1rem;
+            transition: all 0.3s;
+        }
 
-# Оптимизация sysctl (BBR, большие буферы)
-cat > /etc/sysctl.d/99-tgeshka.conf <<EOF
-net.ipv4.ip_forward = 1
-net.ipv6.conf.all.forwarding = 1
-net.core.rmem_max = 134217728
-net.core.wmem_max = 134217728
-net.ipv4.tcp_rmem = 4096 87380 134217728
-net.ipv4.tcp_wmem = 4096 65536 134217728
-net.core.default_qdisc = fq
-net.ipv4.tcp_congestion_control = bbr
-net.ipv4.tcp_fastopen = 3
-net.ipv4.tcp_slow_start_after_idle = 0
-net.ipv4.tcp_notsent_lowat = 16384
-net.ipv4.conf.all.rp_filter = 0
-net.ipv4.conf.default.rp_filter = 0
-EOF
-sysctl -p /etc/sysctl.d/99-tgeshka.conf
+        .url-input-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 1rem 0;
+        }
 
-# Настройка UFW
-ufw allow ssh
-ufw allow "$WG_PORT/udp"
-ufw --force enable
+        .url-input-group input {
+            flex: 1;
+            padding: 14px 18px;
+            border-radius: 60px;
+            border: 1px solid #2c5a7a;
+            background: #0a0f1ecc;
+            color: white;
+            font-size: 1rem;
+            outline: none;
+            font-family: monospace;
+        }
 
-# Генерация ключей
-mkdir -p /etc/amneziawg
-cd /etc/amneziawg
-wg genkey | tee server_private.key | wg pubkey > server_public.key
-chmod 600 server_private.key
-SERVER_PRIV=$(cat server_private.key)
-SERVER_PUB=$(cat server_public.key)
+        .url-input-group input:focus {
+            border-color: #0cf;
+            box-shadow: 0 0 8px #0cf;
+        }
 
-wg genkey | tee client_private.key | wg pubkey > client_public.key
-CLIENT_PRIV=$(cat client_private.key)
-CLIENT_PUB=$(cat client_public.key)
+        .proxy-btn {
+            background: #1f3a4b;
+            border: none;
+            border-radius: 60px;
+            padding: 0 28px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 1rem;
+        }
 
-PUBLIC_IP=$(curl -s ifconfig.me)
+        .proxy-btn:hover {
+            background: #2a5f7a;
+        }
 
-# Конфигурация сервера
-cat > /etc/amneziawg/wg0.conf <<EOF
-[Interface]
-PrivateKey = $SERVER_PRIV
-Address = $WG_NETWORK
-ListenPort = $WG_PORT
-PostUp = iptables -A FORWARD -i wg0 -j ACCEPT
-PostUp = iptables -A FORWARD -o wg0 -j ACCEPT
-PostUp = iptables -t nat -A POSTROUTING -o $DEFAULT_IFACE -j MASQUERADE
-PostDown = iptables -D FORWARD -i wg0 -j ACCEPT
-PostDown = iptables -D FORWARD -o wg0 -j ACCEPT
-PostDown = iptables -t nat -D POSTROUTING -o $DEFAULT_IFACE -j MASQUERADE
+        .iframe-container {
+            margin-top: 1.5rem;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(0, 255, 255, 0.4);
+            background: #00000066;
+            transition: 0.2s;
+        }
 
-[Peer]
-PublicKey = $CLIENT_PUB
-AllowedIPs = $CLIENT_IP/32
-EOF
+        iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+            background: #fff;
+        }
 
-# Конфигурация клиента
-mkdir -p "$OUTPUT_DIR"
-CLIENT_CONF="$OUTPUT_DIR/$CLIENT_NAME.conf"
-cat > "$CLIENT_CONF" <<EOF
-[Interface]
-PrivateKey = $CLIENT_PRIV
-Address = $CLIENT_IP/32
-DNS = $DNS_SERVERS
+        .error-box {
+            background: #2a0f1fcc;
+            border-left: 4px solid #ff3366;
+            padding: 1rem;
+            border-radius: 20px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+        }
 
-[Peer]
-PublicKey = $SERVER_PUB
-Endpoint = $PUBLIC_IP:$WG_PORT
-AllowedIPs = 0.0.0.0/0, ::/0
-PersistentKeepalive = 25
-EOF
+        .alt-links {
+            margin-top: 1.5rem;
+            background: #07121eaa;
+            border-radius: 24px;
+            padding: 1rem;
+            font-size: 0.85rem;
+        }
 
-# Запуск сервиса
-systemctl enable awg-quick@wg0
-systemctl start awg-quick@wg0
+        .alt-links a {
+            color: #7df9ff;
+            text-decoration: none;
+            border-bottom: 1px dashed;
+        }
 
-echo -e "${GREEN}===== Установка завершена =====${NC}"
-echo -e "Сервер запущен на порту ${GREEN}$WG_PORT${NC} (UDP)"
-echo -e "Конфиг клиента: ${GREEN}$CLIENT_CONF${NC}"
-echo -e "QR-код для мобильных устройств:"
-qrencode -t ansiutf8 < "$CLIENT_CONF"
+        .footer-note {
+            text-align: center;
+            font-size: 0.7rem;
+            margin-top: 2rem;
+            opacity: 0.6;
+        }
+
+        hr {
+            border-color: #2a4860;
+            margin: 1rem 0;
+        }
+        .flex-center {
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+<div class="glass-panel" id="app">
+    <h1>⚡ TGESHKA VPN ⚡</h1>
+    <div class="flex-center"><div class="sub">невидимость · скорость · свобода</div></div>
+
+    <!-- центральная кнопка -->
+    <button id="vpnToggleBtn" class="neon-btn">🔌 ПОДКЛЮЧИТЬ TGESHKA VPN</button>
+
+    <div id="vpnStatusArea" class="flex-center">
+        <div class="status-badge" id="statusText">⚪ VPN отключён</div>
+    </div>
+
+    <!-- панель прокси, появляется после "подключения" -->
+    <div id="proxyPanel" style="display: none;" class="vpn-panel">
+        <div class="url-input-group">
+            <input type="text" id="targetUrl" placeholder="https://example.com или любой заблокированный сайт" value="https://www.youtube.com">
+            <button id="goProxyBtn" class="proxy-btn">🌐 ОТКРЫТЬ ЧЕРЕЗ ПРОКСИ</button>
+        </div>
+        <div id="iframeWrap" class="iframe-container" style="display: none;">
+            <iframe id="proxyFrame" title="Анонимный просмотр через прокси"></iframe>
+        </div>
+        <div id="proxyErrorMsg" class="error-box" style="display: none;"></div>
+    </div>
+
+    <!-- раздел с альтернативными решениями (на случай блокировки прокси) -->
+    <div id="fallbackSection" class="alt-links" style="display: none;">
+        <div style="font-weight: bold; margin-bottom: 8px;">⚠️ Автономный прокси временно недоступен? Используйте готовые конфиги:</div>
+        <ul style="margin-left: 1.2rem;">
+            <li>📱 <strong>WireGuard / AmneziaWG</strong> — бесплатные серверы: 
+                <a href="https://www.vpngate.net/en/" target="_blank">VPN Gate</a> | 
+                <a href="https://www.wireguard.com/install/" target="_blank">Настройка WG</a>
+            </li>
+            <li>🚀 <strong>VLESS + Reality (Xray)</strong> — публичные конфиги: 
+                <a href="https://github.com/yebekhe/TelegramV2rayCollector" target="_blank">TelegramV2rayCollector</a>
+            </li>
+            <li>🔑 <strong>Быстрая инструкция:</strong> скачайте клиент AmneziaWG, импортируйте любой конфиг из репозитория и включите туннель.</li>
+        </ul>
+        <div style="margin-top: 10px; background:#00000055; border-radius: 18px; padding: 8px;">
+            💡 <strong>Совет:</strong> если CORS-прокси блокирует доступ, попробуйте вручную вставить URL в сервис <a href="https://cors-anywhere.herokuapp.com/" target="_blank">cors-anywhere</a> или использовать режим инкогнито.
+        </div>
+    </div>
+
+    <div class="footer-note">
+        Tgeshka VPN — встроенный веб-прокси для обхода блокировок. Реальное VPN-подключение не требуется.
+    </div>
+</div>
+
+<script>
+    // DOM элементы
+    const toggleBtn = document.getElementById('vpnToggleBtn');
+    const statusSpan = document.getElementById('statusText');
+    const proxyPanel = document.getElementById('proxyPanel');
+    const goProxyBtn = document.getElementById('goProxyBtn');
+    const targetUrlInput = document.getElementById('targetUrl');
+    const iframeWrap = document.getElementById('iframeWrap');
+    const proxyFrame = document.getElementById('proxyFrame');
+    const proxyErrorMsg = document.getElementById('proxyErrorMsg');
+    const fallbackSection = document.getElementById('fallbackSection');
+
+    let isVpnActive = false;      // состояние "подключено" — активирует прокси-панель
+    let currentProxyUrl = null;
+
+    // Проверка доступности публичного CORS-прокси (используем corsproxy.io)
+    async function checkProxyAvailability() {
+        const testUrl = 'https://api.github.com/zen';
+        const proxyTest = `https://corsproxy.io/?${encodeURIComponent(testUrl)}`;
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            const res = await fetch(proxyTest, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            return res.ok;
+        } catch (e) {
+            console.warn("Proxy check failed", e);
+            return false;
+        }
+    }
+
+    // загрузить URL через CORS-прокси и отобразить в iframe
+    async function loadViaProxy(rawUrl) {
+        if (!rawUrl.startsWith('http://') && !rawUrl.startsWith('https://')) {
+            rawUrl = 'https://' + rawUrl;
+        }
+        // используем corsproxy.io — стабильный бесплатный прокси
+        const proxyEndpoint = 'https://corsproxy.io/?' + encodeURIComponent(rawUrl);
+        currentProxyUrl = proxyEndpoint;
+
+        // показываем iframe, прячем ошибку
+        iframeWrap.style.display = 'block';
+        proxyErrorMsg.style.display = 'none';
+        proxyFrame.srcdoc = '<html><body style="background:#0a0f1e;color:white;display:flex;justify-content:center;align-items:center;height:100%;">🔄 Загрузка через защищённый прокси...</body></html>';
+        
+        // Попробуем загрузить содержимое через fetch, чтобы проверить доступность
+        try {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 8000);
+            const response = await fetch(proxyEndpoint, { signal: controller.signal });
+            clearTimeout(timeoutId);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            // Если fetch прошел, то в iframe можно отобразить страницу
+            proxyFrame.src = proxyEndpoint;
+        } catch (err) {
+            console.error("Proxy fetch error:", err);
+            iframeWrap.style.display = 'none';
+            proxyErrorMsg.style.display = 'block';
+            proxyErrorMsg.innerHTML = `❌ Не удалось загрузить через прокси: ${err.message}<br>
+            🔄 Попробуйте другой URL или воспользуйтесь альтернативными конфигами ниже. 
+            Возможно, ваш браузер блокирует CORS-запросы. <br>
+            ➡️ <strong>Ссылки на рабочие VPN-конфиги готовы в разделе "Альтернативы"</strong>`;
+            fallbackSection.style.display = 'block';
+            return false;
+        }
+        return true;
+    }
+
+    // показать альтернативные способы (если прокси не работает или пользователю нужно)
+    function showFallbackOptions() {
+        fallbackSection.style.display = 'block';
+    }
+
+    // обработка нажатия "ОТКРЫТЬ ЧЕРЕЗ ПРОКСИ"
+    async function onGoProxy() {
+        if (!isVpnActive) {
+            alert('Сначала включите Tgeshka VPN (нажмите центральную кнопку)');
+            return;
+        }
+        let url = targetUrlInput.value.trim();
+        if (!url) {
+            proxyErrorMsg.style.display = 'block';
+            proxyErrorMsg.innerText = 'Введите URL сайта (например, https://youtube.com)';
+            iframeWrap.style.display = 'none';
+            return;
+        }
+        proxyErrorMsg.style.display = 'none';
+        // проверка доступности прокси перед загрузкой
+        const proxyOk = await checkProxyAvailability();
+        if (!proxyOk) {
+            proxyErrorMsg.style.display = 'block';
+            proxyErrorMsg.innerHTML = '⚠️ Публичный CORS-прокси временно недоступен. Ниже приведены готовые конфиги для WireGuard/VLESS, которые можно использовать для настоящего VPN.';
+            iframeWrap.style.display = 'none';
+            showFallbackOptions();
+            return;
+        }
+        await loadViaProxy(url);
+    }
+
+    // включение / выключение VPN (симуляция активации прокси-режима)
+    function toggleVpn() {
+        isVpnActive = !isVpnActive;
+        if (isVpnActive) {
+            // активируем
+            toggleBtn.classList.add('active');
+            toggleBtn.innerHTML = '🔌 ОТКЛЮЧИТЬ TGESHKA VPN';
+            statusSpan.innerHTML = '🟢 VPN АКТИВЕН · трафик через прокси';
+            statusSpan.style.background = '#0a2f2acc';
+            statusSpan.style.borderLeft = '2px solid #0f0';
+            // показываем панель прокси
+            proxyPanel.style.display = 'block';
+            // проверим прокси при активации, но не блокируем UI
+            checkProxyAvailability().then(available => {
+                if (!available) {
+                    proxyErrorMsg.style.display = 'block';
+                    proxyErrorMsg.innerHTML = '⚠️ Внешний прокси-сервис не отвечает. Используйте раздел "Альтернативы" для ручной настройки WireGuard.';
+                    showFallbackOptions();
+                } else {
+                    if (proxyErrorMsg.style.display === 'block') proxyErrorMsg.style.display = 'none';
+                }
+            }).catch(()=>{});
+        } else {
+            // отключаем
+            toggleBtn.classList.remove('active');
+            toggleBtn.innerHTML = '🔌 ПОДКЛЮЧИТЬ TGESHKA VPN';
+            statusSpan.innerHTML = '⚪ VPN отключён';
+            statusSpan.style.background = '';
+            statusSpan.style.borderLeft = '2px solid cyan';
+            proxyPanel.style.display = 'none';
+            iframeWrap.style.display = 'none';
+            proxyErrorMsg.style.display = 'none';
+            // сбрасываем iframe
+            proxyFrame.src = 'about:blank';
+            // fallback можно скрыть, но оставим на усмотрение
+            // fallbackSection.style.display = 'none';  // не скрываем, но можно оставить
+        }
+    }
+
+    // автоматическая проверка при загрузке страницы (показать альтернативы, если прокси не работает)
+    window.addEventListener('DOMContentLoaded', async () => {
+        const proxyWorks = await checkProxyAvailability();
+        if (!proxyWorks) {
+            // не скрываем, но показываем предупреждение
+            const note = document.createElement('div');
+            note.className = 'error-box';
+            note.style.marginTop = '10px';
+            note.innerHTML = '🔄 Публичный прокси-сервер временно недоступен. Вы всё равно можете использовать кнопку "Подключить" и открыть сайты через встроенный прокси после восстановления. Либо возьмите готовые VPN-конфиги ниже.';
+            if (!fallbackSection.style.display || fallbackSection.style.display === 'none') {
+                fallbackSection.style.display = 'block';
+            }
+            document.querySelector('.glass-panel').insertBefore(note, fallbackSection);
+        } else {
+            // если прокси доступен, показываем подсказку, но не скрываем fallback на всякий случай
+            fallbackSection.style.display = 'block';  // всегда показываем альтернативы для информирования
+        }
+    });
+
+    // События
+    toggleBtn.addEventListener('click', toggleVpn);
+    goProxyBtn.addEventListener('click', onGoProxy);
+    // также поддержка Enter в поле URL
+    targetUrlInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            onGoProxy();
+        }
+    });
+
+    // Добавим небольшой трюк: если в iframe загружается страница с ошибкой CORS, можно показать сообщение
+    // Но corsproxy.io обычно возвращает контент.
+</script>
+</body>
+</html>
