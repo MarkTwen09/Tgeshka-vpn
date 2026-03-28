@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>РАДАР ВРВ | Мониторинг угроз (Telegram)</title>
-    <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -14,7 +13,7 @@
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             background: #000;
             overflow: hidden;
             height: 100vh;
@@ -31,14 +30,13 @@
             top: 0;
             left: 0;
             right: 0;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(0,0,0,0.85);
             backdrop-filter: blur(12px);
             z-index: 1000;
             padding: 12px 16px;
-            border-bottom: 1px solid rgba(255, 50, 50, 0.4);
+            border-bottom: 1px solid rgba(255,50,50,0.4);
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
             flex-wrap: wrap;
             gap: 8px;
         }
@@ -50,21 +48,17 @@
             padding: 4px 10px;
             border-radius: 40px;
         }
-        .status-badge {
+        .status-badge, .last-update {
             font-size: 0.75rem;
-            color: #ddd;
             background: #1a1a1a;
             padding: 4px 12px;
             border-radius: 30px;
             font-family: monospace;
+            color: #ddd;
         }
         .last-update {
-            font-size: 0.7rem;
             color: #88ff88;
             background: #1a2a1a;
-            padding: 4px 10px;
-            border-radius: 30px;
-            font-family: monospace;
         }
         .threat-panel {
             position: fixed;
@@ -72,14 +66,13 @@
             left: 12px;
             right: 12px;
             max-height: 35%;
-            background: rgba(10, 10, 15, 0.92);
+            background: rgba(10,10,15,0.92);
             backdrop-filter: blur(16px);
             border-radius: 28px;
-            border: 1px solid rgba(255, 60, 60, 0.5);
+            border: 1px solid rgba(255,60,60,0.5);
             z-index: 1000;
             padding: 14px 12px;
             overflow-y: auto;
-            font-size: 0.85rem;
         }
         .threat-panel h3 {
             color: #ff5e5e;
@@ -95,7 +88,7 @@
             gap: 10px;
         }
         .threat-item {
-            background: rgba(25, 25, 35, 0.8);
+            background: rgba(25,25,35,0.8);
             border-radius: 20px;
             padding: 10px 12px;
             border-left: 4px solid #ff4444;
@@ -112,7 +105,6 @@
             padding: 2px 8px;
             border-radius: 20px;
             font-size: 0.7rem;
-            color: #ffaa88;
         }
         .threat-message {
             color: #e0e0e0;
@@ -129,7 +121,7 @@
             position: fixed;
             bottom: 20px;
             right: 12px;
-            max-width: 300px;
+            max-width: 320px;
             background: rgba(0,0,0,0.85);
             backdrop-filter: blur(8px);
             border-radius: 12px;
@@ -148,18 +140,31 @@
             word-break: break-word;
         }
         @media (min-width: 600px) {
-            .threat-panel { max-width: 320px; right: auto; left: 16px; bottom: 20px; max-height: 50%; }
-            .log-panel { bottom: 20px; right: 20px; }
+            .threat-panel {
+                max-width: 320px;
+                right: auto;
+                left: 16px;
+                bottom: 20px;
+                max-height: 50%;
+            }
+            .log-panel {
+                bottom: 20px;
+                right: 20px;
+            }
         }
         /* Анимация свечения для опасных регионов */
         @keyframes redGlow {
-            0% { filter: drop-shadow(0 0 2px red) drop-shadow(0 0 4px #ff4444); }
-            100% { filter: drop-shadow(0 0 12px red) drop-shadow(0 0 8px #ff6666); }
+            0% {
+                filter: drop-shadow(0 0 2px red) drop-shadow(0 0 4px #ff4444);
+            }
+            100% {
+                filter: drop-shadow(0 0 12px red) drop-shadow(0 0 8px #ff6666);
+            }
         }
         .danger-glow {
             animation: redGlow 1s ease-in-out infinite alternate;
         }
-        /* Маркер */
+        /* Маркер с восклицательным знаком */
         .custom-warning-icon {
             background: #ff3333;
             border-radius: 50%;
@@ -176,9 +181,18 @@
             animation: markerPulse 1.5s infinite;
         }
         @keyframes markerPulse {
-            0% { box-shadow: 0 0 0 0 rgba(255,0,0,0.7); transform: scale(1); }
-            70% { box-shadow: 0 0 0 12px rgba(255,0,0,0); transform: scale(1.05); }
-            100% { box-shadow: 0 0 0 0 rgba(255,0,0,0); transform: scale(1); }
+            0% {
+                box-shadow: 0 0 0 0 rgba(255,0,0,0.7);
+                transform: scale(1);
+            }
+            70% {
+                box-shadow: 0 0 0 12px rgba(255,0,0,0);
+                transform: scale(1.05);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(255,0,0,0);
+                transform: scale(1);
+            }
         }
     </style>
 </head>
@@ -195,13 +209,11 @@
     <h3>⚠️ АКТИВНЫЕ УГРОЗЫ</h3>
     <ul class="threat-list" id="threatList"><li class="empty-list">Нет активных тревог</li></ul>
 </div>
-<div class="log-panel" id="logPanel">
-    <div>📡 Инициализация...</div>
-</div>
+<div class="log-panel" id="logPanel"><div>📡 Запуск...</div></div>
 
 <script>
-    // ---------- 1. КАРТА ----------
-    const map = L.map('map').setView([54.5, 37.5], 6);
+    // ========== 1. КАРТА ==========
+    const map = L.map('map').setView([54.5, 45.0], 5);
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a> &copy; CartoDB',
         subdomains: 'abcd',
@@ -209,29 +221,13 @@
         maxZoom: 10
     }).addTo(map);
 
-    // ---------- 2. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ----------
-    let geoJsonLayer;               // слой GeoJSON (объединённый)
-    let regionLayers = new Map();   // полное название региона -> слой Leaflet
-    let regionCenters = new Map();  // центр региона для маркеров
-    let activeMarkers = [];         // маркеры активных угроз
-    let activeThreats = new Map();  // регион -> { message, time }
+    // ========== 2. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ==========
+    let geoJsonLayer;
+    let regionLayers = new Map();   // имя -> слой Leaflet
+    let regionCenters = new Map();  // имя -> координаты центра (для маркеров)
+    let activeMarkers = [];
+    let activeThreats = new Map();   // имя -> { message, time }
 
-    // Словарь соответствия: ключевые слова (из сообщений) -> полное название региона (как в GeoJSON)
-    // Будет дополняться после загрузки GeoJSON, но базовые варианты зададим здесь
-    const regionMapping = new Map([
-        ["Белгород", "Белгородская область"],
-        ["Курск", "Курская область"],
-        ["Воронеж", "Воронежская область"],
-        ["Ростов", "Ростовская область"],
-        ["Брянск", "Брянская область"],
-        ["Ставрополь", "Ставропольский край"],
-        ["Краснодар", "Краснодарский край"],
-        ["Харьков", "Харьковская область"],
-        ["Сумы", "Сумская область"],
-        ["Киев", "Киевская область"]
-    ]);
-
-    // Стили
     const defaultStyle = {
         color: "#666",
         weight: 1.5,
@@ -247,93 +243,135 @@
         opacity: 1
     };
 
-    // ---------- 3. ЛОГИРОВАНИЕ ----------
+    // ========== 3. ВСТРОЕННЫЕ ДАННЫЕ РЕГИОНОВ ==========
+    // Каждый регион: полное имя, массив алиасов (ключевые слова), приблизительный прямоугольник [minLng, minLat, maxLng, maxLat]
+    const regionsData = [
+        // ---- Центральный федеральный округ РФ ----
+        { name: "Белгородская область", aliases: ["Белгород","Белгородская","Белгородчина"], bbox: [35.6,50.0,37.2,51.3] },
+        { name: "Курская область", aliases: ["Курск","Курская"], bbox: [34.5,51.0,36.3,52.0] },
+        { name: "Воронежская область", aliases: ["Воронеж","Воронежская"], bbox: [38.5,49.7,41.0,51.5] },
+        { name: "Ростовская область", aliases: ["Ростов","Ростовская"], bbox: [38.5,46.5,41.5,49.0] },
+        { name: "Брянская область", aliases: ["Брянск","Брянская"], bbox: [32.5,52.0,34.5,53.5] },
+        { name: "Липецкая область", aliases: ["Липецк","Липецкая"], bbox: [37.8,51.8,40.5,53.2] },
+        { name: "Тамбовская область", aliases: ["Тамбов","Тамбовская"], bbox: [40.0,51.5,42.5,53.5] },
+        { name: "Орловская область", aliases: ["Орел","Орловская"], bbox: [34.8,52.0,37.5,53.2] },
+        { name: "Калужская область", aliases: ["Калуга","Калужская"], bbox: [34.0,53.5,37.0,55.0] },
+        { name: "Тульская область", aliases: ["Тула","Тульская"], bbox: [36.0,53.5,38.5,54.8] },
+        { name: "Рязанская область", aliases: ["Рязань","Рязанская"], bbox: [38.5,53.5,41.5,55.2] },
+        { name: "Московская область", aliases: ["Москва","Московская","Подмосковье"], bbox: [35.5,54.5,39.5,56.5] },
+        { name: "Владимирская область", aliases: ["Владимир","Владимирская"], bbox: [38.5,55.0,41.5,56.5] },
+        { name: "Ивановская область", aliases: ["Иваново","Ивановская"], bbox: [39.5,56.5,42.5,57.8] },
+        { name: "Ярославская область", aliases: ["Ярославль","Ярославская"], bbox: [37.5,56.5,40.5,58.5] },
+        { name: "Костромская область", aliases: ["Кострома","Костромская"], bbox: [40.0,57.5,44.5,59.0] },
+        { name: "Тверская область", aliases: ["Тверь","Тверская"], bbox: [31.0,56.0,36.5,58.5] },
+        { name: "Смоленская область", aliases: ["Смоленск","Смоленская"], bbox: [30.5,53.5,34.5,55.8] },
+        // ---- Южный и Северо-Кавказский ----
+        { name: "Краснодарский край", aliases: ["Краснодар","Краснодарский","Кубань"], bbox: [36.5,44.0,41.5,47.0] },
+        { name: "Ставропольский край", aliases: ["Ставрополь","Ставропольский","Ставрополье","Невинномысск"], bbox: [41.0,44.0,45.5,46.0] },
+        { name: "Республика Крым", aliases: ["Крым"], bbox: [33.0,44.5,36.0,46.0] },
+        { name: "Адыгея", aliases: ["Адыгея","Майкоп"], bbox: [38.5,44.5,40.5,45.5] },
+        { name: "Ростовская область", aliases: ["Ростов","Ростовская"], bbox: [38.5,46.5,41.5,49.0] }, // уже есть, но продублируем для порядка
+        // ---- Приволжский ----
+        { name: "Нижегородская область", aliases: ["Нижний Новгород","Нижегородская"], bbox: [42.0,54.5,46.5,57.5] },
+        { name: "Самарская область", aliases: ["Самара","Самарская"], bbox: [47.5,51.5,52.0,54.5] },
+        { name: "Саратовская область", aliases: ["Саратов","Саратовская"], bbox: [42.5,49.5,49.5,52.5] },
+        { name: "Волгоградская область", aliases: ["Волгоград","Волгоградская"], bbox: [41.0,47.0,47.0,51.0] },
+        { name: "Ульяновская область", aliases: ["Ульяновск","Ульяновская"], bbox: [46.0,52.5,50.0,54.5] },
+        { name: "Пензенская область", aliases: ["Пенза","Пензенская"], bbox: [42.5,52.5,46.5,54.0] },
+        // ---- Урал и Сибирь (основные) ----
+        { name: "Свердловская область", aliases: ["Екатеринбург","Свердловская"], bbox: [59.0,56.0,64.0,61.0] },
+        { name: "Челябинская область", aliases: ["Челябинск","Челябинская"], bbox: [57.0,52.5,62.0,56.0] },
+        { name: "Тюменская область", aliases: ["Тюмень","Тюменская"], bbox: [64.0,55.5,72.0,59.0] },
+        { name: "Новосибирская область", aliases: ["Новосибирск","Новосибирская"], bbox: [75.0,53.5,84.0,57.0] },
+        { name: "Омская область", aliases: ["Омск","Омская"], bbox: [70.0,53.0,75.5,57.0] },
+        // ---- Дальний Восток (основные) ----
+        { name: "Приморский край", aliases: ["Приморье","Владивосток"], bbox: [130.0,42.5,138.0,48.0] },
+        { name: "Хабаровский край", aliases: ["Хабаровск","Хабаровский"], bbox: [133.0,47.0,143.0,56.0] },
+        { name: "Камчатский край", aliases: ["Камчатка","Петропавловск"], bbox: [155.0,51.0,163.0,61.0] },
+        // ---- Украина (области) ----
+        { name: "Харьковская область", aliases: ["Харьков","Харьковская"], bbox: [35.5,49.0,37.5,50.5] },
+        { name: "Сумская область", aliases: ["Сумы","Сумская"], bbox: [33.5,50.5,35.8,52.2] },
+        { name: "Киевская область", aliases: ["Киев","Киевская"], bbox: [29.5,49.5,31.5,51.2] },
+        { name: "Черниговская область", aliases: ["Чернигов","Черниговская"], bbox: [31.0,51.0,33.0,52.5] },
+        { name: "Полтавская область", aliases: ["Полтава","Полтавская"], bbox: [32.5,49.0,35.5,50.5] },
+        { name: "Днепропетровская область", aliases: ["Днепр","Днепропетровская"], bbox: [33.0,47.5,36.5,49.0] },
+        { name: "Запорожская область", aliases: ["Запорожье","Запорожская"], bbox: [34.0,46.5,37.0,48.0] },
+        { name: "Херсонская область", aliases: ["Херсон","Херсонская"], bbox: [32.0,45.5,35.0,47.0] },
+        { name: "Николаевская область", aliases: ["Николаев","Николаевская"], bbox: [30.5,46.5,33.5,48.0] },
+        { name: "Одесская область", aliases: ["Одесса","Одесская"], bbox: [28.0,45.0,30.5,48.0] },
+        { name: "Львовская область", aliases: ["Львов","Львовская"], bbox: [22.5,49.0,25.5,50.5] },
+        { name: "Волынская область", aliases: ["Луцк","Волынская"], bbox: [23.5,50.5,25.5,52.0] }
+    ];
+
+    // Создаём карту алиасов: ключевое слово -> полное имя региона
+    const aliasToRegion = new Map();
+    for (const reg of regionsData) {
+        for (const alias of reg.aliases) {
+            aliasToRegion.set(alias.toLowerCase(), reg.name);
+        }
+    }
+
+    // Генерируем GeoJSON из bbox (прямоугольники)
+    function buildGeoJsonFromRegions() {
+        const features = [];
+        for (const reg of regionsData) {
+            const [minLng, minLat, maxLng, maxLat] = reg.bbox;
+            const polygon = [[
+                [minLng, minLat],
+                [maxLng, minLat],
+                [maxLng, maxLat],
+                [minLng, maxLat],
+                [minLng, minLat]
+            ]];
+            features.push({
+                type: "Feature",
+                properties: { name: reg.name },
+                geometry: { type: "Polygon", coordinates: polygon }
+            });
+        }
+        return { type: "FeatureCollection", features };
+    }
+
+    // ========== 4. ЗАГРУЗКА ГЕОМЕТРИИ ==========
+    function loadRegions() {
+        const geoJsonData = buildGeoJsonFromRegions();
+        if (geoJsonLayer) map.removeLayer(geoJsonLayer);
+        regionLayers.clear();
+        regionCenters.clear();
+
+        geoJsonLayer = L.geoJSON(geoJsonData, {
+            style: defaultStyle,
+            onEachFeature: (feature, layer) => {
+                const name = feature.properties.name;
+                if (name) {
+                    regionLayers.set(name, layer);
+                    layer.bindTooltip(name, { sticky: true });
+                    try {
+                        const center = layer.getBounds().getCenter();
+                        regionCenters.set(name, center);
+                    } catch(e) {}
+                }
+            }
+        }).addTo(map);
+
+        if (geoJsonLayer.getBounds().isValid()) map.fitBounds(geoJsonLayer.getBounds());
+        addLog(`✅ Загружено областей: ${regionLayers.size}`);
+    }
+
+    // ========== 5. ЛОГИРОВАНИЕ ==========
     const logPanel = document.getElementById('logPanel');
     function addLog(msg) {
         const div = document.createElement('div');
         div.textContent = `> ${new Date().toLocaleTimeString()} ${msg}`;
         logPanel.appendChild(div);
         logPanel.scrollTop = logPanel.scrollHeight;
-        // ограничим 40 сообщениями
         while (logPanel.children.length > 40) logPanel.removeChild(logPanel.firstChild);
         console.log(msg);
     }
 
-    // ---------- 4. ЗАГРУЗКА GEOJSON (рабочие ссылки) ----------
-    async function loadGeoJson() {
-        addLog("Загрузка границ регионов...");
-        // Надёжные ссылки на GeoJSON с областями России и Украины
-        const russiaUrl = "https://raw.githubusercontent.com/ilyankou/geojson-russia/master/geojson/russia.geojson";
-        const ukraineUrl = "https://raw.githubusercontent.com/ilyankou/geojson-ukraine/master/geojson/ukraine.geojson";
-        
-        try {
-            const [russiaResp, ukraineResp] = await Promise.all([
-                fetch(russiaUrl),
-                fetch(ukraineUrl)
-            ]);
-            if (!russiaResp.ok) throw new Error(`Россия: HTTP ${russiaResp.status}`);
-            if (!ukraineResp.ok) throw new Error(`Украина: HTTP ${ukraineResp.status}`);
-            
-            const russiaData = await russiaResp.json();
-            const ukraineData = await ukraineResp.json();
-            
-            // Объединяем FeatureCollection
-            const combined = {
-                type: "FeatureCollection",
-                features: [...russiaData.features, ...ukraineData.features]
-            };
-            
-            if (geoJsonLayer) map.removeLayer(geoJsonLayer);
-            regionLayers.clear();
-            regionCenters.clear();
-            
-            geoJsonLayer = L.geoJSON(combined, {
-                style: defaultStyle,
-                onEachFeature: (feature, layer) => {
-                    // Извлекаем название региона из разных возможных полей
-                    let name = feature.properties.name || feature.properties.NAME_1 || feature.properties.region;
-                    if (!name) name = feature.properties.NAME || feature.properties.admin;
-                    if (name) {
-                        name = name.trim();
-                        regionLayers.set(name, layer);
-                        layer.properties = { name };
-                        layer.bindTooltip(name, { sticky: true });
-                        try {
-                            const center = layer.getBounds().getCenter();
-                            regionCenters.set(name, center);
-                        } catch(e) {}
-                    }
-                }
-            }).addTo(map);
-            
-            if (geoJsonLayer.getBounds().isValid()) map.fitBounds(geoJsonLayer.getBounds());
-            addLog(`✅ GeoJSON загружен, регионов: ${regionLayers.size}`);
-            
-            // Дополняем словарь соответствий, чтобы охватить больше регионов из GeoJSON
-            for (let fullName of regionLayers.keys()) {
-                const lower = fullName.toLowerCase();
-                if (lower.includes("белгород") && !regionMapping.has("Белгород")) regionMapping.set("Белгород", fullName);
-                if (lower.includes("курск") && !regionMapping.has("Курск")) regionMapping.set("Курск", fullName);
-                if (lower.includes("воронеж") && !regionMapping.has("Воронеж")) regionMapping.set("Воронеж", fullName);
-                if (lower.includes("ростов") && !regionMapping.has("Ростов")) regionMapping.set("Ростов", fullName);
-                if (lower.includes("брянск") && !regionMapping.has("Брянск")) regionMapping.set("Брянск", fullName);
-                if (lower.includes("ставрополь") && !regionMapping.has("Ставрополь")) regionMapping.set("Ставрополь", fullName);
-                if (lower.includes("краснодар") && !regionMapping.has("Краснодар")) regionMapping.set("Краснодар", fullName);
-                if (lower.includes("харьков") && !regionMapping.has("Харьков")) regionMapping.set("Харьков", fullName);
-                if (lower.includes("сумы") && !regionMapping.has("Сумы")) regionMapping.set("Сумы", fullName);
-                if (lower.includes("киев") && !regionMapping.has("Киев")) regionMapping.set("Киев", fullName);
-            }
-            return true;
-        } catch (err) {
-            addLog(`❌ Критическая ошибка: границы не загружены - ${err.message}`);
-            document.getElementById('updateStatus').innerHTML = "❌ Ошибка карты";
-            return false;
-        }
-    }
-
-    // ---------- 5. ФУНКЦИИ ОБНОВЛЕНИЯ СТИЛЯ И МАРКЕРОВ ----------
-    function applyRegionStyle(regionFullName, isDanger) {
-        const layer = regionLayers.get(regionFullName);
+    // ========== 6. УПРАВЛЕНИЕ СТИЛЯМИ ==========
+    function applyRegionStyle(regionName, isDanger) {
+        const layer = regionLayers.get(regionName);
         if (!layer) return false;
         if (isDanger) {
             layer.setStyle(alertStyle);
@@ -345,8 +383,8 @@
         return true;
     }
 
-    function addMarkerForRegion(regionFullName) {
-        const center = regionCenters.get(regionFullName);
+    function addMarkerForRegion(regionName) {
+        const center = regionCenters.get(regionName);
         if (!center) return null;
         const icon = L.divIcon({
             className: 'custom-warning-icon',
@@ -355,7 +393,7 @@
             popupAnchor: [0, -15]
         });
         const marker = L.marker(center, { icon }).addTo(map);
-        marker.bindTooltip(`⚠️ ${regionFullName} · УГРОЗА`, { sticky: true });
+        marker.bindTooltip(`⚠️ ${regionName} · УГРОЗА`, { sticky: true });
         return marker;
     }
 
@@ -365,12 +403,10 @@
     }
 
     function updateMapFromThreats() {
-        // Сброс всех регионов к стандартному стилю
-        for (let [name, layer] of regionLayers.entries()) {
-            applyRegionStyle(name, false);
-        }
+        // Сброс всех регионов
+        for (let [name] of regionLayers.entries()) applyRegionStyle(name, false);
         removeAllMarkers();
-        // Применяем активные угрозы
+        // Активация угроз
         for (let [region, threat] of activeThreats.entries()) {
             applyRegionStyle(region, true);
             const marker = addMarkerForRegion(region);
@@ -401,21 +437,15 @@
 
     function escapeHtml(s) {
         if (!s) return '';
-        return s.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
-            return m;
-        });
+        return s.replace(/[&<>]/g, m => m==='&'?'&amp;':m==='<'?'&lt;':'&gt;');
     }
 
-    // ---------- 6. ПАРСИНГ TELEGRAM ----------
+    // ========== 7. ПОЛУЧЕНИЕ ДАННЫХ ИЗ TELEGRAM ==========
     async function fetchTelegramMessages() {
         const statusSpan = document.getElementById('updateStatus');
         statusSpan.innerHTML = "🟡 ЗАПРОС...";
-        const timestamp = Date.now();
-        const sourceUrl = `https://t.me/s/vrv_radar?t=${timestamp}`;
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(sourceUrl)}`;
+        const url = `https://t.me/s/vrv_radar?t=${Date.now()}`;
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`;
         try {
             const controller = new AbortController();
             const timeoutId = setTimeout(() => controller.abort(), 12000);
@@ -424,20 +454,15 @@
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const html = await resp.text();
             if (!html || html.length < 100) throw new Error("Пустой ответ");
-            
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
-            const messageBlocks = doc.querySelectorAll('.tgme_widget_message_text');
-            const messages = [];
-            for (let block of messageBlocks) {
-                const text = block.innerText.trim();
-                if (text) messages.push(text);
-            }
-            const last5 = messages.slice(0, 5);
-            addLog(`Получено сообщений: ${messages.length}, обработано: ${last5.length}`);
+            const blocks = doc.querySelectorAll('.tgme_widget_message_text');
+            const messages = Array.from(blocks).slice(0, 5).map(b => b.innerText.trim()).filter(t => t);
+            addLog(`📩 Получено сообщений: ${messages.length}`);
+            if (messages.length > 0) addLog(`Последний пост: ${messages[0].substring(0, 80)}...`);
             statusSpan.innerHTML = "✅ ОБНОВЛЕНО";
             document.getElementById('lastUpdateTime').innerText = new Date().toLocaleTimeString();
-            return last5;
+            return messages;
         } catch (err) {
             addLog(`❌ Ошибка Telegram: ${err.message}`);
             statusSpan.innerHTML = "❌ Ошибка связи";
@@ -447,49 +472,42 @@
 
     function extractTime(text) {
         const match = text.match(/(?:в\s*)?(\d{1,2}[:.]\d{2})/i);
-        if (match) return match[1].replace('.', ':');
-        return new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
+        return match ? match[1].replace('.',':') : new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
     }
 
     function processMessages(messages) {
         const newThreats = new Map();
         for (let msg of messages) {
-            addLog(`Сообщение: ${msg.substring(0, 70)}...`);
-            let foundRegionFull = null;
-            // Ищем по ключевым словам
-            for (let [keyword, fullName] of regionMapping.entries()) {
-                if (msg.includes(keyword)) {
-                    foundRegionFull = fullName;
-                    addLog(`Найдено ключевое слово: "${keyword}" → регион "${fullName}"`);
+            const lowerMsg = msg.toLowerCase();
+            let foundRegion = null;
+            for (let [alias, regionName] of aliasToRegion.entries()) {
+                if (lowerMsg.includes(alias)) {
+                    foundRegion = regionName;
+                    addLog(`🔍 Найдено ключевое слово "${alias}" → регион "${regionName}"`);
                     break;
                 }
             }
-            if (!foundRegionFull) continue;
+            if (!foundRegion) continue;
 
-            const isCancel = msg.toLowerCase().includes("отбой");
+            const isCancel = lowerMsg.includes("отбой");
             const time = extractTime(msg);
-
             if (isCancel) {
-                if (activeThreats.has(foundRegionFull)) {
-                    activeThreats.delete(foundRegionFull);
-                    addLog(`🔴 Отбой: ${foundRegionFull} снята угроза`);
+                if (activeThreats.has(foundRegion)) {
+                    activeThreats.delete(foundRegion);
+                    addLog(`🔴 Отбой: ${foundRegion} снята угроза`);
                 }
-                // Не добавляем в newThreats
             } else {
-                newThreats.set(foundRegionFull, { message: msg.substring(0, 120), time });
-                addLog(`⚠️ Опасность в: ${foundRegionFull}`);
+                newThreats.set(foundRegion, { message: msg.substring(0, 120), time });
+                addLog(`⚠️ Опасность в: ${foundRegion}`);
             }
         }
-        // Обновляем активные угрозы (заменяем на новые)
+        // Заменяем активные угрозы на новые (старые без обновления не остаются)
         activeThreats.clear();
-        for (let [region, threat] of newThreats.entries()) {
-            activeThreats.set(region, threat);
-        }
+        for (let [reg, threat] of newThreats.entries()) activeThreats.set(reg, threat);
     }
 
-    // ---------- 7. ГЛАВНЫЙ ЦИКЛ ----------
+    // ========== 8. ЦИКЛ ОБНОВЛЕНИЯ ==========
     let intervalId = null;
-
     async function refresh() {
         addLog("Поиск новых постов...");
         const messages = await fetchTelegramMessages();
@@ -502,17 +520,13 @@
         }
     }
 
-    async function start() {
-        const geoOk = await loadGeoJson();
-        if (geoOk) {
-            await refresh();
-            intervalId = setInterval(refresh, 30000);
-        } else {
-            addLog("❌ Не удалось загрузить карту, мониторинг остановлен");
-        }
+    async function init() {
+        loadRegions();
+        await refresh();
+        intervalId = setInterval(refresh, 30000);
     }
 
-    document.addEventListener('DOMContentLoaded', start);
+    init();
 </script>
 </body>
 </html>
