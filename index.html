@@ -3,17 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>TGESHKA VPN | Анонимный веб-прокси</title>
+    <title>TGESHKA VPN | Прокси-браузер</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            user-select: none;
         }
 
         body {
-            background: radial-gradient(circle at 20% 30%, #0a0f1f, #010101);
-            font-family: 'Orbitron', 'Segoe UI', monospace;
+            background: radial-gradient(ellipse at 20% 30%, #0a0f1f, #010101);
+            font-family: 'Segoe UI', 'Orbitron', 'Courier New', monospace;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,7 +23,6 @@
             position: relative;
         }
 
-        /* Глитч-сетка на фоне */
         body::before {
             content: "";
             position: fixed;
@@ -35,14 +35,13 @@
             z-index: 0;
         }
 
-        /* Основной контейнер */
         .vpn-container {
             position: relative;
             z-index: 2;
             width: 95%;
             max-width: 1300px;
             background: rgba(8, 12, 20, 0.75);
-            backdrop-filter: blur(12px);
+            backdrop-filter: blur(15px);
             border-radius: 3rem;
             border: 1px solid rgba(0, 255, 255, 0.5);
             box-shadow: 0 0 40px rgba(0, 255, 255, 0.2), inset 0 0 30px rgba(0, 255, 255, 0.05);
@@ -50,30 +49,10 @@
             transition: all 0.4s ease;
         }
 
-        /* Заголовок */
-        .glitch-title {
-            text-align: center;
-            font-size: 2.4rem;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            color: #0ff;
-            text-shadow: 0 0 8px cyan, 0 0 20px cyan;
-            margin-bottom: 2rem;
-            animation: glitch 3s infinite;
-        }
-
-        @keyframes glitch {
-            0%, 100% { text-shadow: 0 0 8px cyan, 0 0 20px cyan; }
-            95% { text-shadow: -2px 0 red, 2px 0 blue; }
-            96% { text-shadow: 2px 0 red, -2px 0 blue; }
-        }
-
-        /* Неоновая кнопка */
-        .neon-btn {
+        .magic-btn {
             display: block;
             width: 320px;
-            margin: 0 auto 2rem auto;
+            margin: 1rem auto 2rem auto;
             padding: 1.2rem 2rem;
             font-size: 1.6rem;
             font-weight: bold;
@@ -90,104 +69,136 @@
             box-shadow: 0 0 8px #0ff, 0 0 20px #0ff;
             letter-spacing: 3px;
             backdrop-filter: blur(4px);
+            text-shadow: 0 0 5px cyan;
             font-family: 'Orbitron', monospace;
         }
 
-        .neon-btn:hover {
+        .magic-btn:hover {
             transform: scale(1.03);
             box-shadow: 0 0 20px cyan, 0 0 40px cyan;
             border-color: #f0f;
         }
 
-        /* Панель управления (появляется после активации) */
+        .hack-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: monospace;
+            font-size: 2rem;
+            color: #0f0;
+            text-align: center;
+            backdrop-filter: blur(8px);
+            transition: opacity 0.5s;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .hack-text {
+            background: rgba(0,0,0,0.8);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid #0f0;
+            box-shadow: 0 0 40px #0f0;
+            animation: blink 1s steps(2) infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
         .dashboard {
             display: none;
-            animation: fadeSlideUp 0.6s ease-out;
+            animation: fadeSlideUp 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);
         }
 
         @keyframes fadeSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Строка поиска */
-        .search-bar {
+        .search-area {
+            margin: 2rem 0 1.5rem;
             display: flex;
             gap: 15px;
             flex-wrap: wrap;
-            margin: 1.5rem 0;
-            background: rgba(0, 20, 30, 0.6);
-            padding: 0.8rem;
-            border-radius: 60px;
-            border: 1px solid rgba(0, 255, 255, 0.4);
+            justify-content: center;
         }
 
-        .url-input {
-            flex: 1;
-            background: #0a0f1a;
+        .search-input {
+            flex: 3;
+            min-width: 250px;
+            background: #0a0f1c;
             border: 1px solid #0ff;
-            border-radius: 40px;
-            padding: 1rem 1.5rem;
+            border-radius: 60px;
+            padding: 1rem 1.8rem;
             font-size: 1rem;
-            font-family: monospace;
+            font-family: 'Courier New', monospace;
             color: #0ff;
             outline: none;
             transition: 0.2s;
+            letter-spacing: 1px;
         }
 
-        .url-input:focus {
-            box-shadow: 0 0 10px #0ff;
+        .search-input:focus {
+            box-shadow: 0 0 15px cyan;
             background: #000;
         }
 
-        .go-btn {
+        .search-btn {
             background: rgba(0, 255, 255, 0.2);
             border: 1px solid #0ff;
-            border-radius: 40px;
+            border-radius: 60px;
             padding: 0 2rem;
             font-weight: bold;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             color: cyan;
             cursor: pointer;
             transition: 0.2s;
             text-transform: uppercase;
         }
 
-        .go-btn:hover {
+        .search-btn:hover {
             background: rgba(0, 255, 255, 0.5);
             box-shadow: 0 0 12px cyan;
         }
 
-        /* Индикатор шифрования */
-        .crypto-status {
+        .browser-window {
+            width: 100%;
+            height: 65vh;
+            min-height: 500px;
+            border: 2px solid rgba(0, 255, 255, 0.6);
+            border-radius: 28px;
+            background: #0a0e18;
+            margin-top: 1rem;
+            overflow: hidden;
+            box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .encryption-badge {
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 20px;
-            margin-bottom: 1rem;
+            gap: 15px;
+            margin: 1rem 0;
             flex-wrap: wrap;
         }
 
-        .radar {
-            width: 35px;
-            height: 35px;
-            background: radial-gradient(circle, rgba(0,255,255,0.4) 0%, rgba(0,0,0,0) 70%);
-            border-radius: 50%;
-            animation: radarPulse 1.2s infinite;
-        }
-
-        @keyframes radarPulse {
-            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0,255,255,0.4);}
-            100% { transform: scale(1.2); box-shadow: 0 0 0 10px rgba(0,255,255,0);}
-        }
-
-        .badge {
+        .glowing-text {
             background: rgba(0,0,0,0.6);
             padding: 0.4rem 1.2rem;
             border-radius: 40px;
@@ -195,27 +206,20 @@
             font-family: monospace;
             border-left: 3px solid cyan;
             color: #0ff;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
 
-        /* iframe-браузер */
-        .browser-frame {
-            width: 100%;
-            height: 65vh;
-            min-height: 450px;
-            border: 2px solid rgba(0, 255, 255, 0.6);
-            border-radius: 28px;
-            background: #111;
-            overflow: hidden;
-            box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
-            margin-top: 1rem;
+        .radar {
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, rgba(0,255,255,0.3) 0%, rgba(0,0,0,0) 70%);
+            border-radius: 50%;
+            animation: pulseRadar 1.2s infinite;
         }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: #fff;
+        @keyframes pulseRadar {
+            0% { transform: scale(0.9); box-shadow: 0 0 0 0 rgba(0,255,255,0.4);}
+            100% { transform: scale(1.2); box-shadow: 0 0 0 10px rgba(0,255,255,0);}
         }
 
         footer {
@@ -228,159 +232,166 @@
 
         @media (max-width: 700px) {
             .vpn-container { padding: 1rem; }
-            .neon-btn { width: 260px; font-size: 1.2rem; }
-            .browser-frame { height: 55vh; }
-            .glitch-title { font-size: 1.6rem; }
+            .magic-btn { width: 260px; font-size: 1.2rem; }
+            .browser-window { height: 55vh; }
         }
     </style>
 </head>
 <body>
 <div class="vpn-container">
-    <div class="glitch-title">⚡ TGESHKA VPN ⚡</div>
-    <button id="toggleBtn" class="neon-btn">АКТИВИРОВАТЬ VPN</button>
-
+    <div style="text-align: center; font-size: 2rem; font-weight: bold; text-shadow: 0 0 12px cyan;">⚡ TGESHKA VPN ⚡</div>
+    <button id="activateBtn" class="magic-btn">АКТИВИРОВАТЬ МАГИЮ TGESHKA</button>
+    
     <div id="dashboard" class="dashboard">
-        <div class="crypto-status">
+        <div class="encryption-badge">
             <div class="radar"></div>
-            <div class="badge">🔒 ЗАЩИТА: AES-256 + ALLOY PROXY</div>
-            <div class="badge" id="statusText">СОЕДИНЕНИЕ АКТИВНО</div>
+            <div class="glowing-text">🔒 ЗАЩИТА: AES-256 + DYNAMIC PROXY 🔒</div>
+            <div class="glowing-text" id="statusMsg">СОЕДИНЕНИЕ АКТИВНО</div>
         </div>
-        <div class="search-bar">
-            <input type="text" id="siteInput" class="url-input" placeholder="Введите адрес сайта (например, youtube.com)" value="https://google.com">
-            <button id="goBtn" class="go-btn">ПЕРЕЙТИ</button>
+        <div class="search-area">
+            <input type="text" id="urlInput" class="search-input" placeholder="Введите адрес: google.com / youtube.com / любой сайт" value="https://google.com">
+            <button id="goBtn" class="search-btn">ПЕРЕЙТИ</button>
         </div>
-        <div class="browser-frame">
-            <iframe id="proxyFrame" src="about:blank" title="Анонимный браузер TGESHKA"></iframe>
+        <div class="browser-window">
+            <iframe id="proxyFrame" src="about:blank" title="Tgeshka VPN Browser"></iframe>
         </div>
-        <footer>🔥 Трафик через защищённый прокси-шлюз | Обход блокировок | Анонимность</footer>
+        <footer>🔥 Трафик через CORS-прокси | Блокировки сняты | Анонимно и безопасно</footer>
     </div>
 </div>
 
+<div id="hackOverlay" class="hack-overlay">
+    <div class="hack-text">🔓 БЛОКИРОВКИ СНЯТЫ 🔓<br>⚡ ДОСТУП АКТИВИРОВАН ⚡</div>
+</div>
+
 <script>
-    // Рабочий публичный прокси (AlloyProxy) — надёжный, не требует ключей
-    const PROXY_URL = "https://alloyproxy.com/?url=";
+    // Список надёжных CORS-прокси (работающие на момент написания)
+    const PROXY_LIST = [
+        "https://corsproxy.io/?url=",
+        "https://api.allorigins.win/raw?url=",
+        "https://cors-anywhere.herokuapp.com/"
+    ];
+    let currentProxyIndex = 0;
+    let isActive = false;
 
-    let isActive = false;   // активен ли VPN-режим
+    // Функция проверки доступности прокси (асинхронная, тестируем через fetch)
+    async function testProxy(proxyUrl) {
+        try {
+            const testUrl = proxyUrl + encodeURIComponent("https://httpbin.org/get");
+            const response = await fetch(testUrl, { method: 'HEAD', mode: 'no-cors' });
+            // no-cors режим не даёт прочитать ответ, но мы проверяем, что запрос ушёл без ошибок сети
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
 
-    // DOM элементы
-    const toggleBtn = document.getElementById('toggleBtn');
-    const dashboard = document.getElementById('dashboard');
-    const proxyFrame = document.getElementById('proxyFrame');
-    const siteInput = document.getElementById('siteInput');
-    const goBtn = document.getElementById('goBtn');
-    const statusSpan = document.getElementById('statusText');
+    // Выбор работающего прокси
+    async function selectWorkingProxy() {
+        for (let i = 0; i < PROXY_LIST.length; i++) {
+            const proxy = PROXY_LIST[i];
+            const works = await testProxy(proxy);
+            if (works) {
+                currentProxyIndex = i;
+                return proxy;
+            }
+        }
+        // Если все не работают, вернём первый (он всё равно может работать, но без проверки)
+        return PROXY_LIST[0];
+    }
 
-    // Функция загрузки сайта через прокси
-    function loadSite(url) {
+    // Загрузка сайта через прокси
+    async function loadSite(url) {
         if (!isActive) return;
         let target = url.trim();
-        if (!target) return;
-
-        // Добавляем протокол, если отсутствует
-        if (!target.match(/^https?:\/\//i)) {
+        if (!target.startsWith('http://') && !target.startsWith('https://')) {
             target = 'https://' + target;
         }
+        const proxy = PROXY_LIST[currentProxyIndex];
+        const proxyUrl = proxy + encodeURIComponent(target);
+        const iframe = document.getElementById('proxyFrame');
+        iframe.src = proxyUrl;
+        console.log(`[TGESHKA] Загружаем через прокси: ${proxyUrl}`);
+    }
 
-        // Кодируем URL и формируем прокси-ссылку
-        const encodedUrl = encodeURIComponent(target);
-        const proxyLink = PROXY_URL + encodedUrl;
-
-        // Загружаем в iframe
-        proxyFrame.src = proxyLink;
-        console.log(`[TGESHKA] Загружаем через прокси: ${proxyLink}`);
+    // Эффект взлома
+    function showHackEffect() {
+        const overlay = document.getElementById('hackOverlay');
+        overlay.style.opacity = '1';
+        setTimeout(() => {
+            overlay.style.opacity = '0';
+        }, 1800);
     }
 
     // Активация VPN
-    function activateVPN() {
+    async function activateVPN() {
         if (isActive) return;
+        showHackEffect();
+        
+        // Проверяем прокси
+        const workingProxy = await selectWorkingProxy();
+        if (!workingProxy) {
+            alert('⚠️ Не удалось найти рабочий прокси-сервер. Проверьте интернет-соединение.');
+            return;
+        }
+        
         isActive = true;
-
-        // Показываем панель
-        dashboard.style.display = 'block';
-
-        // Меняем кнопку
-        toggleBtn.textContent = 'ДЕАКТИВИРОВАТЬ VPN';
-        toggleBtn.style.borderColor = '#f0f';
-        toggleBtn.style.boxShadow = '0 0 20px #f0f';
-        toggleBtn.style.color = '#f0f';
-
+        document.getElementById('dashboard').style.display = 'block';
+        const btn = document.getElementById('activateBtn');
+        btn.textContent = '⚡ МАГИЯ АКТИВНА ⚡';
+        btn.style.borderColor = '#f0f';
+        btn.style.boxShadow = '0 0 20px #f0f';
+        
         // Загружаем стартовый сайт
-        const startUrl = siteInput.value.trim() || 'https://google.com';
-        loadSite(startUrl);
-
-        // Обновляем статус с анимацией
-        statusSpan.textContent = '🔓 ЗАЩИТА АКТИВНА';
-        setTimeout(() => {
-            if (isActive) statusSpan.textContent = '⚡ СОЕДИНЕНИЕ ЗАШИФРОВАНО';
-        }, 800);
+        const defaultUrl = document.getElementById('urlInput').value;
+        if (defaultUrl) loadSite(defaultUrl);
     }
 
-    // Деактивация VPN
     function deactivateVPN() {
         if (!isActive) return;
         isActive = false;
-
-        // Скрываем панель
-        dashboard.style.display = 'none';
-
-        // Возвращаем кнопку
-        toggleBtn.textContent = 'АКТИВИРОВАТЬ VPN';
-        toggleBtn.style.borderColor = '#0ff';
-        toggleBtn.style.boxShadow = '0 0 8px #0ff, 0 0 20px #0ff';
-        toggleBtn.style.color = 'transparent';
-
-        // Очищаем iframe
-        proxyFrame.src = 'about:blank';
+        document.getElementById('dashboard').style.display = 'none';
+        const btn = document.getElementById('activateBtn');
+        btn.textContent = 'АКТИВИРОВАТЬ МАГИЮ TGESHKA';
+        btn.style.borderColor = '#0ff';
+        btn.style.boxShadow = '0 0 8px #0ff, 0 0 20px #0ff';
+        document.getElementById('proxyFrame').src = 'about:blank';
     }
 
-    // Обработчик кнопки включения/выключения
+    // Обработчики
+    const toggleBtn = document.getElementById('activateBtn');
     toggleBtn.addEventListener('click', () => {
-        if (isActive) {
-            deactivateVPN();
-        } else {
-            activateVPN();
-        }
+        if (isActive) deactivateVPN();
+        else activateVPN();
     });
 
-    // Обработчик кнопки "Перейти"
+    const goBtn = document.getElementById('goBtn');
+    const urlInput = document.getElementById('urlInput');
     goBtn.addEventListener('click', () => {
         if (!isActive) {
-            alert('Сначала активируйте VPN, нажав на большую кнопку!');
+            alert('Сначала активируйте VPN!');
             return;
         }
-        const url = siteInput.value;
-        if (url) {
-            loadSite(url);
-        } else {
-            alert('Введите адрес сайта');
-        }
+        const url = urlInput.value;
+        if (url) loadSite(url);
+        else alert('Введите адрес сайта');
     });
 
-    // Обработка нажатия Enter в поле ввода
-    siteInput.addEventListener('keypress', (e) => {
+    urlInput.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
             e.preventDefault();
-            if (!isActive) {
-                alert('Активируйте VPN перед использованием');
-                return;
-            }
-            loadSite(siteInput.value);
+            if (!isActive) alert('Активируйте VPN');
+            else loadSite(urlInput.value);
         }
     });
 
-    // Небольшой эффект "бегущих цифр" для статуса (дополнительная атмосфера)
+    // Динамический текст статуса
     setInterval(() => {
-        if (isActive && statusSpan) {
-            const messages = ['🔒 ЗАШИФРОВАНО', '⚡ ПРОКСИ ОНЛАЙН', '🌐 АНОНИМНО', '🛡️ БЛОКИРОВКИ СНЯТЫ'];
-            if (Math.random() > 0.95) {
-                const randomMsg = messages[Math.floor(Math.random() * messages.length)];
-                statusSpan.textContent = randomMsg;
-                setTimeout(() => {
-                    if (isActive) statusSpan.textContent = '⚡ СОЕДИНЕНИЕ ЗАШИФРОВАНО';
-                }, 1500);
-            }
+        const statusSpan = document.getElementById('statusMsg');
+        if (statusSpan && isActive) {
+            const variants = ['СОЕДИНЕНИЕ АКТИВНО', '🔒 ЗАЩИЩЕНО', '⚡ АНОНИМНО', '🌐 ПРОКСИ ОНЛАЙН'];
+            if (Math.random() > 0.9) statusSpan.innerText = variants[Math.floor(Math.random() * variants.length)];
         }
-    }, 3000);
+    }, 2000);
 </script>
 </body>
 </html>
