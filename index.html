@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <title>РАДАР ВРВ | Мониторинг угроз (Telegram)</title>
-    <!-- Leaflet CSS + JS -->
+    <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
@@ -26,7 +26,6 @@
             width: 100%;
             z-index: 1;
         }
-        /* Статус-бар */
         .status-bar {
             position: fixed;
             top: 0;
@@ -67,7 +66,6 @@
             border-radius: 30px;
             font-family: monospace;
         }
-        /* Панель угроз */
         .threat-panel {
             position: fixed;
             bottom: 20px;
@@ -127,13 +125,12 @@
             text-align: center;
             padding: 12px;
         }
-        /* Лог-панель */
         .log-panel {
             position: fixed;
             bottom: 20px;
             right: 12px;
-            max-width: 280px;
-            background: rgba(0,0,0,0.8);
+            max-width: 300px;
+            background: rgba(0,0,0,0.85);
             backdrop-filter: blur(8px);
             border-radius: 12px;
             padding: 8px 12px;
@@ -143,7 +140,7 @@
             z-index: 1000;
             border-left: 3px solid #ff4444;
             pointer-events: none;
-            max-height: 150px;
+            max-height: 180px;
             overflow-y: auto;
         }
         .log-panel div {
@@ -213,13 +210,14 @@
     }).addTo(map);
 
     // ---------- 2. ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ----------
-    let geoJsonLayer;               // слой GeoJSON
-    let regionLayers = new Map();   // полное название региона -> объект слоя Leaflet
+    let geoJsonLayer;               // слой GeoJSON (объединённый)
+    let regionLayers = new Map();   // полное название региона -> слой Leaflet
     let regionCenters = new Map();  // центр региона для маркеров
-    let activeMarkers = [];         // массив маркеров
+    let activeMarkers = [];         // маркеры активных угроз
     let activeThreats = new Map();  // регион -> { message, time }
 
-    // Словарь соответствия: короткое упоминание -> полное название (как в GeoJSON)
+    // Словарь соответствия: ключевые слова (из сообщений) -> полное название региона (как в GeoJSON)
+    // Будет дополняться после загрузки GeoJSON, но базовые варианты зададим здесь
     const regionMapping = new Map([
         ["Белгород", "Белгородская область"],
         ["Курск", "Курская область"],
@@ -256,28 +254,43 @@
         div.textContent = `> ${new Date().toLocaleTimeString()} ${msg}`;
         logPanel.appendChild(div);
         logPanel.scrollTop = logPanel.scrollHeight;
-        // ограничим 30 сообщениями
-        while (logPanel.children.length > 30) logPanel.removeChild(logPanel.firstChild);
+        // ограничим 40 сообщениями
+        while (logPanel.children.length > 40) logPanel.removeChild(logPanel.firstChild);
         console.log(msg);
     }
 
-    // ---------- 4. ЗАГРУЗКА GEOJSON (реальные границы) ----------
+    // ---------- 4. ЗАГРУЗКА GEOJSON (рабочие ссылки) ----------
     async function loadGeoJson() {
-        addLog("Загрузка GeoJSON...");
-        const url = 'https://raw.githubusercontent.com/codeforgermany/click_dummy_topolevel/master/russia_geojson_with_regions.json';
+        addLog("Загрузка границ регионов...");
+        // Надёжные ссылки на GeoJSON с областями России и Украины
+        const russiaUrl = "https://raw.githubusercontent.com/ilyankou/geojson-russia/master/geojson/russia.geojson";
+        const ukraineUrl = "https://raw.githubusercontent.com/ilyankou/geojson-ukraine/master/geojson/ukraine.geojson";
+        
         try {
-            const resp = await fetch(url);
-            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
-            const data = await resp.json();
-
+            const [russiaResp, ukraineResp] = await Promise.all([
+                fetch(russiaUrl),
+                fetch(ukraineUrl)
+            ]);
+            if (!russiaResp.ok) throw new Error(`Россия: HTTP ${russiaResp.status}`);
+            if (!ukraineResp.ok) throw new Error(`Украина: HTTP ${ukraineResp.status}`);
+            
+            const russiaData = await russiaResp.json();
+            const ukraineData = await ukraineResp.json();
+            
+            // Объединяем FeatureCollection
+            const combined = {
+                type: "FeatureCollection",
+                features: [...russiaData.features, ...ukraineData.features]
+            };
+            
             if (geoJsonLayer) map.removeLayer(geoJsonLayer);
             regionLayers.clear();
             regionCenters.clear();
-
-            geoJsonLayer = L.geoJSON(data, {
+            
+            geoJsonLayer = L.geoJSON(combined, {
                 style: defaultStyle,
                 onEachFeature: (feature, layer) => {
-                    // Определяем название региона
+                    // Извлекаем название региона из разных возможных полей
                     let name = feature.properties.name || feature.properties.NAME_1 || feature.properties.region;
                     if (!name) name = feature.properties.NAME || feature.properties.admin;
                     if (name) {
@@ -285,7 +298,6 @@
                         regionLayers.set(name, layer);
                         layer.properties = { name };
                         layer.bindTooltip(name, { sticky: true });
-                        // Сохраняем центр
                         try {
                             const center = layer.getBounds().getCenter();
                             regionCenters.set(name, center);
@@ -293,12 +305,27 @@
                     }
                 }
             }).addTo(map);
-
+            
             if (geoJsonLayer.getBounds().isValid()) map.fitBounds(geoJsonLayer.getBounds());
-            addLog(`GeoJSON загружен, регионов: ${regionLayers.size}`);
+            addLog(`✅ GeoJSON загружен, регионов: ${regionLayers.size}`);
+            
+            // Дополняем словарь соответствий, чтобы охватить больше регионов из GeoJSON
+            for (let fullName of regionLayers.keys()) {
+                const lower = fullName.toLowerCase();
+                if (lower.includes("белгород") && !regionMapping.has("Белгород")) regionMapping.set("Белгород", fullName);
+                if (lower.includes("курск") && !regionMapping.has("Курск")) regionMapping.set("Курск", fullName);
+                if (lower.includes("воронеж") && !regionMapping.has("Воронеж")) regionMapping.set("Воронеж", fullName);
+                if (lower.includes("ростов") && !regionMapping.has("Ростов")) regionMapping.set("Ростов", fullName);
+                if (lower.includes("брянск") && !regionMapping.has("Брянск")) regionMapping.set("Брянск", fullName);
+                if (lower.includes("ставрополь") && !regionMapping.has("Ставрополь")) regionMapping.set("Ставрополь", fullName);
+                if (lower.includes("краснодар") && !regionMapping.has("Краснодар")) regionMapping.set("Краснодар", fullName);
+                if (lower.includes("харьков") && !regionMapping.has("Харьков")) regionMapping.set("Харьков", fullName);
+                if (lower.includes("сумы") && !regionMapping.has("Сумы")) regionMapping.set("Сумы", fullName);
+                if (lower.includes("киев") && !regionMapping.has("Киев")) regionMapping.set("Киев", fullName);
+            }
             return true;
         } catch (err) {
-            addLog(`❌ Ошибка GeoJSON: ${err.message}`);
+            addLog(`❌ Критическая ошибка: границы не загружены - ${err.message}`);
             document.getElementById('updateStatus').innerHTML = "❌ Ошибка карты";
             return false;
         }
@@ -310,7 +337,6 @@
         if (!layer) return false;
         if (isDanger) {
             layer.setStyle(alertStyle);
-            // Добавляем класс свечения
             if (layer._path) layer._path.classList.add('danger-glow');
         } else {
             layer.setStyle(defaultStyle);
@@ -338,15 +364,13 @@
         activeMarkers = [];
     }
 
-    // Обновление карты на основе activeThreats
     function updateMapFromThreats() {
-        // Сначала сбрасываем стили и маркеры для всех
+        // Сброс всех регионов к стандартному стилю
         for (let [name, layer] of regionLayers.entries()) {
             applyRegionStyle(name, false);
         }
         removeAllMarkers();
-
-        // Затем применяем для активных угроз
+        // Применяем активные угрозы
         for (let [region, threat] of activeThreats.entries()) {
             applyRegionStyle(region, true);
             const marker = addMarkerForRegion(region);
@@ -354,7 +378,6 @@
         }
     }
 
-    // Обновление боковой панели
     function updateSidebar() {
         const listEl = document.getElementById('threatList');
         if (activeThreats.size === 0) {
@@ -401,7 +424,7 @@
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
             const html = await resp.text();
             if (!html || html.length < 100) throw new Error("Пустой ответ");
-            // Парсим последние 5 сообщений
+            
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
             const messageBlocks = doc.querySelectorAll('.tgme_widget_message_text');
@@ -416,74 +439,59 @@
             document.getElementById('lastUpdateTime').innerText = new Date().toLocaleTimeString();
             return last5;
         } catch (err) {
-            clearTimeout();
             addLog(`❌ Ошибка Telegram: ${err.message}`);
             statusSpan.innerHTML = "❌ Ошибка связи";
             return [];
         }
     }
 
-    // Извлечение времени из сообщения (или текущее)
     function extractTime(text) {
         const match = text.match(/(?:в\s*)?(\d{1,2}[:.]\d{2})/i);
         if (match) return match[1].replace('.', ':');
         return new Date().toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' });
     }
 
-    // Обработка сообщений: определение опасности/отбоя
     function processMessages(messages) {
-        const newThreats = new Map(); // регион -> { message, time }
+        const newThreats = new Map();
         for (let msg of messages) {
-            addLog(`Сообщение: ${msg.substring(0, 60)}...`);
-            // Ищем регион из mapping
-            let foundRegion = null;
-            for (let [shortName, fullName] of regionMapping.entries()) {
-                if (msg.includes(shortName)) {
-                    foundRegion = fullName;
+            addLog(`Сообщение: ${msg.substring(0, 70)}...`);
+            let foundRegionFull = null;
+            // Ищем по ключевым словам
+            for (let [keyword, fullName] of regionMapping.entries()) {
+                if (msg.includes(keyword)) {
+                    foundRegionFull = fullName;
+                    addLog(`Найдено ключевое слово: "${keyword}" → регион "${fullName}"`);
                     break;
                 }
             }
-            if (!foundRegion) continue;
+            if (!foundRegionFull) continue;
 
-            const lowerMsg = msg.toLowerCase();
-            const isCancel = lowerMsg.includes("отбой");
+            const isCancel = msg.toLowerCase().includes("отбой");
             const time = extractTime(msg);
 
             if (isCancel) {
-                // Отбой: удаляем регион из активных угроз
-                if (activeThreats.has(foundRegion)) {
-                    activeThreats.delete(foundRegion);
-                    addLog(`🔴 Отбой: ${foundRegion} снята угроза`);
+                if (activeThreats.has(foundRegionFull)) {
+                    activeThreats.delete(foundRegionFull);
+                    addLog(`🔴 Отбой: ${foundRegionFull} снята угроза`);
                 }
-                // также не добавляем в newThreats
+                // Не добавляем в newThreats
             } else {
-                // Новая угроза
-                newThreats.set(foundRegion, { message: msg.substring(0, 120), time });
-                addLog(`⚠️ Опасность в: ${foundRegion}`);
+                newThreats.set(foundRegionFull, { message: msg.substring(0, 120), time });
+                addLog(`⚠️ Опасность в: ${foundRegionFull}`);
             }
         }
-
-        // Объединяем: сохраняем старые угрозы, если они не были отменены в этой итерации,
-        // и добавляем новые. Но чтобы избежать гонки, лучше полностью перестроить на основе
-        // новых + старых, но с учётом, что если в новых есть регион, он заменяет старый.
-        // Также если в новых нет региона, а он был активен, но не было отбоя – он остаётся активным.
-        // Однако по логике мониторинга, если за последние 5 сообщений нет упоминания региона,
-        // то он считается неактивным. Поэтому правильнее: activeThreats = newThreats.
-        // Но это может сбросить угрозы, которые не попали в последние 5, но ещё актуальны.
-        // Так как канал публикует только актуальные угрозы, будем заменять.
+        // Обновляем активные угрозы (заменяем на новые)
         activeThreats.clear();
         for (let [region, threat] of newThreats.entries()) {
             activeThreats.set(region, threat);
         }
-        // Дополнительно: если был отбой в сообщении, мы уже удалили из activeThreats.
-        // Всё корректно.
     }
 
-    // ---------- 7. ГЛАВНЫЙ ЦИКЛ ОБНОВЛЕНИЯ ----------
+    // ---------- 7. ГЛАВНЫЙ ЦИКЛ ----------
     let intervalId = null;
 
     async function refresh() {
-        addLog("Проверка Telegram...");
+        addLog("Поиск новых постов...");
         const messages = await fetchTelegramMessages();
         if (messages.length > 0) {
             processMessages(messages);
@@ -504,7 +512,6 @@
         }
     }
 
-    // Запуск
     document.addEventListener('DOMContentLoaded', start);
 </script>
 </body>
