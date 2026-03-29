@@ -3,292 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SO2 CASE SIMULATOR: CONTRACTS EDITION</title>
+    <title>SO2 CASE SIMULATOR: MARKET TRADER</title>
     <style>
         :root {
-            --bg: #080a0e;
-            --card: #11141b;
+            --bg: #05070a;
+            --card: rgba(25, 30, 40, 0.6);
             --accent: #ffcc00;
             --blue: #00e6ff;
             --red: #ff4747;
-            --common: #b0c3d9;
-            --uncommon: #5e98d9;
-            --rare: #4b69ff;
-            --epic: #8847ff;
-            --legendary: #d32ce6;
-            --arcane: #eb4b4b;
+            --green: #00ff88;
+            --common: #b0c3d9; --uncommon: #5e98d9; --rare: #4b69ff; --epic: #8847ff; --legendary: #d32ce6; --arcane: #eb4b4b;
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body {
             background-color: var(--bg);
-            color: white;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 0;
-            padding: 10px;
-            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 50%, #1a1f2b 0%, #05070a 100%);
+            color: white; font-family: 'Segoe UI', system-ui, sans-serif;
+            display: flex; flex-direction: column; align-items: center; margin: 0; padding: 10px; min-height: 100vh;
         }
 
-        /* ВЕРХНЯЯ ПАНЕЛЬ */
+        /* АНИМАЦИИ */
+        @keyframes glow { 0% { box-shadow: 0 0 5px var(--arcane); } 50% { box-shadow: 0 0 20px var(--arcane); } 100% { box-shadow: 0 0 5px var(--arcane); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* HEADER */
         .header-panel {
-            background: linear-gradient(180deg, #161b22 0%, #0d1117 100%);
-            width: 100%;
-            max-width: 800px;
-            padding: 15px 20px;
-            border-radius: 15px;
-            border: 1px solid #30363d;
-            margin-bottom: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background: var(--card); backdrop-filter: blur(10px);
+            width: 100%; max-width: 800px; padding: 15px 25px;
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
         }
+        .balance-val { font-size: 26px; font-weight: 900; color: var(--accent); }
 
-        .lvl-box { display: flex; flex-direction: column; gap: 5px; }
-        .lvl-text { font-weight: bold; color: var(--accent); font-size: 14px; }
-        .xp-bg { width: 120px; height: 6px; background: #2d3748; border-radius: 3px; overflow: hidden; }
-        .xp-fill { height: 100%; background: var(--blue); width: 0%; transition: 0.5s; }
-        .balance-val { font-size: 24px; font-weight: 900; color: var(--accent); text-shadow: 0 0 10px rgba(255,204,0,0.3); }
-
-        /* ТАБЫ (ПЕРЕКЛЮЧАТЕЛИ) */
-        .tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            width: 100%;
-            max-width: 800px;
-        }
+        /* TABS */
+        .tabs { display: flex; gap: 8px; margin-bottom: 15px; width: 100%; max-width: 800px; }
         .tab-btn {
-            flex: 1;
-            padding: 12px;
-            background: #161b22;
-            border: 1px solid #30363d;
-            color: #8b949e;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: 0.2s;
+            flex: 1; padding: 12px; background: var(--card); border: 1px solid rgba(255,255,255,0.05);
+            color: #8b949e; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.3s;
         }
-        .tab-btn.active {
-            background: var(--blue);
-            color: #000;
-            border-color: var(--blue);
-            box-shadow: 0 0 15px rgba(0,230,255,0.3);
-        }
+        .tab-btn.active { background: var(--blue); color: #000; box-shadow: 0 0 15px rgba(0,230,255,0.4); }
 
-        .view-section { display: none; width: 100%; max-width: 800px; animation: fadeIn 0.3s ease; }
+        .view-section { display: none; width: 100%; max-width: 800px; animation: slideUp 0.4s ease; }
         .view-section.active { display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* MARKET GRID */
+        .market-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+        .market-card {
+            background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);
+            text-align: center; transition: 0.3s; position: relative;
+        }
+        .market-card:hover { border-color: var(--blue); transform: translateY(-3px); }
+        .price-trend { font-size: 11px; font-weight: bold; margin-left: 5px; }
+        .trend-up { color: var(--green); }
+        .trend-down { color: var(--red); }
 
-        /* РУЛЕТКА */
-        .roulette-box {
-            position: relative;
-            height: 160px;
-            background: #11141b;
-            border: 2px solid #21262d;
-            border-radius: 12px;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-        .pointer {
-            position: absolute;
-            left: 50%; top: 0; width: 3px; height: 100%;
-            background: var(--red);
-            z-index: 10;
-            transform: translateX(-50%);
-            box-shadow: 0 0 15px var(--red);
-        }
-        .track { display: flex; position: absolute; left: 0; top: 10px; }
-        .card {
-            min-width: 140px; height: 140px; margin: 0 5px;
-            background: #1a1f26; border-bottom: 4px solid #555;
-            border-radius: 8px; display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
-        }
+        /* ROULETTE */
+        .roulette-box { height: 150px; background: rgba(0,0,0,0.3); border-radius: 15px; overflow: hidden; position: relative; margin-bottom: 15px; border: 1px solid #222; }
+        .pointer { position: absolute; left: 50%; top: 0; width: 4px; height: 100%; background: var(--red); z-index: 5; transform: translateX(-50%); box-shadow: 0 0 15px var(--red); }
+        .track { display: flex; position: absolute; left: 0; top: 10px; transition: transform 7s cubic-bezier(0.1, 0, 0.1, 1); }
 
-        /* КЕЙСЫ */
-        .case-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .case-item {
-            background: #161b22; padding: 15px; border-radius: 12px;
-            border: 1px solid #30363d; text-align: center; cursor: pointer; transition: 0.2s;
-        }
-        .case-item.active { border-color: var(--accent); background: #1c2128; }
-        .case-name { font-size: 12px; font-weight: bold; margin-bottom: 5px; }
-        .case-cost { color: var(--accent); font-size: 14px; font-weight: bold; }
-
-        /* КОНТРАКТЫ */
-        .contract-container {
-            background: #161b22; padding: 20px; border-radius: 15px;
-            border: 1px solid #30363d; text-align: center;
-        }
-        .contract-slots { display: flex; justify-content: center; gap: 5px; margin: 20px 0; flex-wrap: wrap; }
-        .slot { width: 40px; height: 50px; background: #0d1117; border: 1px dashed #30363d; border-radius: 4px; }
-        .slot.filled { border: 1px solid var(--blue); background: rgba(0, 230, 255, 0.1); }
-
-        /* ИНВЕНТАРЬ */
-        .inv-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 10px; padding-bottom: 100px;
-        }
-        .inv-card {
-            background: #161b22; padding: 10px; border-radius: 8px;
-            border-bottom: 3px solid #ccc; text-align: center; cursor: pointer;
-        }
-
-        /* КНОПКИ */
+        /* BUTTONS */
         .action-btn {
-            width: 100%; padding: 15px; border: none; border-radius: 10px;
-            font-size: 18px; font-weight: bold; cursor: pointer;
-            background: linear-gradient(180deg, var(--accent), #e6b800);
-            box-shadow: 0 5px 15px rgba(255, 204, 0, 0.3);
-            margin-bottom: 20px;
+            width: 100%; padding: 16px; border: none; border-radius: 15px; font-size: 18px; font-weight: bold;
+            cursor: pointer; background: linear-gradient(180deg, var(--accent), #e6b800);
+            box-shadow: 0 4px 15px rgba(255, 204, 0, 0.2); transition: 0.2s;
         }
-        .action-btn:disabled { background: #30363d; color: #8b949e; box-shadow: none; }
+        .action-btn:active { transform: scale(0.98); }
 
-        /* МОДАЛКА */
-        .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 100;
-        }
-        .modal { background: #1c2128; padding: 30px; border-radius: 20px; border: 1px solid var(--accent); text-align: center; max-width: 300px; }
-        .m-btn { margin: 10px 5px 0; padding: 10px 20px; border-radius: 5px; border: none; font-weight: bold; cursor: pointer; }
+        /* INV & ITEMS */
+        .item-skin { width: 80px; height: 60px; margin: 0 auto 10px; display: block; }
+        .rarity-line { height: 4px; width: 40px; margin: 5px auto; border-radius: 2px; }
+        .arcane-glow { animation: glow 2s infinite; }
 
-        /* РЕДКОСТИ ЦВЕТА */
-        .common { border-color: var(--common); }
-        .uncommon { border-color: var(--uncommon); }
-        .rare { border-color: var(--rare); }
-        .epic { border-color: var(--epic); }
-        .legendary { border-color: var(--legendary); }
-        .arcane { border-color: var(--arcane); box-shadow: 0 0 10px var(--arcane); }
+        .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; z-index:100; backdrop-filter: blur(5px); }
+        .modal { background: #151921; padding: 25px; border-radius: 20px; border: 1px solid var(--blue); text-align: center; width: 280px; }
     </style>
 </head>
 <body>
 
     <div class="header-panel">
-        <div class="lvl-box">
-            <div id="lvlTxt" class="lvl-text">LVL 1</div>
-            <div class="xp-bg"><div id="xpBar" class="xp-fill"></div></div>
+        <div>
+            <div id="lvlTxt" style="font-weight: bold; color: var(--blue);">LVL 1</div>
+            <div style="font-size: 10px; color: #555;">TRADER RANK</div>
         </div>
         <div class="balance-val"><span id="money">1000</span> G</div>
     </div>
 
     <div class="tabs">
         <button class="tab-btn active" onclick="switchTab('cases')">КЕЙСЫ</button>
+        <button class="tab-btn" onclick="switchTab('market')">РЫНОК</button>
         <button class="tab-btn" onclick="switchTab('inventory')">ИНВЕНТАРЬ</button>
-        <button class="tab-btn" onclick="switchTab('contracts')">КОНТРАКТЫ</button>
+        <button class="tab-btn" onclick="switchTab('contracts')">КРАФТ</button>
     </div>
 
     <div id="cases-view" class="view-section active">
-        <div class="case-grid">
-            <div id="c-furious" class="case-item active" onclick="setCase('furious')">
-                <div class="case-name">FURIOUS</div>
-                <div style="font-size:30px">📦</div>
-                <div class="case-cost">100 G</div>
-            </div>
-            <div id="c-revenge" class="case-item" onclick="setCase('revenge')">
-                <div class="case-name">REVENGE</div>
-                <div style="font-size:30px">💜</div>
-                <div class="case-cost">250 G</div>
-            </div>
-            <div id="c-empire" class="case-item" onclick="setCase('empire')">
-                <div class="case-name">EMPIRE</div>
-                <div style="font-size:30px">🟡</div>
-                <div class="case-cost">500 G</div>
-            </div>
-        </div>
+        <div class="roulette-box"><div class="pointer"></div><div id="track" class="track"></div></div>
+        <button id="spinBtn" class="action-btn" onclick="spin()">ОТКРЫТЬ FURIOUS (100 G)</button>
+    </div>
 
-        <div class="roulette-box">
-            <div class="pointer"></div>
-            <div id="track" class="track"></div>
-        </div>
-
-        <button id="spinBtn" class="action-btn" onclick="spin()">ОТКРЫТЬ КЕЙС</button>
+    <div id="market-view" class="view-section">
+        <h3 style="margin-top:0; color: var(--blue);">LIVE MARKET</h3>
+        <div id="marketGrid" class="market-grid"></div>
     </div>
 
     <div id="inventory-view" class="view-section">
-        <div id="invGrid" class="inv-grid"></div>
+        <div id="invGrid" class="market-grid"></div>
     </div>
 
     <div id="contracts-view" class="view-section">
-        <div class="contract-container">
-            <h3>TRADE-UP КОНТРАКТ</h3>
-            <p style="font-size:12px; color:#8b949e">Выберите редкость для крафта (нужно 10 шт)</p>
-            
-            <select id="raritySelect" onchange="checkContract()" style="padding:10px; width:100%; background:#0d1117; color:white; border:1px solid #30363d; border-radius:5px;">
-                <option value="common">Common (Серые)</option>
-                <option value="uncommon">Uncommon (Зеленые)</option>
-                <option value="rare">Rare (Синие)</option>
-                <option value="epic">Epic (Фиолетовые)</option>
-                <option value="legendary">Legendary (Розовые)</option>
-            </select>
-
-            <div id="slotDisplay" class="contract-slots">
-                <div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div>
-                <div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div><div class="slot"></div>
-            </div>
-
-            <button id="contractBtn" class="action-btn" disabled onclick="runContract()">ЗАПУСТИТЬ КОНТРАКТ</button>
-            <div id="contractStatus" style="font-size:12px"></div>
+        <div style="background: var(--card); padding: 20px; border-radius: 20px; text-align: center;">
+            <h3>КОНТРАКТ (10 предметов)</h3>
+            <button class="action-btn" style="background: var(--blue);" onclick="runContract()">НАЧАТЬ ОБМЕН</button>
         </div>
     </div>
 
-    <div id="modal" class="overlay">
+    <div id="modal" class="modal-overlay">
         <div class="modal">
-            <h3 id="mTitle">Продать?</h3>
-            <p id="mPrice" style="color:var(--accent); font-weight:bold"></p>
-            <button class="m-btn" style="background:var(--red); color:white" onclick="doSell()">ПРОДАТЬ</button>
-            <button class="m-btn" style="background:#484f58; color:white" onclick="closeM()">ОТМЕНА</button>
+            <h3 id="mTitle"></h3>
+            <p id="mPrice" style="color:var(--accent); font-size: 20px; font-weight: bold;"></p>
+            <button class="action-btn" id="mActionBtn" onclick="modalAction()"></button>
+            <button onclick="closeM()" style="background:transparent; border:none; color:#555; margin-top:10px; cursor:pointer;">Отмена</button>
         </div>
     </div>
 
     <script>
-        const skinsDB = {
-            common: [{name:"G22 | Casual", price:5, icon:"🔫"}],
-            uncommon: [{name:"USP | Genesis", price:15, icon:"🔫"}],
-            rare: [{name:"AKR | Tiger", price:45, icon:"🔫"}, {name:"M4 | Tiger", price:45, icon:"🔫"}],
-            epic: [{name:"AKR | Necromancer", price:150, icon:"🔫"}],
-            legendary: [{name:"AWM | Scratch", price:600, icon:"🎯"}],
-            arcane: [{name:"Karambit | Gold", price:15000, icon:"🔪"}, {name:"M9 | Universe", price:12000, icon:"🔪"}]
-        };
+        const skinsDB = [
+            { id: 0, name: "G22 | Casual", rarity: "common", basePrice: 10, icon: "🔫" },
+            { id: 1, name: "USP | Genesis", rarity: "uncommon", basePrice: 35, icon: "🔫" },
+            { id: 2, name: "M4 | Tiger", rarity: "rare", basePrice: 120, icon: "🔫" },
+            { id: 3, name: "AKR | Necro", rarity: "epic", basePrice: 450, icon: "🔫" },
+            { id: 4, name: "AWM | Scratch", rarity: "legendary", basePrice: 1200, icon: "🎯" },
+            { id: 5, name: "Karambit | Gold", rarity: "arcane", basePrice: 15000, icon: "🔪" }
+        ];
 
-        const config = {
-            furious: {cost:100, weights:{common:60, uncommon:25, rare:10, epic:4, legendary:0.8, arcane:0.2}},
-            revenge: {cost:250, weights:{common:30, uncommon:40, rare:20, epic:8, legendary:1.5, arcane:0.5}},
-            empire: {cost:500, weights:{common:0, uncommon:0, rare:20, epic:50, legendary:25, arcane:5}}
-        };
+        let money = parseInt(localStorage.getItem('s3_money')) || 2000;
+        let inv = JSON.parse(localStorage.getItem('s3_inv')) || [];
+        let marketPrices = {}; 
+        let selItem = null;
+        let actionMode = ''; // 'buy' or 'sell'
 
-        let money = parseInt(localStorage.getItem('s2_money')) || 1500;
-        let inv = JSON.parse(localStorage.getItem('s2_inv')) || [];
-        let xp = parseInt(localStorage.getItem('s2_xp')) || 0;
-        let currentCase = 'furious';
-        let selIdx = null;
+        // Инициализация цен
+        skinsDB.forEach(s => marketPrices[s.id] = { price: s.basePrice, trend: 0 });
 
-        function update() {
-            document.getElementById('money').innerText = money;
-            let lvl = Math.floor(xp / 1000) + 1;
-            document.getElementById('lvlTxt').innerText = `LVL ${lvl}`;
-            document.getElementById('xpBar').style.width = (xp % 1000 / 10) + "%";
-            document.getElementById('spinBtn').innerText = `ОТКРЫТЬ КЕЙС (${config[currentCase].cost} G)`;
+        // ФУНКЦИЯ ИЗМЕНЕНИЯ ЦЕН (РЫНОК)
+        function updateMarket() {
+            skinsDB.forEach(s => {
+                let change = (Math.random() * 0.1 - 0.05); // ±5%
+                let oldPrice = marketPrices[s.id].price;
+                marketPrices[s.id].price = Math.max(2, Math.round(oldPrice * (1 + change)));
+                marketPrices[s.id].trend = change > 0 ? 1 : -1;
+            });
+            renderMarket();
+            renderInventory();
+        }
+        setInterval(updateMarket, 5000); // Обновление каждые 5 сек
 
-            const grid = document.getElementById('invGrid');
+        function renderMarket() {
+            const grid = document.getElementById('marketGrid');
             grid.innerHTML = '';
-            inv.forEach((it, i) => {
+            skinsDB.forEach(s => {
+                let pData = marketPrices[s.id];
                 const d = document.createElement('div');
-                d.className = `inv-card ${it.rarity}`;
-                d.onclick = () => { selIdx = i; openM(it); };
-                d.innerHTML = `<div style="font-size:25px">${it.icon}</div><div style="font-size:10px">${it.name}</div>`;
+                d.className = 'market-card';
+                d.onclick = () => openM(s, 'buy');
+                d.innerHTML = `
+                    <div style="font-size:30px">${s.icon}</div>
+                    <div style="font-size:11px; font-weight:bold">${s.name}</div>
+                    <div style="color:var(--accent)">${pData.price} G 
+                        <span class="price-trend ${pData.trend > 0 ? 'trend-up' : 'trend-down'}">
+                            ${pData.trend > 0 ? '↑' : '↓'}
+                        </span>
+                    </div>
+                `;
                 grid.appendChild(d);
             });
+        }
 
-            localStorage.setItem('s2_money', money);
-            localStorage.setItem('s2_inv', JSON.stringify(inv));
-            localStorage.setItem('s2_xp', xp);
-            checkContract();
+        function renderInventory() {
+            const grid = document.getElementById('invGrid');
+            grid.innerHTML = '';
+            inv.forEach((item, index) => {
+                let curPrice = marketPrices[item.id].price;
+                const d = document.createElement('div');
+                d.className = `market-card ${item.rarity === 'arcane' ? 'arcane-glow' : ''}`;
+                d.style.borderColor = `var(--${item.rarity})`;
+                d.onclick = () => openM(item, 'sell', index);
+                d.innerHTML = `
+                    <div style="font-size:30px">${item.icon}</div>
+                    <div style="font-size:11px">${item.name}</div>
+                    <div style="color:var(--accent)">${curPrice} G</div>
+                `;
+                grid.appendChild(d);
+            });
+            localStorage.setItem('s3_money', money);
+            localStorage.setItem('s3_inv', JSON.stringify(inv));
+            document.getElementById('money').innerText = money;
         }
 
         function switchTab(t) {
@@ -298,106 +208,63 @@
             event.currentTarget.classList.add('active');
         }
 
-        function setCase(c) {
-            currentCase = c;
-            document.querySelectorAll('.case-item').forEach(i => i.classList.remove('active'));
-            document.getElementById('c-' + c).classList.add('active');
-            update();
+        function openM(item, mode, index = null) {
+            selItem = item;
+            actionMode = mode;
+            selItem.invIndex = index;
+            document.getElementById('mTitle').innerText = mode === 'buy' ? 'Купить скин?' : 'Продать скин?';
+            document.getElementById('mPrice').innerText = marketPrices[item.id].price + " G";
+            document.getElementById('mActionBtn').innerText = mode === 'buy' ? 'КУПИТЬ' : 'ПРОДАТЬ';
+            document.getElementById('modal').style.display = 'flex';
         }
 
-        function getSkin(weights) {
-            let r = Math.random() * 100, cur = 0;
-            for (let k in weights) {
-                cur += weights[k];
-                if (r <= cur) {
-                    let s = skinsDB[k][Math.floor(Math.random() * skinsDB[k].length)];
-                    return {...s, rarity: k};
-                }
+        function closeM() { document.getElementById('modal').style.display = 'none'; }
+
+        function modalAction() {
+            let p = marketPrices[selItem.id].price;
+            if (actionMode === 'buy') {
+                if (money >= p) {
+                    money -= p; inv.unshift({...selItem});
+                } else alert("Мало голды!");
+            } else {
+                money += p; inv.splice(selItem.invIndex, 1);
             }
-            return {...skinsDB.common[0], rarity:'common'};
+            closeM(); renderInventory();
         }
 
         function spin() {
-            if (money < config[currentCase].cost) return alert("Мало голды!");
-            money -= config[currentCase].cost;
-            let track = document.getElementById('track');
+            if (money < 100) return alert("Мало голды!");
+            money -= 100;
+            const track = document.getElementById('track');
             track.innerHTML = '';
+            track.style.transition = 'none';
+            track.style.transform = 'translateX(0)';
+            
             let win;
             for(let i=0; i<60; i++) {
-                let s = getSkin(config[currentCase].weights);
+                let s = skinsDB[Math.floor(Math.random() * (skinsDB.length - 1))]; // Рандом без ножа
+                if (Math.random() > 0.98) s = skinsDB[5]; // Шанс на нож
                 if(i === 55) win = s;
                 let d = document.createElement('div');
-                d.className = `card ${s.rarity}`;
+                d.style = `min-width:140px; height:130px; border-bottom:4px solid var(--${s.rarity}); text-align:center; padding:20px;`;
                 d.innerHTML = `<div style="font-size:30px">${s.icon}</div><div style="font-size:10px">${s.name}</div>`;
                 track.appendChild(d);
             }
-            track.style.transition = 'none';
-            track.style.transform = 'translateX(0)';
+
             setTimeout(() => {
                 track.style.transition = 'transform 7s cubic-bezier(0.1, 0, 0.1, 1)';
-                track.style.transform = `translateX(-${55 * 150 - (window.innerWidth/2 - 75)}px)`;
+                track.style.transform = `translateX(-${55 * 140 - (window.innerWidth/2 - 70)}px)`;
             }, 50);
+
             document.getElementById('spinBtn').disabled = true;
             setTimeout(() => {
                 document.getElementById('spinBtn').disabled = false;
-                inv.unshift(win); xp += 150; update();
+                inv.unshift({...win}); renderInventory();
             }, 7200);
         }
 
-        function openM(it) {
-            document.getElementById('mTitle').innerText = it.name;
-            document.getElementById('mPrice').innerText = it.price + " G";
-            document.getElementById('modal').style.display = 'flex';
-        }
-        function closeM() { document.getElementById('modal').style.display = 'none'; }
-        function doSell() {
-            money += inv[selIdx].price;
-            inv.splice(selIdx, 1);
-            closeM(); update();
-        }
-
-        // КОНТРАКТЫ
-        function checkContract() {
-            let r = document.getElementById('raritySelect').value;
-            let count = inv.filter(it => it.rarity === r).length;
-            let btn = document.getElementById('contractBtn');
-            let slots = document.querySelectorAll('.slot');
-            
-            slots.forEach((s, i) => {
-                if(i < count) s.classList.add('filled');
-                else s.classList.remove('filled');
-            });
-
-            if (count >= 10) {
-                btn.disabled = false;
-                document.getElementById('contractStatus').innerText = "Готово к крафту!";
-            } else {
-                btn.disabled = true;
-                document.getElementById('contractStatus').innerText = `Нужно еще ${10 - count} шт.`;
-            }
-        }
-
-        function runContract() {
-            let r = document.getElementById('raritySelect').value;
-            let rarities = ["common", "uncommon", "rare", "epic", "legendary", "arcane"];
-            let nextR = rarities[rarities.indexOf(r) + 1];
-            
-            // Удаляем 10 штук
-            let removed = 0;
-            inv = inv.filter(it => {
-                if (it.rarity === r && removed < 10) { removed++; return false; }
-                return true;
-            });
-
-            // Даем новый скин
-            let newS = skinsDB[nextR][Math.floor(Math.random() * skinsDB[nextR].length)];
-            inv.unshift({...newS, rarity: nextR});
-            xp += 500;
-            alert("Контракт выполнен! Вы получили: " + newS.name);
-            update();
-        }
-
-        update();
+        updateMarket();
+        renderInventory();
     </script>
 </body>
 </html>
