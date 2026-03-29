@@ -2,27 +2,24 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RADAR VRV | ULTIMATE</title>
+    <title>RADAR VRV | FINAL FIX</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --danger: #ff3333; --safe: #00ff66; --bg: #050505; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; overflow: hidden; height: 100vh; }
-        #map { height: 100%; width: 100%; filter: brightness(0.7) contrast(1.2); }
+        :root { --red: #ff3030; --green: #00ff88; --ui-bg: rgba(15,15,20,0.9); }
+        body { margin: 0; background: #111; font-family: sans-serif; overflow: hidden; height: 100vh; color: #fff; }
+        #map { height: 100%; width: 100%; filter: saturate(1.1) brightness(0.9); } /* Улучшил яркость здесь */
         
         .ui { position: fixed; z-index: 1000; pointer-events: none; }
-        .top-bar { top: 0; width: 100%; padding: 20px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); display: flex; justify-content: space-between; pointer-events: auto; }
-        .brand { color: var(--danger); font-weight: 900; letter-spacing: 3px; text-shadow: 0 0 15px var(--danger); }
+        .top-bar { top: 15px; left: 15px; right: 15px; display: flex; justify-content: space-between; }
+        .panel { background: var(--ui-bg); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px; backdrop-filter: blur(5px); pointer-events: auto; }
         
-        .threat-panel { bottom: 20px; left: 20px; width: 320px; background: rgba(10,10,15,0.95); border: 1px solid rgba(255,51,51,0.4); border-radius: 12px; padding: 15px; pointer-events: auto; backdrop-filter: blur(10px); }
-        .threat-item { background: rgba(255,51,51,0.1); border-left: 5px solid var(--danger); padding: 10px; margin-top: 10px; border-radius: 4px; animation: flash 0.5s ease; }
+        #console { bottom: 20px; right: 20px; width: 280px; font-family: monospace; font-size: 10px; border-right: 4px solid var(--red); }
+        .threat-panel { bottom: 20px; left: 20px; width: 300px; }
+        .threat-box { background: rgba(255,48,48,0.15); border-left: 4px solid var(--red); padding: 8px; margin-top: 8px; border-radius: 4px; animation: in 0.4s ease; }
         
-        #console { top: 70px; right: 20px; width: 280px; max-height: 200px; background: rgba(0,0,0,0.8); border-radius: 8px; font-family: 'Consolas', monospace; font-size: 11px; padding: 10px; overflow: hidden; border-right: 3px solid var(--danger); }
-        .log { margin-bottom: 5px; opacity: 0.8; border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-        @keyframes flash { from { background: rgba(255,51,51,0.5); } to { background: rgba(255,51,51,0.1); } }
-        .pulse { animation: p 1.5s infinite alternate; }
-        @keyframes p { from { fill-opacity: 0.3; } to { fill-opacity: 0.7; } }
+        @keyframes in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .pulse { animation: p 1s infinite alternate; }
+        @keyframes p { from { fill-opacity: 0.2; } to { fill-opacity: 0.6; } }
     </style>
 </head>
 <body>
@@ -30,121 +27,103 @@
 <div id="map"></div>
 
 <div class="ui top-bar">
-    <div class="brand">SYSTEM RADAR VRV</div>
-    <div id="status"><span style="color:var(--safe)">●</span> КАНАЛ СВЯЗИ: OK</div>
+    <div class="panel" style="font-weight: 900; color: var(--red);">🛰 RADAR SYSTEM VRV</div>
+    <div class="panel" id="status">📡 СВЯЗЬ: ОЖИДАНИЕ...</div>
 </div>
 
-<div class="ui threat-panel">
-    <div style="font-size: 11px; color: #777;">МОНИТОРИНГ УГРОЗ:</div>
-    <div id="threat-list"><div style="color:#555; padding: 10px 0;">Сектор чист</div></div>
+<div class="ui threat-panel panel">
+    <div style="font-size: 11px; opacity: 0.6;">АКТИВНЫЕ СЕКТОРЫ:</div>
+    <div id="threat-list">Чисто</div>
 </div>
 
-<div class="ui" id="console"></div>
+<div class="ui panel" id="console"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
     const map = L.map('map', { center: [48.5, 42.0], zoom: 6, zoomControl: false });
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
-    const activeThreats = new Map();
-    const layers = new Map();
+    const threats = new Map();
+    const mapLayers = new Map();
 
     const REGIONS = {
-        "Ставрополье": { coords: [[43.5, 41.0], [46.2, 46.0]], keys: ["невинка", "невинномысск", "ставрополь", "ставропольский"] },
-        "Белгород": { coords: [[50.0, 35.5], [51.3, 39.0]], keys: ["белгород", "шебекино"] },
-        "Курск": { coords: [[50.8, 33.8], [52.4, 36.5]], keys: ["курск", "суджа"] },
-        "Воронеж": { coords: [[49.5, 38.0], [52.2, 43.0]], keys: ["воронеж"] },
-        "Ростов": { coords: [[46.0, 38.0], [50.0, 44.0]], keys: ["ростов", "таганрог"] }
+        "Ставрополье": { c: [[43.8, 41.2], [46.1, 45.8]], keys: ["невинка", "невинномысск", "ставрополь"] },
+        "Белгород": { c: [[50.1, 35.8], [51.2, 38.8]], keys: ["белгород", "шебекино"] },
+        "Курск": { c: [[50.9, 34.1], [52.3, 36.3]], keys: ["курск", "суджа"] },
+        "Воронеж": { c: [[49.8, 38.5], [52.0, 42.5]], keys: ["воронеж"] }
     };
 
-    function log(msg, color = "#aaa") {
+    function addLog(text, color = "#888") {
         const c = document.getElementById('console');
-        const e = document.createElement('div');
-        e.className = 'log';
-        e.style.color = color;
-        e.innerHTML = `> ${new Date().toLocaleTimeString()} ${msg}`;
-        c.prepend(e);
-        if (c.children.length > 8) c.lastChild.remove();
+        const d = document.createElement('div');
+        d.innerHTML = `> ${new Date().toLocaleTimeString()} ${text}`;
+        d.style.color = color;
+        c.prepend(d);
+        if (c.children.length > 7) c.lastChild.remove();
     }
 
-    async function fetchData() {
-        const sources = [
-            `https://api.allorigins.win/get?url=${encodeURIComponent('https://t.me/s/vrv_radar?cb=' + Date.now())}`,
-            `https://worker-proud-sun-5835.cors-proxy.workers.dev/?url=https://t.me/s/vrv_radar`
-        ];
-
-        for (let url of sources) {
-            try {
-                log("Запрос данных...");
-                const res = await fetch(url);
-                if (!res.ok) continue;
-                const data = await res.json();
-                return new DOMParser().parseFromString(data.contents || data, 'text/html');
-            } catch (e) { continue; }
-        }
-        throw new Error("Все каналы перегружены");
-    }
-
-    async function update() {
+    async function scan() {
         try {
-            const doc = await fetchData();
-            const msgs = Array.from(doc.querySelectorAll('.tgme_widget_message_text')).slice(-5);
-            
-            if (msgs.length === 0) { log("Нет новых постов", "#555"); return; }
+            addLog("Синхронизация...");
+            // Используем только самый стабильный прокси с анти-кешем
+            const url = `https://api.allorigins.win/get?url=${encodeURIComponent('https://t.me/s/vrv_radar?t=' + Date.now())}`;
+            const res = await fetch(url);
+            if(!res.ok) throw "Server Error";
+            const data = await res.json();
+            const doc = new DOMParser().parseFromString(data.contents, 'text/html');
+            const posts = Array.from(doc.querySelectorAll('.tgme_widget_message_text')).slice(-3);
 
-            msgs.forEach(m => {
-                const text = m.innerText.toLowerCase();
-                for (let r in REGIONS) {
-                    const isAlert = ["опасность", "внимание", "угроза", "ракетная", "пуск"].some(w => text.includes(w));
-                    const isClear = ["отбой", "чисто", "снята"].some(w => text.includes(w));
-                    const isTarget = REGIONS[r].keys.some(k => text.includes(k));
+            if(posts.length === 0) { addLog("Посты не найдены", "#f0a"); return; }
 
-                    if (isTarget) {
-                        if (isClear) {
-                            activeThreats.delete(r);
-                            log(`ОТБОЙ: ${r}`, "#00ff66");
-                        } else if (isAlert) {
-                            activeThreats.set(r, m.innerText.substring(0, 60) + "...");
-                            log(`⚠️ УГРОЗА: ${r}`, "#ff3333");
-                        }
+            posts.forEach(p => {
+                const txt = p.innerText.toLowerCase();
+                for(let r in REGIONS) {
+                    const isAlert = ["опасность", "внимание", "угроза", "ракетная"].some(w => txt.includes(w));
+                    const isClear = ["отбой", "чисто", "снята"].some(w => txt.includes(w));
+                    const isMe = REGIONS[r].keys.some(k => txt.includes(k));
+
+                    if (isMe) {
+                        if (isClear) threats.delete(r);
+                        else if (isAlert) threats.set(r, p.innerText.substring(0, 50));
                     }
                 }
             });
+
+            document.getElementById('status').innerHTML = "📡 СВЯЗЬ: OK";
+            document.getElementById('status').style.color = "#00ff88";
             render();
         } catch (e) {
-            log("ОШИБКА СВЯЗИ - ПЕРЕЗАПУСК", "#ffcc00");
+            addLog("СБОЙ (ПАУЗА 60с)", "#ff3030");
+            document.getElementById('status').innerHTML = "📡 СВЯЗЬ: ПЕРЕЗАГРУЗКА";
+            document.getElementById('status').style.color = "#ff3030";
         }
     }
 
     function render() {
         const list = document.getElementById('threat-list');
-        list.innerHTML = activeThreats.size === 0 ? '<div style="color:#555;">Сектор чист</div>' : "";
-        
-        layers.forEach(l => map.removeLayer(l));
-        layers.clear();
+        list.innerHTML = threats.size === 0 ? "Чисто" : "";
+        mapLayers.forEach(l => map.removeLayer(l));
+        mapLayers.clear();
 
-        activeThreats.forEach((info, region) => {
-            const poly = L.rectangle(REGIONS[region].coords, {
-                color: '#ff3333', weight: 2, fillColor: '#ff3333', fillOpacity: 0.5, className: 'pulse'
-            }).addTo(map);
-            layers.set(region, poly);
-
-            const item = document.createElement('div');
-            item.className = 'threat-item';
-            item.innerHTML = `<b>${region.toUpperCase()}</b><br><small>${info}</small>`;
-            list.appendChild(item);
+        threats.forEach((msg, r) => {
+            const poly = L.rectangle(REGIONS[r].c, { color: '#ff3030', fillColor: '#ff3030', fillOpacity: 0.4, className: 'pulse' }).addTo(map);
+            mapLayers.set(r, poly);
+            const box = document.createElement('div');
+            box.className = 'threat-box';
+            box.innerHTML = `<b>${r}</b><br><span style="font-size:10px">${msg}</span>`;
+            list.appendChild(box);
         });
     }
 
-    setInterval(update, 15000);
-    update();
+    setInterval(scan, 30000);
+    scan();
 
-    // Тест кликом
+    // ТЕСТ ПРИ НАЖАТИИ
     map.on('click', () => {
-        log("ТЕСТ: Запуск Невинки", "#ffcc00");
-        activeThreats.set("Ставрополье", "ТЕСТОВАЯ ПРОВЕРКА СИСТЕМЫ");
+        addLog("ЗАПУСК ТЕСТА", "#ff8800");
+        threats.set("Ставрополье", "ТЕСТОВАЯ ПРОВЕРКА...");
         render();
-        setTimeout(() => { activeThreats.delete("Ставрополье"); render(); }, 10000);
+        setTimeout(() => { threats.delete("Ставрополье"); render(); }, 5000);
     });
 </script>
 </body>
