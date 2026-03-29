@@ -3,41 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SO2 Case Simulator</title>
+    <title>SO2 Case Simulator + Inventory</title>
     <style>
         body {
-            background-color: #0b0e14;
+            background-color: #0d1117;
             color: white;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            height: 100vh;
             margin: 0;
-            overflow: hidden;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
         }
 
         .balance {
-            font-size: 24px;
-            margin-bottom: 20px;
+            font-size: 28px;
             color: #ffcc00;
-            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
         }
 
-        /* Окно рулетки */
-        .roulette-container {
+        /* РУЛЕТКА */
+        .roulette-wrapper {
             position: relative;
-            width: 800px;
-            height: 160px;
-            background: #151a21;
-            border: 2px solid #2d353f;
+            width: 100%;
+            max-width: 800px;
+            height: 180px;
+            background: #161b22;
+            border: 3px solid #30363d;
+            border-radius: 12px;
             overflow: hidden;
-            border-radius: 8px;
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* Красная линия по центру */
         .pointer {
             position: absolute;
             left: 50%;
@@ -47,168 +52,209 @@
             background: #ff4747;
             z-index: 10;
             transform: translateX(-50%);
-            box-shadow: 0 0 15px #ff4747;
+            box-shadow: 0 0 20px #ff4747;
         }
 
-        /* Лента со скинами */
         .cases-line {
             display: flex;
             position: absolute;
             left: 0;
-            top: 10px;
-            transition: transform 7s cubic-bezier(0.1, 0, 0.1, 1); /* Плавное замедление */
+            top: 15px;
             will-change: transform;
         }
 
         .skin-card {
-            min-width: 140px;
-            height: 140px;
+            min-width: 150px;
+            height: 150px;
             margin: 0 5px;
-            background: #1c222b;
-            border-bottom: 4px solid #ccc;
+            background: #21262d;
+            border-bottom: 5px solid #ccc;
+            border-radius: 8px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 4px;
             text-align: center;
-            font-size: 12px;
+            font-size: 13px;
+            transition: 0.3s;
         }
 
-        /* Цвета редкостей */
+        /* РЕДКОСТИ */
         .common { border-color: #b0c3d9; }
         .uncommon { border-color: #5e98d9; }
         .rare { border-color: #4b69ff; }
         .epic { border-color: #8847ff; }
         .legendary { border-color: #d32ce6; }
-        .arcane { border-color: #eb4b4b; }
+        .arcane { border-color: #eb4b4b; text-shadow: 0 0 5px red; }
 
-        .skin-img {
-            width: 90px;
+        .skin-img-stub {
+            width: 100px;
             height: 70px;
-            background: #252c38;
+            background: rgba(255,255,255,0.05);
             margin-bottom: 10px;
-            border-radius: 4px;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
         }
 
-        button {
-            margin-top: 40px;
-            padding: 15px 50px;
-            background: #ffcc00;
+        /* КНОПКА */
+        .main-btn {
+            padding: 15px 60px;
+            background: linear-gradient(180deg, #ffcc00, #ff9900);
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            color: #000;
+            font-size: 20px;
             font-weight: bold;
-            font-size: 18px;
             cursor: pointer;
+            box-shadow: 0 5px 15px rgba(255, 153, 0, 0.4);
             transition: 0.2s;
         }
 
-        button:hover {
-            background: #ffe066;
-            transform: scale(1.05);
+        .main-btn:active { transform: scale(0.95); }
+        .main-btn:disabled { background: #484f58; color: #8b949e; cursor: not-allowed; }
+
+        /* ИНВЕНТАРЬ */
+        .inventory-section {
+            width: 100%;
+            max-width: 900px;
+            margin-top: 50px;
         }
 
-        button:disabled {
-            background: #555;
-            cursor: not-allowed;
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
+            background: #0d1117;
+            padding: 20px;
+            border-top: 2px solid #30363d;
         }
+
+        .inv-item {
+            background: #161b22;
+            padding: 10px;
+            border-radius: 8px;
+            border-bottom: 3px solid;
+            text-align: center;
+            font-size: 11px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="balance">Баланс: <span id="money">1000</span> G</div>
-
-    <div class="roulette-container">
-        <div class="pointer"></div>
-        <div class="cases-line" id="line"></div>
+    <div class="header">
+        <h1>SO2 CASE SIMULATOR</h1>
+        <div class="balance">Баланс: <span id="balanceText">1000</span> G</div>
     </div>
 
-    <button id="spinBtn" onclick="startSpin()">ОТКРЫТЬ КЕЙС (100 G)</button>
+    <div class="roulette-wrapper">
+        <div class="pointer"></div>
+        <div id="line" class="cases-line"></div>
+    </div>
+
+    <button id="spinBtn" class="main-btn" onclick="openCase()">ОТКРЫТЬ КЕЙС (100 G)</button>
+
+    <div class="inventory-section">
+        <h3>МОЙ ИНВЕНТАРЬ</h3>
+        <div id="inventory" class="inventory-grid">
+            </div>
+    </div>
 
     <script>
-        const line = document.getElementById('line');
-        const moneyEl = document.getElementById('money');
-        const btn = document.getElementById('spinBtn');
-        
-        let balance = 1000;
-        const cardWidth = 150; // ширина карточки + отступы
-
+        // БАЗА ДАННЫХ СКИНОВ
         const skins = [
-            { name: "G22 | Casual", rarity: "common" },
-            { name: "P350 | Nano", rarity: "uncommon" },
-            { name: "AKR | Tiger", rarity: "rare" },
-            { name: "M4 | Lizard", rarity: "epic" },
-            { name: "AWM | Scratch", rarity: "legendary" },
-            { name: "Karambit | Gold", rarity: "arcane" }
+            { name: "G22 | Casual", rarity: "common", icon: "🔫" },
+            { name: "USP | Genesis", rarity: "uncommon", icon: "🔫" },
+            { name: "M4 | Tiger", rarity: "rare", icon: "🔫" },
+            { name: "AKR | Necromancer", rarity: "epic", icon: "🔫" },
+            { name: "AWM | Scratch", rarity: "legendary", icon: "🎯" },
+            { name: "M9 | Universe", rarity: "arcane", icon: "🔪" },
+            { name: "Karambit | Gold", rarity: "arcane", icon: "🔪" }
         ];
 
-        // Шансы (чем выше число, тем чаще падает)
-        const rarityWeights = {
-            common: 50,
-            uncommon: 30,
-            rare: 12,
-            epic: 5,
-            legendary: 2,
-            arcane: 1
-        };
+        const rarityWeights = { common: 60, uncommon: 25, rare: 10, epic: 3, legendary: 1.5, arcane: 0.5 };
 
-        function getRandomSkin() {
-            let pool = [];
-            skins.forEach(skin => {
-                for (let i = 0; i < rarityWeights[skin.rarity]; i++) {
-                    pool.push(skin);
-                }
+        let balance = parseInt(localStorage.getItem('so2_balance')) || 1000;
+        let myItems = JSON.parse(localStorage.getItem('so2_inventory')) || [];
+
+        function updateUI() {
+            document.getElementById('balanceText').innerText = balance;
+            localStorage.setItem('so2_balance', balance);
+            
+            const invDiv = document.getElementById('inventory');
+            invDiv.innerHTML = '';
+            myItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = `inv-item ${item.rarity}`;
+                div.innerHTML = `<div style="font-size:30px">${item.icon}</div><div>${item.name}</div>`;
+                invDiv.appendChild(div);
             });
-            return pool[Math.floor(Math.random() * pool.length)];
+            localStorage.setItem('so2_inventory', JSON.stringify(myItems));
         }
 
-        function generateSkins(count) {
-            line.innerHTML = '';
-            for (let i = 0; i < count; i++) {
-                const skin = getRandomSkin();
-                const card = document.createElement('div');
-                card.className = `skin-card ${skin.rarity}`;
-                card.innerHTML = `
-                    <div class="skin-img"></div>
-                    <div>${skin.name}</div>
-                `;
-                line.appendChild(card);
+        function getWeightedRandomSkin() {
+            let totalWeight = 0;
+            for (let r in rarityWeights) totalWeight += rarityWeights[r];
+            let random = Math.random() * totalWeight;
+            
+            let currentWeight = 0;
+            for (let r in rarityWeights) {
+                currentWeight += rarityWeights[r];
+                if (random < currentWeight) {
+                    const filtered = skins.filter(s => s.rarity === r);
+                    return filtered[Math.floor(Math.random() * filtered.length)];
+                }
             }
         }
 
-        function startSpin() {
-            if (balance < 100) return alert("Недостаточно голды!");
+        function openCase() {
+            if (balance < 100) return alert("Мало голды!");
             
             balance -= 100;
-            moneyEl.innerText = balance;
+            const btn = document.getElementById('spinBtn');
+            const line = document.getElementById('line');
             btn.disabled = true;
-
-            // Генерируем 50 скинов для ленты
-            generateSkins(50);
             
-            // Сбрасываем позицию
+            // Генерируем ленту
+            line.innerHTML = '';
+            const totalCards = 60;
+            const winningIndex = 55; // 55-й скин будет победным
+            let winSkin;
+
+            for(let i=0; i < totalCards; i++) {
+                let s = getWeightedRandomSkin();
+                if(i === winningIndex) winSkin = s;
+                const card = document.createElement('div');
+                card.className = `skin-card ${s.rarity}`;
+                card.innerHTML = `<div class="skin-img-stub">${s.icon}</div><div>${s.name}</div>`;
+                line.appendChild(card);
+            }
+
+            // Анимация
             line.style.transition = 'none';
             line.style.transform = 'translateX(0)';
             
-            // Запускаем анимацию через минимальный таймаут
             setTimeout(() => {
-                const stopPos = (47 * cardWidth) - (400 - cardWidth / 2); 
-                // 47 - номер выигрышного скина, 400 - центр контейнера
-                const randomOffset = Math.floor(Math.random() * 100) - 50; // рандом внутри карточки
-                
+                const cardWidth = 160; 
+                const offset = (winningIndex * cardWidth) - (window.innerWidth / 2) + (cardWidth / 2);
                 line.style.transition = 'transform 7s cubic-bezier(0.1, 0, 0.1, 1)';
-                line.style.transform = `translateX(-${stopPos + randomOffset}px)`;
+                line.style.transform = `translateX(-${offset}px)`;
             }, 50);
 
-            // Когда анимация кончилась
+            // Финал
             setTimeout(() => {
                 btn.disabled = false;
-                // Здесь можно добавить всплывающее окно с призом
-            }, 7100);
+                myItems.unshift(winSkin); // Добавляем в начало инвентаря
+                updateUI();
+            }, 7200);
         }
 
-        // Первичная генерация для красоты
-        generateSkins(50);
+        updateUI(); // Загрузка при старте
     </script>
 </body>
 </html>
