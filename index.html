@@ -2,99 +2,88 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>RADAR VRV | RUSSIA MONITOR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE EMPIRE: Глобальная Стратегия</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { margin: 0; padding: 0; background: #000; font-family: 'Segoe UI', sans-serif; height: 100vh; overflow: hidden; }
-        #map { height: 100%; width: 100%; }
-        .ui { position: fixed; z-index: 9999; pointer-events: none; }
-        .panel { background: rgba(0,0,0,0.85); border: 1px solid #ff3333; border-radius: 8px; padding: 12px; pointer-events: auto; color: #fff; backdrop-filter: blur(5px); }
-        .top { top: 15px; left: 15px; font-weight: 800; color: #ff3333; text-transform: uppercase; }
-        .threats { bottom: 20px; left: 20px; width: 320px; max-height: 50%; overflow-y: auto; }
-        .alert-item { background: rgba(255,51,51,0.2); border-left: 5px solid #ff3333; padding: 10px; margin-top: 8px; border-radius: 4px; animation: pulse 1.5s infinite alternate; }
-        @keyframes pulse { from { box-shadow: 0 0 5px #ff3333; } to { box-shadow: 0 0 15px #ff3333; } }
+        :root { --main-red: #ff3333; --main-green: #00ff88; --bg: #050505; --ui-bg: rgba(10,10,15,0.9); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: #fff; overflow: hidden; height: 100vh; }
+        #map { height: 100%; width: 100%; z-index: 1; filter: saturate(1.3) contrast(1.1); }
+        
+        /* Панель игрока */
+        .player-panel {
+            position: fixed; bottom: 20px; left: 20px; width: 320px;
+            background: var(--ui-bg); border: 2px solid rgba(255,51,51,0.3);
+            border-radius: 15px; padding: 15px; z-index: 1000;
+            backdrop-filter: blur(10px); color: #fff;
+        }
+        .stat-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
+        .stat-value { font-weight: bold; color: var(--main-green); }
+
+        /* Лента событий */
+        .log-panel {
+            position: fixed; top: 20px; right: 20px; width: 300px;
+            max-height: 250px; background: rgba(0,0,0,0.8);
+            border-radius: 8px; padding: 10px; font-size: 11px;
+            font-family: monospace; color: #aaa; z-index: 1000;
+            border-left: 3px solid var(--main-red); overflow-y: hidden;
+        }
+        .log-entry { margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+        /* Стили карты Leaflet */
+        @keyframes zonePulse { 0% { fill-opacity: 0.1; } 100% { fill-opacity: 0.4; } }
+        .map-danger-zone { animation: zonePulse 1.2s infinite alternate; }
     </style>
 </head>
 <body>
 
 <div id="map"></div>
 
-<div class="ui panel top">RADAR VRV: МОНИТОРИНГ РОССИИ</div>
+<div class="player-panel">
+    <div style="font-size: 18px; font-weight: 900; color: var(--main-red); margin-bottom: 12px; letter-spacing: 1px;">МОЯ ИМПЕРИЯ</div>
+    <div class="stat-item"><span>Лидер:</span> <span class="stat-value">Игрок #1</span></div>
+    <div class="stat-item"><span>Казна (Золото):</span> <span class="stat-value" id="gold">10,000$</span></div>
+    <div class="stat-item"><span>Армия (Солдаты):</span> <span class="stat-value" id="army">1,000 чел.</span></div>
+    <div class="stat-item"><span>Уровень Экономики:</span> <span class="stat-value" id="economy">1</span></div>
+    <div class="stat-item"><span>Доход (Ход):</span> <span class="stat-value" id="income">+100$</span></div>
+</div>
 
-<div class="ui panel threats">
-    <div style="font-size: 11px; color: #888; margin-bottom: 5px;">АКТИВНЫЕ ЦЕЛИ:</div>
-    <div id="threat-list">Ожидание эфира...</div>
+<div class="log-panel" id="log-box">
+    <div class="log-entry">> [15:00:00] Старт Сессии. Выберите страну на карте.</div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    const map = L.map('map', { center: [50.0, 40.0], zoom: 5, zoomControl: false });
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    // --- 1. КРУТАЯ КАРТА (Dark Matter - неоновый стиль) ---
+    const map = L.map('map', { center: [50.0, 30.0], zoom: 4, zoomControl: false });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
-    const activeThreats = new Map();
-    const layers = new Map();
+    const logBox = document.getElementById('log-box');
+    function addLog(msg, color = '#aaa') {
+        const time = new Date().toLocaleTimeString();
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        entry.style.color = color;
+        entry.innerHTML = `> [${time}] ${msg}`;
+        logBox.prepend(entry);
+        if (logBox.children.length > 10) logBox.lastChild.remove();
+    }
 
-    // БАЗА РЕГИОНОВ (ПОЛ-РОССИИ)
-    const REGIONS = {
-        "Ставрополье": { c: [[43.5, 41.0], [46.2, 46.0]], keys: ["невинка", "невинномысск", "ставрополь", "ставропольский"] },
-        "Краснодарский край": { c: [[44.0, 37.0], [46.8, 41.0]], keys: ["краснодар", "сочи", "новороссийск", "туапсе", "кубань"] },
-        "Крым": { c: [[44.4, 32.5], [46.2, 36.6]], keys: ["крым", "севастополь", "керчь", "симферополь", "джанкой"] },
-        "Ростовская обл.": { c: [[46.0, 38.0], [50.1, 44.0]], keys: ["ростов", "таганрог", "шахты", "новочеркасск"] },
-        "Белгородская обл.": { c: [[50.0, 35.5], [51.3, 39.1]], keys: ["белгород", "шебекино", "валуйки", "грайворон"] },
-        "Курская обл.": { c: [[50.8, 33.8], [52.4, 36.6]], keys: ["курск", "суджа", "рыльск", "льгов"] },
-        "Воронежская обл.": { c: [[49.5, 38.2], [52.1, 43.1]], keys: ["воронеж", "лиски", "острогожск"] },
-        "Брянская обл.": { c: [[52.0, 31.2], [54.0, 35.5]], keys: ["брянск", "клинцы", "стародуб"] },
-        "Москва и МО": { c: [[54.2, 35.2], [56.9, 40.2]], keys: ["москва", "подмосковье", "люберцы", "одинцово", "раменское"] },
-        "Тульская обл.": { c: [[52.9, 36.2], [54.9, 38.8]], keys: ["тула", "ефремов"] },
-        "Калужская обл.": { c: [[53.3, 33.4], [55.4, 37.1]], keys: ["калуга", "обнинск"] }
+    // --- 2. ГРАНИЦЫ СТРАН (Вшиты в код) ---
+    const countryData = {
+        "Russia": { coords: [[[65,30],[168,30],[168,76],[65,76],[65,30]]], name: "Российская Империя", income: 200, army: 2000, gold: 10000 },
+        "USA": { coords: [[[-125,25],[-67,25],[-67,49],[-125,49],[-125,25]]], name: "США", income: 300, army: 1500, gold: 15000 },
+        "China": { coords: [[[73,18],[135,18],[135,53],[73,53],[73,18]]], name: "КНР", income: 250, army: 3000, gold: 12000 },
+        "Germany": { coords: [[[6,47],[15,47],[15,55],[6,55],[6,47]]], name: "Германский Рейх", income: 150, army: 800, gold: 8000 },
+        "Ukraine": { coords: [[[22,44],[40,44],[40,52],[22,52],[22,44]]], name: "Украина", income: 100, army: 500, gold: 5000 }
     };
 
-    async function scan() {
-        try {
-            // Используем RSS2JSON как самый стабильный мост
-            const res = await fetch(`https://api.rss2json.com/v1/api.json?rss_url=https://tg.i-c-a.su/rss/vrv_radar&t=${Date.now()}`);
-            const data = await res.json();
-            if (data.status !== 'ok') return;
+    // --- 3. ИГРОВЫЕ ПЕРЕМЕННЫЕ ---
+    let player = { gold: 10000, army: 1000, economy: 1, income: 100, chosenCountry: null };
 
-            const items = data.items.slice(0, 7); // Проверяем последние 7 постов
+    // --- 4. ОТРИСОВКА И ВЗАИМОДЕЙСТВИЕ ---
+    const countryLayers = {};
 
-            items.forEach(item => {
-                const text = item.content.toLowerCase();
-                for (let r in REGIONS) {
-                    const isTarget = REGIONS[r].keys.some(k => text.includes(k));
-                    const isAlert = ["опасность", "внимание", "угроза", "ракетная", "бпла", "пуск"].some(w => text.includes(w));
-                    const isClear = ["отбой", "чисто", "снята"].some(w => text.includes(w));
-
-                    if (isTarget) {
-                        if (isClear) activeThreats.delete(r);
-                        else if (isAlert) activeThreats.set(r, item.title || "Зафиксирована активность");
-                    }
-                }
-            });
-            render();
-        } catch (e) { console.log("Связь..."); }
-    }
-
-    function render() {
-        const list = document.getElementById('threat-list');
-        list.innerHTML = activeThreats.size === 0 ? '<span style="color:#00ff88">● В ЭФИРЕ СПОКОЙНО</span>' : "";
-        
-        layers.forEach(l => map.removeLayer(l));
-        layers.clear();
-
-        activeThreats.forEach((msg, r) => {
-            const poly = L.rectangle(REGIONS[r].c, { color: 'red', weight: 2, fillColor: 'red', fillOpacity: 0.4 }).addTo(map);
-            layers.set(r, poly);
-
-            const div = document.createElement('div');
-            div.className = 'alert-item';
-            div.innerHTML = `<b>${r}</b><br><small>${msg}</small>`;
-            list.appendChild(div);
-        });
-    }
-
-    setInterval(scan, 20000);
-    scan();
-</script>
-</body>
-</html>
+    function getCountryStyle(isActive = false) {
+        return { color: isActive ? '#
