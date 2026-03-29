@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SO2 CASE SIMULATOR: ULTIMATE</title>
+    <title>SO2 CASE SIMULATOR: SOUND EDITION</title>
     <style>
         :root {
             --bg: #05070a;
@@ -21,16 +21,14 @@
             display: flex; flex-direction: column; align-items: center; margin: 0; padding: 10px; min-height: 100vh;
         }
 
-        /* HEADER */
         .header-panel {
             background: var(--card); backdrop-filter: blur(10px);
             width: 100%; max-width: 800px; padding: 15px 25px;
             border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
         }
-        .balance-val { font-size: 26px; font-weight: 900; color: var(--accent); text-shadow: 0 0 10px rgba(255,204,0,0.4); }
+        .balance-val { font-size: 26px; font-weight: 900; color: var(--accent); }
 
-        /* TABS */
         .tabs { display: flex; gap: 8px; margin-bottom: 15px; width: 100%; max-width: 800px; }
         .tab-btn {
             flex: 1; padding: 12px; background: var(--card); border: 1px solid rgba(255,255,255,0.05);
@@ -42,7 +40,6 @@
         .view-section.active { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* КЕЙСЫ */
         .case-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
         .case-card {
             background: var(--card); padding: 10px; border-radius: 15px; border: 2px solid transparent;
@@ -50,37 +47,25 @@
         }
         .case-card.active { border-color: var(--blue); background: rgba(0, 230, 255, 0.1); }
 
-        /* РУЛЕТКА */
         .roulette-box { height: 160px; background: rgba(0,0,0,0.5); border-radius: 20px; overflow: hidden; position: relative; margin-bottom: 15px; border: 1px solid #222; }
         .pointer { position: absolute; left: 50%; top: 0; width: 4px; height: 100%; background: var(--red); z-index: 5; transform: translateX(-50%); box-shadow: 0 0 15px var(--red); }
         .track { display: flex; position: absolute; left: 0; top: 15px; transition: transform 7s cubic-bezier(0.1, 0, 0.1, 1); }
         .track-card { min-width: 140px; height: 130px; margin: 0 5px; background: #1a1f26; border-radius: 10px; border-bottom: 4px solid #555; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
-        /* ГРИДЫ */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
-        .item-card {
-            background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1);
-            text-align: center; cursor: pointer; transition: 0.2s; position: relative;
-        }
-        .item-card:hover { transform: translateY(-3px); }
+        .item-card { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); text-align: center; cursor: pointer; transition: 0.2s; }
 
-        /* КНОПКИ */
         .btn {
             width: 100%; padding: 16px; border: none; border-radius: 15px; font-size: 18px; font-weight: bold;
-            cursor: pointer; background: linear-gradient(180deg, var(--accent), #e6b800);
-            box-shadow: 0 4px 15px rgba(255, 204, 0, 0.2); transition: 0.2s; color: black;
+            cursor: pointer; background: linear-gradient(180deg, var(--accent), #e6b800); color: black;
         }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .btn:disabled { opacity: 0.4; }
 
-        /* МОДАЛКИ */
         .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:1000; backdrop-filter: blur(8px); }
-        .modal { background: #151921; padding: 30px; border-radius: 25px; border: 1px solid var(--blue); text-align: center; width: 90%; max-width: 350px; animation: popIn 0.3s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
-        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal { background: #151921; padding: 30px; border-radius: 25px; border: 1px solid var(--blue); text-align: center; width: 90%; max-width: 350px; }
+        .win-glow { font-size: 70px; margin-bottom: 10px; }
 
-        .win-rarity-glow { width: 120px; height: 120px; margin: 0 auto 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 60px; box-shadow: 0 0 30px currentColor; }
-        
-        .trend-up { color: var(--green); font-size: 10px; }
-        .trend-down { color: var(--red); font-size: 10px; }
+        .trend-up { color: var(--green); } .trend-down { color: var(--red); }
     </style>
 </head>
 <body>
@@ -88,7 +73,7 @@
     <div class="header-panel">
         <div>
             <div id="lvlTxt" style="font-weight: bold; color: var(--blue);">LVL 1</div>
-            <div id="xpBar" style="width: 100px; height: 4px; background: #222; margin-top: 4px; border-radius: 2px;"><div id="xpFill" style="height: 100%; background: var(--blue); width: 0%;"></div></div>
+            <div style="width: 100px; height: 4px; background: #222; margin-top: 4px; border-radius: 2px;"><div id="xpFill" style="height: 100%; background: var(--blue); width: 0%;"></div></div>
         </div>
         <div class="balance-val"><span id="money">1000</span> G</div>
     </div>
@@ -101,44 +86,49 @@
 
     <div id="cases-view" class="view-section active">
         <div class="case-selector">
-            <div id="c-furious" class="case-card active" onclick="setCase('furious')"><div>📦</div><div style="font-size:10px">FURIOUS</div><div style="color:var(--accent)">100 G</div></div>
-            <div id="c-revenge" class="case-card" onclick="setCase('revenge')"><div>💜</div><div style="font-size:10px">REVENGE</div><div style="color:var(--accent)">250 G</div></div>
-            <div id="c-empire" class="case-card" onclick="setCase('empire')"><div>🟡</div><div style="font-size:10px">EMPIRE</div><div style="color:var(--accent)">500 G</div></div>
+            <div id="c-furious" class="case-card active" onclick="setCase('furious')">📦<br><small>FURIOUS</small></div>
+            <div id="c-revenge" class="case-card" onclick="setCase('revenge')">💜<br><small>REVENGE</small></div>
+            <div id="c-empire" class="case-card" onclick="setCase('empire')">🟡<br><small>EMPIRE</small></div>
         </div>
         <div class="roulette-box"><div class="pointer"></div><div id="track" class="track"></div></div>
         <button id="spinBtn" class="btn" onclick="spin()">ОТКРЫТЬ КЕЙС</button>
     </div>
 
-    <div id="market-view" class="view-section">
-        <div id="marketGrid" class="grid"></div>
-    </div>
-
-    <div id="inventory-view" class="view-section">
-        <div id="invGrid" class="grid"></div>
-    </div>
+    <div id="market-view" class="view-section"><div id="marketGrid" class="grid"></div></div>
+    <div id="inventory-view" class="view-section"><div id="invGrid" class="grid"></div></div>
 
     <div id="winModal" class="overlay">
         <div class="modal">
-            <h2 style="margin-top:0">ВЫПАЛО!</h2>
-            <div id="winGlow" class="win-rarity-glow">🔫</div>
-            <h3 id="winName">AKR | Necro</h3>
-            <p id="winRarity" style="text-transform: uppercase; font-weight: bold; letter-spacing: 1px;"></p>
+            <div id="winIcon" class="win-glow">🔫</div>
+            <h3 id="winName"></h3>
+            <p id="winRarity" style="font-weight:bold"></p>
             <button class="btn" onclick="closeWin()">В ИНВЕНТАРЬ</button>
-            <button onclick="sellImmediately()" style="background:transparent; border:none; color:#8b949e; margin-top:15px; cursor:pointer; font-weight:bold;">ПРОДАТЬ СРАЗУ ЗА <span id="winPrice">0</span> G</button>
-        </div>
-    </div>
-
-    <div id="tradeModal" class="overlay">
-        <div class="modal">
-            <h3 id="tTitle">Купить предмет?</h3>
-            <div id="tIcon" style="font-size: 50px; margin-bottom: 10px;">🔫</div>
-            <p id="tPrice" style="color:var(--accent); font-size: 24px; font-weight: bold;"></p>
-            <button id="tActionBtn" class="btn" onclick="tradeAction()"></button>
-            <button onclick="document.getElementById('tradeModal').style.display='none'" style="background:transparent; border:none; color:#555; margin-top:10px; cursor:pointer;">Отмена</button>
         </div>
     </div>
 
     <script>
+        // ЗВУКОВОЙ ДВИЖОК
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(freq, type, duration, vol = 0.1) {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+        }
+
+        const clickSound = () => playSound(150, 'sine', 0.1, 0.2);
+        const winSound = (rarity) => {
+            const freqs = { common: 400, uncommon: 500, rare: 600, epic: 800, legendary: 1000, arcane: 1500 };
+            playSound(freqs[rarity], 'triangle', 0.5, 0.3);
+            setTimeout(() => playSound(freqs[rarity] * 1.2, 'triangle', 0.5, 0.2), 100);
+        };
+
         const skinsDB = [
             { id: 0, name: "G22 | Casual", rarity: "common", basePrice: 10, icon: "🔫" },
             { id: 1, name: "USP | Genesis", rarity: "uncommon", basePrice: 35, icon: "🔫" },
@@ -154,78 +144,73 @@
             empire: { cost: 500, weights: [0, 0, 10, 50, 30, 10] }
         };
 
-        let money = parseInt(localStorage.getItem('s4_money')) || 5000;
-        let inv = JSON.parse(localStorage.getItem('s4_inv')) || [];
-        let xp = parseInt(localStorage.getItem('s4_xp')) || 0;
+        let money = parseInt(localStorage.getItem('s5_money')) || 5000;
+        let inv = JSON.parse(localStorage.getItem('s5_inv')) || [];
+        let xp = parseInt(localStorage.getItem('s5_xp')) || 0;
         let curCase = 'furious';
         let marketPrices = {};
         let lastWin = null;
-        let selectedItem = null;
-        let tradeType = '';
 
         skinsDB.forEach(s => marketPrices[s.id] = { price: s.basePrice, trend: 1 });
 
         function updateMarket() {
             skinsDB.forEach(s => {
-                let change = (Math.random() * 0.12 - 0.06);
+                let change = (Math.random() * 0.1 - 0.05);
                 marketPrices[s.id].price = Math.max(5, Math.round(marketPrices[s.id].price * (1 + change)));
                 marketPrices[s.id].trend = change > 0 ? 1 : -1;
             });
-            renderAll();
+            render();
         }
-        setInterval(updateMarket, 8000);
+        setInterval(updateMarket, 7000);
 
-        function renderAll() {
+        function render() {
             document.getElementById('money').innerText = money;
-            let lvl = Math.floor(xp / 1000) + 1;
-            document.getElementById('lvlTxt').innerText = `LVL ${lvl}`;
             document.getElementById('xpFill').style.width = (xp % 1000 / 10) + "%";
+            document.getElementById('lvlTxt').innerText = "LVL " + (Math.floor(xp / 1000) + 1);
 
-            // Market Render
             const mGrid = document.getElementById('marketGrid');
             mGrid.innerHTML = '';
             skinsDB.forEach(s => {
                 const d = document.createElement('div');
                 d.className = 'item-card';
-                d.onclick = () => openTrade(s, 'buy');
-                d.innerHTML = `<div style="font-size:30px">${s.icon}</div><div style="font-size:10px;font-weight:bold">${s.name}</div><div style="color:var(--accent)">${marketPrices[s.id].price} G <span class="${marketPrices[s.id].trend > 0 ? 'trend-up' : 'trend-down'}">${marketPrices[s.id].trend > 0 ? '↑' : '↓'}</span></div>`;
+                d.innerHTML = `<div>${s.icon}</div><small>${s.name}</small><br><b style="color:var(--accent)">${marketPrices[s.id].price} G</b> <span class="${marketPrices[s.id].trend > 0 ? 'trend-up' : 'trend-down'}">${marketPrices[s.id].trend > 0 ? '↑' : '↓'}</span>`;
                 mGrid.appendChild(d);
             });
 
-            // Inv Render
             const iGrid = document.getElementById('invGrid');
             iGrid.innerHTML = '';
             inv.forEach((it, idx) => {
                 const d = document.createElement('div');
                 d.className = 'item-card';
                 d.style.borderColor = `var(--${it.rarity})`;
-                d.onclick = () => openTrade(it, 'sell', idx);
-                d.innerHTML = `<div style="font-size:30px">${it.icon}</div><div style="font-size:10px">${it.name}</div><div style="color:var(--accent)">${marketPrices[it.id].price} G</div>`;
+                d.onclick = () => { money += marketPrices[it.id].price; inv.splice(idx, 1); playSound(200, 'sine', 0.1); render(); };
+                d.innerHTML = `<div>${it.icon}</div><small>${it.name}</small><br><b style="color:var(--accent)">${marketPrices[it.id].price} G</b>`;
                 iGrid.appendChild(d);
             });
 
-            localStorage.setItem('s4_money', money);
-            localStorage.setItem('s4_inv', JSON.stringify(inv));
-            localStorage.setItem('s4_xp', xp);
+            localStorage.setItem('s5_money', money);
+            localStorage.setItem('s5_inv', JSON.stringify(inv));
+            localStorage.setItem('s5_xp', xp);
         }
 
         function switchTab(t) {
-            document.querySelectorAll('.view-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            playSound(300, 'sine', 0.05);
+            document.querySelectorAll('.view-section, .tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(t + '-view').classList.add('active');
             event.currentTarget.classList.add('active');
         }
 
         function setCase(c) {
+            playSound(400, 'sine', 0.05);
             curCase = c;
             document.querySelectorAll('.case-card').forEach(b => b.classList.remove('active'));
             document.getElementById('c-' + c).classList.add('active');
         }
 
         function spin() {
-            if (money < cases[curCase].cost) return alert("Мало голды!");
+            if (money < cases[curCase].cost) return;
             money -= cases[curCase].cost;
-            renderAll();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             
             const track = document.getElementById('track');
             track.innerHTML = '';
@@ -243,7 +228,7 @@
                 let d = document.createElement('div');
                 d.className = 'track-card';
                 d.style.borderColor = `var(--${s.rarity})`;
-                d.innerHTML = `<div style="font-size:35px">${s.icon}</div><div style="font-size:10px">${s.name}</div>`;
+                d.innerHTML = `<div>${s.icon}</div><div style="font-size:10px">${s.name}</div>`;
                 track.appendChild(d);
             }
 
@@ -251,22 +236,29 @@
             setTimeout(() => {
                 track.style.transition = 'transform 7s cubic-bezier(0.1, 0, 0.1, 1)';
                 track.style.transform = `translateX(-${55 * 150 - (window.innerWidth/2 - 75)}px)`;
+                
+                // Эффект звука при прокрутке
+                let startTime = Date.now();
+                let interval = setInterval(() => {
+                    let elapsed = Date.now() - startTime;
+                    if (elapsed > 7000) clearInterval(interval);
+                    else clickSound();
+                }, 120); // Базовый темп щелчков
             }, 50);
 
             setTimeout(() => {
                 document.getElementById('spinBtn').disabled = false;
                 lastWin = win;
-                showWinModal(win);
+                showWin(win);
             }, 7200);
         }
 
-        function showWinModal(s) {
+        function showWin(s) {
+            winSound(s.rarity);
             document.getElementById('winName').innerText = s.name;
-            document.getElementById('winRarity').innerText = s.rarity;
+            document.getElementById('winRarity').innerText = s.rarity.toUpperCase();
             document.getElementById('winRarity').style.color = `var(--${s.rarity})`;
-            document.getElementById('winGlow').innerHTML = s.icon;
-            document.getElementById('winGlow').style.color = `var(--${s.rarity})`;
-            document.getElementById('winPrice').innerText = marketPrices[s.id].price;
+            document.getElementById('winIcon').innerText = s.icon;
             document.getElementById('winModal').style.display = 'flex';
         }
 
@@ -274,39 +266,10 @@
             inv.unshift({...lastWin});
             xp += 150;
             document.getElementById('winModal').style.display = 'none';
-            renderAll();
+            render();
         }
 
-        function sellImmediately() {
-            money += marketPrices[lastWin.id].price;
-            xp += 50;
-            document.getElementById('winModal').style.display = 'none';
-            renderAll();
-        }
-
-        function openTrade(item, type, idx = null) {
-            selectedItem = {...item, idx};
-            tradeType = type;
-            document.getElementById('tTitle').innerText = type === 'buy' ? 'Купить предмет?' : 'Продать предмет?';
-            document.getElementById('tIcon').innerText = item.icon;
-            document.getElementById('tPrice').innerText = marketPrices[item.id].price + " G";
-            document.getElementById('tActionBtn').innerText = type === 'buy' ? 'КУПИТЬ' : 'ПРОДАТЬ';
-            document.getElementById('tradeModal').style.display = 'flex';
-        }
-
-        function tradeAction() {
-            let p = marketPrices[selectedItem.id].price;
-            if(tradeType === 'buy') {
-                if(money >= p) { money -= p; inv.unshift(selectedItem); }
-                else alert("Мало голды!");
-            } else {
-                money += p; inv.splice(selectedItem.idx, 1);
-            }
-            document.getElementById('tradeModal').style.display = 'none';
-            renderAll();
-        }
-
-        renderAll();
+        render();
     </script>
 </body>
 </html>
