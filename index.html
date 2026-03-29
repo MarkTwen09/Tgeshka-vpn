@@ -2,152 +2,134 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>GLOBAL CONQUEST: EURASIA [OFFLINE VERSION]</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLOBAL CONQUEST: EURASIA [Final Quality Version]</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         body, html { margin: 0; padding: 0; height: 100%; background: #05080c; color: white; font-family: 'Segoe UI', Tahoma, sans-serif; overflow: hidden; }
         
-        /* Сетка на фоне для красоты */
-        .grid { position: absolute; width: 100%; height: 100%; background-image: radial-gradient(#1a2a3a 1px, transparent 1px); background-size: 40px 40px; z-index: 1; opacity: 0.5; }
+        #map { height: 100vh; width: 100vw; z-index: 1; }
 
-        /* Контейнер игры */
-        .game-world { position: relative; width: 100vw; height: 100vh; z-index: 5; display: flex; align-items: center; justify-content: center; }
+        /* Левая панель "Действия и чат" */
+        .panel { position: absolute; z-index: 1000; background: rgba(13, 22, 34, 0.96); border: 1px solid #1f2d3d; border-radius: 8px; box-shadow: 0 0 35px rgba(0,0,0,0.8); padding: 15px; }
+        
+        .ui-left { top: 20px; left: 20px; width: 300px; }
+        .ui-header { color: #00ccff; font-weight: bold; margin-bottom: 12px; font-size: 16px; border-bottom: 1px solid #223344; padding-bottom: 6px; text-transform: uppercase; }
+        
+        .stats-row { display: flex; gap: 20px; font-size: 20px; font-weight: bold; margin-bottom: 15px; }
+        .stat.gold { color: #ff9900; }
 
-        /* Левая панель управления */
-        .ui-left {
-            position: absolute; top: 20px; left: 20px; width: 280px;
-            background: rgba(13, 23, 34, 0.98); border: 1px solid #223344;
-            border-radius: 8px; z-index: 100; padding: 15px; box-shadow: 0 0 40px #000;
-        }
-        .res-row { display: flex; gap: 20px; font-size: 22px; font-weight: bold; margin: 10px 0; }
-        .fire { color: #ff9900; }
+        .game-btn { width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; text-align: left; font-size: 13px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.2); transition: 0.1s; }
+        .btn-green { background: linear-gradient(180deg, #2b9348 0%, #1a6d1a 100%); }
+        .btn-mobilize { background: linear-gradient(180deg, #519151 0%, #366336 100%); }
+        .btn-blue { background: linear-gradient(180deg, #007bff 0%, #0056b3 100%); text-transform: uppercase; }
+        .game-btn:hover { filter: brightness(1.2); }
 
-        .btn {
-            width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 4px;
-            color: white; font-weight: bold; cursor: pointer; font-size: 12px; transition: 0.2s;
-        }
-        .btn-green { background: linear-gradient(180deg, #2b9348, #1a6d1a); }
-        .btn-blue { background: linear-gradient(180deg, #007bff, #0056b3); text-transform: uppercase; }
-        .btn:hover { filter: brightness(1.2); transform: scale(1.02); }
+        .log-container { background: rgba(0,0,0,0.5); border: 1px solid #1f2d3d; border-radius: 4px; height: 180px; margin-top: 15px; padding: 10px; overflow-y: auto; font-size: 12px; font-family: monospace; line-height: 1.4; }
+        .sys-text { color: #ffcc00; font-weight: bold; }
+        .chat-input { width: 100%; background: #0d141b; border: 1px solid #253545; color: white; padding: 10px; margin-top: 10px; border-radius: 4px; box-sizing: border-box; }
 
         /* Правая панель ID */
-        .ui-right {
-            position: absolute; top: 20px; right: 20px; width: 230px;
-            background: rgba(13, 23, 34, 0.98); border-radius: 8px; z-index: 100; padding: 15px;
-            border-top: 4px solid #00ccff;
-        }
-        .id-label { color: #00ccff; font-size: 11px; font-weight: bold; }
-        .id-num { font-size: 24px; font-weight: bold; margin: 5px 0 15px 0; }
+        .ui-right { top: 20px; right: 20px; width: 240px; border-top: 4px solid #00ccff; }
+        .id-label { color: #00ccff; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+        .id-val { font-size: 24px; font-weight: bold; margin: 5px 0 15px 0; letter-spacing: 1px; color: white; }
+        
+        .friend-row { display: flex; gap: 5px; margin-top: 5px; }
+        .friend-in { background: #0a1118; border: 1px solid #253545; color: white; padding: 8px; flex-grow: 1; border-radius: 4px; font-size: 12px; }
+        .ok-btn { background: #28a745; color: white; border: none; padding: 0 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
 
-        /* Карта (SVG) */
-        svg { width: 90%; height: 80%; filter: drop-shadow(0 0 15px rgba(0, 204, 255, 0.2)); }
-        .country { fill: #1a2634; stroke: #00ccff; stroke-width: 2; cursor: pointer; transition: 0.4s; }
-        .country:hover { fill: #243444; stroke-width: 4; }
-        .my-land { fill: #004d00 !important; stroke: #00ff00 !important; }
-        .enemy-land { fill: #4d0000 !important; stroke: #ff0000 !important; }
-
-        /* Меню действий */
-        #action-menu {
-            display: none; position: absolute; background: #0d1722; border: 2px solid #00ccff;
-            padding: 15px; border-radius: 10px; z-index: 500; min-width: 150px;
-        }
-
-        /* Чат лог */
-        .log { background: rgba(0,0,0,0.4); height: 140px; margin-top: 10px; padding: 8px; font-size: 11px; overflow-y: auto; border: 1px solid #1f2d3d; font-family: monospace; }
+        /* Эффекты карты */
+        .country-glow { stroke: #00ccff; stroke-width: 1.5; fill: #1a2634; fill-opacity: 0.4; transition: 0.3s; }
+        .country-glow:hover { fill-opacity: 0.7; stroke-width: 2.5; }
+        .attack-line { stroke: #ff4444; stroke-width: 3; stroke-dasharray: 8, 8; animation: moveLine 1s linear infinite; }
+        @keyframes moveLine { to { stroke-dashoffset: -16; } }
     </style>
 </head>
 <body>
 
-    <div class="grid"></div>
-
-    <div id="action-menu">
-        <b id="land-name">Территория</b><br><br>
-        <button class="btn btn-blue" onclick="takeAction('peace')">🤝 МИР</button>
-        <button class="btn btn-green" onclick="takeAction('trade')">💰 ТОРГОВЛЯ</button>
-        <button class="btn" style="background:#cc0000" onclick="takeAction('war')">🚀 ВТОРЖЕНИЕ</button>
-        <button class="btn" style="background:#333" onclick="closeMenu()">ОТМЕНА</button>
-    </div>
-
-    <div class="ui-left">
-        <div style="color:#00ccff; font-weight:bold; border-bottom:1px solid #223344; padding-bottom:5px;">ДЕЙСТВИЯ И ЧАТ</div>
-        <div class="res-row">
-            <span class="fire">🔥 <span id="val-g">1000</span></span>
-            <span>⚔️ <span id="val-a">150</span></span>
+    <div class="panel ui-left">
+        <div class="ui-header">Действия и чат</div>
+        <div class="stats-row">
+            <div class="stat gold">🔥 1000</div>
+            <div class="stat">⚔️ 150</div>
         </div>
-        <button class="btn btn-green" onclick="updateRes('g', 200)">📈 РАЗВИТЬ ЭКОНОМИКУ</button><button class="btn btn-blue">🎖️ МОБИЛИЗАЦИЯ</button>
         
-        <div class="log" id="game-log">
-            <div><span style="color:#ffcc00">SYSTEM:</span> Карта готова. Выберите свою страну для начала.</div>
+        <button class="game-btn btn-green" onclick="addMsg('Экономика развивается...')">📈 Развить экономику (-$200)</button>
+        <button class="game-btn btn-mobilize" onclick="addMsg('Дивизии мобилизованы.')">🎖️ Мобилизовать армию (-$300)</button>
+        <button class="btn-blue game-btn" onclick="startWar()">🚀 ВТОРЖЕНИЕ (ВЫБЕРИТЕ ЦЕЛЬ)</button><div class="log-container" id="log-box">
+            <div><span class="sys-text">SYSTEM:</span> Карта Евразии загружена. Ожидание приказов.</div>
+            <div><span style="color:#00ffcc">Dmitry:</span> Мой ID: 987654321</div>
+        </div>
+        <input type="text" class="chat-input" placeholder="Введите сообщение...">
+    </div>
+
+    <div class="panel ui-right">
+        <div class="id-label">YOUR NETWORK ID: ...</div>
+        <div class="id-val">987654321</div>
+        <div class="id-label">ЮЮ ДРУГА</div>
+        <div class="friend-row">
+            <input type="text" class="friend-in" placeholder="friend_id_456">
+            <button class="ok-btn" onclick="addMsg('Связь установлена.')">OK</button>
         </div>
     </div>
 
-    <div class="ui-right">
-        <div class="id-label">YOUR NETWORK ID</div>
-        <div class="id-num">987654321</div>
-        <div class="id-label">ID ДРУГА</div>
-        <input type="text" style="width:100%; background:#000; border:1px solid #223344; color:#fff; padding:6px; margin-top:5px;" placeholder="friend_id_777">
-    </div>
+    <div id="map"></div>
 
-    <div class="game-world">
-        <svg viewBox="0 0 800 400">
-            <path id="reg_eu" class="country" d="M50,150 L200,50 L350,150 L200,280 Z" onclick="mapClick('ЕВРОПА', 'reg_eu')"/>
-            <path id="reg_ru" class="country" d="M200,50 L550,30 L680,150 L350,150 Z" onclick="mapClick('РОССИЯ', 'reg_ru')"/>
-            <path id="reg_as" class="country" d="M350,150 L680,150 L630,320 L400,360 Z" onclick="mapClick('АЗИЯ', 'reg_as')"/>
-            <path id="reg_cn" class="country" d="M680,150 L780,120 L750,320 L630,320 Z" onclick="mapClick('ВОСТОК', 'reg_cn')"/>
-            
-            <text x="120" y="160" fill="white" style="pointer-events:none; font-weight:bold;">ЕВРОПА</text>
-            <text x="400" y="100" fill="white" style="pointer-events:none; font-weight:bold;">РОССИЯ</text>
-            <text x="450" y="250" fill="white" style="pointer-events:none; font-weight:bold;">АЗИЯ</text>
-            <text x="680" y="230" fill="white" style="pointer-events:none; font-weight:bold;">КИТАЙ</text>
-        </svg>
-    </div>
-
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        let myId = null;
-        let activeLand = null;
-        let gold = 1000;
+        // Инициализация карты (фокус на Евразии)
+        const map = L.map('map', { center: [50, 60], zoom: 3.5, zoomControl: false, attributionControl: false });
 
-        function addLog(msg, color="#00ffcc") {
-            const l = document.getElementById('game-log');
-            l.innerHTML += <div><span style="color:${color}">Dmitry:</span> ${msg}</div>;
+        // Подключаем темный слой карты
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+        let warActive = false;
+        let capital = [55.75, 37.61]; // Москва
+
+        function addMsg(txt) {
+            const l = document.getElementById('log-box');
+            l.innerHTML += <div><span style="color:#00ffcc">Dmitry:</span> ${txt}</div>;
             l.scrollTop = l.scrollHeight;
         }
 
-        function mapClick(name, id) {
-            if (!myId) {
-                myId = id;
-                document.getElementById(id).classList.add('my-land');
-                addLog("Я выбрал свою страну: " + name, "#00ff00");
-                addLog("Теперь кликай на другие страны для действий.");
-            } else if (id !== myId) {
-                activeLand = { name, id };
-                const menu = document.getElementById('action-menu');
-                menu.style.display = 'block';
-                menu.style.left = event.pageX + "px";
-                menu.style.top = event.pageY + "px";
-                document.getElementById('land-name').innerText = name;
-            }
+        function startWar() {
+            warActive = true;
+            addMsg("<span style='color:#ff4444'>ВНИМАНИЕ! Кликни на страну для атаки!</span>");
         }
 
-        function takeAction(type) {
-            if (type === 'war') {
-                document.getElementById(activeLand.id).classList.add('enemy-land');
-                addLog("ВОЙНА! Наступление на " + activeLand.name + " начато!", "#ff0000");
-            } else if (type === 'trade') {
-                gold += 200;
-                document.getElementById('val-g').innerText = gold;
-                addLog("Торговля с " + activeLand.name + " принесла +200 золота.");
-            } else {
-                addLog("Мирный договор с " + activeLand.name + " подписан.");
-            }
-            closeMenu();
-        }
+        // Загрузка реальных границ стран (GeoJSON)
+        // ВАЖНО: Интернет нужен для загрузки границ!
+        fetch('https://raw.githubusercontent.com/datasets/geo-boundaries-world-110m/master/countries.geojson')
+        .then(res => res.json())
+        .then(data => {
+            L.geoJSON(data, {
+                style: () => ({ className: 'country-glow' }),
+                onEachFeature: (feature, layer) => {
+                    layer.on('click', (e) => {
+                        if(warActive) {
+                            attackCountry(feature.properties.name, e.latlng, layer);
+                        } else {
+                            layer.setStyle({fillColor: '#00ccff', fillOpacity: 0.6});
+                            addMsg("Выбран регион: " + feature.properties.name);
+                        }
+                    });
+                }
+            }).addTo(map);
+        });
 
-        function closeMenu() { document.getElementById('action-menu').style.display = 'none'; }
-        
-        function updateRes(type, val) {
-            gold += val;
-            document.getElementById('val-g').innerText = gold;
-            addLog("Экономика улучшена на " + val);
+        function attackCountry(name, target, layer) {
+            warActive = false;
+            addMsg("Наступление на " + name + " начато!");
+            
+            // Анимированная линия атаки
+            const line = L.polyline([capital, target], {className: 'attack-line'}).addTo(map);
+            
+            setTimeout(() => {
+                layer.setStyle({ fillColor: '#ff0000', color: '#ff4444', fillOpacity: 0.6, weight: 3 });
+                addMsg("<span style='color:#ff4444'>ПОБЕДА! " + name + " захвачен.</span>");
+                map.removeLayer(line);
+                capital = [target.lat, target.lng]; // Армия переходит в новую точку
+            }, 1500);
         }
     </script>
 </body>
