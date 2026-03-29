@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: ULTIMATE CRYSTAL V4</title>
+    <title>SO2: CRYSTAL ULTIMATE V5</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -21,9 +21,9 @@
         body {
             background: var(--bg);
             background: radial-gradient(circle at 50% -10%, #1a2a4d 0%, #0a0f1b 100%);
-            color: white; font-family: 'SF Pro Display', -apple-system, sans-serif;
+            color: white; font-family: 'SF Pro Display', sans-serif;
             margin: 0; padding: 12px; display: flex; flex-direction: column; align-items: center;
-            min-height: 100vh; overflow-x: hidden;
+            min-height: 100vh; overflow: hidden;
         }
 
         /* HEADER */
@@ -32,7 +32,6 @@
             width: 100%; max-width: 480px; padding: 20px; border-radius: 28px;
             border: 1px solid var(--border); margin-bottom: 20px;
             display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
         }
         .balance b { font-size: 24px; color: var(--accent); text-shadow: 0 0 15px rgba(255,204,0,0.3); }
 
@@ -40,94 +39,111 @@
         .tabs { display: flex; gap: 8px; width: 100%; max-width: 480px; margin-bottom: 20px; }
         .tab { 
             flex: 1; padding: 14px; background: var(--glass); border: 1px solid var(--border);
-            color: #777; border-radius: 18px; font-weight: 800; cursor: pointer; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #777; border-radius: 18px; font-weight: 800; cursor: pointer; transition: 0.3s;
             text-transform: uppercase; font-size: 11px;
         }
-        .tab.active { background: var(--blue); color: #000; border: none; transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,210,255,0.3); }
+        .tab.active { background: var(--blue); color: #000; border: none; box-shadow: 0 8px 20px rgba(0,210,255,0.3); }
 
         .view { display: none; width: 100%; max-width: 480px; animation: slideIn 0.4s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* CASE OPENING AREA */
+        /* CASE BOX */
         .case-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         .case-btn { background: var(--glass); padding: 15px; border-radius: 22px; border: 1px solid var(--border); text-align: center; cursor: pointer; transition: 0.3s; }
-        .case-btn.active { border-color: var(--blue); background: rgba(0,210,255,0.05); transform: scale(1.03); }
+        .case-btn.active { border-color: var(--blue); background: rgba(0,210,255,0.05); }
 
-        /* ТРЯСКА КЕЙСА */
-        .shake { animation: shakeCase 0.4s ease-in-out infinite; }
+        .shake { animation: shakeCase 0.5s ease-in-out infinite; }
         @keyframes shakeCase {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-2deg) scale(1.05); }
-            75% { transform: rotate(2deg) scale(1.05); }
+            0% { transform: rotate(0); }
+            25% { transform: rotate(-3deg) scale(1.05); }
+            75% { transform: rotate(3deg) scale(1.05); }
+            100% { transform: rotate(0); }
         }
 
         .roulette-box { 
             height: 130px; background: rgba(0,0,0,0.3); border-radius: 26px; 
             position: relative; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border);
-            box-shadow: inset 0 0 30px rgba(0,0,0,0.5);
         }
         .center-line { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff4747; z-index: 10; transform: translateX(-50%); box-shadow: 0 0 15px #ff4747; }
         .track { display: flex; position: absolute; left: 0; top: 15px; transition: transform 6s cubic-bezier(0.1, 0, 0, 1); }
         .t-item { 
             min-width: 100px; height: 100px; margin: 0 6px; background: var(--glass); 
             border-radius: 20px; display: flex; align-items: center; justify-content: center;
-            border-bottom: 4px solid #333; font-size: 40px; transition: 0.3s;
+            border-bottom: 4px solid #333; font-size: 40px;
         }
 
-        /* CARDS */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 40px; }
+        /* GRID */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 40px; overflow-y: auto; max-height: 60vh; }
         .card { 
             background: var(--glass); padding: 25px 15px; border-radius: 28px; text-align: center;
-            border: 1px solid var(--border); position: relative; transition: 0.3s; overflow: hidden;
+            border: 1px solid var(--border); position: relative; transition: 0.3s;
         }
-        .card:active { transform: scale(0.96); }
         
-        .rarity-glow { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.12; pointer-events: none; }
-
         .btn-action { 
             width: 100%; padding: 18px; border: none; border-radius: 20px; 
             font-weight: 900; cursor: pointer; background: var(--accent); color: #000;
-            text-transform: uppercase; transition: 0.2s; box-shadow: 0 10px 20px rgba(255,204,0,0.2);
+            text-transform: uppercase; transition: 0.2s;
         }
-        .btn-action:active { transform: scale(0.98); }
 
-        /* OVERLAYS */
+        /* --- НОВАЯ АНИМАЦИЯ ВЫПАДЕНИЯ --- */
         .overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(5,7,12,0.95); display: none; align-items: center; justify-content: center; 
-            z-index: 1000; backdrop-filter: blur(15px);
+            background: rgba(5,7,12,0.92); display: none; align-items: center; justify-content: center; 
+            z-index: 1000; backdrop-filter: blur(20px);
         }
-        .modal { 
-            background: #101520; padding: 40px 25px; border-radius: 40px; text-align: center; 
-            width: 88%; max-width: 380px; border: 1px solid var(--border);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        @keyframes popUp { from { transform: scale(0.8) opacity: 0; } to { transform: scale(1) opacity: 1; } }
 
-        .win-glow-anim { animation: winPulse 2s infinite; }
-        @keyframes winPulse {
-            0% { filter: drop-shadow(0 0 10px currentColor); transform: scale(1); }
-            50% { filter: drop-shadow(0 0 30px currentColor); transform: scale(1.05); }
-            100% { filter: drop-shadow(0 0 10px currentColor); transform: scale(1); }
+        .modal-win { 
+            background: transparent; text-align: center; 
+            width: 90%; max-width: 400px;
+            animation: winReveal 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
         }
+
+        @keyframes winReveal {
+            0% { transform: scale(0.5) translateY(100px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .win-glow {
+            position: absolute; width: 300px; height: 300px;
+            background: radial-gradient(circle, var(--rarity-color) 0%, transparent 70%);
+            top: 50%; left: 50%; transform: translate(-50%, -50%);
+            opacity: 0.3; filter: blur(30px); z-index: -1;
+            animation: glowPulse 2s infinite ease-in-out;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.3); }
+        }
+
+        .win-icon {
+            font-size: 110px; margin-bottom: 20px;
+            filter: drop-shadow(0 0 20px var(--rarity-color));
+            animation: iconFloat 3s infinite ease-in-out;
+        }
+
+        @keyframes iconFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .win-info { animation: textAppear 1s ease-out 0.3s both; }
+        @keyframes textAppear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="balance">
-            <span style="font-size: 9px; opacity: 0.5; display: block; letter-spacing: 1px;">MY GOLD</span>
+            <span style="font-size: 10px; opacity: 0.5;">БАЛАНС</span>
             <b><span id="money">0</span> G</b>
         </div>
-        <div style="text-align: right;">
-            <div id="status-market" style="font-size: 8px; color: var(--up); font-weight: 900;">● LIVE MARKET</div>
-            <div style="font-size: 16px;">💎</div>
-        </div>
+        <div style="font-size: 18px;">🛒</div>
     </div>
 
     <div class="tabs">
-        <button class="tab active" onclick="tab('shop', event)">Магазин</button>
+        <button class="tab active" onclick="tab('shop', event)">Кейсы</button>
         <button class="tab" onclick="tab('market', event)">Биржа</button>
         <button class="tab" onclick="tab('inv', event)">Инв</button>
     </div>
@@ -138,11 +154,11 @@
             <div id="c1" class="case-btn" onclick="setCase(1)">📦<br><small>250 G</small></div>
             <div id="c2" class="case-btn" onclick="setCase(2)">🔪<br><small>600 G</small></div>
         </div>
-        <div id="caseContainer" class="roulette-box">
+        <div id="caseBox" class="roulette-box">
             <div class="center-line"></div>
             <div id="track" class="track"></div>
         </div>
-        <button id="spinBtn" class="btn-action" onclick="openCase()">ОТКРЫТЬ КЕЙС</button>
+        <button id="spinBtn" class="btn-action" onclick="openCase()">ОТКРЫТЬ</button>
     </div>
 
     <div id="market" class="view"><div id="marketGrid" class="grid"></div></div>
@@ -150,39 +166,41 @@
     <div id="inv" class="view"><div id="invGrid" class="grid"></div></div>
 
     <div id="winOverlay" class="overlay">
-        <div class="modal">
-            <div id="winIcon" style="font-size: 85px;">🔫</div>
-            <h2 id="winName" style="margin: 10px 0;">Item</h2>
-            <div id="winRarity" style="font-weight: 900; letter-spacing: 2px; margin-bottom: 30px; font-size: 12px;">RARITY</div>
-            <button class="btn-action" onclick="take()">ЗАБРАТЬ</button>
-            <button class="btn-action" style="background:none; color:#555; margin-top:10px;" onclick="sellNow()">ПРОДАТЬ ЗА <span id="winPrice">0</span> G</button>
+        <div class="modal-win" id="winModal">
+            <div class="win-glow" id="rarityGlow"></div>
+            <div class="win-icon" id="winIcon">🔫</div>
+            <div class="win-info">
+                <h1 id="winName" style="margin: 0; font-size: 28px; text-shadow: 0 5px 15px rgba(0,0,0,0.5);">Item Name</h1>
+                <p id="winRarity" style="font-weight: 900; letter-spacing: 4px; margin: 10px 0 40px; font-size: 12px;">RARITY</p>
+                <button class="btn-action" onclick="take()">В ИНВЕНТАРЬ</button>
+                <button class="btn-action" style="background:none; color:#777; margin-top:10px;" onclick="sellNow()">ПРОДАТЬ ЗА <span id="winPrice">0</span> G</button>
+            </div>
         </div>
     </div>
 
     <div id="sellOverlay" class="overlay">
-        <div class="modal">
-            <h3 style="margin: 0;">ПРОДАТЬ?</h3>
-            <div id="sellPreview" style="font-size: 60px; margin: 25px 0;">🔫</div>
-            <p id="sellText">Вы получите 0 G</p>
-            <button class="btn-action" style="background: var(--down); color: white;" onclick="confirmSell()">ПРОДАТЬ</button>
-            <button class="btn-action" style="background: none; color: white;" onclick="closeOverlays()">ОТМЕНА</button>
+        <div style="background: #121826; padding: 40px; border-radius: 35px; text-align: center; border: 1px solid var(--border); width: 85%;">
+            <h3>ПРОДАТЬ?</h3>
+            <div id="sellPreview" style="font-size: 60px; margin: 20px 0;">🔫</div>
+            <button class="btn-action" style="background: var(--down); color:white;" onclick="confirmSell()">ПРОДАТЬ</button>
+            <button class="btn-action" style="background: none; color:white; margin-top:10px;" onclick="closeOverlays()">ОТМЕНА</button>
         </div>
     </div>
 
     <script>
         const SKINS = [
-            { id: 0, name: "G22 | Casual", rar: "common", p: 18, i: "🔫" },
-            { id: 1, name: "USP | Genesis", rar: "uncommon", p: 48, i: "🔫" },
-            { id: 2, name: "M4 | Tiger", rar: "rare", p: 175, i: "🔫" },
-            { id: 3, name: "AKR | Necro", rar: "epic", p: 580, i: "🔫" },
-            { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1450, i: "🎯" },
-            { id: 5, name: "Karambit | Gold", rar: "arcane", p: 18500, i: "🔪" },
-            { id: 6, name: "M9 | Universe", rar: "arcane", p: 15000, i: "🔪" }
+            { id: 0, name: "G22 | Casual", rar: "common", p: 20, i: "🔫" },
+            { id: 1, name: "USP | Genesis", rar: "uncommon", p: 55, i: "🔫" },
+            { id: 2, name: "M4 | Tiger", rar: "rare", p: 190, i: "🔫" },
+            { id: 3, name: "AKR | Necro", rar: "epic", p: 620, i: "🔫" },
+            { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1600, i: "🎯" },
+            { id: 5, name: "Karambit | Gold", rar: "arcane", p: 21000, i: "🔪" },
+            { id: 6, name: "M9 | Universe", rar: "arcane", p: 18000, i: "🔪" }
         ];
 
         let state = {
-            money: parseInt(localStorage.getItem('v4_money')) || 3500,
-            inv: JSON.parse(localStorage.getItem('v4_inv')) || [],
+            money: parseInt(localStorage.getItem('v5_money')) || 5000,
+            inv: JSON.parse(localStorage.getItem('v5_inv')) || [],
             prices: SKINS.map(s => ({ id: s.id, cur: s.p * 1.3, old: s.p * 1.3 })),
             curCase: 0,
             lastWin: null,
@@ -192,9 +210,7 @@
         function tick() {
             state.prices.forEach(p => {
                 p.old = p.cur;
-                const delta = (Math.random() * 0.14 - 0.07);
-                const base = SKINS.find(x => x.id === p.id).p * 1.3;
-                p.cur = Math.max(base * 0.5, Math.floor(p.cur * (1 + delta)));
+                p.cur = Math.floor(p.cur * (1 + (Math.random() * 0.12 - 0.06)));
             });
             if(document.getElementById('market').style.display === 'block') renderMarket();
         }
@@ -203,68 +219,67 @@
         function openCase() {
             const cost = [100, 250, 600][state.curCase];
             if(state.money < cost) return alert("Мало голды!");
-            
             state.money -= cost; sync();
-            const btn = document.getElementById('spinBtn');
-            const box = document.getElementById('caseContainer');
             
+            const btn = document.getElementById('spinBtn');
+            const box = document.getElementById('caseBox');
             btn.disabled = true;
-            box.classList.add('shake'); // Эффект тряски
+            box.classList.add('shake');
 
             setTimeout(() => {
                 box.classList.remove('shake');
-                startRoulette();
+                const track = document.getElementById('track');
+                track.style.transition = 'none'; track.style.transform = 'translateX(0)';
+                track.innerHTML = '';
+                
+                let win;
+                const pool = [[0,0,1,1,2], [1,2,2,3,4], [3,4,4,5,6]][state.curCase];
+                for(let i=0; i<50; i++) {
+                    const s = SKINS[pool[Math.floor(Math.random() * pool.length)]];
+                    if(i === 45) win = s;
+                    track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${s.i}</div>`;
+                }
+
+                setTimeout(() => {
+                    track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0, 1)';
+                    track.style.transform = `translateX(-${45 * 112 - (window.innerWidth/2 - 56)}px)`;
+                }, 50);
+
+                setTimeout(() => {
+                    state.lastWin = win;
+                    showWin(win);
+                    btn.disabled = false;
+                }, 6200);
             }, 600);
         }
 
-        function startRoulette() {
-            const track = document.getElementById('track');
-            track.style.transition = 'none'; track.style.transform = 'translateX(0)';
-            track.innerHTML = '';
-            
-            let win;
-            const pool = [[0,0,0,1,1,2], [1,2,2,3,4], [3,4,4,5,6]][state.curCase];
-            
-            for(let i=0; i<55; i++) {
-                const s = SKINS[pool[Math.floor(Math.random() * pool.length)]];
-                if(i === 48) win = s;
-                track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${s.i}</div>`;
-            }
+        function showWin(win) {
+            const overlay = document.getElementById('winOverlay');
+            const glow = document.getElementById('rarityGlow');
+            const icon = document.getElementById('winIcon');
+            const rarText = document.getElementById('winRarity');
 
-            setTimeout(() => {
-                track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0, 1)';
-                const shift = 48 * 112 - (window.innerWidth/2 - 56);
-                track.style.transform = `translateX(-${shift}px)`;
-            }, 50);
-
-            setTimeout(() => {
-                state.lastWin = win;
-                const icon = document.getElementById('winIcon');
-                icon.innerText = win.i;
-                icon.style.color = `var(--${win.rar})`;
-                icon.className = (win.rar === 'arcane' || win.rar === 'legendary') ? 'win-glow-anim' : '';
-                
-                document.getElementById('winName').innerText = win.name;
-                document.getElementById('winRarity').innerText = win.rar.toUpperCase();
-                document.getElementById('winRarity').style.color = `var(--${win.rar})`;
-                document.getElementById('winPrice').innerText = win.p;
-                document.getElementById('winOverlay').style.display = 'flex';
-                document.getElementById('spinBtn').disabled = false;
-                sync();
-            }, 6200);
+            glow.style.setProperty('--rarity-color', `var(--${win.rar})`);
+            icon.innerText = win.i;
+            icon.style.setProperty('--rarity-color', `var(--${win.rar})`);
+            
+            document.getElementById('winName').innerText = win.name;
+            rarText.innerText = win.rar.toUpperCase();
+            rarText.style.color = `var(--${win.rar})`;
+            document.getElementById('winPrice').innerText = win.p;
+            
+            overlay.style.display = 'flex';
         }
 
         function renderMarket() {
             const g = document.getElementById('marketGrid'); g.innerHTML = '';
             SKINS.forEach(s => {
                 const p = state.prices.find(x => x.id === s.id);
-                const isUp = p.cur >= p.old;
-                g.innerHTML += `<div class="card" onclick="buy(${s.id}, ${p.cur})">
+                const up = p.cur >= p.old;
+                g.innerHTML += `<div class="card" onclick="buyMarket(${s.id}, ${p.cur})">
                     <div style="font-size:45px">${s.i}</div>
-                    <div style="font-size:11px; font-weight:bold; margin-top:8px">${s.name}</div>
-                    <div style="margin-top:10px; font-weight:900; color:${isUp ? 'var(--up)' : 'var(--down)'}">
-                        ${p.cur} G ${isUp ? '▲' : '▼'}
-                    </div>
+                    <div style="font-weight:bold; font-size:12px; margin-top:10px">${s.name}</div>
+                    <div style="color:${up?'var(--up)':'var(--down)'}; font-weight:900; margin-top:8px">${p.cur} G</div>
                 </div>`;
             });
         }
@@ -272,27 +287,24 @@
         function renderInv() {
             const g = document.getElementById('invGrid'); g.innerHTML = '';
             state.inv.forEach((it, idx) => {
-                g.innerHTML += `<div class="card" onclick="openSellModal(${idx})">
-                    <div class="rarity-glow" style="background:radial-gradient(circle, var(--${it.rar}) 0%, transparent 70%)"></div>
+                g.innerHTML += `<div class="card" onclick="openSell(${idx})">
                     <div style="font-size:45px">${it.i}</div>
-                    <div style="font-size:11px; font-weight:bold; margin-top:8px">${it.name}</div>
-                    <div style="color:var(--accent); font-size:12px; margin-top:5px">${it.p} G</div>
+                    <div style="font-size:11px; margin-top:8px">${it.name}</div>
+                    <div style="color:var(--accent); font-weight:bold; margin-top:5px">${it.p} G</div>
                 </div>`;
             });
         }
 
-        function buy(id, pr) {
+        function buyMarket(id, pr) {
             if(state.money < pr) return alert("Мало голды!");
             state.money -= pr;
             state.inv.unshift({...SKINS.find(x => x.id === id)});
             sync();
         }
 
-        function openSellModal(idx) {
+        function openSell(idx) {
             state.pendingIdx = idx;
-            const it = state.inv[idx];
-            document.getElementById('sellPreview').innerText = it.i;
-            document.getElementById('sellText').innerText = `Продать ${it.name} за ${it.p} G?`;
+            document.getElementById('sellPreview').innerText = state.inv[idx].i;
             document.getElementById('sellOverlay').style.display = 'flex';
         }
 
@@ -308,8 +320,8 @@
 
         function sync() {
             document.getElementById('money').innerText = state.money.toLocaleString();
-            localStorage.setItem('v4_money', state.money);
-            localStorage.setItem('v4_inv', JSON.stringify(state.inv));
+            localStorage.setItem('v5_money', state.money);
+            localStorage.setItem('v5_inv', JSON.stringify(state.inv));
             renderInv(); renderMarket();
         }
 
