@@ -2,140 +2,193 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>EURO-ASIA CONQUEST FINAL</title>
-    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <title>Global Conquest: Eurasia</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --bg: #0b0e14; --panel: #161b22; --accent: #238636; --war: #da3633; --blue: #1f6feb; }
-        body { margin: 0; background: var(--bg); color: #c9d1d9; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #05080c; color: #e0e0e0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow: hidden; }
+        #map { height: 100vh; width: 100vw; background: #05080c; }
+
+        /* UI Панели */
+        .panel { position: absolute; z-index: 1000; background: rgba(13, 20, 30, 0.95); border: 1px solid #1f2d3d; border-radius: 8px; box-shadow: 0 0 25px rgba(0,0,0,0.7); padding: 15px; }
         
-        /* Панели управления */
-        .glass { background: var(--panel); border: 1px solid #30363d; padding: 15px; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.5); z-index: 100; position: absolute; }
-        #left-ui { top: 20px; left: 20px; width: 280px; }
-        #right-ui { top: 20px; right: 20px; width: 240px; }
+        /* Левая панель */
+        .left-panel { top: 20px; left: 20px; width: 300px; border-left: 4px solid #00ccff; }
+        .stats { display: flex; justify-content: space-around; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 5px; margin-bottom: 15px; font-weight: bold; }
+        .stat-val { color: #ffcc00; text-shadow: 0 0 5px rgba(255,204,0,0.5); }
 
-        /* Карта */
-        #map-container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        svg { width: 90%; height: 90%; background: #0d1117; border-radius: 12px; border: 2px solid #30363d; }
-        .country { fill: #21262d; stroke: #30363d; stroke-width: 1; transition: 0.2s; cursor: pointer; }
-        .country:hover { fill: #30363d; stroke: #8b949e; }
-        .selected { stroke: #f1e05a !important; stroke-width: 3px !important; }
-        .my-land { fill: var(--blue) !important; }
-        .enemy-land { fill: var(--war) !important; }
+        /* Кнопки */
+        .btn { width: 100%; padding: 12px; margin: 6px 0; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; text-transform: uppercase; transition: 0.2s; font-size: 11px; }
+        .btn-econ { background: #218838; color: white; border-bottom: 3px solid #155724; }
+        .btn-army { background: #c82333; color: white; border-bottom: 3px solid #721c24; }
+        .btn-war { background: #0069d9; color: white; border-bottom: 3px solid #004085; }
+        .btn:active { transform: translateY(2px); border-bottom: none; }
+        .btn:hover { filter: brightness(1.2); }
 
-        /* Кнопки и чат */
-        button { background: var(--accent); border: none; color: white; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 8px; }
-        button:hover { opacity: 0.8; }
-        button:disabled { background: #484f58; cursor: not-allowed; }
-        #log { font-size: 12px; color: #8b949e; height: 100px; overflow-y: auto; background: #0d1117; padding: 5px; border-radius: 4px; margin-top: 10px; }
-        .stat { font-size: 18px; font-weight: bold; color: var(--blue); margin-bottom: 10px; display: block; }
+        /* Чат и Логи */
+        .log-box { height: 160px; background: rgba(0,0,0,0.5); border: 1px solid #333; border-radius: 4px; overflow-y: auto; padding: 8px; font-size: 12px; margin-top: 10px; line-height: 1.4; }
+        .sys-msg { color: #00ffcc; font-weight: bold; }
 
-        /* Армия */
-        #army-unit { width: 15px; height: 15px; background: #f1e05a; border-radius: 50%; position: absolute; display: none; z-index: 500; box-shadow: 0 0 15px #f1e05a; transition: all 1.2s ease-in-out; }
+        /* Правая панель ID */
+        .right-panel { top: 20px; right: 20px; width: 220px; text-align: center; border-top: 3px solid #00ccff; }
+        input { background: #1a2a3a; border: 1px solid #334455; color: white; padding: 8px; border-radius: 4px; width: 80%; margin-bottom: 10px; }
+
+        /* Анимация войск */
+        .army-unit { font-size: 24px; transition: all 2s linear; pointer-events: none; z-index: 2000; }
     </style>
 </head>
 <body>
 
-<div id="left-ui" class="glass">
-    <h3 id="c-title" style="margin:0">Выберите регион</h3>
-    <div style="margin: 10px 0;">
-        💰 Золото: <span id="gold-val" class="stat">1000</span>
-        ⚔️ Армия: <span id="army-val" class="stat">100</span>
-    </div>
-    <button onclick="updateRes('gold')">💰 Экономика (-200)</button>
-    <button onclick="updateRes('army')">🎖 Вербовка (-300)</button>
-    <button id="atk-btn" style="background:var(--war)" disabled onclick="attack()">🚀 ВТОРЖЕНИЕ</button>
-    <div id="log">> Система готова.</div>
-</div>
-
-<div id="right-ui" class="glass">
-    <div style="font-size: 11px;">
-        ВАШ ID: <b id="my-id" style="color:var(--blue)">Генерация...</b><br><br>
-        <input type="text" id="friend-id" style="width:100%; padding:5px; box-sizing:border-box;" placeholder="ID друга">
-        <button style="margin-top:5px; background:var(--blue)" onclick="connect()">ПОДКЛЮЧИТЬСЯ</button>
-    </div>
-</div>
-
-<div id="army-unit"></div>
-
-<div id="map-container">
-    <svg viewBox="0 0 800 500" id="world-map">
-        <path id="rus" class="country" d="M300,50 L600,30 L750,200 L400,250 Z" onclick="sel('rus','Россия')"/>
-        <path id="chn" class="country" d="M450,260 L750,210 L700,450 L400,480 Z" onclick="sel('chn','Китай')"/>
-        <path id="kaz" class="country" d="M300,180 L440,250 L380,350 L250,300 Z" onclick="sel('kaz','Казахстан')"/>
-        <path id="eur" class="country" d="M50,100 L280,60 L280,250 L80,300 Z" onclick="sel('eur','Евросоюз')"/>
-        <path id="ind" class="country" d="M400,400 L550,490 L300,480 Z" onclick="sel('ind','Индия')"/><text x="450" y="100" fill="white" font-size="14" pointer-events="none">РОССИЯ</text>
-        <text x="550" y="350" fill="white" font-size="14" pointer-events="none">КИТАЙ</text>
-        <text x="120" y="180" fill="white" font-size="14" pointer-events="none">ЕВРОПА</text>
-    </svg>
-</div>
-
-<script>
-    let gold = 1000, army = 100, selected = null, conn = null;
-    const peer = new Peer();
-
-    peer.on('open', id => { document.getElementById('my-id').innerText = id; });
-    peer.on('connection', c => { conn = c; handleConn(); log("Друг в сети!"); });
-
-    function connect() {
-        const id = document.getElementById('friend-id').value;
-        conn = peer.connect(id);
-        handleConn();
-        log("Подключение к " + id);
-    }
-
-    function handleConn() {
-        conn.on('data', data => {
-            if(data.type === 'atk') {
-                document.getElementById(data.id).classList.add('enemy-land');
-                log("Враг захватил " + data.id);
-            }
-        });
-    }
-
-    function sel(id, name) {
-        if(selected) document.getElementById(selected).classList.remove('selected');
-        selected = id;
-        document.getElementById(id).classList.add('selected');
-        document.getElementById('c-title').innerText = name;
-        document.getElementById('atk-btn').disabled = false;
-    }
-
-    function updateRes(type) {
-        if(type === 'gold' && gold >= 200) { gold += 400; gold -= 200; log("Бюджет вырос."); }
-        if(type === 'army' && gold >= 300) { army += 50; gold -= 300; log("Армия пополнена."); }
-        document.getElementById('gold-val').innerText = gold;
-        document.getElementById('army-val').innerText = army;
-    }
-
-    function attack() {
-        if(army < 40) return log("Недостаточно войск!");
-        army -= 40;
-        document.getElementById('army-val').innerText = army;
-
-        const target = document.getElementById(selected);
-        const rect = target.getBoundingClientRect();
-        const unit = document.getElementById('army-unit');
+    <div class="panel left-panel">
+        <h2 style="margin: 0 0 10px 0; font-size: 18px; color: #00ccff;">Действия и чат</h2>
+        <div class="stats">
+            <div>💰 <span id="money" class="stat-val">1000</span></div>
+            <div>⚔️ <span id="army" class="stat-val" style="color: #ff4444;">150</span></div>
+        </div>
         
-        unit.style.display = "block";
-        unit.style.left = "50px"; unit.style.top = "80%";
+        <button class="btn btn-econ" onclick="action('econ')">📈 Развить экономику (-$200)</button>
+        <button class="btn btn-army" onclick="action('army')">🎖️ Собрать войска (-$300)</button>
+        <button class="btn btn-war" onclick="prepareWar()">🚀 ОБЪЯВИТЬ ВОЙНУ (ВЫБЕРИТЕ ЦЕЛЬ)</button>
 
-        setTimeout(() => {
-            unit.style.left = (rect.left + rect.width/2) + "px";
-            unit.style.top = (rect.top + rect.height/2) + "px";
-        }, 100);
+        <div class="log-box" id="game-log">
+            <div class="sys-msg">SYSTEM: Карта загружена. Ожидание сети...</div>
+        </div>
+    </div>
 
-        setTimeout(() => {
-            unit.style.display = "none";
-            target.classList.add('my-land');
-            log("Захвачено: " + selected);
-            if(conn) conn.send({type: 'atk', id: selected});
-        }, 1300);
-    }
+    <div class="panel right-panel">
+        <div style="font-size: 11px; color: #888;">ВАШ СЕТЕВОЙ ID:</div>
+        <div id="my-id" style="font-size: 18px; font-weight: bold; color: #00ffcc; margin: 5px 0;">Загрузка...</div>
+        <input type="text" id="target-id" placeholder="ID ДРУГА">
+        <button class="btn btn-econ" style="padding: 5px;" onclick="connectToFriend()">ПОДКЛЮЧИТЬСЯ</button>
+    </div>
 
-    function log(m) {
-        const l = document.getElementById('log');
-        l.innerHTML = <div>> ${m}</div> + l.innerHTML;
-    }
-</script>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+
+    <script>
+        // Конфигурация
+        let money = 1000;
+        let armyCount = 150;
+        let myCountry = null;
+        let warMode = false;
+        let peer, conn;// Инициализация карты
+        const map = L.map('map', { center: [55, 60], zoom: 3.5, zoomControl: false });
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+        // Загрузка границ (GeoJSON)
+        fetch('https://raw.githubusercontent.com/datasets/geo-boundaries-world-110m/master/countries.geojson')
+            .then(res => res.json())
+            .then(data => {
+                L.geoJSON(data, {
+                    style: (feature) => ({
+                        fillColor: '#1a2a3a',
+                        weight: 1.5,
+                        opacity: 1,
+                        color: '#00ccff',
+                        fillOpacity: 0.4
+                    }),
+                    onEachFeature: onEachCountry
+                }).addTo(map);
+            });
+
+        function onEachCountry(feature, layer) {
+            layer.on({
+                mouseover: (e) => { e.target.setStyle({ fillOpacity: 0.7, fillColor: '#00ccff' }); },
+                mouseout: (e) => { 
+                    if (e.target !== myCountry) e.target.setStyle({ fillOpacity: 0.4, fillColor: '#1a2a3a' }); 
+                },
+                click: (e) => {
+                    if (warMode) {
+                        startWar(feature.properties.name, e.target);
+                    } else {
+                        selectMyCountry(feature.properties.name, e.target);
+                    }
+                }
+            });
+        }
+
+        function selectMyCountry(name, layer) {
+            if (myCountry) myCountry.setStyle({ fillColor: '#1a2a3a' });
+            myCountry = layer;
+            layer.setStyle({ fillColor: '#28a745', fillOpacity: 0.6 });
+            addLog(Вы выбрали страну: <b>${name}</b>);
+        }
+
+        function action(type) {
+            if (type === 'econ' && money >= 200) {
+                money -= 200; addLog("Экономика улучшена! +$50/ход");
+            } else if (type === 'army' && money >= 300) {
+                money -= 300; armyCount += 50; addLog("Армия усилена на 50 ед.");
+            }
+            updateUI();
+            if(conn) conn.send({type: 'sync', money, armyCount});
+        }
+
+        function prepareWar() {
+            if (!myCountry) return alert("Сначала выбери свою страну на карте!");
+            warMode = true;
+            addLog("<span style='color:red'>РЕЖИМ ВОЙНЫ: Кликните на страну для вторжения!</span>");
+        }
+
+        function startWar(targetName, targetLayer) {
+            warMode = false;
+            targetLayer.setStyle({ fillColor: '#ff4444', fillOpacity: 0.6 });
+            
+            // Анимация передвижения войск
+            const start = myCountry.getBounds().getCenter();
+            const end = targetLayer.getBounds().getCenter();
+            
+            const armyIcon = L.divIcon({ html: '🎖️', className: 'army-unit' });
+            const marker = L.marker(start, { icon: armyIcon }).addTo(map);
+            
+            addLog(Войска выдвинулись к границам ${targetName}...);
+            
+            setTimeout(() => {
+                marker.setLatLng(end);
+                setTimeout(() => {
+                    addLog(<span style='color:red'>Битва за ${targetName} началась!</span>);
+                    if (armyCount > 100) {
+                        addLog(Победа! Часть территорий ${targetName} захвачена.);
+                    }
+                    map.removeLayer(marker);
+                }, 2000);
+            }, 100);
+        }
+
+        // Сетевая часть (PeerJS)
+        peer = new Peer();
+        peer.on('open', (id) => { document.getElementById('my-id').innerText = id; });
+        peer.on('connection', (c) => {
+            conn = c;
+            setupChat();
+            addLog("Игрок подключился к вам!");
+        });
+
+        function connectToFriend() {
+            const friendId = document.getElementById('target-id').value;
+            conn = peer.connect(friendId);
+            setupChat();
+            addLog("Попытка подключения к " + friendId);
+        }function setupChat() {
+            conn.on('data', (data) => {
+                if(data.type === 'log') addLog("ДРУГ: " + data.msg);
+                if(data.type === 'sync') {
+                    addLog("Противник обновляет силы...");
+                }
+            });
+        }
+
+        function addLog(msg) {
+            const lb = document.getElementById('game-log');
+            lb.innerHTML += <div>${msg}</div>;
+            lb.scrollTop = lb.scrollHeight;
+        }
+
+        function updateUI() {
+            document.getElementById('money').innerText = money;
+            document.getElementById('army').innerText = armyCount;
+        }
+    </script>
 </body>
 </html>
