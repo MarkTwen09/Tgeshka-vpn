@@ -3,52 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SO2 CASE SIMULATOR: ULTRA DESIGN</title>
+    <title>SO2 CASE SIMULATOR: ULTRA GLASS EDITION</title>
     <style>
         :root {
             --bg: radial-gradient(circle at top, #1a1f2b 0%, #05070a 100%);
             --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.08);
             --accent: #ffcc00;
             --stattrak: #ff8000;
             --blue: #00e6ff;
+            --red: #ff4747;
+            --green: #00ff88;
+            /* Rarity Colors with Glows */
             --common: #b0c3d9; --uncommon: #5e98d9; --rare: #4b69ff; --epic: #8847ff; --legendary: #d32ce6; --arcane: #eb4b4b;
+            
+            --common-glow: 0 0 10px rgba(176,195,217,0.3);
+            --uncommon-glow: 0 0 10px rgba(94,152,217,0.3);
+            --rare-glow: 0 0 15px rgba(75,105,255,0.4);
+            --epic-glow: 0 0 15px rgba(136,71,255,0.4);
+            --legendary-glow: 0 0 20px rgba(211,44,230,0.5);
+            --arcane-glow: 0 0 30px rgba(235,75,75,0.6);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body {
-            background: var(--bg); color: white; font-family: 'Montserrat', sans-serif;
+            background: var(--bg); color: white; font-family: 'Segoe UI', system-ui, sans-serif;
             display: flex; flex-direction: column; align-items: center; margin: 0; padding: 15px; min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* HEADER */
+        /* ANIMATIONS */
+        @keyframes fadeInSlide { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes popIn { from { transform: scale(0.6) translateY(40px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+        @keyframes glowPulse { 0% { box-shadow: 0 0 5px currentColor; } 50% { box-shadow: 0 0 25px currentColor; } 100% { box-shadow: 0 0 5px currentColor; } }
+        @keyframes arcanePulse { 0% { transform: scale(1); text-shadow: 0 0 10px var(--arcane); } 50% { transform: scale(1.05); text-shadow: 0 0 25px var(--arcane); } 100% { transform: scale(1); text-shadow: 0 0 10px var(--arcane); } }
+
+        /* HEADER & STATS PANEL */
         .header-panel {
             background: var(--glass); backdrop-filter: blur(15px);
-            width: 100%; max-width: 800px; padding: 20px;
+            width: 100%; max-width: 800px; padding: 20px 25px;
             border-radius: 24px; border: 1px solid var(--glass-border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
+            display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
         .top-row { display: flex; justify-content: space-between; align-items: center; }
-        .balance-val { font-size: 28px; font-weight: 800; color: var(--accent); text-shadow: 0 0 15px rgba(255,204,0,0.3); }
+        .balance-val { font-size: 30px; font-weight: 900; color: var(--accent); text-shadow: 0 0 15px rgba(255,204,0,0.3); }
 
         .stats-panel {
             display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-            margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--glass-border);
-            font-size: 10px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px;
+            padding-top: 12px; border-top: 1px solid var(--glass-border);
+            font-size: 11px; color: #8b949e; text-transform: uppercase; letter-spacing: 1px;
         }
-        .stat-item b { color: #fff; display: block; font-size: 14px; margin-top: 2px; }
+        .stat-item b { color: white; display: block; font-size: 14px; margin-top: 3px; }
 
         /* TABS */
         .tabs { display: flex; gap: 10px; margin-bottom: 20px; width: 100%; max-width: 800px; }
         .tab-btn {
             flex: 1; padding: 14px; background: var(--glass); border: 1px solid var(--glass-border);
-            color: #8b949e; border-radius: 16px; cursor: pointer; font-weight: 700; transition: 0.4s;
+            color: #8b949e; border-radius: 16px; cursor: pointer; font-weight: 700; transition: 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         .tab-btn.active { background: var(--blue); color: #000; box-shadow: 0 0 20px rgba(0,230,255,0.4); border-color: transparent; }
 
-        /* ROULETTE */
+        .view-section { display: none; width: 100%; max-width: 800px; animation: fadeInSlide 0.5s ease; }
+        .view-section.active { display: block; }
+
+        /* CASES & ROULETTE */
+        .case-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+        .case-card {
+            background: var(--glass); padding: 15px; border-radius: 20px; border: 2px solid transparent;
+            text-align: center; cursor: pointer; transition: 0.3s;
+        }
+        .case-card.active { border-color: var(--blue); background: rgba(0, 230, 255, 0.08); box-shadow: 0 0 15px rgba(0,230,255,0.2); }
+
         .roulette-box { 
             height: 180px; background: rgba(0,0,0,0.3); border-radius: 24px; 
             overflow: hidden; position: relative; margin-bottom: 20px; 
@@ -59,15 +85,15 @@
             background: #ff4747; z-index: 5; transform: translateX(-50%); 
             box-shadow: 0 0 20px #ff4747; border-radius: 2px;
         }
+        .track { display: flex; position: absolute; left: 0; top: 15px; transition: transform 7s cubic-bezier(0.1, 0, 0.1, 1); }
         .track-card { 
             min-width: 150px; height: 140px; margin: 0 8px; 
             background: linear-gradient(145deg, #1e242e, #161a22); 
             border-radius: 18px; border-bottom: 5px solid #555; 
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        /* CARDS */
+        /* GRID CARDS (MARKET & INV) */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
         .item-card { 
             background: var(--glass); padding: 20px; border-radius: 20px; 
@@ -92,7 +118,7 @@
         .btn:active { transform: scale(0.96); box-shadow: 0 4px 10px rgba(255,204,0,0.2); }
         .btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
 
-        /* MODAL */
+        /* MODALS */
         .overlay { 
             position: fixed; top:0; left:0; width:100%; height:100%; 
             background: rgba(0,0,0,0.85); display:none; align-items:center; 
@@ -102,9 +128,12 @@
             background: #151921; padding: 40px; border-radius: 32px; 
             border: 1px solid rgba(255,255,255,0.1); text-align: center; 
             width: 90%; max-width: 400px; box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-            animation: modalShow 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+            animation: popIn 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
         }
-        @keyframes modalShow { from { transform: scale(0.8) translateY(30px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+        .win-glow { font-size: 100px; margin-bottom: 10px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2)); }
+
+        .trend-up { color: var(--green); font-size: 11px; margin-left: 4px; }
+        .trend-down { color: var(--red); font-size: 11px; margin-left: 4px; }
     </style>
 </head>
 <body>
@@ -112,7 +141,7 @@
     <div class="header-panel">
         <div class="top-row">
             <div>
-                <div id="lvlTxt" style="font-weight: 800; color: var(--blue); letter-spacing: 1px;">LEVEL 1</div>
+                <div id="lvlTxt" style="font-weight: 800; color: var(--blue);">LVL 1</div>
                 <div style="width: 120px; height: 6px; background: rgba(255,255,255,0.05); margin-top: 6px; border-radius: 10px; overflow: hidden;">
                     <div id="xpFill" style="height: 100%; background: var(--blue); width: 0%; transition: 0.5s;"></div>
                 </div>
@@ -121,9 +150,9 @@
         </div>
         
         <div class="stats-panel">
-            <div class="stat-item">Кейсы<b id="statOpened">0</b></div>
-            <div class="stat-item">Лучший дроп<b id="statBest">---</b></div>
-            <div class="stat-item">Прибыль<b id="statProfit">0 G</b></div>
+            <div class="stat-item">КЕЙСОВ: <b id="statOpened">0</b></div>
+            <div class="stat-item">ЛУЧШИЙ ЛУТ: <b id="statBest">---</b></div>
+            <div class="stat-item">ПРИБЫЛЬ: <b id="statProfit">0 G</b></div>
         </div>
     </div>
 
@@ -134,38 +163,80 @@
     </div>
 
     <div id="cases-view" class="view-section active">
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px;">
-            <div id="c-furious" class="case-card item-card active" onclick="setCase('furious')" style="padding: 10px;">📦<br><small>FURIOUS</small></div>
-            <div id="c-revenge" class="case-card item-card" onclick="setCase('revenge')" style="padding: 10px;">💜<br><small>REVENGE</small></div>
-            <div id="c-empire" class="case-card item-card" onclick="setCase('empire')" style="padding: 10px;">🟡<br><small>EMPIRE</small></div>
+        <div class="case-selector">
+            <div id="c-furious" class="case-card active" onclick="setCase('furious')"><div>📦</div><div style="font-size:11px">FURIOUS</div><div style="color:var(--accent)">100 G</div></div>
+            <div id="c-revenge" class="case-card" onclick="setCase('revenge')"><div>💜</div><div style="font-size:11px">REVENGE</div><div style="color:var(--accent)">250 G</div></div>
+            <div id="c-empire" class="case-card" onclick="setCase('empire')"><div>🟡</div><div style="font-size:11px">EMPIRE</div><div style="color:var(--accent)">500 G</div></div>
         </div>
         <div class="roulette-box"><div class="pointer"></div><div id="track" class="track"></div></div>
         <button id="spinBtn" class="btn" onclick="spin()">Открыть кейс</button>
     </div>
 
     <div id="market-view" class="view-section"><div id="marketGrid" class="grid"></div></div>
+
     <div id="inventory-view" class="view-section"><div id="invGrid" class="grid"></div></div>
 
     <div id="winModal" class="overlay">
         <div class="modal">
-            <span id="stWinLabel" style="color:var(--stattrak); font-weight:900; letter-spacing: 2px; display:none;">STATTRAK™</span>
-            <div id="winIcon" style="font-size:100px; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));">🔫</div>
-            <h2 id="winName" style="margin: 10px 0;"></h2>
+            <span id="stWinLabel" style="color:var(--stattrak); font-weight:900; letter-spacing: 2px; display:none; animation: arcanePulse 1.5s infinite;">STATTRAK™</span>
+            <div id="winIcon" class="win-glow">🔫</div>
+            <h2 id="winName" style="margin: 10px 0;">AKR | Necro</h2>
             <p id="winRarity" style="font-weight:800; text-transform: uppercase; margin-bottom: 30px;"></p>
             <button class="btn" onclick="closeWin()">В инвентарь</button>
-            <button class="btn" style="background:none; color:#8b949e; margin-top:15px; box-shadow: none; font-size: 14px;" onclick="sellImmediately()">Продать за <span id="winPrice">0</span> G</button>
+            <button class="btn" style="background:none; color:#8b949e; margin-top:15px; box-shadow: none;" onclick="sellImmediately()">ПРОДАТЬ ЗА <span id="winPrice">0</span> G</button>
         </div>
     </div>
 
     <script>
-        // ... (скрипт остается тем же, что и в прошлой версии, только обновляем localStorage ключи на s10 для чистоты дизайна)
+        // ЗВУКОВОЙ ДВИЖОК
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(f, t, d, v = 0.1) {
+            try { const o = audioCtx.createOscillator(), g = audioCtx.createGain(); o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime); g.gain.setValueAtTime(v, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + d); } catch(e){}
+        }
+        const clickSound = () => playSound(180, 'sine', 0.1, 0.1);
+        const winSound = (rarity) => {
+            const f = { common: 400, uncommon: 500, rare: 600, epic: 800, legendary: 1000, arcane: 1500 };
+            playSound(f[rarity] || 400, 'triangle', 0.6, 0.2); playSound((f[rarity] || 400)*1.2, 'triangle', 0.6, 0.15);
+        };
+
+        // БАЗА ДАННЫХ СКИНОВ (30+ позиций)
         const skinsDB = [
-            { id: 0, name: "G22 | Casual", rarity: "common", basePrice: 10, icon: "🔫" },
-            { id: 1, name: "USP | Genesis", rarity: "uncommon", basePrice: 35, icon: "🔫" },
-            { id: 2, name: "M4 | Tiger", rarity: "rare", basePrice: 120, icon: "🔫" },
-            { id: 3, name: "AKR | Necro", rarity: "epic", basePrice: 450, icon: "🔫" },
-            { id: 4, name: "AWM | Scratch", rarity: "legendary", basePrice: 1200, icon: "🎯" },
-            { id: 5, name: "Karambit | Gold", rarity: "arcane", basePrice: 15000, icon: "🔪" }
+            // Knives
+            { id: 0, name: "Karambit Claw", rarity: "arcane", basePrice: 16000, icon: "🔪" },
+            { id: 1, name: "Karambit Gold", rarity: "arcane", basePrice: 18000, icon: "🔪" },
+            { id: 2, name: "Butterfly Legacy", rarity: "arcane", basePrice: 15000, icon: "🔪" },
+            { id: 3, name: "Butterfly Dragon Glass", rarity: "legendary", basePrice: 8500, icon: "🔪" },
+            { id: 4, name: "M9 Bayonet Universe", rarity: "arcane", basePrice: 17000, icon: "🔪" },
+            { id: 5, name: "Flip Knife Dragon", rarity: "legendary", basePrice: 7000, icon: "🔪" },
+            // AWM
+            { id: 6, name: "AWM Scratch", rarity: "legendary", basePrice: 1200, icon: "🎯" },
+            { id: 7, name: "AWM Boom", rarity: "epic", basePrice: 500, icon: "🎯" },
+            { id: 8, name: "AWM Nano", rarity: "uncommon", basePrice: 35, icon: "🎯" },
+            { id: 9, name: "AWM Casual", rarity: "common", basePrice: 10, icon: "🎯" },
+            // AKR
+            { id: 10, name: "AKR Necromancer", rarity: "epic", basePrice: 450, icon: "🔫" },
+            { id: 11, name: "AKR Tiger", rarity: "rare", basePrice: 120, icon: "🔫" },
+            { id: 12, name: "AKR Casual", rarity: "common", basePrice: 10, icon: "🔫" },
+            { id: 13, name: "AKR Genesis", rarity: "uncommon", basePrice: 35, icon: "🔫" },
+            { id: 14, name: "AKR Forest", rarity: "common", basePrice: 10, icon: "🔫" },
+            // M4
+            { id: 15, name: "M4 Lizard", rarity: "legendary", basePrice: 1100, icon: "🔫" },
+            { id: 16, name: "M4 Tiger", rarity: "rare", basePrice: 120, icon: "🔫" },
+            { id: 17, name: "M4 Forest", rarity: "common", basePrice: 10, icon: "🔫" },
+            { id: 18, name: "M4 Scratch", rarity: "legendary", basePrice: 1050, icon: "🔫" },
+            // Pistols
+            { id: 19, name: "USP Genesis", rarity: "uncommon", basePrice: 35, icon: "🔫" },
+            { id: 20, name: "G22 Casual", rarity: "common", basePrice: 10, icon: "🔫" },
+            { id: 21, name: "G22 Genesis", rarity: "uncommon", basePrice: 35, icon: "🔫" },
+            { id: 22, name: "Five-SeveN Zone", rarity: "rare", basePrice: 100, icon: "🔫" },
+            { id: 23, name: "P350 Forest", rarity: "common", basePrice: 10, icon: "🔫" },
+            { id: 24, name: "P350 Nano", rarity: "uncommon", basePrice: 35, icon: "🔫" },
+            // SMG/Other
+            { id: 25, name: "P90 Scratch", rarity: "legendary", basePrice: 900, icon: "🔫" },
+            { id: 26, name: "P90 Casual", rarity: "common", basePrice: 10, icon: "🔫" },
+            { id: 27, name: "SPAS Nano", rarity: "uncommon", basePrice: 35, icon: "🔫" },
+            { id: 28, name: "SPAS Scratch", rarity: "legendary", basePrice: 850, icon: "🔫" },
+            { id: 29, name: "SMG Tiger", rarity: "rare", basePrice: 100, icon: "🔫" },
         ];
 
         const cases = {
@@ -174,71 +245,82 @@
             empire: { cost: 500, weights: [0, 0, 10, 50, 30, 10] }
         };
 
-        let money = parseInt(localStorage.getItem('s10_money')) || 5000;
-        let inv = JSON.parse(localStorage.getItem('s10_inv')) || [];
-        let xp = parseInt(localStorage.getItem('s10_xp')) || 0;
+        // ДАННЫЕ ИГРОКА
+        let money = parseInt(localStorage.getItem('s11_money')) || 5000;
+        let inv = JSON.parse(localStorage.getItem('s11_inv')) || [];
+        let xp = parseInt(localStorage.getItem('s11_xp')) || 0;
         let curCase = 'furious';
         let marketPrices = {};
         let lastWin = null;
-        let totalOpened = parseInt(localStorage.getItem('s10_opened')) || 0;
-        let bestItem = localStorage.getItem('s10_best') || "---";
-        let bestPrice = parseInt(localStorage.getItem('s10_best_price')) || 0;
-        let totalProfit = parseInt(localStorage.getItem('s10_profit')) || 0;
+        let totalOpened = parseInt(localStorage.getItem('s11_opened')) || 0;
+        let bestItem = localStorage.getItem('s11_best') || "---";
+        let bestPrice = parseInt(localStorage.getItem('s11_best_price')) || 0;
+        let totalProfit = parseInt(localStorage.getItem('s11_profit')) || 0;
 
+        // Инициализация цен
         skinsDB.forEach(s => marketPrices[s.id] = { price: s.basePrice, trend: 1 });
 
+        // ФУНКЦИЯ ДИНАМИЧЕСКИХ ЦЕН
         function updateMarket() {
             skinsDB.forEach(s => {
-                let change = (Math.random() * 0.14 - 0.07);
+                let change = (Math.random() * 0.16 - 0.08); // ±8%
                 marketPrices[s.id].price = Math.max(5, Math.round(marketPrices[s.id].price * (1 + change)));
                 marketPrices[s.id].trend = change > 0 ? 1 : -1;
             });
             render();
         }
-        setInterval(updateMarket, 6000);
+        setInterval(updateMarket, 6000); // Каждые 6 сек
 
         function render() {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
             document.getElementById('money').innerText = money.toLocaleString();
             document.getElementById('xpFill').style.width = (xp % 1000 / 10) + "%";
             document.getElementById('lvlTxt').innerText = "LEVEL " + (Math.floor(xp / 1000) + 1);
+            
+            // Статистика
             document.getElementById('statOpened').innerText = totalOpened;
             document.getElementById('statBest').innerText = bestItem;
             document.getElementById('statProfit').innerText = totalProfit.toLocaleString() + " G";
 
+            // Рендер Инвентаря
             const iGrid = document.getElementById('invGrid'); iGrid.innerHTML = '';
             inv.forEach((it, idx) => {
                 const p = Math.round(marketPrices[it.id].price * (it.isST ? 2 : 1));
                 const d = document.createElement('div');
-                d.className = 'item-card';
-                d.style.boxShadow = `0 0 15px var(--${it.rarity})`;
+                d.className = `item-card ${it.rarity}-glow`;
                 d.style.borderColor = it.isST ? 'var(--stattrak)' : `var(--${it.rarity})`;
                 if(it.isST) d.innerHTML += `<span class="st-badge">ST</span>`;
-                d.innerHTML += `<div style="font-size:40px">${it.icon}</div><div style="font-size:11px; margin:5px 0;">${it.name}</div><b style="color:var(--accent)">${p} G</b>`;
-                d.onclick = () => { money += p; totalProfit += p; inv.splice(idx, 1); render(); };
+                d.innerHTML += `<div style="font-size:40px">${it.icon}</div><small>${it.name}</small><br><b>${p} G</b>`;
+                d.onclick = () => { money += p; totalProfit += p; inv.splice(idx, 1); playSound(200, 'sine', 0.1, 0.05); render(); };
                 iGrid.appendChild(d);
             });
 
+            // Рендер Рынка
             const mGrid = document.getElementById('marketGrid'); mGrid.innerHTML = '';
             skinsDB.forEach(s => {
                 const d = document.createElement('div');
                 d.className = 'item-card';
-                const trend = marketPrices[s.id].trend > 0 ? `<span style="color:var(--green)">▲</span>` : `<span style="color:#ff4747">▼</span>`;
-                d.innerHTML = `<div style="font-size:40px">${s.icon}</div><div style="font-size:11px; margin:5px 0;">${s.name}</div><b style="color:var(--accent)">${marketPrices[s.id].price} G</b> ${trend}`;
+                const trend = marketPrices[s.id].trend > 0 ? `<span class="trend-up">↑</span>` : `<span class="trend-down">↓</span>`;
+                d.innerHTML = `<div style="font-size:40px">${s.icon}</div><small>${s.name}</small><br><b>${marketPrices[s.id].price} G</b> ${trend}`;
                 mGrid.appendChild(d);
             });
 
-            localStorage.setItem('s10_money', money);
-            localStorage.setItem('s10_inv', JSON.stringify(inv));
-            localStorage.setItem('s10_xp', xp);
-            localStorage.setItem('s10_opened', totalOpened);
-            localStorage.setItem('s10_best', bestItem);
-            localStorage.setItem('s10_best_price', bestPrice);
-            localStorage.setItem('s10_profit', totalProfit);
+            // Сохранение
+            localStorage.setItem('s11_money', money);
+            localStorage.setItem('s11_inv', JSON.stringify(inv));
+            localStorage.setItem('s11_xp', xp);
+            localStorage.setItem('s11_opened', totalOpened);
+            localStorage.setItem('s11_best', bestItem);
+            localStorage.setItem('s11_best_price', bestPrice);
+            localStorage.setItem('s11_profit', totalProfit);
         }
 
+        // РУЛЕТКА
         function spin() {
-            if (money < cases[curCase].cost) return alert("Недостаточно голды!");
-            money -= cases[curCase].cost;
+            playSound(300, 'sine', 0.1);
+            const cost = cases[curCase].cost;
+            if (money < cost) return alert("Недостаточно голды!");
+            money -= cost;
             totalOpened++;
             render();
             
@@ -252,7 +334,9 @@
                     cur += cases[curCase].weights[j];
                     if(r <= cur) { s = skinsDB[j]; break; }
                 }
-                if(i === 55) win = {...s, isST: Math.random() < 0.05};
+                if(i === 55) {
+                    win = {...s, isST: Math.random() < 0.05}; // 5% StatTrak
+                }
                 let d = document.createElement('div'); d.className = 'track-card';
                 d.style.borderBottomColor = `var(--${s.rarity})`;
                 d.innerHTML = `<div style="font-size:40px">${s.icon}</div><div style="font-size:10px; color:#8b949e;">${s.name}</div>`;
@@ -262,30 +346,42 @@
             document.getElementById('spinBtn').disabled = true;
             setTimeout(() => {
                 track.style.transition = 'transform 7s cubic-bezier(0.1, 0, 0.1, 1)';
-                track.style.transform = `translateX(-${55 * 166 - (window.innerWidth/2 - 83)}px)`;
+                const w = window.innerWidth > 800 ? 800 : window.innerWidth;
+                track.style.transform = `translateX(-${55 * 166 - (w/2 - 83)}px)`;
+                
+                // Звук прокрутки
+                let timer = setInterval(clickSound, 140);
+                setTimeout(() => clearInterval(timer), 6000);
             }, 50);
 
             setTimeout(() => {
                 document.getElementById('spinBtn').disabled = false;
                 lastWin = win;
-                let cp = Math.round(marketPrices[win.id].price * (win.isST ? 2 : 1));
-                if (cp > bestPrice) { bestPrice = cp; bestItem = (win.isST ? "ST " : "") + win.name; }
+                winSound(win.rarity);
+                
+                let currentPrice = Math.round(marketPrices[win.id].price * (win.isST ? 2 : 1));
+                if (currentPrice > bestPrice) { bestPrice = currentPrice; bestItem = (win.isST ? "ST " : "") + win.name; }
 
                 document.getElementById('stWinLabel').style.display = win.isST ? 'block' : 'none';
                 document.getElementById('winIcon').innerText = win.icon;
+                document.getElementById('winIcon').style.color = `var(--${win.rarity})`;
                 document.getElementById('winName').innerText = win.name;
                 document.getElementById('winRarity').innerText = win.rarity;
                 document.getElementById('winRarity').style.color = `var(--${win.rarity})`;
-                document.getElementById('winPrice').innerText = cp;
+                document.getElementById('winPrice').innerText = currentPrice;
                 document.getElementById('winModal').style.display = 'flex';
                 render();
             }, 7200);
         }
 
-        function closeWin() { inv.unshift(lastWin); xp += 200; document.getElementById('winModal').style.display = 'none'; render(); }
-        function sellImmediately() { let p = Math.round(marketPrices[lastWin.id].price * (lastWin.isST ? 2 : 1)); money += p; totalProfit += p; document.getElementById('winModal').style.display = 'none'; render(); }
-        function switchTab(t) { document.querySelectorAll('.view-section, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(t + '-view').classList.add('active'); if(event) event.currentTarget.classList.add('active'); }
-        function setCase(c) { curCase = c; document.querySelectorAll('.case-card').forEach(b => b.classList.remove('active')); document.getElementById('c-' + c).classList.add('active'); }
+        function closeWin() { playSound(200, 'sine', 0.1); inv.unshift(lastWin); xp += 200; document.getElementById('winModal').style.display = 'none'; render(); }
+        function sellImmediately() { playSound(600, 'sine', 0.2, 0.15); let p = Math.round(marketPrices[lastWin.id].price * (lastWin.isST ? 2 : 1)); money += p; totalProfit += p; document.getElementById('winModal').style.display = 'none'; render(); }
+        function switchTab(t) { playSound(400, 'sine', 0.05); document.querySelectorAll('.view-section, .tab-btn').forEach(el => el.classList.remove('active')); document.getElementById(t + '-view').classList.add('active'); if(event) event.currentTarget.classList.add('active'); }
+        function setCase(c) { playSound(500, 'sine', 0.05); curCase = c; document.querySelectorAll('.case-card').forEach(b => b.classList.remove('active')); document.getElementById('c-' + c).classList.add('active'); }
+
+        // Добавляем стили для свечения Arcane скинов
+        const sheet = window.document.styleSheets[0];
+        sheet.insertRule('.arcane-glow { animation: glowPulse 2s infinite, arcanePulse 2s infinite; }', sheet.cssRules.length);
 
         updateMarket();
     </script>
