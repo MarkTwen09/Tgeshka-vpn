@@ -3,100 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SlowMail Professional | Dashboard</title>
+    <title>SlowMail — Swipe Professional</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
-        .sidebar-item:hover { background-color: #f1f5f9; }
-        .active-link { background-color: #e2e8f0; font-weight: 600; color: #1e293b; }
-        .mail-row:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border-color: #cbd5e1; }
+        @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&display=swap');
+        body { font-family: 'Google Sans', sans-serif; background-color: #f6f8fc; touch-action: pan-y; overflow: hidden; }
+        
+        /* Стили для свайпов */
+        .mail-wrapper { position: relative; overflow: hidden; background: #fff; }
+        .swipe-bg { position: absolute; inset: 0; display: flex; align-items: center; padding: 0 25px; color: white; z-index: 0; opacity: 0; transition: opacity 0.2s; }
+        .bg-archive { background-color: #34a853; justify-content: flex-start; }
+        .bg-delete { background-color: #ea4335; justify-content: flex-end; }
+        
+        .mail-content { 
+            position: relative; 
+            background: white; 
+            z-index: 10; 
+            transition: transform 0.1s ease-out; 
+            cursor: grab;
+            user-select: none;
+        }
+        .mail-content:active { cursor: grabbing; }
+        
+        .removed-right { transform: translateX(100%) !important; opacity: 0; transition: 0.4s !important; }
+        .removed-left { transform: translateX(-100%) !important; opacity: 0; transition: 0.4s !important; }
+
+        .sidebar-active { background-color: #d3e3fd; color: #041e49; font-weight: 500; }
     </style>
 </head>
 <body class="h-screen flex flex-col">
 
-    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-10">
-        <div class="flex items-center gap-4">
-            <img src="https://i.ibb.co/LzdS0mK/1000140751.png" class="w-10 h-10 object-contain" alt="SlowMail">
-            <h1 class="text-xl font-semibold text-slate-800 tracking-tight">SlowMail</h1>
+    <header class="h-16 flex items-center justify-between px-4 bg-white border-b border-gray-200 z-50">
+        <div class="flex items-center gap-3 min-w-[200px]">
+            <img src="https://i.ibb.co/LzdS0mK/1000140751.png" class="w-9 h-9 rounded-lg shadow-sm" alt="SlowMail">
+            <span class="text-2xl text-gray-500 font-normal">SlowMail</span>
         </div>
-        
-        <div class="flex-1 max-w-2xl px-8">
+        <div class="flex-1 max-w-2xl mx-4">
             <div class="relative">
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                    <i class="material-icons-outlined">search</i>
-                </span>
-                <input type="text" class="block w-full bg-slate-100 border-none rounded-lg py-2 pl-10 pr-3 text-sm focus:ring-2 focus:ring-blue-500 transition" placeholder="Поиск в почте...">
+                <i class="material-icons-outlined absolute left-4 top-2.5 text-gray-400">search</i>
+                <input type="text" class="w-full bg-[#eaf1fb] rounded-full py-2.5 pl-12 pr-6 outline-none focus:bg-white focus:shadow-md transition" placeholder="Поиск почты">
             </div>
         </div>
-
-        <div class="flex items-center gap-3">
-            <button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full"><i class="material-icons-outlined">help_outline</i></button>
-            <button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full"><i class="material-icons-outlined">settings</i></button>
-            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">SM</div>
-        </div>
+        <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold border-2 border-white shadow-sm">S</div>
     </header>
 
     <div class="flex flex-1 overflow-hidden">
-        <aside class="w-64 bg-white border-r border-slate-200 p-4 flex flex-col gap-1">
-            <button class="mb-6 flex items-center justify-center gap-2 bg-slate-900 text-white py-3 px-4 rounded-xl hover:bg-slate-800 transition shadow-lg shadow-slate-200 font-medium">
-                <i class="material-icons-outlined text-sm">add</i> Написать письмо
+        <aside class="w-64 p-3 hidden md:flex flex-col gap-1">
+            <button onclick="openCompose()" class="flex items-center gap-4 bg-[#c2e7ff] hover:shadow-lg py-4 px-6 rounded-2xl font-medium mb-6 mt-2 w-max transition-all active:scale-95">
+                <i class="material-icons-outlined text-2xl">edit</i> Написать
             </button>
-            
-            <a href="#" class="sidebar-item active-link flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition">
-                <i class="material-icons-outlined text-lg">inbox</i> Входящие <span class="ml-auto text-xs opacity-60">12</span>
-            </a>
-            <a href="#" class="sidebar-item flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-slate-600 transition">
-                <i class="material-icons-outlined text-lg">star_outline</i> Помеченные
-            </a>
-            <a href="#" class="sidebar-item flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-slate-600 transition">
-                <i class="material-icons-outlined text-lg">send</i> Отправленные
-            </a>
-            <a href="#" class="sidebar-item flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-slate-600 transition">
-                <i class="material-icons-outlined text-lg">description</i> Черновики
-            </a>
-            <hr class="my-4 border-slate-100">
-            <div class="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Метки</div>
-            <a href="#" class="sidebar-item flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-slate-600 transition">
-                <span class="w-2 h-2 rounded-full bg-orange-400"></span> Работа
-            </a>
-        </aside><main class="flex-1 overflow-y-auto p-4 bg-slate-50">
-            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
-                <div class="flex items-center justify-between p-3 border-b border-slate-100 bg-white sticky top-0">
-                    <div class="flex items-center gap-4">
-                        <input type="checkbox" class="rounded text-blue-600">
-                        <button class="text-slate-500 hover:text-slate-800 transition"><i class="material-icons-outlined text-xl">refresh</i></button>
-                        <button class="text-slate-500 hover:text-slate-800 transition"><i class="material-icons-outlined text-xl">more_vert</i></button>
-                    </div>
-                    <div class="text-xs text-slate-400">1-50 из 1,240</div>
-                </div>
-
-                <div class="flex flex-col">
-                    <div class="mail-row flex items-center px-4 py-3 border-b border-slate-50 bg-blue-50/30 cursor-pointer transition-all border-l-4 border-l-blue-500">
-                        <input type="checkbox" class="mr-4 rounded text-blue-600">
-                        <i class="material-icons-outlined text-slate-300 mr-4">star_outline</i>
-                        <div class="w-48 font-semibold text-slate-900 truncate">Сервер SlowMail</div>
-                        <div class="flex-1 flex gap-2 overflow-hidden px-4">
-                            <span class="font-medium text-slate-800 truncate text-sm">Добро пожаловать в систему</span>
-                            <span class="text-slate-400 text-sm truncate">— Ваша учетная запись активирована и готова к работе.</span>
-                        </div>
-                        <div class="text-xs font-medium text-slate-500">14:20</div>
-                    </div>
+            <div id="nav-inbox" onclick="switchTab('inbox')" class="sidebar-active flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm cursor-pointer transition-colors">
+                <i class="material-icons-outlined">inbox</i> Входящие
+            </div>
+            <div id="nav-sent" onclick="switchTab('sent')" class="flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-100 transition-colors">
+                <i class="material-icons-outlined">send</i> Отправленные
+            </div>
+            <div class="flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-100">
+                <i class="material-icons-outlined">star_outline</i> Помеченные
+            </div>
+        </aside><main class="flex-1 bg-white my-2 md:mr-4 rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+            <div id="view-inbox" class="flex flex-col h-full">
+                <div class="p-4 border-b text-gray-400 text-[10px] font-bold uppercase tracking-[0.1em]">Входящие (Свайп вправо — Архив, влево — Корзина)</div>
+                <div id="mail-list" class="overflow-y-auto flex-1 divide-y divide-gray-50">
                     
-                    <div class="mail-row flex items-center px-4 py-3 border-b border-slate-50 bg-white cursor-pointer transition-all">
-                        <input type="checkbox" class="mr-4 rounded text-blue-600">
-                        <i class="material-icons-outlined text-slate-300 mr-4">star_outline</i>
-                        <div class="w-48 text-slate-600 truncate text-sm">Support Team</div>
-                        <div class="flex-1 flex gap-2 overflow-hidden px-4">
-                            <span class="text-slate-800 truncate text-sm">Обновление безопасности</span>
-                            <span class="text-slate-400 text-sm truncate">— Ознакомьтесь с новыми правилами шифрования SlowMail.</span>
+                    <div class="mail-wrapper">
+                        <div class="swipe-bg bg-archive"><i class="material-icons-outlined">archive</i></div>
+                        <div class="swipe-bg bg-delete"><i class="material-icons-outlined">delete</i></div>
+                        <div class="mail-content p-4 flex items-center gap-4" onmousedown="startSwipe(event)" ontouchstart="startSwipe(event)">
+                            <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center font-bold">G</div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-sm text-gray-800">SlowMail Team</span>
+                                    <span class="text-xs text-gray-400">22:30</span>
+                                </div>
+                                <p class="text-sm font-medium text-gray-900">Ваша копия готова!</p>
+                                <p class="text-xs text-gray-500">Все кнопки и свайпы теперь работают. Попробуй.</p>
+                            </div>
                         </div>
-                        <div class="text-xs text-slate-400">Вчера</div>
                     </div>
+
+                    <div class="mail-wrapper">
+                        <div class="swipe-bg bg-archive"><i class="material-icons-outlined">archive</i></div>
+                        <div class="swipe-bg bg-delete"><i class="material-icons-outlined">delete</i></div>
+                        <div class="mail-content p-4 flex items-center gap-4" onmousedown="startSwipe(event)" ontouchstart="startSwipe(event)">
+                            <div class="w-10 h-10 bg-green-100 text-green-600 rounded-full flex items-center justify-center font-bold">A</div>
+                            <div class="flex-1">
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-sm text-gray-800">Администрация</span>
+                                    <span class="text-xs text-gray-400">Вчера</span>
+                                </div>
+                                <p class="text-sm font-medium text-gray-900">Уведомление безопасности</p>
+                                <p class="text-xs text-gray-500">Ваш SlowMail успешно запущен на GitHub.</p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
+            </div>
+
+            <div id="view-sent" class="hidden h-full flex items-center justify-center text-gray-400 text-sm italic">
+                Отправленных сообщений пока нет.
             </div>
         </main>
     </div>
+
+    <div id="composeBox" class="hidden fixed bottom-0 right-8 w-full max-w-lg bg-white shadow-2xl rounded-t-2xl border z-[100] transition-transform">
+        <div class="bg-[#f2f6fc] p-3 flex justify-between items-center rounded-t-2xl border-b">
+            <span class="text-sm font-bold px-2">Новое сообщение</span>
+            <i onclick="closeCompose()" class="material-icons-outlined cursor-pointer p-1 hover:bg-gray-200 rounded text-gray-600">close</i>
+        </div>
+        <form id="mailForm" action="https://formspree.io/f/xknkyjov" method="POST" class="p-4 flex flex-col">
+            
+            <input type="hidden" name="_replyto" value="ТВОЯ_ПОЧТА@GMAIL.COM"><input name="email" type="email" placeholder="Кому" class="border-b py-2 mb-2 outline-none text-sm" required>
+            <input name="subject" type="text" placeholder="Тема" class="border-b py-2 mb-2 outline-none text-sm" required>
+            <textarea name="message" rows="12" class="outline-none text-sm resize-none py-2" placeholder="Текст вашего сообщения..." required></textarea>
+            
+            <div class="flex justify-between items-center border-t pt-4">
+                <button type="submit" id="sendBtn" class="bg-[#0b57d0] text-white px-10 py-2.5 rounded-full font-bold shadow-lg hover:bg-[#0842a0] transition-all active:scale-95">Отправить</button>
+                <div class="flex gap-2 text-gray-400">
+                    <i class="material-icons-outlined p-2 hover:bg-gray-100 rounded-full cursor-pointer">attach_file</i>
+                    <i onclick="closeCompose()" class="material-icons-outlined p-2 hover:bg-red-50 hover:text-red-500 rounded-full cursor-pointer">delete</i>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // ЛОГИКА СВАЙПОВ
+        let startX = 0;
+        let currentElement = null;
+
+        function startSwipe(e) {
+            currentElement = e.currentTarget;
+            startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            currentElement.style.transition = 'none';
+            
+            const events = e.type.includes('touch') ? ['touchmove', 'touchend'] : ['mousemove', 'mouseup'];
+            document.addEventListener(events[0], moveSwipe);
+            document.addEventListener(events[1], endSwipe);
+        }
+
+        function moveSwipe(e) {
+            if (!currentElement) return;
+            const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const walk = x - startX;
+            currentElement.style.transform = translateX(${walk}px);
+            
+            const wrapper = currentElement.parentElement;
+            if (walk > 30) {
+                wrapper.querySelector('.bg-archive').style.opacity = 1;
+                wrapper.querySelector('.bg-delete').style.opacity = 0;
+            } else if (walk < -30) {
+                wrapper.querySelector('.bg-archive').style.opacity = 0;
+                wrapper.querySelector('.bg-delete').style.opacity = 1;
+            }
+        }
+
+        function endSwipe(e) {
+            if (!currentElement) return;
+            const endX = e.type.includes('touchend') ? e.changedTouches[0].clientX : e.clientX;
+            const walk = endX - startX;
+            currentElement.style.transition = 'transform 0.3s ease';
+
+            if (walk > 160) {
+                currentElement.classList.add('removed-right');
+                setTimeout(() => currentElement.parentElement.remove(), 400);
+            } else if (walk < -160) {
+                currentElement.classList.add('removed-left');
+                setTimeout(() => currentElement.parentElement.remove(), 400);
+            } else {
+                currentElement.style.transform = 'translateX(0)';
+            }
+
+            currentElement = null;
+            document.removeEventListener('mousemove', moveSwipe);
+            document.removeEventListener('mouseup', endSwipe);
+            document.removeEventListener('touchmove', moveSwipe);
+            document.removeEventListener('touchend', endSwipe);
+        }
+
+        // ЛОГИКА ТАБОВ И ОКНА
+        function openCompose() { document.getElementById('composeBox').classList.remove('hidden'); }
+        function closeCompose() { document.getElementById('composeBox').classList.add('hidden'); }
+
+        function switchTab(tab) {
+            document.getElementById('nav-inbox').classList.toggle('sidebar-active', tab === 'inbox');
+            document.getElementById('nav-sent').classList.toggle('sidebar-active', tab === 'sent');
+            document.getElementById('view-inbox').classList.toggle('hidden', tab !== 'inbox');
+            document.getElementById('view-sent').classList.toggle('hidden', tab !== 'sent');
+        }document.getElementById('mailForm').onsubmit = function() {
+            const btn = document.getElementById('sendBtn');
+            btn.innerText = "Отправка...";
+            btn.disabled = true;
+            setTimeout(() => {
+                alert("Успешно отправлено!");
+                closeCompose();
+                btn.innerText = "Отправить";
+                btn.disabled = false;
+            }, 1500);
+        }
+    </script>
 </body>
 </html>
