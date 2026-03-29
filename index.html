@@ -2,126 +2,101 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>GLOBAL CONQUEST: EURASIA [FINAL]</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlowMail Professional | Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <style>
-        body, html { margin: 0; padding: 0; height: 100%; background: #05080c; color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
-        #map { height: 100vh; width: 100vw; z-index: 1; background: #05080c; }
-
-        /* Левая панель управления */
-        .panel-left {
-            position: absolute; top: 20px; left: 20px; width: 300px;
-            background: rgba(13, 22, 34, 0.95); border: 1px solid #1f2d3d;
-            border-radius: 8px; z-index: 1000; padding: 18px; box-shadow: 0 0 40px rgba(0,0,0,0.8);
-        }
-        .res-row { display: flex; gap: 25px; margin-bottom: 15px; font-size: 20px; font-weight: bold; }
-        .orange { color: #ff9900; }
-
-        .btn {
-            width: 100%; padding: 12px; margin-bottom: 8px; border: none; border-radius: 5px;
-            color: white; font-weight: bold; cursor: pointer; text-align: left; font-size: 13px;
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.2); transition: 0.1s;
-        }
-        .btn-green { background: linear-gradient(180deg, #2b9348, #1a6d1a); }
-        .btn-blue { background: linear-gradient(180deg, #007bff, #0056b3); text-transform: uppercase; }
-        .btn:hover { filter: brightness(1.2); }
-
-        .log-box {
-            background: rgba(0,0,0,0.5); border: 1px solid #1f2d3d; height: 160px;
-            margin-top: 15px; padding: 10px; overflow-y: auto; font-size: 12px; font-family: monospace;
-        }
-
-        /* Правая панель ID */
-        .panel-right {
-            position: absolute; top: 20px; right: 20px; width: 240px;
-            background: rgba(13, 22, 34, 0.95); border-radius: 8px; z-index: 1000; padding: 15px;
-            border-top: 4px solid #00ccff;
-        }
-        .id-val { font-size: 22px; font-weight: bold; margin: 5px 0 15px 0; }
-
-        /* Стиль захваченных стран */
-        .my-country { fill: #00ff00 !important; fill-opacity: 0.4 !important; stroke: #00ff00 !important; stroke-width: 2; }
-        .war-country { fill: #ff0000 !important; fill-opacity: 0.5 !important; stroke: #ff0000 !important; stroke-width: 2; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f8fafc; }
+        .sidebar-item:hover { background-color: #f1f5f9; }
+        .active-link { background-color: #e2e8f0; font-weight: 600; color: #1e293b; }
+        .mail-row:hover { box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border-color: #cbd5e1; }
     </style>
 </head>
-<body>
+<body class="h-screen flex flex-col">
 
-    <div class="panel-left">
-        <div style="color:#00ccff; font-weight:bold; margin-bottom:10px;">ДЕЙСТВИЯ И ЧАТ</div>
-        <div class="res-row">
-            <div class="orange">🔥 <span id="gold">1000</span></div>
-            <div>⚔️ <span id="army">150</span></div>
+    <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 z-10">
+        <div class="flex items-center gap-4">
+            <img src="https://i.ibb.co/LzdS0mK/1000140751.png" class="w-10 h-10 object-contain" alt="SlowMail">
+            <h1 class="text-xl font-semibold text-slate-800 tracking-tight">SlowMail</h1>
         </div>
-        <button class="btn btn-green" onclick="updateEcon()">📈 РАЗВИТЬ ЭКОНОМИКУ (-200)</button>
-        <button class="btn btn-blue" onclick="startWar()">🚀 ВТОРЖЕНИЕ (ВЫБЕРИТЕ ЦЕЛЬ)</button>
-
-        <div class="log-box" id="log">
-            <div><span style="color:#ffcc00">SYSTEM:</span> Выберите свою страну на карте...</div>
+        
+        <div class="flex-1 max-w-2xl px-8">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
+                    <i class="material-icons-outlined">search</i>
+                </span>
+                <input type="text" class="block w-full bg-slate-100 border-none rounded-lg py-2 pl-10 pr-3 text-sm focus:ring-2 focus:ring-blue-500 transition" placeholder="Поиск в почте...">
+            </div>
         </div>
+
+        <div class="flex items-center gap-3">
+            <button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full"><i class="material-icons-outlined">help_outline</i></button>
+            <button class="p-2 text-slate-500 hover:bg-slate-100 rounded-full"><i class="material-icons-outlined">settings</i></button>
+            <div class="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-bold">SM</div>
+        </div>
+    </header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <aside class="w-64 bg-white border-r border-slate-200 p-4 flex flex-col gap-1">
+            <button class="mb-6 flex items-center justify-center gap-2 bg-slate-900 text-white py-3 px-4 rounded-xl hover:bg-slate-800 transition shadow-lg shadow-slate-200 font-medium">
+                <i class="material-icons-outlined text-sm">add</i> Написать письмо
+            </button>
+            
+            <a href="#" class="sidebar-item active-link flex items-center gap-3 px-4 py-2 rounded-lg text-sm transition">
+                <i class="material-icons-outlined text-lg">inbox</i> Входящие <span class="ml-auto text-xs opacity-60">12</span>
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-slate-600 transition">
+                <i class="material-icons-outlined text-lg">star_outline</i> Помеченные
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-slate-600 transition">
+                <i class="material-icons-outlined text-lg">send</i> Отправленные
+            </a>
+            <a href="#" class="sidebar-item flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-slate-600 transition">
+                <i class="material-icons-outlined text-lg">description</i> Черновики
+            </a>
+            <hr class="my-4 border-slate-100">
+            <div class="px-4 text-xs font-bold text-slate-400 uppercase tracking-wider">Метки</div>
+            <a href="#" class="sidebar-item flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-slate-600 transition">
+                <span class="w-2 h-2 rounded-full bg-orange-400"></span> Работа
+            </a>
+        </aside><main class="flex-1 overflow-y-auto p-4 bg-slate-50">
+            <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+                <div class="flex items-center justify-between p-3 border-b border-slate-100 bg-white sticky top-0">
+                    <div class="flex items-center gap-4">
+                        <input type="checkbox" class="rounded text-blue-600">
+                        <button class="text-slate-500 hover:text-slate-800 transition"><i class="material-icons-outlined text-xl">refresh</i></button>
+                        <button class="text-slate-500 hover:text-slate-800 transition"><i class="material-icons-outlined text-xl">more_vert</i></button>
+                    </div>
+                    <div class="text-xs text-slate-400">1-50 из 1,240</div>
+                </div>
+
+                <div class="flex flex-col">
+                    <div class="mail-row flex items-center px-4 py-3 border-b border-slate-50 bg-blue-50/30 cursor-pointer transition-all border-l-4 border-l-blue-500">
+                        <input type="checkbox" class="mr-4 rounded text-blue-600">
+                        <i class="material-icons-outlined text-slate-300 mr-4">star_outline</i>
+                        <div class="w-48 font-semibold text-slate-900 truncate">Сервер SlowMail</div>
+                        <div class="flex-1 flex gap-2 overflow-hidden px-4">
+                            <span class="font-medium text-slate-800 truncate text-sm">Добро пожаловать в систему</span>
+                            <span class="text-slate-400 text-sm truncate">— Ваша учетная запись активирована и готова к работе.</span>
+                        </div>
+                        <div class="text-xs font-medium text-slate-500">14:20</div>
+                    </div>
+                    
+                    <div class="mail-row flex items-center px-4 py-3 border-b border-slate-50 bg-white cursor-pointer transition-all">
+                        <input type="checkbox" class="mr-4 rounded text-blue-600">
+                        <i class="material-icons-outlined text-slate-300 mr-4">star_outline</i>
+                        <div class="w-48 text-slate-600 truncate text-sm">Support Team</div>
+                        <div class="flex-1 flex gap-2 overflow-hidden px-4">
+                            <span class="text-slate-800 truncate text-sm">Обновление безопасности</span>
+                            <span class="text-slate-400 text-sm truncate">— Ознакомьтесь с новыми правилами шифрования SlowMail.</span>
+                        </div>
+                        <div class="text-xs text-slate-400">Вчера</div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
-
-    <div class="panel-right">
-        <div style="color:#00ccff; font-size:11px;">YOUR NETWORK ID: ...</div>
-        <div class="id-val">987654321</div>
-        <div style="color:#00ccff; font-size:11px;">ID ДРУГА</div>
-        <input type="text" style="width:100%; background:#0a1118; border:1px solid #253545; color:white; padding:8px; margin-top:5px;" placeholder="friend_id_456">
-    </div>
-
-    <div id="map"></div>
-
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-        const map = L.map('map', { center: [50, 40], zoom: 3, zoomControl: false, attributionControl: false });
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
-
-        let myCountry = null;
-        let isWarMode = false;
-        let gold = 1000;
-        let army = 150;
-
-        function addLog(txt, color = "#00ffcc") {
-            const log = document.getElementById('log');
-            log.innerHTML += <div><span style="color:${color}">></span> ${txt}</div>;
-            log.scrollTop = log.scrollHeight;
-        }Мfunction updateEcon() {
-            if (gold >= 200) {
-                gold -= 200;
-                document.getElementById('gold').innerText = gold;
-                addLog("Экономика улучшена! Доход +10%.");
-            } else {
-                addLog("Недостаточно золота!", "red");
-            }
-        }
-
-        function startWar() {
-            isWarMode = true;
-            addLog("РЕЖИМ ВТОРЖЕНИЯ: Кликните по цели!", "red");
-        }
-
-        // Загрузка РЕАЛЬНЫХ границ стран
-        fetch('https://raw.githubusercontent.com/datasets/geo-boundaries-world-110m/master/countries.geojson')
-            .then(res => res.json())
-            .then(data => {
-                L.geoJSON(data, {
-                    style: { color: '#00ccff', weight: 1, fillOpacity: 0.1, fillColor: '#1a2634' },
-                    onEachFeature: (feature, layer) => {
-                        layer.on('click', () => {
-                            const name = feature.properties.name;
-                            if (!myCountry) {
-                                myCountry = name;
-                                layer.setStyle({ className: 'my-country' });
-                                addLog(Вы выбрали столицу: ${name}, "#00ff00");
-                            } else if (isWarMode) {
-                                layer.setStyle({ className: 'war-country' });
-                                addLog(ВТОРЖЕНИЕ В ${name} ЗАВЕРШЕНО!, "red");
-                                isWarMode = false;
-                            } else {
-                                addLog(Информация: ${name});
-                            }
-                        });
-                    }
-                }).addTo(map);
-            });
-    </script>
 </body>
 </html>
