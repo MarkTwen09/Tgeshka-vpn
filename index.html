@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SO2 CASE SIMULATOR: SOUND EDITION</title>
+    <title>SO2 CASE SIMULATOR: FIXED EDITION</title>
     <style>
         :root {
             --bg: #05070a;
@@ -21,6 +21,7 @@
             display: flex; flex-direction: column; align-items: center; margin: 0; padding: 10px; min-height: 100vh;
         }
 
+        /* HEADER */
         .header-panel {
             background: var(--card); backdrop-filter: blur(10px);
             width: 100%; max-width: 800px; padding: 15px 25px;
@@ -29,6 +30,7 @@
         }
         .balance-val { font-size: 26px; font-weight: 900; color: var(--accent); }
 
+        /* TABS */
         .tabs { display: flex; gap: 8px; margin-bottom: 15px; width: 100%; max-width: 800px; }
         .tab-btn {
             flex: 1; padding: 12px; background: var(--card); border: 1px solid rgba(255,255,255,0.05);
@@ -40,18 +42,18 @@
         .view-section.active { display: block; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* КЕЙСЫ */
         .case-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .case-card {
-            background: var(--card); padding: 10px; border-radius: 15px; border: 2px solid transparent;
-            text-align: center; cursor: pointer; transition: 0.3s;
-        }
+        .case-card { background: var(--card); padding: 10px; border-radius: 15px; border: 2px solid transparent; text-align: center; cursor: pointer; transition: 0.3s; }
         .case-card.active { border-color: var(--blue); background: rgba(0, 230, 255, 0.1); }
 
+        /* РУЛЕТКА */
         .roulette-box { height: 160px; background: rgba(0,0,0,0.5); border-radius: 20px; overflow: hidden; position: relative; margin-bottom: 15px; border: 1px solid #222; }
         .pointer { position: absolute; left: 50%; top: 0; width: 4px; height: 100%; background: var(--red); z-index: 5; transform: translateX(-50%); box-shadow: 0 0 15px var(--red); }
         .track { display: flex; position: absolute; left: 0; top: 15px; transition: transform 7s cubic-bezier(0.1, 0, 0.1, 1); }
         .track-card { min-width: 140px; height: 130px; margin: 0 5px; background: #1a1f26; border-radius: 10px; border-bottom: 4px solid #555; display: flex; flex-direction: column; align-items: center; justify-content: center; }
 
+        /* ИНВЕНТАРЬ И РЫНОК */
         .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
         .item-card { background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); text-align: center; cursor: pointer; transition: 0.2s; }
 
@@ -61,9 +63,13 @@
         }
         .btn:disabled { opacity: 0.4; }
 
-        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:1000; backdrop-filter: blur(8px); }
-        .modal { background: #151921; padding: 30px; border-radius: 25px; border: 1px solid var(--blue); text-align: center; width: 90%; max-width: 350px; }
-        .win-glow { font-size: 70px; margin-bottom: 10px; }
+        /* МОДАЛКА ВЫИГРЫША */
+        .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:none; align-items:center; justify-content:center; z-index:1000; backdrop-filter: blur(10px); }
+        .modal { background: #151921; padding: 30px; border-radius: 25px; border: 1px solid var(--blue); text-align: center; width: 90%; max-width: 350px; animation: popIn 0.3s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
+        @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+        .win-icon { font-size: 80px; margin-bottom: 10px; display: block; }
+        .sell-text-btn { background: transparent; border: none; color: #8b949e; margin-top: 15px; cursor: pointer; font-weight: bold; font-size: 14px; text-decoration: underline; }
 
         .trend-up { color: var(--green); } .trend-down { color: var(--red); }
     </style>
@@ -99,34 +105,40 @@
 
     <div id="winModal" class="overlay">
         <div class="modal">
-            <div id="winIcon" class="win-glow">🔫</div>
-            <h3 id="winName"></h3>
-            <p id="winRarity" style="font-weight:bold"></p>
+            <div id="winIcon" class="win-icon">🔫</div>
+            <h3 id="winName" style="margin: 10px 0 5px 0;"></h3>
+            <p id="winRarity" style="font-weight:bold; margin-bottom: 20px;"></p>
+            
             <button class="btn" onclick="closeWin()">В ИНВЕНТАРЬ</button>
+            
+            <button class="sell-text-btn" onclick="sellImmediately()">
+                ПРОДАТЬ СРАЗУ ЗА <span id="winPrice">0</span> G
+            </button>
         </div>
     </div>
 
     <script>
-        // ЗВУКОВОЙ ДВИЖОК
+        // АУДИО ДВИЖОК
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(freq, type, duration, vol = 0.1) {
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            gain.gain.setValueAtTime(vol, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + duration);
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch(e) {}
         }
 
-        const clickSound = () => playSound(150, 'sine', 0.1, 0.2);
+        const clickSound = () => playSound(150, 'sine', 0.1, 0.15);
         const winSound = (rarity) => {
             const freqs = { common: 400, uncommon: 500, rare: 600, epic: 800, legendary: 1000, arcane: 1500 };
-            playSound(freqs[rarity], 'triangle', 0.5, 0.3);
-            setTimeout(() => playSound(freqs[rarity] * 1.2, 'triangle', 0.5, 0.2), 100);
+            playSound(freqs[rarity] || 400, 'triangle', 0.6, 0.25);
         };
 
         const skinsDB = [
@@ -144,9 +156,9 @@
             empire: { cost: 500, weights: [0, 0, 10, 50, 30, 10] }
         };
 
-        let money = parseInt(localStorage.getItem('s5_money')) || 5000;
-        let inv = JSON.parse(localStorage.getItem('s5_inv')) || [];
-        let xp = parseInt(localStorage.getItem('s5_xp')) || 0;
+        let money = parseInt(localStorage.getItem('s6_money')) || 5000;
+        let inv = JSON.parse(localStorage.getItem('s6_inv')) || [];
+        let xp = parseInt(localStorage.getItem('s6_xp')) || 0;
         let curCase = 'furious';
         let marketPrices = {};
         let lastWin = null;
@@ -155,13 +167,13 @@
 
         function updateMarket() {
             skinsDB.forEach(s => {
-                let change = (Math.random() * 0.1 - 0.05);
+                let change = (Math.random() * 0.12 - 0.06);
                 marketPrices[s.id].price = Math.max(5, Math.round(marketPrices[s.id].price * (1 + change)));
                 marketPrices[s.id].trend = change > 0 ? 1 : -1;
             });
             render();
         }
-        setInterval(updateMarket, 7000);
+        setInterval(updateMarket, 8000);
 
         function render() {
             document.getElementById('money').innerText = money;
@@ -183,21 +195,26 @@
                 const d = document.createElement('div');
                 d.className = 'item-card';
                 d.style.borderColor = `var(--${it.rarity})`;
-                d.onclick = () => { money += marketPrices[it.id].price; inv.splice(idx, 1); playSound(200, 'sine', 0.1); render(); };
+                d.onclick = () => { 
+                    money += marketPrices[it.id].price; 
+                    inv.splice(idx, 1); 
+                    playSound(200, 'sine', 0.1); 
+                    render(); 
+                };
                 d.innerHTML = `<div>${it.icon}</div><small>${it.name}</small><br><b style="color:var(--accent)">${marketPrices[it.id].price} G</b>`;
                 iGrid.appendChild(d);
             });
 
-            localStorage.setItem('s5_money', money);
-            localStorage.setItem('s5_inv', JSON.stringify(inv));
-            localStorage.setItem('s5_xp', xp);
+            localStorage.setItem('s6_money', money);
+            localStorage.setItem('s6_inv', JSON.stringify(inv));
+            localStorage.setItem('s6_xp', xp);
         }
 
         function switchTab(t) {
             playSound(300, 'sine', 0.05);
             document.querySelectorAll('.view-section, .tab-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(t + '-view').classList.add('active');
-            event.currentTarget.classList.add('active');
+            if(event) event.currentTarget.classList.add('active');
         }
 
         function setCase(c) {
@@ -208,7 +225,7 @@
         }
 
         function spin() {
-            if (money < cases[curCase].cost) return;
+            if (money < cases[curCase].cost) return alert("Мало голды!");
             money -= cases[curCase].cost;
             if (audioCtx.state === 'suspended') audioCtx.resume();
             
@@ -237,13 +254,11 @@
                 track.style.transition = 'transform 7s cubic-bezier(0.1, 0, 0.1, 1)';
                 track.style.transform = `translateX(-${55 * 150 - (window.innerWidth/2 - 75)}px)`;
                 
-                // Эффект звука при прокрутке
-                let startTime = Date.now();
-                let interval = setInterval(() => {
-                    let elapsed = Date.now() - startTime;
-                    if (elapsed > 7000) clearInterval(interval);
+                let start = Date.now();
+                let timer = setInterval(() => {
+                    if(Date.now() - start > 7000) clearInterval(timer);
                     else clickSound();
-                }, 120); // Базовый темп щелчков
+                }, 130);
             }, 50);
 
             setTimeout(() => {
@@ -255,16 +270,25 @@
 
         function showWin(s) {
             winSound(s.rarity);
+            document.getElementById('winIcon').innerText = s.icon;
             document.getElementById('winName').innerText = s.name;
             document.getElementById('winRarity').innerText = s.rarity.toUpperCase();
             document.getElementById('winRarity').style.color = `var(--${s.rarity})`;
-            document.getElementById('winIcon').innerText = s.icon;
+            document.getElementById('winPrice').innerText = marketPrices[s.id].price;
             document.getElementById('winModal').style.display = 'flex';
         }
 
         function closeWin() {
             inv.unshift({...lastWin});
             xp += 150;
+            document.getElementById('winModal').style.display = 'none';
+            render();
+        }
+
+        function sellImmediately() {
+            money += marketPrices[lastWin.id].price;
+            xp += 50;
+            playSound(600, 'sine', 0.2);
             document.getElementById('winModal').style.display = 'none';
             render();
         }
