@@ -2,166 +2,150 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>RADAR VRV | СИСТЕМА МОНИТОРИНГА</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RADAR VRV | ULTIMATE</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --danger: #ff3333; --safe: #00ff66; --bg: #050505; }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; overflow: hidden; height: 100vh; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; margin: 0; overflow: hidden; height: 100vh; }
+        #map { height: 100%; width: 100%; filter: brightness(0.7) contrast(1.2); }
         
-        #map { height: 100%; width: 100%; z-index: 1; filter: saturate(1.2) brightness(0.8); }
+        .ui { position: fixed; z-index: 1000; pointer-events: none; }
+        .top-bar { top: 0; width: 100%; padding: 20px; background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); display: flex; justify-content: space-between; pointer-events: auto; }
+        .brand { color: var(--danger); font-weight: 900; letter-spacing: 3px; text-shadow: 0 0 15px var(--danger); }
         
-        .ui-overlay { position: fixed; z-index: 1000; pointer-events: none; }
-        .top-bar { top: 0; left: 0; right: 0; padding: 15px; background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent); display: flex; justify-content: space-between; pointer-events: auto; }
+        .threat-panel { bottom: 20px; left: 20px; width: 320px; background: rgba(10,10,15,0.95); border: 1px solid rgba(255,51,51,0.4); border-radius: 12px; padding: 15px; pointer-events: auto; backdrop-filter: blur(10px); }
+        .threat-item { background: rgba(255,51,51,0.1); border-left: 5px solid var(--danger); padding: 10px; margin-top: 10px; border-radius: 4px; animation: flash 0.5s ease; }
         
-        .brand { font-weight: 900; letter-spacing: 2px; color: var(--danger); text-shadow: 0 0 10px rgba(255,51,51,0.5); }
-        .status-led { display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: var(--safe); margin-right: 5px; box-shadow: 0 0 10px var(--safe); }
-        
-        .threat-panel { bottom: 20px; left: 15px; width: 300px; max-height: 45%; background: rgba(10,10,15,0.9); border: 1px solid rgba(255,51,51,0.3); border-radius: 15px; padding: 15px; overflow-y: auto; pointer-events: auto; backdrop-filter: blur(10px); }
-        .threat-item { background: rgba(255,255,255,0.05); border-left: 4px solid var(--danger); padding: 10px; margin-bottom: 10px; border-radius: 5px; animation: slideIn 0.3s ease-out; }
-        
-        #log-box { top: 60px; right: 15px; width: 250px; background: rgba(0,0,0,0.7); padding: 10px; border-radius: 8px; font-family: monospace; font-size: 11px; color: #aaa; border-right: 2px solid var(--danger); }
-        .log-entry { margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px; }
+        #console { top: 70px; right: 20px; width: 280px; max-height: 200px; background: rgba(0,0,0,0.8); border-radius: 8px; font-family: 'Consolas', monospace; font-size: 11px; padding: 10px; overflow: hidden; border-right: 3px solid var(--danger); }
+        .log { margin-bottom: 5px; opacity: 0.8; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-        @keyframes slideIn { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes zonePulse { 0% { fill-opacity: 0.2; } 100% { fill-opacity: 0.6; } }
-        .pulse-zone { animation: zonePulse 1s infinite alternate; }
+        @keyframes flash { from { background: rgba(255,51,51,0.5); } to { background: rgba(255,51,51,0.1); } }
+        .pulse { animation: p 1.5s infinite alternate; }
+        @keyframes p { from { fill-opacity: 0.3; } to { fill-opacity: 0.7; } }
     </style>
 </head>
 <body>
 
 <div id="map"></div>
 
-<div class="ui-overlay top-bar">
-    <div class="brand">🛰 РАДАР ВРВ</div>
-    <div id="global-status"><span class="status-led"></span> <span id="sync-time">СИНХРОНИЗАЦИЯ...</span></div>
+<div class="ui top-bar">
+    <div class="brand">SYSTEM RADAR VRV</div>
+    <div id="status"><span style="color:var(--safe)">●</span> КАНАЛ СВЯЗИ: OK</div>
 </div>
 
-<div class="ui-overlay threat-panel">
-    <div style="font-size: 12px; color: #888; margin-bottom: 10px; text-transform: uppercase; font-weight: bold;">Активные угрозы:</div>
-    <div id="threat-list">
-        <div style="color: #444; font-size: 13px;">Угроз не обнаружено</div>
-    </div>
+<div class="ui threat-panel">
+    <div style="font-size: 11px; color: #777;">МОНИТОРИНГ УГРОЗ:</div>
+    <div id="threat-list"><div style="color:#555; padding: 10px 0;">Сектор чист</div></div>
 </div>
 
-<div class="ui-overlay" id="log-box"></div>
+<div class="ui" id="console"></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // --- КОНФИГУРАЦИЯ ---
-    const map = L.map('map', { center: [48.0, 40.0], zoom: 6, zoomControl: false });
+    const map = L.map('map', { center: [48.5, 42.0], zoom: 6, zoomControl: false });
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
 
-    const activeAlerts = new Map();
-    const regionLayers = new Map();
+    const activeThreats = new Map();
+    const layers = new Map();
 
     const REGIONS = {
-        "Ставропольский край": { bounds: [[43.5, 41.0], [46.2, 46.0]], keywords: ["невинка", "невинномысск", "ставрополь", "пятигорск", "минеральные"] },
-        "Белгородская область": { bounds: [[50.0, 35.5], [51.3, 39.0]], keywords: ["белгород", "шебекино", "валуйки", "грайворон"] },
-        "Курская область": { bounds: [[50.8, 33.8], [52.4, 36.5]], keywords: ["курск", "суджа", "рыльск", "глушково"] },
-        "Воронежская область": { bounds: [[49.5, 38.0], [52.2, 43.0]], keywords: ["воронеж", "лиски", "острогожск"] },
-        "Ростовская область": { bounds: [[46.0, 38.0], [50.0, 44.0]], keywords: ["ростов", "таганрог", "азов", "шахты"] },
-        "Крым": { bounds: [[44.2, 32.3], [46.3, 36.8]], keywords: ["крым", "севастополь", "керчь", "джанкой"] }
+        "Ставрополье": { coords: [[43.5, 41.0], [46.2, 46.0]], keys: ["невинка", "невинномысск", "ставрополь", "ставропольский"] },
+        "Белгород": { coords: [[50.0, 35.5], [51.3, 39.0]], keys: ["белгород", "шебекино"] },
+        "Курск": { coords: [[50.8, 33.8], [52.4, 36.5]], keys: ["курск", "суджа"] },
+        "Воронеж": { coords: [[49.5, 38.0], [52.2, 43.0]], keys: ["воронеж"] },
+        "Ростов": { coords: [[46.0, 38.0], [50.0, 44.0]], keys: ["ростов", "таганрог"] }
     };
 
-    const START_WORDS = ["опасность", "фиксация", "угроза", "начало", "внимание", "пуски"];
-    const END_WORDS = ["отбой", "снята", "миновала", "чисто"];
-
-    function addLog(msg, isUrgent = false) {
-        const box = document.getElementById('log-box');
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.style.color = isUrgent ? '#ff3333' : '#aaa';
-        entry.innerHTML = `[${new Date().toLocaleTimeString()}] ${msg}`;
-        box.prepend(entry);
-        if (box.children.length > 10) box.lastChild.remove();
+    function log(msg, color = "#aaa") {
+        const c = document.getElementById('console');
+        const e = document.createElement('div');
+        e.className = 'log';
+        e.style.color = color;
+        e.innerHTML = `> ${new Date().toLocaleTimeString()} ${msg}`;
+        c.prepend(e);
+        if (c.children.length > 8) c.lastChild.remove();
     }
 
-    function updateVisuals() {
-        const list = document.getElementById('threat-list');
-        list.innerHTML = activeAlerts.size === 0 ? "Угроз не обнаружено" : "";
-        
-        regionLayers.forEach(l => map.removeLayer(l));
-        regionLayers.clear();
+    async function fetchData() {
+        const sources = [
+            `https://api.allorigins.win/get?url=${encodeURIComponent('https://t.me/s/vrv_radar?cb=' + Date.now())}`,
+            `https://worker-proud-sun-5835.cors-proxy.workers.dev/?url=https://t.me/s/vrv_radar`
+        ];
 
-        activeAlerts.forEach((val, key) => {
-            if (REGIONS[key]) {
-                const rect = L.rectangle(REGIONS[key].bounds, {
-                    color: '#ff0000', weight: 2, fillColor: '#ff0000', fillOpacity: 0.4, className: 'pulse-zone'
-                }).addTo(map);
-                regionLayers.set(key, rect);
-
-                const item = document.createElement('div');
-                item.className = 'threat-item';
-                item.innerHTML = `<div style="color:#ff8888; font-weight:bold; font-size:14px;">${key}</div><div style="font-size:11px; opacity:0.8; margin-top:4px;">${val}</div>`;
-                list.appendChild(item);
-            }
-        });
+        for (let url of sources) {
+            try {
+                log("Запрос данных...");
+                const res = await fetch(url);
+                if (!res.ok) continue;
+                const data = await res.json();
+                return new DOMParser().parseFromString(data.contents || data, 'text/html');
+            } catch (e) { continue; }
+        }
+        throw new Error("Все каналы перегружены");
     }
 
-    async function scanTelegram() {
-        addLog("Сканирование эфира...");
+    async function update() {
         try {
-            // Тройной обход кэша через AllOrigins
-            const ts = Date.now();
-            const target = `https://t.me/s/vrv_radar?cb=${ts}`;
-            const proxy = `https://api.allorigins.win/get?url=${encodeURIComponent(target)}&_=${ts}`;
+            const doc = await fetchData();
+            const msgs = Array.from(doc.querySelectorAll('.tgme_widget_message_text')).slice(-5);
             
-            const res = await fetch(proxy);
-            const data = await res.json();
-            const doc = new DOMParser().parseFromString(data.contents, 'text/html');
-            const messages = Array.from(doc.querySelectorAll('.tgme_widget_message_text')).slice(-5);
+            if (msgs.length === 0) { log("Нет новых постов", "#555"); return; }
 
-            messages.forEach(m => {
+            msgs.forEach(m => {
                 const text = m.innerText.toLowerCase();
-                let foundRegionName = null;
+                for (let r in REGIONS) {
+                    const isAlert = ["опасность", "внимание", "угроза", "ракетная", "пуск"].some(w => text.includes(w));
+                    const isClear = ["отбой", "чисто", "снята"].some(w => text.includes(w));
+                    const isTarget = REGIONS[r].keys.some(k => text.includes(k));
 
-                // Поиск региона
-                for (let rName in REGIONS) {
-                    const hasKey = REGIONS[rName].keywords.some(k => text.includes(k));
-                    if (hasKey || text.includes(rName.toLowerCase())) {
-                        foundRegionName = rName;
-                        break;
-                    }
-                }
-
-                if (foundRegionName) {
-                    const start = START_WORDS.some(w => text.includes(w));
-                    const end = END_WORDS.some(w => text.includes(w));
-
-                    if (end) {
-                        if (activeAlerts.has(foundRegionName)) {
-                            activeAlerts.delete(foundRegionName);
-                            addLog(`ОТБОЙ: ${foundRegionName}`);
-                        }
-                    } else if (start) {
-                        if (!activeAlerts.has(foundRegionName)) {
-                            activeAlerts.set(foundRegionName, m.innerText.substring(0, 80) + "...");
-                            addLog(`ОБНАРУЖЕНО: ${foundRegionName}`, true);
+                    if (isTarget) {
+                        if (isClear) {
+                            activeThreats.delete(r);
+                            log(`ОТБОЙ: ${r}`, "#00ff66");
+                        } else if (isAlert) {
+                            activeThreats.set(r, m.innerText.substring(0, 60) + "...");
+                            log(`⚠️ УГРОЗА: ${r}`, "#ff3333");
                         }
                     }
                 }
             });
-
-            updateVisuals();
-            document.getElementById('sync-time').innerText = `ОБНОВЛЕНО: ${new Date().toLocaleTimeString()}`;
+            render();
         } catch (e) {
-            addLog("ОШИБКА СЕТИ (ПОВТОР...)");
+            log("ОШИБКА СВЯЗИ - ПЕРЕЗАПУСК", "#ffcc00");
         }
     }
 
-    setInterval(scanTelegram, 30000);
-    scanTelegram();
+    function render() {
+        const list = document.getElementById('threat-list');
+        list.innerHTML = activeThreats.size === 0 ? '<div style="color:#555;">Сектор чист</div>' : "";
+        
+        layers.forEach(l => map.removeLayer(l));
+        layers.clear();
 
-    // Секретный тест: Кликни на карту, чтобы зажечь Ставрополье вручную
+        activeThreats.forEach((info, region) => {
+            const poly = L.rectangle(REGIONS[region].coords, {
+                color: '#ff3333', weight: 2, fillColor: '#ff3333', fillOpacity: 0.5, className: 'pulse'
+            }).addTo(map);
+            layers.set(region, poly);
+
+            const item = document.createElement('div');
+            item.className = 'threat-item';
+            item.innerHTML = `<b>${region.toUpperCase()}</b><br><small>${info}</small>`;
+            list.appendChild(item);
+        });
+    }
+
+    setInterval(update, 15000);
+    update();
+
+    // Тест кликом
     map.on('click', () => {
-        addLog("ТЕСТ СТАВРОПОЛЬЯ...");
-        activeAlerts.set("Ставропольский край", "Тестовый режим: Проверка системы");
-        updateVisuals();
-        setTimeout(() => { activeAlerts.delete("Ставропольский край"); updateVisuals(); }, 5000);
+        log("ТЕСТ: Запуск Невинки", "#ffcc00");
+        activeThreats.set("Ставрополье", "ТЕСТОВАЯ ПРОВЕРКА СИСТЕМЫ");
+        render();
+        setTimeout(() => { activeThreats.delete("Ставрополье"); render(); }, 10000);
     });
 </script>
-
 </body>
 </html>
