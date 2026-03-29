@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SO2 Case Simulator + Inventory</title>
+    <title>SO2 Case Simulator PRO</title>
     <style>
         body {
             background-color: #0d1117;
@@ -17,17 +17,8 @@
             overflow-x: hidden;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .balance {
-            font-size: 28px;
-            color: #ffcc00;
-            font-weight: bold;
-            text-shadow: 0 0 10px rgba(255, 204, 0, 0.3);
-        }
+        .header { text-align: center; margin-bottom: 20px; }
+        .balance { font-size: 28px; color: #ffcc00; font-weight: bold; }
 
         /* РУЛЕТКА */
         .roulette-wrapper {
@@ -40,7 +31,6 @@
             border-radius: 12px;
             overflow: hidden;
             margin-bottom: 30px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
         .pointer {
@@ -55,13 +45,7 @@
             box-shadow: 0 0 20px #ff4747;
         }
 
-        .cases-line {
-            display: flex;
-            position: absolute;
-            left: 0;
-            top: 15px;
-            will-change: transform;
-        }
+        .cases-line { display: flex; position: absolute; left: 0; top: 15px; }
 
         .skin-card {
             min-width: 150px;
@@ -75,8 +59,6 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 13px;
-            transition: 0.3s;
         }
 
         /* РЕДКОСТИ */
@@ -87,47 +69,25 @@
         .legendary { border-color: #d32ce6; }
         .arcane { border-color: #eb4b4b; text-shadow: 0 0 5px red; }
 
-        .skin-img-stub {
-            width: 100px;
-            height: 70px;
-            background: rgba(255,255,255,0.05);
-            margin-bottom: 10px;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-        }
-
-        /* КНОПКА */
         .main-btn {
             padding: 15px 60px;
             background: linear-gradient(180deg, #ffcc00, #ff9900);
             border: none;
             border-radius: 8px;
-            color: #000;
             font-size: 20px;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 5px 15px rgba(255, 153, 0, 0.4);
-            transition: 0.2s;
         }
 
-        .main-btn:active { transform: scale(0.95); }
-        .main-btn:disabled { background: #484f58; color: #8b949e; cursor: not-allowed; }
+        .main-btn:disabled { background: #484f58; color: #8b949e; }
 
         /* ИНВЕНТАРЬ */
-        .inventory-section {
-            width: 100%;
-            max-width: 900px;
-            margin-top: 50px;
-        }
-
+        .inventory-section { width: 100%; max-width: 900px; margin-top: 40px; }
         .inventory-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 15px;
-            background: #0d1117;
             padding: 20px;
             border-top: 2px solid #30363d;
         }
@@ -138,11 +98,18 @@
             border-radius: 8px;
             border-bottom: 3px solid;
             text-align: center;
-            font-size: 11px;
-            animation: fadeIn 0.5s ease;
+            cursor: pointer;
+            transition: 0.2s;
+            position: relative;
         }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .inv-item:hover { transform: scale(1.05); background: #1c222b; }
+        .inv-item:active { transform: scale(0.95); }
+
+        .price-tag { color: #ffcc00; font-size: 12px; margin-top: 5px; font-weight: bold; }
+        .sell-hint { font-size: 9px; color: #8b949e; display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
@@ -160,21 +127,20 @@
     <button id="spinBtn" class="main-btn" onclick="openCase()">ОТКРЫТЬ КЕЙС (100 G)</button>
 
     <div class="inventory-section">
-        <h3>МОЙ ИНВЕНТАРЬ</h3>
-        <div id="inventory" class="inventory-grid">
-            </div>
+        <h3>МОЙ ИНВЕНТАРЬ <span style="font-size: 12px; color: #8b949e;">(нажми на скин, чтобы продать)</span></h3>
+        <div id="inventory" class="inventory-grid"></div>
     </div>
 
     <script>
-        // БАЗА ДАННЫХ СКИНОВ
+        // БАЗА СКИНОВ С ЦЕНАМИ
         const skins = [
-            { name: "G22 | Casual", rarity: "common", icon: "🔫" },
-            { name: "USP | Genesis", rarity: "uncommon", icon: "🔫" },
-            { name: "M4 | Tiger", rarity: "rare", icon: "🔫" },
-            { name: "AKR | Necromancer", rarity: "epic", icon: "🔫" },
-            { name: "AWM | Scratch", rarity: "legendary", icon: "🎯" },
-            { name: "M9 | Universe", rarity: "arcane", icon: "🔪" },
-            { name: "Karambit | Gold", rarity: "arcane", icon: "🔪" }
+            { id: 1, name: "G22 | Casual", rarity: "common", icon: "🔫", price: 5 },
+            { id: 2, name: "USP | Genesis", rarity: "uncommon", icon: "🔫", price: 15 },
+            { id: 3, name: "M4 | Tiger", rarity: "rare", icon: "🔫", price: 45 },
+            { id: 4, name: "AKR | Necromancer", rarity: "epic", icon: "🔫", price: 150 },
+            { id: 5, name: "AWM | Scratch", rarity: "legendary", icon: "🎯", price: 600 },
+            { id: 6, name: "M9 | Universe", rarity: "arcane", icon: "🔪", price: 8500 },
+            { id: 7, name: "Karambit | Gold", rarity: "arcane", icon: "🔪", price: 15000 }
         ];
 
         const rarityWeights = { common: 60, uncommon: 25, rare: 10, epic: 3, legendary: 1.5, arcane: 0.5 };
@@ -188,42 +154,53 @@
             
             const invDiv = document.getElementById('inventory');
             invDiv.innerHTML = '';
-            myItems.forEach(item => {
+            
+            myItems.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = `inv-item ${item.rarity}`;
-                div.innerHTML = `<div style="font-size:30px">${item.icon}</div><div>${item.name}</div>`;
+                div.onclick = () => sellItem(index);
+                div.innerHTML = `
+                    <div style="font-size:30px">${item.icon}</div>
+                    <div style="font-size:11px">${item.name}</div>
+                    <div class="price-tag">${item.price} G</div>
+                    <span class="sell-hint">Нажми, чтобы продать</span>
+                `;
                 invDiv.appendChild(div);
             });
             localStorage.setItem('so2_inventory', JSON.stringify(myItems));
+        }
+
+        function sellItem(index) {
+            const item = myItems[index];
+            balance += item.price;
+            myItems.splice(index, 1);
+            updateUI();
         }
 
         function getWeightedRandomSkin() {
             let totalWeight = 0;
             for (let r in rarityWeights) totalWeight += rarityWeights[r];
             let random = Math.random() * totalWeight;
-            
             let currentWeight = 0;
             for (let r in rarityWeights) {
                 currentWeight += rarityWeights[r];
                 if (random < currentWeight) {
                     const filtered = skins.filter(s => s.rarity === r);
-                    return filtered[Math.floor(Math.random() * filtered.length)];
+                    return {...filtered[Math.floor(Math.random() * filtered.length)]};
                 }
             }
         }
 
         function openCase() {
             if (balance < 100) return alert("Мало голды!");
-            
             balance -= 100;
             const btn = document.getElementById('spinBtn');
             const line = document.getElementById('line');
             btn.disabled = true;
             
-            // Генерируем ленту
             line.innerHTML = '';
             const totalCards = 60;
-            const winningIndex = 55; // 55-й скин будет победным
+            const winningIndex = 55;
             let winSkin;
 
             for(let i=0; i < totalCards; i++) {
@@ -231,11 +208,10 @@
                 if(i === winningIndex) winSkin = s;
                 const card = document.createElement('div');
                 card.className = `skin-card ${s.rarity}`;
-                card.innerHTML = `<div class="skin-img-stub">${s.icon}</div><div>${s.name}</div>`;
+                card.innerHTML = `<div style="font-size:40px">${s.icon}</div><div>${s.name}</div>`;
                 line.appendChild(card);
             }
 
-            // Анимация
             line.style.transition = 'none';
             line.style.transform = 'translateX(0)';
             
@@ -246,15 +222,14 @@
                 line.style.transform = `translateX(-${offset}px)`;
             }, 50);
 
-            // Финал
             setTimeout(() => {
                 btn.disabled = false;
-                myItems.unshift(winSkin); // Добавляем в начало инвентаря
+                myItems.unshift(winSkin);
                 updateUI();
             }, 7200);
         }
 
-        updateUI(); // Загрузка при старте
+        updateUI();
     </script>
 </body>
 </html>
