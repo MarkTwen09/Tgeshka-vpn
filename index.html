@@ -2,232 +2,213 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SlowMail Mobile Pro FIX</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SO2 Case Simulator</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&display=swap');
-        body { font-family: 'Google Sans', sans-serif; background-color: #f6f8fc; -webkit-tap-highlight-color: transparent; touch-action: pan-y; overflow: hidden; }
-        
-        /* Стили для свайпов */
-        .mail-wrapper { position: relative; overflow: hidden; background: #fff; border-bottom: 1px solid #f9fafb; cursor: grab; }
-        .swipe-bg { position: absolute; inset: 0; display: flex; align-items: center; padding: 0 25px; color: white; z-index: 0; opacity: 0; transition: opacity 0.2s; }
-        .bg-archive { background-color: #34a853; justify-content: flex-start; }
-        .bg-delete { background-color: #ea4335; justify-content: flex-end; }
-        
-        .mail-content { 
-            position: relative; 
-            background: white; 
-            z-index: 10; 
-            transition: transform 0.1s ease-out; 
-            user-select: none;
+        body {
+            background-color: #0b0e14;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
-        
-        .removed { transform: translateX(100%) !important; opacity: 0; transition: 0.4s !important; }
-        .removed-left { transform: translateX(-100%) !important; opacity: 0; transition: 0.4s !important; }
 
-        .desktop-nav { display: none; }
-        .mobile-nav { display: flex; }
-        .main-content { margin-left: 0; border-radius: 0; }
-        .mobile-active { color: #0b57d0 !important; }
-        .desktop-active { background-color: #d3e3fd; color: #041e49 !important; font-weight: 500; }
+        .balance {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #ffcc00;
+            text-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
 
-        /* НАДЕЖНЫЕ МЕДИА-ЗАПРОСЫ ДЛЯ МОБИЛЬНЫХ */
-        @media screen and (min-width: 768px) {
-            .desktop-nav { display: flex !important; }
-            .mobile-nav { display: none !important; }
-            .main-content { margin-left: 256px !important; border-radius: 24px !important; margin-right: 16px !important; }
-            .mail-card { transition: none !important; cursor: pointer; }
+        /* Окно рулетки */
+        .roulette-container {
+            position: relative;
+            width: 800px;
+            height: 160px;
+            background: #151a21;
+            border: 2px solid #2d353f;
+            overflow: hidden;
+            border-radius: 8px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8);
+        }
+
+        /* Красная линия по центру */
+        .pointer {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            width: 4px;
+            height: 100%;
+            background: #ff4747;
+            z-index: 10;
+            transform: translateX(-50%);
+            box-shadow: 0 0 15px #ff4747;
+        }
+
+        /* Лента со скинами */
+        .cases-line {
+            display: flex;
+            position: absolute;
+            left: 0;
+            top: 10px;
+            transition: transform 7s cubic-bezier(0.1, 0, 0.1, 1); /* Плавное замедление */
+            will-change: transform;
+        }
+
+        .skin-card {
+            min-width: 140px;
+            height: 140px;
+            margin: 0 5px;
+            background: #1c222b;
+            border-bottom: 4px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        /* Цвета редкостей */
+        .common { border-color: #b0c3d9; }
+        .uncommon { border-color: #5e98d9; }
+        .rare { border-color: #4b69ff; }
+        .epic { border-color: #8847ff; }
+        .legendary { border-color: #d32ce6; }
+        .arcane { border-color: #eb4b4b; }
+
+        .skin-img {
+            width: 90px;
+            height: 70px;
+            background: #252c38;
+            margin-bottom: 10px;
+            border-radius: 4px;
+        }
+
+        button {
+            margin-top: 40px;
+            padding: 15px 50px;
+            background: #ffcc00;
+            border: none;
+            border-radius: 5px;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        button:hover {
+            background: #ffe066;
+            transform: scale(1.05);
+        }
+
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
         }
     </style>
 </head>
-<body class="h-screen flex flex-col">
+<body>
 
-    <header class="h-16 flex items-center justify-between px-4 bg-white border-b border-gray-200 z-50">
-        <div class="flex items-center gap-3">
-            <img src="https://marktwen09.github.io/SlowMail/Logo.png" class="w-9 h-9 rounded-lg" onerror="this.src='https://i.ibb.co/S3D6x3f/placeholder-S.png'" alt="S">
-            <span class="text-2xl text-gray-500 font-normal">SlowMail</span>
-        </div>
-        <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">S</div>
-    </header>
+    <div class="balance">Баланс: <span id="money">1000</span> G</div>
 
-    <div class="flex flex-1 overflow-hidden relative">
-        <aside class="desktop-nav fixed left-0 top-16 bottom-16 w-64 p-3 flex-col gap-1 border-r border-gray-100 bg-white">
-            <button onclick="openCompose()" class="flex items-center gap-4 bg-[#c2e7ff] hover:shadow-lg py-4 px-7 rounded-2xl font-medium mb-6 mt-2 w-max transition-all active:scale-95">
-                <i class="material-icons-outlined text-2xl">edit</i> Написать
-            </button>
-            <div id="d-inbox" onclick="switchTab('inbox')" class="desktop-active flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm cursor-pointer transition-colors">
-                <i class="material-icons-outlined">inbox</i> Входящие
-            </div>
-            <div id="d-sent" onclick="switchTab('sent')" class="flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-100 transition-colors"><i class="material-icons-outlined">send</i> Отправленные
-            </div>
-            <div id="d-trash" onclick="switchTab('trash')" class="flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-100">
-                <i class="material-icons-outlined">delete_outline</i> Корзина
-            </div>
-        </aside>
-
-        <main class="main-content flex-1 bg-white my-2 rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
-            <div class="p-4 border-b text-gray-400 text-[10px] font-bold uppercase tracking-widest hidden md:block">SlowMail Pro</div>
-            <div id="mail-list" class="overflow-y-auto flex-1 divide-y divide-gray-50">
-                </div>
-            <button onclick="openCompose()" class="md:hidden fixed bottom-20 right-6 w-14 h-14 bg-[#c2e7ff] rounded-full shadow-2xl flex items-center justify-center text-gray-800 z-40 active:scale-95">
-                <i class="material-icons-outlined text-3xl">edit</i>
-            </button>
-        </main>
+    <div class="roulette-container">
+        <div class="pointer"></div>
+        <div class="cases-line" id="line"></div>
     </div>
 
-    <nav class="mobile-nav fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 flex items-center justify-around text-gray-500 z-50 px-2">
-        <div onclick="switchTab('inbox')" id="m-inbox" class="flex flex-col items-center gap-1.5 mobile-active cursor-pointer">
-            <div class="bg-blue-100 rounded-full px-5 py-1 flex items-center justify-center"><i class="material-icons-outlined text-2xl">inbox</i></div>
-            <span class="text-[10px] font-medium">Почта</span>
-        </div>
-        <div onclick="switchTab('sent')" id="m-sent" class="flex flex-col items-center gap-1 cursor-pointer">
-            <i class="material-icons-outlined text-2xl">send</i>
-            <span class="text-[10px] font-medium">Отправленные</span>
-        </div>
-        <div onclick="switchTab('trash')" id="m-trash" class="flex flex-col items-center gap-1 cursor-pointer">
-            <i class="material-icons-outlined text-2xl">delete_outline</i>
-            <span class="text-[10px] font-medium">Корзина</span>
-        </div>
-    </nav>
-
-    <div id="composeModal" class="hidden fixed inset-0 md:inset-auto md:bottom-0 md:right-10 md:w-[500px] bg-white md:rounded-t-2xl shadow-2xl z-[100] flex flex-col transition-all duration-300">
-        <div class="bg-[#f2f6fc] p-4 flex justify-between items-center md:rounded-t-2xl border-b">
-            <span class="font-bold text-gray-700">Новое письмо</span>
-            <i onclick="closeCompose()" class="material-icons-outlined cursor-pointer p-1 hover:bg-gray-200 rounded">close</i>
-        </div>
-        <div class="p-4 flex flex-col gap-3 flex-1">
-            <input id="inp-to" type="email" placeholder="Кому" class="border-b py-2 outline-none text-sm w-full">
-            <input id="inp-sub" type="text" placeholder="Тема" class="border-b py-2 outline-none text-sm w-full">
-            <textarea id="inp-msg" rows="12" class="flex-1 outline-none text-sm resize-none py-2" placeholder="Текст сообщения..."></textarea>
-            <div class="flex items-center justify-between pt-4 border-t">
-                <button onclick="alert('Отправлено (имитация)')" class="bg-[#0b57d0] text-white px-10 py-2.5 rounded-full font-bold shadow-md active:scale-95">Отправить</button>
-            </div>
-        </div>
-    </div>
+    <button id="spinBtn" onclick="startSpin()">ОТКРЫТЬ КЕЙС (100 G)</button>
 
     <script>
-        // Имитация базы писем
-        let mails = [
-            { id: 1, from: 'SlowMail Support', sub: 'Настоящая копия готова!', msg: 'Дизайн исправлен, свайпы работают влево и вправо. Проверь.', tab: 'inbox', time: '12:00' },
-            { id: 2, from: 'Друг', sub: 'Зацени SlowMail', msg: 'Привет, Марк! Кажется, твоя копия Gmail готова.', tab: 'inbox', time: '11:30' }
+        const line = document.getElementById('line');
+        const moneyEl = document.getElementById('money');
+        const btn = document.getElementById('spinBtn');
+        
+        let balance = 1000;
+        const cardWidth = 150; // ширина карточки + отступы
+
+        const skins = [
+            { name: "G22 | Casual", rarity: "common" },
+            { name: "P350 | Nano", rarity: "uncommon" },
+            { name: "AKR | Tiger", rarity: "rare" },
+            { name: "M4 | Lizard", rarity: "epic" },
+            { name: "AWM | Scratch", rarity: "legendary" },
+            { name: "Karambit | Gold", rarity: "arcane" }
         ];
-        let currentTab = 'inbox';
 
-        // ЛОГИКА СВАЙПОВ (Нативный JS)
-        let startX = 0;
-        let currentElement = null;function startSwipe(e) {
-            currentElement = e.currentTarget;
-            startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-            currentElement.style.transition = 'none';
-            
-            const events = e.type.includes('touch') ? ['touchmove', 'touchend'] : ['mousemove', 'mouseup'];
-            document.addEventListener(events[0], moveSwipe);
-            document.addEventListener(events[1], endSwipe);
-        }
+        // Шансы (чем выше число, тем чаще падает)
+        const rarityWeights = {
+            common: 50,
+            uncommon: 30,
+            rare: 12,
+            epic: 5,
+            legendary: 2,
+            arcane: 1
+        };
 
-        function moveSwipe(e) {
-            if (!currentElement) return;
-            const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
-            const walk = x - startX;
-            currentElement.style.transform = translateX(${walk}px);
-            
-            const wrapper = currentElement.parentElement;
-            if (walk > 50) {
-                wrapper.querySelector('.bg-archive').style.opacity = 1;
-                wrapper.querySelector('.bg-delete').style.opacity = 0;
-            } else if (walk < -50) {
-                wrapper.querySelector('.bg-archive').style.opacity = 0;
-                wrapper.querySelector('.bg-delete').style.opacity = 1;
-            }
-        }
-
-        function endSwipe(e) {
-            if (!currentElement) return;
-            const endX = e.type.includes('touchend') ? e.changedTouches[0].clientX : e.clientX;
-            const walk = endX - startX;
-            currentElement.style.transition = 'transform 0.3s ease';
-
-            if (walk > 150) { // Свайп вправо
-                currentElement.classList.add('removed');
-                setTimeout(() => currentElement.parentElement.remove(), 400);
-            } else if (walk < -150) { // Свайп влево
-                currentElement.classList.add('removed-left');
-                setTimeout(() => currentElement.parentElement.remove(), 400);
-            } else {
-                currentElement.style.transform = 'translateX(0)';
-            }
-
-            currentElement = null;
-            document.removeEventListener('mousemove', moveSwipe);
-            document.removeEventListener('mouseup', endSwipe);
-            document.removeEventListener('touchmove', moveSwipe);
-            document.removeEventListener('touchend', endSwipe);
-        }
-
-        // Логика отрисовки и переключения табов
-        function renderMails() {
-            const list = document.getElementById('mail-list');
-            const filtered = mails.filter(m => m.tab === currentTab);
-            list.innerHTML = filtered.length ? '' : '<div class="p-20 text-center text-gray-400 text-sm italic">Здесь пока пусто...</div>';
-
-            filtered.forEach(m => {
-                list.innerHTML += 
-                    <div class="mail-wrapper border-b border-gray-50">
-                        <div class="swipe-bg bg-archive"><i class="material-icons-outlined">archive</i></div>
-                        <div class="swipe-bg bg-delete"><i class="material-icons-outlined">delete</i></div>
-                        <div class="mail-content p-4 flex items-start gap-4" onmousedown="startSwipe(event)" ontouchstart="startSwipe(event)">
-                            <div class="w-10 h-10 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold text-sm shrink-0">A</div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex justify-between items-center mb-0.5">
-                                    <span class="font-bold text-sm text-gray-900 truncate">${m.from}</span>
-                                    <span class="text-xs text-gray-500">${m.time}</span>
-                                </div>
-                                <div class="text-xs font-bold text-gray-800 truncate">${m.sub}</div>
-                                <div class="text-xs text-gray-500 truncate">${m.msg}</div>
-                            </div>
-                        </div>
-                    </div>
-                ;
-            });
-            updateNavUI();
-        }function switchTab(tab) {
-            currentTab = tab;
-            renderMails();
-        }
-
-        function updateNavUI() {
-            // Desktop UI
-            ['inbox', 'sent', 'trash'].forEach(t => {
-                const el = document.getElementById('d-'+t);
-                if(t === currentTab) el.classList.add('desktop-active');
-                else el.classList.remove('desktop-active');
-            });
-            // Mobile UI
-            ['inbox', 'sent', 'trash'].forEach(t => {
-                const el = document.getElementById('m-'+t);
-                const icon = el.querySelector('i');
-                if(t === currentTab) {
-                    el.classList.add('mobile-active');
-                    icon.style.color = '#0b57d0';
-                    icon.classList.remove('material-icons-outlined');
-                    icon.classList.add('material-icons');
-                } else {
-                    el.classList.remove('mobile-active');
-                    icon.style.color = '#5f6368';
-                    icon.classList.remove('material-icons');
-                    icon.classList.add('material-icons-outlined');
+        function getRandomSkin() {
+            let pool = [];
+            skins.forEach(skin => {
+                for (let i = 0; i < rarityWeights[skin.rarity]; i++) {
+                    pool.push(skin);
                 }
             });
+            return pool[Math.floor(Math.random() * pool.length)];
         }
 
-        // Функции окна отправки
-        function openCompose() { document.getElementById('composeModal').classList.remove('hidden'); }
-        function closeCompose() { document.getElementById('composeModal').classList.add('hidden'); }
+        function generateSkins(count) {
+            line.innerHTML = '';
+            for (let i = 0; i < count; i++) {
+                const skin = getRandomSkin();
+                const card = document.createElement('div');
+                card.className = `skin-card ${skin.rarity}`;
+                card.innerHTML = `
+                    <div class="skin-img"></div>
+                    <div>${skin.name}</div>
+                `;
+                line.appendChild(card);
+            }
+        }
 
-        // По умолчанию грузим Входящие
-        renderMails();
+        function startSpin() {
+            if (balance < 100) return alert("Недостаточно голды!");
+            
+            balance -= 100;
+            moneyEl.innerText = balance;
+            btn.disabled = true;
+
+            // Генерируем 50 скинов для ленты
+            generateSkins(50);
+            
+            // Сбрасываем позицию
+            line.style.transition = 'none';
+            line.style.transform = 'translateX(0)';
+            
+            // Запускаем анимацию через минимальный таймаут
+            setTimeout(() => {
+                const stopPos = (47 * cardWidth) - (400 - cardWidth / 2); 
+                // 47 - номер выигрышного скина, 400 - центр контейнера
+                const randomOffset = Math.floor(Math.random() * 100) - 50; // рандом внутри карточки
+                
+                line.style.transition = 'transform 7s cubic-bezier(0.1, 0, 0.1, 1)';
+                line.style.transform = `translateX(-${stopPos + randomOffset}px)`;
+            }, 50);
+
+            // Когда анимация кончилась
+            setTimeout(() => {
+                btn.disabled = false;
+                // Здесь можно добавить всплывающее окно с призом
+            }, 7100);
+        }
+
+        // Первичная генерация для красоты
+        generateSkins(50);
     </script>
 </body>
 </html>
