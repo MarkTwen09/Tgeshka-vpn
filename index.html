@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CRYSTAL ULTIMATE V5</title>
+    <title>SO2: CRYSTAL HARDCORE V6</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -26,7 +26,6 @@
             min-height: 100vh; overflow: hidden;
         }
 
-        /* HEADER */
         .header {
             background: var(--glass); backdrop-filter: blur(25px);
             width: 100%; max-width: 480px; padding: 20px; border-radius: 28px;
@@ -35,7 +34,6 @@
         }
         .balance b { font-size: 24px; color: var(--accent); text-shadow: 0 0 15px rgba(255,204,0,0.3); }
 
-        /* TABS */
         .tabs { display: flex; gap: 8px; width: 100%; max-width: 480px; margin-bottom: 20px; }
         .tab { 
             flex: 1; padding: 14px; background: var(--glass); border: 1px solid var(--border);
@@ -47,17 +45,15 @@
         .view { display: none; width: 100%; max-width: 480px; animation: slideIn 0.4s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* CASE BOX */
         .case-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         .case-btn { background: var(--glass); padding: 15px; border-radius: 22px; border: 1px solid var(--border); text-align: center; cursor: pointer; transition: 0.3s; }
         .case-btn.active { border-color: var(--blue); background: rgba(0,210,255,0.05); }
 
         .shake { animation: shakeCase 0.5s ease-in-out infinite; }
         @keyframes shakeCase {
-            0% { transform: rotate(0); }
+            0%, 100% { transform: rotate(0); }
             25% { transform: rotate(-3deg) scale(1.05); }
             75% { transform: rotate(3deg) scale(1.05); }
-            100% { transform: rotate(0); }
         }
 
         .roulette-box { 
@@ -72,7 +68,6 @@
             border-bottom: 4px solid #333; font-size: 40px;
         }
 
-        /* GRID */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 40px; overflow-y: auto; max-height: 60vh; }
         .card { 
             background: var(--glass); padding: 25px 15px; border-radius: 28px; text-align: center;
@@ -85,7 +80,6 @@
             text-transform: uppercase; transition: 0.2s;
         }
 
-        /* --- НОВАЯ АНИМАЦИЯ ВЫПАДЕНИЯ --- */
         .overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: rgba(5,7,12,0.92); display: none; align-items: center; justify-content: center; 
@@ -122,10 +116,7 @@
             animation: iconFloat 3s infinite ease-in-out;
         }
 
-        @keyframes iconFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
-        }
+        @keyframes iconFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
         .win-info { animation: textAppear 1s ease-out 0.3s both; }
         @keyframes textAppear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -139,7 +130,7 @@
             <span style="font-size: 10px; opacity: 0.5;">БАЛАНС</span>
             <b><span id="money">0</span> G</b>
         </div>
-        <div style="font-size: 18px;">🛒</div>
+        <div style="font-size: 8px; color: var(--blue); letter-spacing: 1px;">HARDCORE DROP V6</div>
     </div>
 
     <div class="tabs">
@@ -162,7 +153,6 @@
     </div>
 
     <div id="market" class="view"><div id="marketGrid" class="grid"></div></div>
-
     <div id="inv" class="view"><div id="invGrid" class="grid"></div></div>
 
     <div id="winOverlay" class="overlay">
@@ -170,9 +160,9 @@
             <div class="win-glow" id="rarityGlow"></div>
             <div class="win-icon" id="winIcon">🔫</div>
             <div class="win-info">
-                <h1 id="winName" style="margin: 0; font-size: 28px; text-shadow: 0 5px 15px rgba(0,0,0,0.5);">Item Name</h1>
+                <h1 id="winName" style="margin: 0; font-size: 28px;">Item</h1>
                 <p id="winRarity" style="font-weight: 900; letter-spacing: 4px; margin: 10px 0 40px; font-size: 12px;">RARITY</p>
-                <button class="btn-action" onclick="take()">В ИНВЕНТАРЬ</button>
+                <button class="btn-action" onclick="take()">ЗАБРАТЬ</button>
                 <button class="btn-action" style="background:none; color:#777; margin-top:10px;" onclick="sellNow()">ПРОДАТЬ ЗА <span id="winPrice">0</span> G</button>
             </div>
         </div>
@@ -180,7 +170,7 @@
 
     <div id="sellOverlay" class="overlay">
         <div style="background: #121826; padding: 40px; border-radius: 35px; text-align: center; border: 1px solid var(--border); width: 85%;">
-            <h3>ПРОДАТЬ?</h3>
+            <h3>ПРОДАТЬ ПРЕДМЕТ?</h3>
             <div id="sellPreview" style="font-size: 60px; margin: 20px 0;">🔫</div>
             <button class="btn-action" style="background: var(--down); color:white;" onclick="confirmSell()">ПРОДАТЬ</button>
             <button class="btn-action" style="background: none; color:white; margin-top:10px;" onclick="closeOverlays()">ОТМЕНА</button>
@@ -189,23 +179,35 @@
 
     <script>
         const SKINS = [
-            { id: 0, name: "G22 | Casual", rar: "common", p: 20, i: "🔫" },
-            { id: 1, name: "USP | Genesis", rar: "uncommon", p: 55, i: "🔫" },
-            { id: 2, name: "M4 | Tiger", rar: "rare", p: 190, i: "🔫" },
-            { id: 3, name: "AKR | Necro", rar: "epic", p: 620, i: "🔫" },
-            { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1600, i: "🎯" },
-            { id: 5, name: "Karambit | Gold", rar: "arcane", p: 21000, i: "🔪" },
-            { id: 6, name: "M9 | Universe", rar: "arcane", p: 18000, i: "🔪" }
+            { id: 0, name: "G22 | Casual", rar: "common", p: 20, i: "🔫", weight: 50 },
+            { id: 1, name: "USP | Genesis", rar: "uncommon", p: 55, i: "🔫", weight: 30 },
+            { id: 2, name: "M4 | Tiger", rar: "rare", p: 190, i: "🔫", weight: 12 },
+            { id: 3, name: "AKR | Necro", rar: "epic", p: 620, i: "🔫", weight: 6 },
+            { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1600, i: "🎯", weight: 2 },
+            { id: 5, name: "Karambit | Gold", rar: "arcane", p: 25000, i: "🔪", weight: 0.3 },
+            { id: 6, name: "Butterfly | Star", rar: "arcane", p: 22000, i: "🦋", weight: 0.3 }
         ];
 
         let state = {
-            money: parseInt(localStorage.getItem('v5_money')) || 5000,
-            inv: JSON.parse(localStorage.getItem('v5_inv')) || [],
+            money: parseInt(localStorage.getItem('v6_money')) || 5000,
+            inv: JSON.parse(localStorage.getItem('v6_inv')) || [],
             prices: SKINS.map(s => ({ id: s.id, cur: s.p * 1.3, old: s.p * 1.3 })),
             curCase: 0,
             lastWin: null,
             pendingIdx: null
         };
+
+        // Функция взвешенного рандома
+        function getWeightedDrop(poolIds) {
+            const currentPool = SKINS.filter(s => poolIds.includes(s.id));
+            const totalWeight = currentPool.reduce((acc, s) => acc + s.weight, 0);
+            let random = Math.random() * totalWeight;
+            for (let s of currentPool) {
+                if (random < s.weight) return s;
+                random -= s.weight;
+            }
+            return currentPool[0];
+        }
 
         function tick() {
             state.prices.forEach(p => {
@@ -223,8 +225,7 @@
             
             const btn = document.getElementById('spinBtn');
             const box = document.getElementById('caseBox');
-            btn.disabled = true;
-            box.classList.add('shake');
+            btn.disabled = true; box.classList.add('shake');
 
             setTimeout(() => {
                 box.classList.remove('shake');
@@ -233,16 +234,19 @@
                 track.innerHTML = '';
                 
                 let win;
-                const pool = [[0,0,1,1,2], [1,2,2,3,4], [3,4,4,5,6]][state.curCase];
-                for(let i=0; i<50; i++) {
-                    const s = SKINS[pool[Math.floor(Math.random() * pool.length)]];
-                    if(i === 45) win = s;
+                const pools = [[0,1,2,3], [1,2,3,4,5], [3,4,5,6]]; // Какие ID могут выпасть
+                const currentPoolIds = pools[state.curCase];
+
+                for(let i=0; i<60; i++) {
+                    const s = getWeightedDrop(currentPoolIds);
+                    if(i === 52) win = s; // Решающий скин
                     track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${s.i}</div>`;
                 }
 
                 setTimeout(() => {
                     track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0, 1)';
-                    track.style.transform = `translateX(-${45 * 112 - (window.innerWidth/2 - 56)}px)`;
+                    const shift = 52 * 112 - (window.innerWidth/2 - 56);
+                    track.style.transform = `translateX(-${shift}px)`;
                 }, 50);
 
                 setTimeout(() => {
@@ -257,17 +261,14 @@
             const overlay = document.getElementById('winOverlay');
             const glow = document.getElementById('rarityGlow');
             const icon = document.getElementById('winIcon');
-            const rarText = document.getElementById('winRarity');
-
             glow.style.setProperty('--rarity-color', `var(--${win.rar})`);
             icon.innerText = win.i;
             icon.style.setProperty('--rarity-color', `var(--${win.rar})`);
-            
             document.getElementById('winName').innerText = win.name;
+            const rarText = document.getElementById('winRarity');
             rarText.innerText = win.rar.toUpperCase();
             rarText.style.color = `var(--${win.rar})`;
             document.getElementById('winPrice').innerText = win.p;
-            
             overlay.style.display = 'flex';
         }
 
@@ -320,8 +321,8 @@
 
         function sync() {
             document.getElementById('money').innerText = state.money.toLocaleString();
-            localStorage.setItem('v5_money', state.money);
-            localStorage.setItem('v5_inv', JSON.stringify(state.inv));
+            localStorage.setItem('v6_money', state.money);
+            localStorage.setItem('v6_inv', JSON.stringify(state.inv));
             renderInv(); renderMarket();
         }
 
