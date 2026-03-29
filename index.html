@@ -2,147 +2,168 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SlowMail — Professional</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SlowMail Mobile Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&display=swap');
-        body { font-family: 'Google Sans', sans-serif; background-color: #f6f8fc; overflow: hidden; }
-        .sidebar-item:hover { background-color: #e1e3e1; border-radius: 0 100px 100px 0; }
-        .sidebar-active { background-color: #d3e3fd; color: #041e49; font-weight: 500; border-radius: 0 100px 100px 0; }
-        .mail-content { transition: transform 0.2s; cursor: pointer; }
-        .mail-content:hover { background-color: #f2f6fc; box-shadow: inset 1px 0 0 #dadce0; }
-        .modal-shadow { box-shadow: 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12); }
+        body { font-family: 'Google Sans', sans-serif; background-color: #f6f8fc; -webkit-tap-highlight-color: transparent; }
+        .active-tab { background-color: #d3e3fd !important; color: #041e49 !important; font-weight: 600; }
+        .mail-card { transition: transform 0.2s, opacity 0.2s; touch-action: pan-y; position: relative; background: white; }
+        .swipe-action { position: absolute; inset: 0; display: flex; align-items: center; px: 20px; color: white; z-index: 0; }
+        @media (max-width: 768px) {
+            .desktop-sidebar { display: none; }
+            .mobile-nav { display: flex; }
+            .content-container { margin-right: 0 !important; border-radius: 0 !important; }
+        }
     </style>
 </head>
-<body class="h-screen flex flex-col">
+<body class="h-screen flex flex-col overflow-hidden">
 
-    <header class="h-16 flex items-center justify-between px-4 bg-[#f6f8fc] z-50">
-        <div class="flex items-center gap-3 min-w-[250px]">
-            <i class="material-icons-outlined p-2 hover:bg-gray-200 rounded-full cursor-pointer">menu</i>
-            <img src="https://i.ibb.co/LzdS0mK/1000140751.png" class="w-9 h-9 rounded-lg" alt="SlowMail">
-            <span class="text-[22px] text-[#5f6368] tracking-tight">SlowMail</span>
+    <header class="h-14 md:h-16 flex items-center justify-between px-4 bg-[#f6f8fc] z-50">
+        <div class="flex items-center gap-3">
+            <i class="material-icons-outlined md:block hidden p-2 hover:bg-gray-200 rounded-full cursor-pointer">menu</i>
+            <img src="https://i.ibb.co/LzdS0mK/1000140751.png" class="w-8 h-8 md:w-10 md:h-10 rounded-lg shadow-sm">
+            <span class="text-xl md:text-2xl text-[#5f6368] font-medium">SlowMail</span>
         </div>
-        <div class="flex-1 max-w-3xl">
-            <div class="relative">
-                <i class="material-icons-outlined absolute left-4 top-3 text-gray-500">search</i>
-                <input type="text" class="w-full bg-[#eaf1fb] focus:bg-white focus:shadow-md rounded-full py-3 pl-14 outline-none transition-all" placeholder="Поиск в почте">
-            </div>
-        </div>
-        <div class="flex items-center gap-2 ml-4">
-            <div class="w-10 h-10 bg-[#f29900] rounded-full flex items-center justify-center text-white font-bold border-2 border-white shadow-sm">S</div>
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 md:w-10 md:h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">S</div>
         </div>
     </header>
 
-    <div class="flex flex-1 overflow-hidden">
-        <aside class="w-64 pt-2 pr-4 flex flex-col gap-1">
-            <button onclick="openCompose()" class="flex items-center gap-4 bg-[#c2e7ff] hover:shadow-lg py-5 px-6 rounded-2xl font-medium text-gray-800 mb-4 ml-2 transition-all active:scale-95">
+    <div class="flex flex-1 overflow-hidden relative">
+        <aside class="desktop-sidebar w-64 pt-2 pr-4 flex flex-col gap-1">
+            <button onclick="openCompose()" class="flex items-center gap-4 bg-[#c2e7ff] hover:shadow-lg py-5 px-7 rounded-2xl font-medium text-gray-800 mb-4 ml-2 transition-all">
                 <i class="material-icons-outlined">edit</i> Написать
             </button>
-            <div onclick="showTab('inbox')" id="tab-inbox" class="sidebar-item sidebar-active flex items-center gap-4 px-6 py-2.5 text-sm cursor-pointer">
-                <i class="material-icons-outlined">inbox</i> Входящие <span class="ml-auto text-xs font-bold" id="count-inbox">2</span>
+            <div onclick="switchTab('inbox')" id="d-inbox" class="active-tab flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm cursor-pointer hover:bg-gray-200 transition-colors">
+                <i class="material-icons-outlined">inbox</i> Входящие
             </div>
-            <div onclick="showTab('sent')" id="tab-sent" class="sidebar-item flex items-center gap-4 px-6 py-2.5 text-sm text-gray-600 cursor-pointer">
+            <div onclick="switchTab('sent')" id="d-sent" class="flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-200">
                 <i class="material-icons-outlined">send</i> Отправленные
             </div>
-            <div class="sidebar-item flex items-center gap-4 px-6 py-2.5 text-sm text-gray-600 cursor-pointer">
-                <i class="material-icons-outlined">star_outline</i> Помеченные
-            </div>
-            <div onclick="showTab('trash')" id="tab-trash" class="sidebar-item flex items-center gap-4 px-6 py-2.5 text-sm text-gray-600 cursor-pointer">
+            <div onclick="switchTab('trash')" id="d-trash" class="flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-200">
                 <i class="material-icons-outlined">delete_outline</i> Корзина
+            </div>
+            <div onclick="switchTab('spam')" id="d-spam" class="flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-200">
+                <i class="material-icons-outlined">report_gmailerrorred</i> Спам
             </div>
         </aside>
 
-        <main class="flex-1 bg-white my-2 mr-4 rounded-3xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
-            <div class="flex items-center p-3 border-b border-gray-50 gap-6 text-gray-500"><input type="checkbox" class="ml-2 w-4 h-4 rounded">
-                <i class="material-icons-outlined cursor-pointer hover:text-black transition" onclick="location.reload()">refresh</i>
-                <i class="material-icons-outlined cursor-pointer hover:text-black transition">more_vert</i>
-            </div>
-
-            <div id="content-area" class="overflow-y-auto flex-1 divide-y divide-gray-50">
+        <main class="content-container flex-1 bg-white md:my-2 md:mr-4 md:rounded-3xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
+            <div id="search-bar" class="p-3 border-b border-gray-50 flex items-center gap-3">
+                <div class="flex-1 bg-[#eaf1fb] rounded-xl flex items-center px-4 py-2">
+                    <i class="material-icons-outlined text-gray-500 mr-3">search</i>
+                    <input type="text" placeholder="Поиск в почте" class="bg-transparent outline-none w-full text-sm">
                 </div>
+            </div><div id="mail-list" class="flex-1 overflow-y-auto divide-y divide-gray-50">
+                </div>
+            
+            <button onclick="openCompose()" class="md:hidden fixed bottom-20 right-6 w-14 h-14 bg-[#c2e7ff] rounded-2xl shadow-xl flex items-center justify-center text-gray-800 z-40">
+                <i class="material-icons-outlined text-3xl">edit</i>
+            </button>
         </main>
     </div>
 
-    <div id="composeModal" class="hidden fixed bottom-0 right-16 w-[550px] bg-white modal-shadow rounded-t-xl z-[100] flex flex-col border">
-        <div class="bg-[#f2f6fc] p-3 flex justify-between items-center rounded-t-xl">
-            <span class="text-sm font-bold ml-2">Новое сообщение</span>
-            <i onclick="closeCompose()" class="material-icons-outlined cursor-pointer text-gray-600 p-1 hover:bg-gray-200 rounded">close</i>
+    <nav class="mobile-nav hidden h-16 bg-[#f6f8fc] border-t flex items-center justify-around text-gray-500 z-50">
+        <div onclick="switchTab('inbox')" id="m-inbox" class="flex flex-col items-center gap-1 opacity-100 text-blue-800">
+            <i class="material-icons-outlined">inbox</i><span class="text-[10px]">Почта</span>
         </div>
-        <div class="p-4 flex flex-col gap-2">
-            <input id="mailTo" type="text" placeholder="Кому" class="border-b py-2 outline-none text-sm">
-            <input id="mailSub" type="text" placeholder="Тема" class="border-b py-2 outline-none text-sm">
-            <textarea id="mailMsg" rows="12" class="outline-none text-sm resize-none py-2" placeholder="Текст сообщения..."></textarea>
-            <div class="flex justify-between items-center pt-4 border-t">
-                <button onclick="handleSend()" class="bg-[#0b57d0] hover:bg-[#0842a0] text-white px-8 py-2.5 rounded-full font-bold shadow-md transition-all active:scale-95 text-sm">Отправить</button>
-                <div class="flex gap-2 text-gray-400">
-                    <i class="material-icons-outlined p-2 hover:bg-gray-100 rounded-full cursor-pointer">attach_file</i>
-                    <i onclick="closeCompose()" class="material-icons-outlined p-2 hover:bg-red-50 hover:text-red-500 rounded-full cursor-pointer">delete</i>
-                </div>
+        <div onclick="switchTab('sent')" id="m-sent" class="flex flex-col items-center gap-1">
+            <i class="material-icons-outlined">send</i><span class="text-[10px]">Отправленные</span>
+        </div>
+        <div onclick="switchTab('trash')" id="m-trash" class="flex flex-col items-center gap-1">
+            <i class="material-icons-outlined">delete_outline</i><span class="text-[10px]">Корзина</span>
+        </div>
+    </nav>
+
+    <div id="composeModal" class="hidden fixed inset-0 md:inset-auto md:bottom-0 md:right-10 md:w-[500px] bg-white md:rounded-t-2xl shadow-2xl z-[100] flex flex-col">
+        <div class="bg-[#f2f6fc] p-4 flex justify-between items-center md:rounded-t-2xl border-b">
+            <span class="font-bold text-gray-700">Новое письмо</span>
+            <i onclick="closeCompose()" class="material-icons-outlined cursor-pointer p-1 hover:bg-gray-200 rounded">close</i>
+        </div>
+        <div class="p-4 flex flex-col gap-3 flex-1">
+            <input id="inp-to" type="email" placeholder="Кому" class="border-b py-2 outline-none text-sm w-full">
+            <input id="inp-sub" type="text" placeholder="Тема" class="border-b py-2 outline-none text-sm w-full">
+            <textarea id="inp-msg" class="flex-1 outline-none text-sm resize-none py-2" placeholder="Текст сообщения..."></textarea>
+            <div class="flex items-center justify-between pt-4 border-t">
+                <button onclick="sendMail()" class="bg-[#0b57d0] text-white px-8 py-2.5 rounded-full font-bold shadow-md active:scale-95 transition-all">Отправить</button>
+                <i onclick="closeCompose()" class="material-icons-outlined text-gray-400 p-2 hover:bg-red-50 hover:text-red-500 rounded-full cursor-pointer">delete</i>
             </div>
         </div>
     </div>
 
     <script>
-        // БАЗА ДАННЫХ (в памяти браузера)
+        let currentTab = 'inbox';
         let mails = [
-            { id: 1, from: 'SlowMail Support', sub: 'Добро пожаловать!', text: 'Ваша новая почта готова к работе. Попробуйте отправить письмо.', folder: 'inbox', time: '12:45' },
-            { id: 2, from: 'BrawlStatic', sub: 'Новый баннер', text: 'Марк, зацени новый 3D баннер для группы.', folder: 'inbox', time: 'Вчера' }
+            { id: 1, from: 'SlowMail Team', sub: 'Добро пожаловать!', msg: 'Это ваша настоящая почта. Попробуйте свайпать письма!', tab: 'inbox', time: '22:10' },
+            { id: 2, from: 'Brawl Stars', sub: 'Новый скин на Спайка', msg: 'Заходи в игру и забери подарок!', tab: 'inbox', time: '18:30' },
+            { id: 3, from: 'Мама', sub: 'Ужин готов', msg: 'Иди кушать, всё на столе.', tab: 'inbox', time: '14:20' }
         ];
 
-        function renderMails(folder) {
-            const area = document.getElementById('content-area');
-            const filtered = mails.filter(m => m.folder === folder);
-            area.innerHTML = filtered.length ? '' : '<div class="p-20 text-center text-gray-400 italic text-sm">Здесь пока пусто...</div>';
-            
+        function render() {
+            const list = document.getElementById('mail-list');
+            const filtered = mails.filter(m => m.tab === currentTab);
+            list.innerHTML = filtered.length ? '' : '<div class="p-20 text-center text-gray-400 italic">Пусто</div>';
+
             filtered.forEach(m => {
-                area.innerHTML += 
-                    <div class="mail-content flex items-center px-4 py-2.5 border-b border-gray-50 transition-all">
-                        <div class="flex items-center gap-3 mr-4">
-                            <input type="checkbox">
-                            <i class="material-icons-outlined text-gray-300">star_outline</i>
+                list.innerHTML += `
+                    <div class="mail-card overflow-hidden" id="mail-${m.id}">
+                        <div class="mail-content p-4 flex items-start gap-4 active:bg-gray-50 transition-colors" onclick="alert('Письмо от: ${m.from}\\n\\n${m.msg}')">
+                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold shrink-0">${m.from[0]}</div><div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-center mb-0.5">
+                                    <span class="font-bold text-sm text-gray-900 truncate">${m.from}</span>
+                                    <span class="text-xs text-gray-500">${m.time}</span>
+                                </div>
+                                <div class="text-xs font-bold text-gray-800 truncate">${m.sub}</div>
+                                <div class="text-xs text-gray-500 truncate">${m.msg}</div>
+                            </div>
                         </div>
-                        <div class="w-48 font-bold text-sm truncate">${m.from}</div>
-                        <div class="flex-1 text-sm truncate pr-10">
-                            <span class="font-bold text-gray-900">${m.sub}</span> — ${m.text}
-                        </div>
-                        <div class="text-xs font-bold text-gray-400">${m.time}</div>
                     </div>
-                ;
+                `;
             });
-            document.getElementById('count-inbox').innerText = mails.filter(m => m.folder === 'inbox').length;
+            updateNavUI();
         }
 
-        function showTab(tab) {
-            ['tab-inbox', 'tab-sent', 'tab-trash'].forEach(id => {
-                if (document.getElementById(id)) document.getElementById(id).classList.remove('sidebar-active');
+        function switchTab(tab) {
+            currentTab = tab;
+            render();
+        }
+
+        function updateNavUI() {
+            // Desktop
+            ['inbox', 'sent', 'trash', 'spam'].forEach(t => {
+                document.getElementById('d-'+t).className = (t === currentTab) ? 'sidebar-active active-tab flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm cursor-pointer' : 'flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-200';
             });
-            document.getElementById('tab-' + tab).classList.add('sidebar-active');
-            renderMails(tab);
-        }function openCompose() { document.getElementById('composeModal').classList.remove('hidden'); }
+            // Mobile
+            ['inbox', 'sent', 'trash'].forEach(t => {
+                const el = document.getElementById('m-'+t);
+                if (t === currentTab) { el.classList.add('text-blue-800'); el.classList.remove('text-gray-500'); }
+                else { el.classList.remove('text-blue-800'); el.classList.add('text-gray-500'); }
+            });
+        }
+
+        function openCompose() { document.getElementById('composeModal').classList.remove('hidden'); }
         function closeCompose() { document.getElementById('composeModal').classList.add('hidden'); }
 
-        function handleSend() {
-            const to = document.getElementById('mailTo').value;
-            const sub = document.getElementById('mailSub').value;
-            const msg = document.getElementById('mailMsg').value;
+        function sendMail() {
+            const to = document.getElementById('inp-to').value;
+            const sub = document.getElementById('inp-sub').value;
+            const msg = document.getElementById('inp-msg').value;
+            if(!to) return alert("Введите адрес");
 
-            if(!to) return alert("Введите адрес получателя");
-
-            mails.push({ id: Date.now(), from: to, sub: sub, text: msg, folder: 'sent', time: 'Сейчас' });
+            mails.push({ id: Date.now(), from: to, sub: sub, msg: msg, tab: 'sent', time: 'Сейчас' });
             closeCompose();
-            alert("Письмо успешно отправлено!");
-            renderMails('inbox');
+            alert("Отправлено!");
+            render();
             
-            // Очистка формы
-            document.getElementById('mailTo').value = '';
-            document.getElementById('mailSub').value = '';
-            document.getElementById('mailMsg').value = '';
+            document.getElementById('inp-to').value = '';
+            document.getElementById('inp-sub').value = '';
+            document.getElementById('inp-msg').value = '';
         }
 
-        // Старт
-        renderMails('inbox');
+        render();
     </script>
 </body>
 </html>
