@@ -3,148 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SO2 Case Simulator ULTRA</title>
+    <title>SO2 CASE SIMULATOR ULTRA</title>
     <style>
         :root {
-            --bg: #0d1117;
-            --card: #161b22;
+            --bg: #0b0e14;
+            --card: #14171f;
             --accent: #ffcc00;
+            --blue: #00e6ff;
+            --red: #ff4747;
+            
+            /* Цвета редкостей с неоновым свечением */
             --common: #b0c3d9;
             --uncommon: #5e98d9;
             --rare: #4b69ff;
             --epic: #8847ff;
             --legendary: #d32ce6;
             --arcane: #eb4b4b;
+            
+            /* Тени и свечения */
+            --card-glow: 0 4px 15px rgba(0,0,0,0.5);
+            --arcane-glow: 0 0 20px var(--arcane);
+            --gold-glow: 0 0 10px var(--accent);
         }
 
+        * { box-sizing: border-box; }
         body {
             background-color: var(--bg);
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             margin: 0;
             padding: 10px;
+            overflow-x: hidden;
         }
 
-        /* ПРОФИЛЬ */
+        h1, h2, h3 { margin: 10px 0; text-transform: uppercase; letter-spacing: 1px; }
+
+        /* ПРОФИЛЬ (верхняя панель) */
         .profile-card {
-            background: var(--card);
+            background: linear-gradient(135deg, var(--card), #1a202c);
             width: 100%;
             max-width: 800px;
-            padding: 15px;
-            border-radius: 12px;
+            padding: 20px;
+            border-radius: 15px;
             border: 1px solid #30363d;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            box-shadow: var(--card-glow);
         }
 
+        .lvl-section { text-align: center; }
         .lvl-badge {
             background: var(--accent);
             color: black;
-            padding: 5px 15px;
-            border-radius: 20px;
+            padding: 8px 20px;
+            border-radius: 25px;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 16px;
+            box-shadow: var(--gold-glow);
         }
 
         .xp-bar-bg {
-            width: 150px;
-            height: 8px;
-            background: #30363d;
-            border-radius: 4px;
-            margin-top: 5px;
+            width: 180px; height: 10px;
+            background: #2d3748;
+            border-radius: 5px;
+            margin-top: 8px;
             overflow: hidden;
         }
 
         .xp-bar-fill {
             height: 100%;
-            background: var(--accent);
+            background: linear-gradient(90deg, var(--blue), #00aaff);
             width: 0%;
-            transition: 0.3s;
+            transition: 0.5s ease-out;
         }
 
-        .balance { font-size: 24px; color: var(--accent); font-weight: bold; }
+        .stats-text { font-size: 11px; color: #8b949e; margin-top: 5px; }
+        .balance { font-size: 32px; color: var(--accent); font-weight: bold; text-shadow: var(--gold-glow); }
+
+        /* ВЫБОР КЕЙСОВ */
+        .cases-section {
+            width: 100%;
+            max-width: 800px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .case-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            box-shadow: var(--card-glow);
+        }
+
+        .case-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.2); }
+        .case-card.selected { border-color: var(--blue); box-shadow: 0 0 15px var(--blue); }
+
+        .case-title { font-size: 14px; font-weight: bold; text-transform: uppercase; margin-bottom: 10px; }
+        .case-furious { color: var(--rare); }
+        .case-revenge { color: var(--epic); }
+        .case-empire { color: var(--arcane); }
+
+        .case-img { font-size: 40px; margin: 15px 0; }
+        .case-price { font-size: 18px; color: var(--accent); font-weight: bold; }
 
         /* РУЛЕТКА */
         .roulette-wrapper {
             position: relative;
             width: 100%;
             max-width: 800px;
-            height: 160px;
+            height: 180px;
             background: var(--card);
-            border: 2px solid #30363d;
-            border-radius: 12px;
+            border: 3px solid #30363d;
+            border-radius: 15px;
             overflow: hidden;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-glow);
         }
 
         .pointer {
             position: absolute;
-            left: 50%;
-            top: 0;
-            width: 3px;
-            height: 100%;
-            background: #ff4747;
+            left: 50%; top: 0; width: 4px; height: 100%;
+            background: var(--red);
             z-index: 10;
             transform: translateX(-50%);
-            box-shadow: 0 0 15px #ff4747;
+            box-shadow: 0 0 20px var(--red);
         }
 
-        .cases-line { display: flex; position: absolute; left: 0; top: 10px; }
+        .cases-line { display: flex; position: absolute; left: 0; top: 15px; }
 
         .skin-card {
-            min-width: 140px;
-            height: 140px;
+            min-width: 150px;
+            height: 150px;
             margin: 0 5px;
-            background: #21262d;
-            border-bottom: 4px solid #ccc;
-            border-radius: 8px;
+            background: #1a1f29;
+            border-bottom: 5px solid;
+            border-radius: 10px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            transition: 0.3s;
         }
 
+        /* Цвета редкостей на рулетке */
+        .common { border-color: var(--common); }
+        .uncommon { border-color: var(--uncommon); }
+        .rare { border-color: var(--rare); }
+        .epic { border-color: var(--epic); }
+        .legendary { border-color: var(--legendary); }
+        .arcane { border-color: var(--arcane); box-shadow: var(--arcane-glow); text-shadow: var(--arcane-glow); }
+
+        /* КНОПКА */
         .main-btn {
-            padding: 15px 50px;
+            padding: 18px 70px;
             background: linear-gradient(180deg, #ffcc00, #ff9900);
             border: none;
-            border-radius: 8px;
-            font-size: 18px;
+            border-radius: 10px;
+            font-size: 22px;
             font-weight: bold;
+            color: black;
             cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 5px 25px rgba(255, 153, 0, 0.5);
+            transition: 0.2s;
             margin-bottom: 30px;
         }
 
-        .main-btn:disabled { opacity: 0.5; }
+        .main-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .main-btn:active { transform: scale(0.95); }
 
         /* ИНВЕНТАРЬ */
         .inventory-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
-            gap: 10px;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 15px;
             width: 100%;
             max-width: 900px;
         }
 
         .inv-item {
             background: var(--card);
-            padding: 10px;
-            border-radius: 8px;
-            border-bottom: 3px solid;
+            padding: 15px;
+            border-radius: 10px;
+            border-bottom: 4px solid;
             text-align: center;
             cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: var(--card-glow);
         }
+
+        .inv-item:hover { transform: scale(1.05); }
 
         /* МОДАЛЬНОЕ ОКНО */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             display: none;
             align-items: center;
             justify-content: center;
@@ -153,44 +223,62 @@
 
         .modal {
             background: var(--card);
-            padding: 25px;
-            border-radius: 15px;
+            padding: 30px;
+            border-radius: 20px;
             text-align: center;
-            border: 1px solid var(--accent);
-            max-width: 300px;
+            border: 2px solid var(--accent);
+            max-width: 320px;
+            box-shadow: 0 0 30px rgba(255, 204, 0, 0.3);
+            animation: modalIn 0.3s ease;
         }
 
+        @keyframes modalIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
         .modal button {
-            margin: 10px;
-            padding: 10px 20px;
-            border-radius: 5px;
+            margin: 15px 10px 0;
+            padding: 12px 25px;
+            border-radius: 8px;
             border: none;
             cursor: pointer;
             font-weight: bold;
+            font-size: 14px;
         }
 
-        .btn-confirm { background: #eb4b4b; color: white; }
+        .btn-confirm { background: var(--red); color: white; box-shadow: 0 0 10px var(--red); }
         .btn-cancel { background: #484f58; color: white; }
-
-        /* Редкости */
-        .common { border-color: var(--common); }
-        .uncommon { border-color: var(--uncommon); }
-        .rare { border-color: var(--rare); }
-        .epic { border-color: var(--epic); }
-        .legendary { border-color: var(--legendary); }
-        .arcane { border-color: var(--arcane); }
 
     </style>
 </head>
 <body>
 
     <div class="profile-card">
-        <div>
+        <div class="lvl-section">
             <div id="userLvl" class="lvl-badge">LVL 1</div>
             <div class="xp-bar-bg"><div id="xpFill" class="xp-bar-fill"></div></div>
-            <div style="font-size: 10px; margin-top: 3px; color: #8b949e;">Кейсов открыто: <span id="statsCases">0</span></div>
+            <div class="stats-text">Открыто кейсов: <span id="statsCases">0</span></div>
         </div>
         <div class="balance"><span id="balanceText">1000</span> G</div>
+    </div>
+
+    <div class="cases-section">
+        <h2>ВЫБЕРИТЕ КЕЙС</h2>
+        <div class="cases-grid">
+            <div id="furious" class="case-cardselected" onclick="selectCase('furious')">
+                <div class="case-title case-furious">Furious</div>
+                <div class="case-img">📦</div>
+                <div class="case-price">100 G</div>
+            </div>
+            <div id="revenge" class="case-card" onclick="selectCase('revenge')">
+                <div class="case-title case-revenge">Revenge</div>
+                <div class="case-img">💜📦</div>
+                <div class="case-price">250 G</div>
+            </div>
+            <div id="empire" class="case-card" onclick="selectCase('empire')">
+                <div class="case-title case-empire">Empire</div>
+                <div class="case-img">🟡📦</div>
+                <div class="case-price">500 G</div>
+            </div>
+        </div>
     </div>
 
     <div class="roulette-wrapper">
@@ -200,7 +288,7 @@
 
     <button id="spinBtn" class="main-btn" onclick="openCase()">ОТКРЫТЬ КЕЙС (100 G)</button>
 
-    <div style="width:100%; max-width:900px;">
+    <div style="width:100%; max-width:900px; margin-top: 20px;">
         <h3>ИНВЕНТАРЬ</h3>
         <div id="inventory" class="inventory-grid"></div>
     </div>
@@ -208,64 +296,98 @@
     <div id="modal" class="modal-overlay">
         <div class="modal">
             <h3 id="modalTitle">Продать предмет?</h3>
-            <p id="modalPrice" style="color: var(--accent); font-weight: bold;"></p>
+            <p id="modalPrice" style="color: var(--accent); font-weight: bold; font-size: 20px;"></p>
             <button class="btn-confirm" onclick="confirmSell()">ПРОДАТЬ</button>
             <button class="btn-cancel" onclick="closeModal()">ОТМЕНА</button>
         </div>
     </div>
 
     <script>
-        const skins = [
-            { name: "G22 | Casual", rarity: "common", icon: "🔫", price: 5 },
-            { name: "USP | Genesis", rarity: "uncommon", icon: "🔫", price: 15 },
-            { name: "M4 | Tiger", rarity: "rare", icon: "🔫", price: 45 },
-            { name: "AKR | Necromancer", rarity: "epic", icon: "🔫", price: 150 },
-            { name: "AWM | Scratch", rarity: "legendary", icon: "🎯", price: 600 },
-            { name: "M9 | Universe", rarity: "arcane", icon: "🔪", price: 8500 },
-            { name: "Karambit | Gold", rarity: "arcane", icon: "🔪", price: 15000 }
-        ];
+        // БАЗА ДАННЫХ СКИНОВ (15 предметов)
+        const skinsTable = {
+            furious: [
+                { name: "G22 | Casual", rarity: "common", icon: "🔫", price: 5 },
+                { name: "USP | Genesis", rarity: "uncommon", icon: "🔫", price: 15 },
+                { name: "AKR | Tiger", rarity: "rare", icon: "🔫", price: 45 },
+                { name: "M4 | Lizard", rarity: "legendary", icon: "🔫", price: 600 },
+                { name: "JComm | Universe", rarity: "arcane", icon: "🔪", price: 12000 }
+            ],
+            revenge: [
+                { name: "P350 | Nano", rarity: "uncommon", icon: "🔫", price: 15 },
+                { name: "AKR | Necromancer", rarity: "epic", icon: "🔫", price: 150 },
+                { name: "AWM | Scratch", rarity: "legendary", icon: "🎯", price: 600 },
+                { name: "M40 | Monster", rarity: "legendary", icon: "🎯", price: 550 },
+                { name: "M9 | Universe", rarity: "arcane", icon: "🔪", price: 12000 }
+            ],
+            empire: [
+                { name: "P350 | Forest", rarity: "common", icon: "🔫", price: 5 }, // Ошибка в Empire, но для теста
+                { name: "AWM | Genesis", rarity: "rare", icon: "🎯", price: 45 },
+                { name: "AWM | Scratch", rarity: "legendary", icon: "🎯", price: 600 },
+                { name: "Karambit | Gold", rarity: "arcane", icon: "🔪", price: 15000 },
+                { name: "M9 | Gold", rarity: "arcane", icon: "🔪", price: 14500 }
+            ]
+        };
 
-        const rarityWeights = { common: 60, uncommon: 25, rare: 10, epic: 3, legendary: 1.5, arcane: 0.5 };
+        // Шансы для разных кейсов
+        const rarityWeights = {
+            furious: { common: 60, uncommon: 25, rare: 10, epic: 3, legendary: 1.5, arcane: 0.5 },
+            revenge: { common: 30, uncommon: 35, rare: 20, epic: 10, legendary: 4, arcane: 1 },
+            empire: { common: 0, uncommon: 0, rare: 0, epic: 40, legendary: 40, arcane: 20 } // ТОЛЬКО ДОРОГИЕ!
+        };
+
+        const casePrices = { furious: 100, revenge: 250, empire: 500 };
 
         // Данные игрока
-        let balance = parseInt(localStorage.getItem('so2_balance')) || 1000;
+        let balance = parseInt(localStorage.getItem('so2_balance')) || 10000; // Для теста дадим побольше
         let myItems = JSON.parse(localStorage.getItem('so2_inventory')) || [];
         let xp = parseInt(localStorage.getItem('so2_xp')) || 0;
         let casesOpened = parseInt(localStorage.getItem('so2_cases')) || 0;
 
+        let currentCase = 'furious';
         let selectedItemIndex = null;
 
         function updateUI() {
+            // Баланс и статистика
             document.getElementById('balanceText').innerText = balance;
             document.getElementById('statsCases').innerText = casesOpened;
+            document.getElementById('spinBtn').innerText = `ОТКРЫТЬ КЕЙС (${casePrices[currentCase]} G)`;
             
-            // Уровень: каждые 500 XP = новый уровень
-            let lvl = Math.floor(xp / 500) + 1;
-            let currentXpInLvl = xp % 500;
+            // Уровень: 1000 XP = новый уровень
+            let lvl = Math.floor(xp / 1000) + 1;
+            let currentXpInLvl = xp % 1000;
             document.getElementById('userLvl').innerText = `LVL ${lvl}`;
-            document.getElementById('xpFill').style.width = (currentXpInLvl / 500 * 100) + "%";
+            document.getElementById('xpFill').style.width = (currentXpInLvl / 1000 * 100) + "%";
 
+            // Инвентарь
             const invDiv = document.getElementById('inventory');
             invDiv.innerHTML = '';
             myItems.forEach((item, index) => {
                 const div = document.createElement('div');
                 div.className = `inv-item ${item.rarity}`;
                 div.onclick = () => openSellModal(index);
-                div.innerHTML = `<div style="font-size:30px">${item.icon}</div><div style="font-size:10px">${item.name}</div><div style="color:var(--accent); font-size:10px">${item.price} G</div>`;
+                div.innerHTML = `<div style="font-size:32px">${item.icon}</div><div style="font-size:10px">${item.name}</div><div style="color:var(--accent); font-size:11px; font-weight:bold;">${item.price} G</div>`;
                 invDiv.appendChild(div);
             });
 
+            // Сохранение
             localStorage.setItem('so2_balance', balance);
             localStorage.setItem('so2_inventory', JSON.stringify(myItems));
             localStorage.setItem('so2_xp', xp);
             localStorage.setItem('so2_cases', casesOpened);
         }
 
+        function selectCase(type) {
+            document.querySelectorAll('.case-card').forEach(c => c.classList.remove('selected'));
+            document.getElementById(type).classList.add('selected');
+            currentCase = type;
+            updateUI();
+        }
+
         function openSellModal(index) {
             selectedItemIndex = index;
             const item = myItems[index];
             document.getElementById('modalTitle').innerText = `Продать ${item.name}?`;
-            document.getElementById('modalPrice').innerText = `Цена: ${item.price} G`;
+            document.getElementById('modalPrice').innerText = `${item.price} G`;
             document.getElementById('modal').style.display = 'flex';
         }
 
@@ -283,29 +405,34 @@
         }
 
         function getWeightedRandomSkin() {
+            const weights = rarityWeights[currentCase];
+            const lootPool = skinsTable[currentCase];
+            
             let totalWeight = 0;
-            for (let r in rarityWeights) totalWeight += rarityWeights[r];
+            for (let r in weights) totalWeight += weights[r];
             let random = Math.random() * totalWeight;
             let currentWeight = 0;
-            for (let r in rarityWeights) {
-                currentWeight += rarityWeights[r];
+            for (let r in weights) {
+                currentWeight += weights[r];
                 if (random < currentWeight) {
-                    const filtered = skins.filter(s => s.rarity === r);
-                    return {...filtered[Math.floor(Math.random() * filtered.length)]};
+                    const filtered = lootPool.filter(s => s.rarity === r);
+                    // На всякий случай, если в пуле нет скина такой редкости (ошибка в данных)
+                    return {...(filtered.length > 0 ? filtered[Math.floor(Math.random() * filtered.length)] : lootPool[0])};
                 }
             }
         }
 
         function openCase() {
-            if (balance < 100) return alert("Мало голды!");
-            balance -= 100;
-            xp += 50; // Даем 50 опыта за кейс
+            const price = casePrices[currentCase];
+            if (balance < price) return alert("Недостаточно голды!");
+            balance -= price;
             casesOpened++;
             
             const btn = document.getElementById('spinBtn');
             const line = document.getElementById('line');
             btn.disabled = true;
             
+            // Генерируем ленту
             line.innerHTML = '';
             const totalCards = 60;
             const winningIndex = 55;
@@ -320,19 +447,22 @@
                 line.appendChild(card);
             }
 
+            // Анимация
             line.style.transition = 'none';
             line.style.transform = 'translateX(0)';
             
             setTimeout(() => {
-                const cardWidth = 150; 
+                const cardWidth = 160; 
                 const offset = (winningIndex * cardWidth) - (window.innerWidth / 2) + (cardWidth / 2);
                 line.style.transition = 'transform 7s cubic-bezier(0.1, 0, 0.1, 1)';
                 line.style.transform = `translateX(-${offset}px)`;
             }, 50);
 
+            // Финал
             setTimeout(() => {
                 btn.disabled = false;
                 myItems.unshift(winSkin);
+                xp += 100; // Даем 100 опыта за открытие
                 updateUI();
             }, 7200);
         }
