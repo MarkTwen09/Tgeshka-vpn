@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2 CASE SIMULATOR: MOBILE FIX</title>
+    <title>SO2: MARKET & BALANCE FIX</title>
     <style>
         :root {
             --bg: #0b0e14;
-            --card: rgba(255, 255, 255, 0.05);
+            --panel: #1a1f26;
             --accent: #ffcc00;
             --blue: #00e6ff;
             --common: #b0c3d9; --uncommon: #5e98d9; --rare: #4b69ff; --epic: #8847ff; --legendary: #d32ce6; --arcane: #eb4b4b;
@@ -17,186 +17,168 @@
         body {
             background: var(--bg); color: white; font-family: -apple-system, sans-serif;
             margin: 0; padding: 10px; display: flex; flex-direction: column; align-items: center;
-            overflow-x: hidden;
         }
 
-        /* HEADER */
         .header {
-            background: #161b23; width: 100%; max-width: 500px; padding: 15px;
-            border-radius: 15px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1);
+            background: var(--panel); width: 100%; max-width: 450px; padding: 15px;
+            border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;
         }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .stats { display: flex; justify-content: space-between; font-size: 10px; color: #888; text-transform: uppercase; }
-        .stats b { color: white; font-size: 12px; display: block; margin-top: 2px; }
+        .bal-row { display: flex; justify-content: space-between; align-items: center; }
+        .bal-row b { font-size: 22px; color: var(--accent); }
 
-        /* TABS */
-        .tabs { display: flex; gap: 5px; width: 100%; max-width: 500px; margin-bottom: 10px; }
-        .tab { flex: 1; padding: 10px; background: #1c222d; border: none; color: #777; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .tabs { display: flex; gap: 8px; width: 100%; max-width: 450px; margin-bottom: 15px; }
+        .tab { flex: 1; padding: 12px; background: var(--panel); border: none; color: #666; border-radius: 12px; font-weight: bold; font-size: 12px; }
         .tab.active { background: var(--blue); color: #000; }
 
-        .view { display: none; width: 100%; max-width: 500px; }
+        .view { display: none; width: 100%; max-width: 450px; }
         .view.active { display: block; }
 
-        /* CASE SELECT */
-        .case-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 15px; }
-        .case-item { background: #1c222d; padding: 10px; border-radius: 12px; text-align: center; border: 2px solid transparent; font-size: 11px; }
-        .case-item.active { border-color: var(--blue); background: rgba(0, 230, 255, 0.1); }
-
         /* ROULETTE */
-        .roulette { height: 120px; background: #000; border-radius: 12px; position: relative; overflow: hidden; margin-bottom: 15px; }
-        .line { position: absolute; left: 50%; width: 2px; height: 100%; background: #ff4747; z-index: 5; transform: translateX(-50%); }
-        .track { display: flex; position: absolute; left: 0; top: 10px; transition: transform 6s cubic-bezier(0.1, 0, 0.1, 1); }
-        .track-item { min-width: 100px; height: 100px; margin: 0 5px; background: #161b23; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 3px solid #333; }
+        .case-sel { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        .c-card { background: var(--panel); padding: 10px; border-radius: 15px; text-align: center; border: 2px solid transparent; font-size: 11px; }
+        .c-card.active { border-color: var(--blue); }
 
-        /* GRID FIX: РЫНОК И ИНВЕНТАРЬ */
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding-bottom: 20px; }
-        .card { 
-            background: #161b23; padding: 12px; border-radius: 12px; text-align: center; 
-            border: 1px solid rgba(255,255,255,0.05); position: relative;
-        }
-        .card-icon { font-size: 30px; margin-bottom: 5px; }
-        .card-name { font-size: 11px; color: #bbb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .card-price { font-size: 13px; font-weight: bold; color: var(--accent); margin-top: 5px; }
+        .window { height: 110px; background: #000; border-radius: 15px; position: relative; overflow: hidden; margin-bottom: 15px; }
+        .line { position: absolute; left: 50%; width: 2px; height: 100%; background: red; z-index: 10; transform: translateX(-50%); }
+        .track { display: flex; position: absolute; left: 0; top: 10px; transition: transform 6s cubic-bezier(0.1, 0, 0.1, 1); }
+        .t-item { min-width: 90px; height: 90px; margin: 0 5px; background: #151921; border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-bottom: 4px solid #333; font-size: 9px; }
+
+        /* GRID */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 40px; }
+        .card { background: var(--panel); padding: 15px; border-radius: 15px; text-align: center; position: relative; border: 1px solid rgba(255,255,255,0.05); }
+        .rarity { height: 3px; width: 50%; margin: 8px auto; border-radius: 5px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; background: var(--accent); margin-top: 8px; font-size: 12px; }
 
         /* MODAL */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); display: none; align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-        .modal { background: #1c222d; padding: 25px; border-radius: 20px; text-align: center; width: 100%; max-width: 320px; border: 1px solid var(--blue); }
-        .btn { width: 100%; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; background: var(--accent); margin-top: 10px; font-size: 14px; }
-        
-        .trend-up { color: #00ff88; font-size: 10px; }
-        .trend-down { color: #ff4747; font-size: 10px; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 100; }
+        .modal { background: #1a1f26; padding: 25px; border-radius: 20px; text-align: center; width: 80%; max-width: 320px; border: 1px solid var(--blue); }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div class="header-top">
-            <span style="color:var(--blue); font-weight: bold;" id="lvl">LEVEL 1</span>
-            <span style="color:var(--accent); font-weight: 900; font-size: 18px;"><span id="money">0</span> G</span>
-        </div>
-        <div class="stats">
-            <div>Кейсы <b id="statOpened">0</b></div>
-            <div>Лучший <b id="statBest">---</b></div>
-            <div>Прибыль <b id="statProfit">0 G</b></div>
+        <div class="bal-row">
+            <span style="color: #888; font-weight: bold;">БАЛАНС</span>
+            <b><span id="money">0</span> G</b>
         </div>
     </div>
 
     <div class="tabs">
-        <button class="tab active" onclick="showTab('cases')">МАГАЗИН</button>
-        <button class="tab" onclick="showTab('market')">РЫНОК</button>
-        <button class="tab" onclick="showTab('inv')">ИНВЕНТАРЬ</button>
+        <button class="tab active" onclick="tab('cases')">КЕЙСЫ</button>
+        <button class="tab" onclick="tab('market')">РЫНОК</button>
+        <button class="tab" onclick="tab('inv')">ИНВЕНТАРЬ</button>
     </div>
 
     <div id="cases" class="view active">
-        <div class="case-grid">
-            <div id="c0" class="case-item active" onclick="setCase(0)">📦<br>FURIOUS</div>
-            <div id="c1" class="case-item" onclick="setCase(1)">📦<br>REVENGE</div>
-            <div id="c2" class="case-item" onclick="setCase(2)">📦<br>EMPIRE</div>
+        <div class="case-sel">
+            <div id="c0" class="c-card active" onclick="sel(0)">📦<br>FURIOUS<br>80 G</div>
+            <div id="c1" class="c-card" onclick="sel(1)">📦<br>REVENGE<br>180 G</div>
+            <div id="c2" class="c-card" onclick="sel(2)">📦<br>EMPIRE<br>450 G</div>
         </div>
-        <div class="roulette">
-            <div class="line"></div>
-            <div id="track" class="track"></div>
-        </div>
-        <button id="spinBtn" class="btn" onclick="spin()">ОТКРЫТЬ КЕЙС</button>
+        <div class="window"><div class="line"></div><div id="track" class="track"></div></div>
+        <button id="spinBtn" class="btn" style="padding: 18px; font-size: 14px;" onclick="spin()">ОТКРЫТЬ КЕЙС</button>
     </div>
 
-    <div id="market" class="view">
-        <div id="marketGrid" class="grid"></div>
-    </div>
-
-    <div id="inv" class="view">
-        <div id="invGrid" class="grid"></div>
-    </div>
+    <div id="market" class="view"><div id="marketGrid" class="grid"></div></div>
+    <div id="inv" class="view"><div id="invGrid" class="grid"></div></div>
 
     <div id="winModal" class="overlay">
         <div class="modal">
             <div id="winIcon" style="font-size: 60px;">🔫</div>
-            <h3 id="winName" style="margin: 10px 0; font-size: 18px;">Weapon Name</h3>
-            <p id="winRarity" style="font-weight: bold; margin-bottom: 20px;"></p>
-            <button class="btn" onclick="takeItem()">В ИНВЕНТАРЬ</button>
-            <button class="btn" style="background: none; color: #777;" onclick="sellQuick()">ПРОДАТЬ ЗА <span id="winPrice">0</span> G</button>
+            <h3 id="winName" style="margin: 10px 0;">Item</h3>
+            <div id="winRarity" style="font-weight: bold; font-size: 11px; margin-bottom: 15px;"></div>
+            <button class="btn" onclick="take()">В ИНВЕНТАРЬ</button>
+            <button class="btn" style="background:none; color:#777;" onclick="sellNow()">ПРОДАТЬ ЗА <span id="winPrice">0</span> G</button>
         </div>
     </div>
 
     <script>
         const skins = [
-            { name: "G22 | Casual", rar: "common", p: 11, i: "🔫" },
-            { name: "USP | Genesis", rar: "uncommon", p: 29, i: "🔫" },
-            { name: "M4 | Tiger", rar: "rare", p: 123, i: "🔫" },
-            { name: "AKR | Necro", rar: "epic", p: 434, i: "🔫" },
-            { name: "AWM | Scratch", rar: "legendary", p: 1076, i: "🎯" },
-            { name: "Karambit | Gold", rar: "arcane", p: 14797, i: "🔪" },
-            { name: "M9 | Universe", rar: "arcane", p: 12500, i: "🔪" }
+            { name: "G22 | Casual", rar: "common", p: 10, i: "🔫" },
+            { name: "USP | Genesis", rar: "uncommon", p: 30, i: "🔫" },
+            { name: "M4 | Tiger", rar: "rare", p: 110, i: "🔫" },
+            { name: "AKR | Necro", rar: "epic", p: 400, i: "🔫" },
+            { name: "AWM | Scratch", rar: "legendary", p: 950, i: "🎯" },
+            { name: "Karambit | Gold", rar: "arcane", p: 14000, i: "🔪" },
+            { name: "Butterfly | Star", rar: "arcane", p: 12000, i: "🦋" }
         ];
 
-        const cases = [
-            { cost: 100, drop: [0, 0, 1, 1, 2, 3] },
-            { cost: 250, drop: [1, 2, 3, 4, 5] },
-            { cost: 500, drop: [3, 4, 5, 6] }
+        const config = [
+            { cost: 80, drop: [0, 0, 0, 1, 1, 2] },
+            { cost: 180, drop: [1, 1, 2, 2, 3, 4] },
+            { cost: 450, drop: [3, 4, 4, 5, 6] }
         ];
 
-        let money = parseInt(localStorage.getItem('m_bal')) || 5000;
-        let inv = JSON.parse(localStorage.getItem('m_inv')) || [];
-        let opened = parseInt(localStorage.getItem('m_open')) || 0;
-        let selected = 0;
-        let lastItem = null;
+        let bal = parseInt(localStorage.getItem('s_bal')) || 2000;
+        let inv = JSON.parse(localStorage.getItem('s_inv')) || [];
+        let curCase = 0;
+        let lastWin = null;
 
         function update() {
-            document.getElementById('money').innerText = money.toLocaleString();
-            document.getElementById('statOpened').innerText = opened;
-            
-            // Инвентарь
-            const invG = document.getElementById('invGrid'); invG.innerHTML = '';
-            inv.forEach((item, idx) => {
-                const d = document.createElement('div');
-                d.className = 'card';
-                d.style.borderBottom = `4px solid var(--${item.rar})`;
-                d.innerHTML = `<div class="card-icon">${item.i}</div><div class="card-name">${item.name}</div><div class="card-price">${item.p} G</div>`;
-                d.onclick = () => { money += item.p; inv.splice(idx, 1); update(); };
-                invG.appendChild(d);
-            });
+            document.getElementById('money').innerText = bal.toLocaleString();
+            localStorage.setItem('s_bal', bal);
+            localStorage.setItem('s_inv', JSON.stringify(inv));
 
-            // Рынок
-            const marG = document.getElementById('marketGrid'); marG.innerHTML = '';
+            // Рынок (теперь с покупкой!)
+            const mG = document.getElementById('marketGrid'); mG.innerHTML = '';
             skins.forEach(s => {
                 const d = document.createElement('div');
                 d.className = 'card';
-                d.innerHTML = `<div class="card-icon">${s.i}</div><div class="card-name">${s.name}</div><div class="card-price">${s.p} G <span class="trend-up">▲</span></div>`;
-                marG.appendChild(d);
+                // Цена покупки на рынке выше на 20%
+                const buyPrice = Math.floor(s.p * 1.2);
+                d.innerHTML = `<div style="font-size:35px">${s.i}</div><div style="font-size:11px">${s.name}</div><div class="rarity" style="background:var(--${s.rar})"></div><button class="btn" onclick="buySkin('${s.name}', ${buyPrice}, '${s.rar}', '${s.i}')">КУПИТЬ: ${buyPrice} G</button>`;
+                mG.appendChild(d);
             });
 
-            localStorage.setItem('m_bal', money);
-            localStorage.setItem('m_inv', JSON.stringify(inv));
-            localStorage.setItem('m_open', opened);
+            // Инвентарь
+            const iG = document.getElementById('invGrid'); iG.innerHTML = '';
+            inv.forEach((it, idx) => {
+                const d = document.createElement('div');
+                d.className = 'card';
+                d.innerHTML = `<div style="font-size:35px">${it.i}</div><div style="font-size:11px">${it.name}</div><div class="rarity" style="background:var(--${it.rar})"></div><button class="btn" style="background:#ff4747; color:white;" onclick="sellFromInv(${idx})">ПРОДАТЬ: ${it.p} G</button>`;
+                iG.appendChild(d);
+            });
+        }
+
+        function buySkin(name, pr, rar, icon) {
+            if(bal < pr) return alert("Мало голды!");
+            bal -= pr;
+            // В инвентарь сохраняем базовую цену продажи
+            const basePrice = skins.find(s => s.name === name).p;
+            inv.unshift({name, p: basePrice, rar, i: icon});
+            update();
+        }
+
+        function sellFromInv(idx) {
+            bal += inv[idx].p;
+            inv.splice(idx, 1);
+            update();
         }
 
         function spin() {
-            if(money < cases[selected].cost) return alert("Недостаточно голды!");
-            money -= cases[selected].cost;
-            opened++;
+            const c = config[curCase];
+            if(bal < c.cost) return alert("Мало голды!");
+            bal -= c.cost; update();
             document.getElementById('spinBtn').disabled = true;
 
             const track = document.getElementById('track');
             track.innerHTML = ''; track.style.transition = 'none'; track.style.transform = 'translateX(0)';
 
             let win;
-            for(let i=0; i<40; i++) {
-                const s = skins[cases[selected].drop[Math.floor(Math.random() * cases[selected].drop.length)]];
-                if(i === 35) win = s;
-                const d = document.createElement('div'); d.className = 'track-item';
-                d.style.borderBottomColor = `var(--${s.rar})`;
-                d.innerHTML = `<div style="font-size:30px">${s.i}</div><div style="font-size:9px">${s.name}</div>`;
-                track.appendChild(d);
+            for(let i=0; i<45; i++) {
+                const s = skins[c.drop[Math.floor(Math.random() * c.drop.length)]];
+                if(i === 40) win = s;
+                track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})"><div style="font-size:30px">${s.i}</div>${s.name}</div>`;
             }
 
             setTimeout(() => {
                 track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0.1, 1)';
-                const shift = 35 * 110 - (window.innerWidth / 2 - 55);
+                const shift = 40 * 100 - (window.innerWidth / 2 - 50);
                 track.style.transform = `translateX(-${shift}px)`;
             }, 50);
 
             setTimeout(() => {
-                lastItem = win;
+                lastWin = win;
                 document.getElementById('winName').innerText = win.name;
                 document.getElementById('winRarity').innerText = win.rar.toUpperCase();
                 document.getElementById('winRarity').style.color = `var(--${win.rar})`;
@@ -208,10 +190,10 @@
             }, 6200);
         }
 
-        function takeItem() { inv.unshift(lastItem); document.getElementById('winModal').style.display = 'none'; update(); }
-        function sellQuick() { money += lastItem.p; document.getElementById('winModal').style.display = 'none'; update(); }
-        function showTab(id) { document.querySelectorAll('.view, .tab').forEach(e => e.classList.remove('active')); document.getElementById(id).classList.add('active'); event.target.classList.add('active'); }
-        function setCase(i) { selected = i; document.querySelectorAll('.case-item').forEach(e => e.classList.remove('active')); document.getElementById('c'+i).classList.add('active'); }
+        function take() { inv.unshift(lastWin); document.getElementById('winModal').style.display = 'none'; update(); }
+        function sellNow() { bal += lastWin.p; document.getElementById('winModal').style.display = 'none'; update(); }
+        function tab(id) { document.querySelectorAll('.view, .tab').forEach(e => e.classList.remove('active')); document.getElementById(id).classList.add('active'); event.target.classList.add('active'); }
+        function sel(i) { curCase = i; document.querySelectorAll('.c-card').forEach(e => e.classList.remove('active')); document.getElementById('c'+i).classList.add('active'); }
 
         update();
     </script>
