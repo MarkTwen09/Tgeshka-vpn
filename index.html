@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CRYSTAL HARDCORE V6</title>
+    <title>SO2: CRYSTAL CRAFT V7</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -32,19 +32,21 @@
             border: 1px solid var(--border); margin-bottom: 20px;
             display: flex; justify-content: space-between; align-items: center;
         }
-        .balance b { font-size: 24px; color: var(--accent); text-shadow: 0 0 15px rgba(255,204,0,0.3); }
+        .balance b { font-size: 22px; color: var(--accent); text-shadow: 0 0 15px rgba(255,204,0,0.3); }
+        .inv-value { font-size: 9px; opacity: 0.6; margin-top: 4px; display: block; }
 
-        .tabs { display: flex; gap: 8px; width: 100%; max-width: 480px; margin-bottom: 20px; }
+        .tabs { display: flex; gap: 6px; width: 100%; max-width: 480px; margin-bottom: 20px; }
         .tab { 
-            flex: 1; padding: 14px; background: var(--glass); border: 1px solid var(--border);
-            color: #777; border-radius: 18px; font-weight: 800; cursor: pointer; transition: 0.3s;
-            text-transform: uppercase; font-size: 11px;
+            flex: 1; padding: 12px; background: var(--glass); border: 1px solid var(--border);
+            color: #777; border-radius: 16px; font-weight: 800; cursor: pointer; transition: 0.3s;
+            text-transform: uppercase; font-size: 9px;
         }
         .tab.active { background: var(--blue); color: #000; border: none; box-shadow: 0 8px 20px rgba(0,210,255,0.3); }
 
         .view { display: none; width: 100%; max-width: 480px; animation: slideIn 0.4s ease-out; }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* CASE BOX */
         .case-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
         .case-btn { background: var(--glass); padding: 15px; border-radius: 22px; border: 1px solid var(--border); text-align: center; cursor: pointer; transition: 0.3s; }
         .case-btn.active { border-color: var(--blue); background: rgba(0,210,255,0.05); }
@@ -57,70 +59,47 @@
         }
 
         .roulette-box { 
-            height: 130px; background: rgba(0,0,0,0.3); border-radius: 26px; 
+            height: 120px; background: rgba(0,0,0,0.3); border-radius: 26px; 
             position: relative; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border);
         }
         .center-line { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff4747; z-index: 10; transform: translateX(-50%); box-shadow: 0 0 15px #ff4747; }
-        .track { display: flex; position: absolute; left: 0; top: 15px; transition: transform 6s cubic-bezier(0.1, 0, 0, 1); }
+        .track { display: flex; position: absolute; left: 0; top: 10px; transition: transform 6s cubic-bezier(0.1, 0, 0, 1); }
         .t-item { 
             min-width: 100px; height: 100px; margin: 0 6px; background: var(--glass); 
             border-radius: 20px; display: flex; align-items: center; justify-content: center;
-            border-bottom: 4px solid #333; font-size: 40px;
+            border-bottom: 4px solid #333; font-size: 36px;
         }
 
+        /* GRID & CARDS */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 40px; overflow-y: auto; max-height: 60vh; }
         .card { 
             background: var(--glass); padding: 25px 15px; border-radius: 28px; text-align: center;
             border: 1px solid var(--border); position: relative; transition: 0.3s;
         }
+        .card.selected { border: 2px solid var(--up); background: rgba(0,255,136,0.05); transform: scale(0.95); }
         
         .btn-action { 
             width: 100%; padding: 18px; border: none; border-radius: 20px; 
             font-weight: 900; cursor: pointer; background: var(--accent); color: #000;
             text-transform: uppercase; transition: 0.2s;
         }
+        .btn-action:disabled { opacity: 0.3; cursor: default; }
 
+        /* WIN MODAL (BEAUTIFUL) */
         .overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(5,7,12,0.92); display: none; align-items: center; justify-content: center; 
+            background: rgba(5,7,12,0.95); display: none; align-items: center; justify-content: center; 
             z-index: 1000; backdrop-filter: blur(20px);
         }
-
-        .modal-win { 
-            background: transparent; text-align: center; 
-            width: 90%; max-width: 400px;
-            animation: winReveal 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
-        }
-
-        @keyframes winReveal {
-            0% { transform: scale(0.5) translateY(100px); opacity: 0; }
-            100% { transform: scale(1) translateY(0); opacity: 1; }
-        }
-
-        .win-glow {
-            position: absolute; width: 300px; height: 300px;
-            background: radial-gradient(circle, var(--rarity-color) 0%, transparent 70%);
-            top: 50%; left: 50%; transform: translate(-50%, -50%);
-            opacity: 0.3; filter: blur(30px); z-index: -1;
-            animation: glowPulse 2s infinite ease-in-out;
-        }
-
-        @keyframes glowPulse {
-            0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.3); }
-        }
-
-        .win-icon {
-            font-size: 110px; margin-bottom: 20px;
-            filter: drop-shadow(0 0 20px var(--rarity-color));
-            animation: iconFloat 3s infinite ease-in-out;
-        }
-
+        .modal-win { background: transparent; text-align: center; width: 90%; max-width: 400px; animation: winReveal 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes winReveal { 0% { transform: scale(0.5) translateY(100px); opacity: 0; } 100% { transform: scale(1) translateY(0); opacity: 1; } }
+        .win-glow { position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, var(--rarity-color) 0%, transparent 70%); top: 50%; left: 50%; transform: translate(-50%, -50%); opacity: 0.3; filter: blur(30px); z-index: -1; animation: glowPulse 2s infinite ease-in-out; }
+        @keyframes glowPulse { 0%, 100% { opacity: 0.2; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.3); } }
+        .win-icon { font-size: 110px; margin-bottom: 20px; filter: drop-shadow(0 0 20px var(--rarity-color)); animation: iconFloat 3s infinite ease-in-out; }
         @keyframes iconFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        .win-info { animation: textAppear 1s ease-out 0.3s both; }
-        @keyframes textAppear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        /* CONTRACTS UI */
+        .craft-info { background: rgba(0,0,0,0.2); border-radius: 20px; padding: 15px; margin-bottom: 15px; text-align: center; border: 1px dashed var(--border); }
     </style>
 </head>
 <body>
@@ -129,12 +108,14 @@
         <div class="balance">
             <span style="font-size: 10px; opacity: 0.5;">БАЛАНС</span>
             <b><span id="money">0</span> G</b>
+            <span class="inv-value">ИНВЕНТАРЬ: <span id="invVal">0</span> G</span>
         </div>
-        <div style="font-size: 8px; color: var(--blue); letter-spacing: 1px;">HARDCORE DROP V6</div>
+        <div style="font-size: 8px; color: var(--up); font-weight: 900;">● STABLE V7</div>
     </div>
 
     <div class="tabs">
-        <button class="tab active" onclick="tab('shop', event)">Кейсы</button>
+        <button class="tab active" onclick="tab('shop', event)">Магазин</button>
+        <button class="tab" onclick="tab('craft', event)">Контракты</button>
         <button class="tab" onclick="tab('market', event)">Биржа</button>
         <button class="tab" onclick="tab('inv', event)">Инв</button>
     </div>
@@ -152,7 +133,17 @@
         <button id="spinBtn" class="btn-action" onclick="openCase()">ОТКРЫТЬ</button>
     </div>
 
+    <div id="craft" class="view">
+        <div class="craft-info">
+            <div id="craftStatus" style="font-size: 12px; margin-bottom: 8px;">Выберите 10 предметов одной редкости</div>
+            <div style="font-size: 20px; color: var(--blue); font-weight: 900;"><span id="selCount">0</span> / 10</div>
+        </div>
+        <button id="craftBtn" class="btn-action" disabled onclick="doCraft()">СОЗДАТЬ КОНТРАКТ</button>
+        <div id="craftGrid" class="grid" style="margin-top:20px"></div>
+    </div>
+
     <div id="market" class="view"><div id="marketGrid" class="grid"></div></div>
+
     <div id="inv" class="view"><div id="invGrid" class="grid"></div></div>
 
     <div id="winOverlay" class="overlay">
@@ -168,15 +159,6 @@
         </div>
     </div>
 
-    <div id="sellOverlay" class="overlay">
-        <div style="background: #121826; padding: 40px; border-radius: 35px; text-align: center; border: 1px solid var(--border); width: 85%;">
-            <h3>ПРОДАТЬ ПРЕДМЕТ?</h3>
-            <div id="sellPreview" style="font-size: 60px; margin: 20px 0;">🔫</div>
-            <button class="btn-action" style="background: var(--down); color:white;" onclick="confirmSell()">ПРОДАТЬ</button>
-            <button class="btn-action" style="background: none; color:white; margin-top:10px;" onclick="closeOverlays()">ОТМЕНА</button>
-        </div>
-    </div>
-
     <script>
         const SKINS = [
             { id: 0, name: "G22 | Casual", rar: "common", p: 20, i: "🔫", weight: 50 },
@@ -188,16 +170,17 @@
             { id: 6, name: "Butterfly | Star", rar: "arcane", p: 22000, i: "🦋", weight: 0.3 }
         ];
 
+        const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "arcane"];
+
         let state = {
-            money: parseInt(localStorage.getItem('v6_money')) || 5000,
-            inv: JSON.parse(localStorage.getItem('v6_inv')) || [],
+            money: parseInt(localStorage.getItem('v7_money')) || 5000,
+            inv: JSON.parse(localStorage.getItem('v7_inv')) || [],
             prices: SKINS.map(s => ({ id: s.id, cur: s.p * 1.3, old: s.p * 1.3 })),
             curCase: 0,
             lastWin: null,
-            pendingIdx: null
+            selectedForCraft: []
         };
 
-        // Функция взвешенного рандома
         function getWeightedDrop(poolIds) {
             const currentPool = SKINS.filter(s => poolIds.includes(s.id));
             const totalWeight = currentPool.reduce((acc, s) => acc + s.weight, 0);
@@ -208,15 +191,6 @@
             }
             return currentPool[0];
         }
-
-        function tick() {
-            state.prices.forEach(p => {
-                p.old = p.cur;
-                p.cur = Math.floor(p.cur * (1 + (Math.random() * 0.12 - 0.06)));
-            });
-            if(document.getElementById('market').style.display === 'block') renderMarket();
-        }
-        setInterval(tick, 5000);
 
         function openCase() {
             const cost = [100, 250, 600][state.curCase];
@@ -234,21 +208,17 @@
                 track.innerHTML = '';
                 
                 let win;
-                const pools = [[0,1,2,3], [1,2,3,4,5], [3,4,5,6]]; // Какие ID могут выпасть
-                const currentPoolIds = pools[state.curCase];
-
+                const pools = [[0,1,2,3], [1,2,3,4,5], [3,4,5,6]];
                 for(let i=0; i<60; i++) {
-                    const s = getWeightedDrop(currentPoolIds);
-                    if(i === 52) win = s; // Решающий скин
+                    const s = getWeightedDrop(pools[state.curCase]);
+                    if(i === 52) win = s;
                     track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${s.i}</div>`;
                 }
-
                 setTimeout(() => {
                     track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0, 1)';
                     const shift = 52 * 112 - (window.innerWidth/2 - 56);
                     track.style.transform = `translateX(-${shift}px)`;
                 }, 50);
-
                 setTimeout(() => {
                     state.lastWin = win;
                     showWin(win);
@@ -257,17 +227,55 @@
             }, 600);
         }
 
+        function toggleCraftSelect(idx) {
+            const item = state.inv[idx];
+            if(item.rar === 'arcane') return; // Нельзя крафтить Арканы
+
+            const isAlreadySelected = state.selectedForCraft.indexOf(idx);
+            
+            if(isAlreadySelected > -1) {
+                state.selectedForCraft.splice(isAlreadySelected, 1);
+            } else {
+                if(state.selectedForCraft.length > 0) {
+                    const firstItem = state.inv[state.selectedForCraft[0]];
+                    if(firstItem.rar !== item.rar) return; // Только одна редкость
+                }
+                if(state.selectedForCraft.length < 10) state.selectedForCraft.push(idx);
+            }
+            sync();
+        }
+
+        function doCraft() {
+            if(state.selectedForCraft.length !== 10) return;
+            
+            const firstItem = state.inv[state.selectedForCraft[0]];
+            const nextRarityIdx = RARITIES.indexOf(firstItem.rar) + 1;
+            const nextRarity = RARITIES[nextRarityIdx];
+            
+            // Получаем пул предметов на ранг выше
+            const nextPool = SKINS.filter(s => s.rar === nextRarity);
+            const win = nextPool[Math.floor(Math.random() * nextPool.length)];
+
+            // Удаляем выбранные (с конца, чтобы индексы не плыли)
+            state.selectedForCraft.sort((a,b) => b-a).forEach(idx => {
+                state.inv.splice(idx, 1);
+            });
+
+            state.selectedForCraft = [];
+            state.lastWin = win;
+            showWin(win);
+            sync();
+        }
+
         function showWin(win) {
             const overlay = document.getElementById('winOverlay');
-            const glow = document.getElementById('rarityGlow');
+            document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
             const icon = document.getElementById('winIcon');
-            glow.style.setProperty('--rarity-color', `var(--${win.rar})`);
             icon.innerText = win.i;
             icon.style.setProperty('--rarity-color', `var(--${win.rar})`);
             document.getElementById('winName').innerText = win.name;
-            const rarText = document.getElementById('winRarity');
-            rarText.innerText = win.rar.toUpperCase();
-            rarText.style.color = `var(--${win.rar})`;
+            const rt = document.getElementById('winRarity');
+            rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
             document.getElementById('winPrice').innerText = win.p;
             overlay.style.display = 'flex';
         }
@@ -275,25 +283,37 @@
         function renderMarket() {
             const g = document.getElementById('marketGrid'); g.innerHTML = '';
             SKINS.forEach(s => {
-                const p = state.prices.find(x => x.id === s.id);
-                const up = p.cur >= p.old;
-                g.innerHTML += `<div class="card" onclick="buyMarket(${s.id}, ${p.cur})">
+                const pr = Math.floor(s.p * 1.3);
+                g.innerHTML += `<div class="card" onclick="buyMarket(${s.id}, ${pr})">
                     <div style="font-size:45px">${s.i}</div>
                     <div style="font-weight:bold; font-size:12px; margin-top:10px">${s.name}</div>
-                    <div style="color:${up?'var(--up)':'var(--down)'}; font-weight:900; margin-top:8px">${p.cur} G</div>
+                    <div style="color:var(--accent); font-weight:900; margin-top:8px">${pr} G</div>
                 </div>`;
             });
         }
 
-        function renderInv() {
-            const g = document.getElementById('invGrid'); g.innerHTML = '';
+        function renderInvAndCraft() {
+            const iGrid = document.getElementById('invGrid');
+            const cGrid = document.getElementById('craftGrid');
+            iGrid.innerHTML = ''; cGrid.innerHTML = '';
+            
+            let totalVal = 0;
+
             state.inv.forEach((it, idx) => {
-                g.innerHTML += `<div class="card" onclick="openSell(${idx})">
-                    <div style="font-size:45px">${it.i}</div>
-                    <div style="font-size:11px; margin-top:8px">${it.name}</div>
-                    <div style="color:var(--accent); font-weight:bold; margin-top:5px">${it.p} G</div>
+                totalVal += it.p;
+                const isSel = state.selectedForCraft.includes(idx);
+                const html = `<div class="card ${isSel?'selected':''}" onclick="${document.getElementById('craft').style.display === 'block' ? `toggleCraftSelect(${idx})` : `openSell(${idx})`}">
+                    <div style="font-size:40px">${it.i}</div>
+                    <div style="font-size:10px; margin-top:8px">${it.name}</div>
+                    <div style="color:var(--${it.rar}); font-size:10px; font-weight:900; margin-top:5px">${it.rar.toUpperCase()}</div>
                 </div>`;
+                iGrid.innerHTML += html;
+                if(it.rar !== 'arcane') cGrid.innerHTML += html;
             });
+
+            document.getElementById('invVal').innerText = totalVal.toLocaleString();
+            document.getElementById('selCount').innerText = state.selectedForCraft.length;
+            document.getElementById('craftBtn').disabled = state.selectedForCraft.length !== 10;
         }
 
         function buyMarket(id, pr) {
@@ -303,27 +323,15 @@
             sync();
         }
 
-        function openSell(idx) {
-            state.pendingIdx = idx;
-            document.getElementById('sellPreview').innerText = state.inv[idx].i;
-            document.getElementById('sellOverlay').style.display = 'flex';
-        }
-
-        function confirmSell() {
-            state.money += state.inv[state.pendingIdx].p;
-            state.inv.splice(state.pendingIdx, 1);
-            closeOverlays(); sync();
-        }
-
         function take() { state.inv.unshift(state.lastWin); closeOverlays(); sync(); }
         function sellNow() { state.money += state.lastWin.p; closeOverlays(); sync(); }
-        function closeOverlays() { document.querySelectorAll('.overlay').forEach(o => o.style.display = 'none'); }
+        function closeOverlays() { document.getElementById('winOverlay').style.display = 'none'; }
 
         function sync() {
             document.getElementById('money').innerText = state.money.toLocaleString();
-            localStorage.setItem('v6_money', state.money);
-            localStorage.setItem('v6_inv', JSON.stringify(state.inv));
-            renderInv(); renderMarket();
+            localStorage.setItem('v7_money', state.money);
+            localStorage.setItem('v7_inv', JSON.stringify(state.inv));
+            renderInvAndCraft(); renderMarket();
         }
 
         function tab(t, e) {
@@ -331,6 +339,7 @@
             document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
             document.getElementById(t).style.display = 'block';
             e.target.classList.add('active');
+            if(t !== 'craft') state.selectedForCraft = [];
             sync();
         }
 
