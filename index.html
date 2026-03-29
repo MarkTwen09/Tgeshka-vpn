@@ -2,218 +2,164 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE EMPIRE GENESIS | ТОЧНЫЕ ГРАНИЦЫ</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>EURO-ASIA CONQUEST: REAL MAP EDITION</title>
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <style>
-        :root { --red: #ff3333; --green: #00ff88; --blue: #44aaff; --bg: #050505; --ui-bg: rgba(10,10,15,0.95); }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: #fff; overflow: hidden; height: 100vh; }
-        #map { height: 100%; width: 100%; z-index: 1; filter: saturate(1.2) contrast(1.1); }
+        :root { --bg: #0d1117; --panel: #161b22; --accent: #238636; --war: #f85149; --text: #c9d1d9; }
+        body { margin: 0; background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; overflow: hidden; }
         
-        /* Панель ресурсов */
-        .res-bar {
-            position: fixed; top: 15px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 20px; background: var(--ui-bg); padding: 10px 30px;
-            border-radius: 30px; border: 1px solid rgba(255,255,255,0.1); z-index: 1000;
-            box-shadow: 0 5px 25px rgba(0,0,0,0.7); backdrop-filter: blur(10px);
-        }
-        .res-item { display: flex; flex-direction: column; align-items: center; min-width: 90px; }
-        .res-label { font-size: 10px; text-transform: uppercase; color: #888; letter-spacing: 1px; }
-        .res-val { font-size: 18px; font-weight: bold; }
-
-        /* Управление империей */
-        .ui-side {
-            position: fixed; bottom: 25px; left: 25px; width: 340px;
-            background: var(--ui-bg); border-radius: 18px; padding: 25px;
-            z-index: 1000; border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(15px); box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-        }
-        .btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 20px; }
-        button {
-            padding: 10px; border: none; border-radius: 6px; cursor: pointer;
-            font-weight: bold; transition: 0.3s; background: #333; color: white; text-transform: uppercase; font-size: 11px;
-        }
-        button.war { background: var(--red); box-shadow: 0 0 10px rgba(255,51,51,0.4); }
-        button.peace { background: var(--green); color: #000; box-shadow: 0 0 10px rgba(0,255,136,0.4); }
-        button.trade { background: var(--blue); box-shadow: 0 0 10px rgba(68,170,255,0.4); }
-        button:hover { opacity: 0.8; transform: translateY(-3px); }
-
-        /* Лента новостей */
-        .news-feed {
-            position: fixed; top: 80px; right: 25px; width: 300px;
-            background: rgba(0,0,0,0.75); padding: 18px; border-radius: 12px;
-            font-size: 13px; z-index: 1000; border-right: 3px solid var(--blue); backdrop-filter: blur(8px);
-        }
-        .news-item { margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 6px; color: #ccc; }
+        /* UI */
+        #ui-left { position: absolute; top: 15px; left: 15px; width: 280px; z-index: 10; display: flex; flex-direction: column; gap: 10px; }
+        #ui-right { position: absolute; top: 15px; right: 15px; width: 250px; z-index: 10; }
+        .glass { background: rgba(22, 27, 34, 0.9); border: 1px solid #30363d; padding: 15px; border-radius: 12px; backdrop-filter: blur(5px); }
         
-        /* Неоновые эффекты карт */
-        @keyframes borderPulse { 0% { filter: drop-shadow(0 0 2px rgba(255,51,51,0.5)); } 100% { filter: drop-shadow(0 0 10px rgba(255,51,51,0.9)); } }
-        .map-danger-zone { animation: borderPulse 1s infinite alternate; }
+        /* Карта */
+        #map-container { width: 100vw; height: 100vh; background: #05070a; cursor: grab; }
+        .country { fill: #21262d; stroke: #30363d; stroke-width: 0.5; transition: 0.2s; }
+        .country:hover { fill: #30363d; filter: brightness(1.2); }
+        .owned-me { fill: #1f6feb !important; stroke: #58a6ff; }
+        .owned-enemy { fill: #da3633 !important; stroke: #f85149; }
+        .highlight { stroke: #f1e05a; stroke-width: 1.5; }
+
+        /* Чат и логи */
+        #chat-box { height: 150px; overflow-y: auto; font-size: 12px; background: #0d1117; padding: 5px; border-radius: 4px; margin-top: 10px; }
+        input[type="text"] { width: 70%; background: #0d1117; border: 1px solid #30363d; color: white; padding: 5px; border-radius: 4px; }
+        
+        button { background: var(--accent); border: none; color: white; padding: 10px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; margin-bottom: 5px; }
+        button:disabled { opacity: 0.3; cursor: not-allowed; }
+        .btn-war { background: var(--war); }
+        
+        /* Армия анимация */
+        .army-dot { width: 12px; height: 12px; background: #f1e05a; border-radius: 50%; position: absolute; pointer-events: none; z-index: 100; box-shadow: 0 0 10px #f1e05a; transition: all 1.5s ease-in-out; }
     </style>
 </head>
 <body>
 
-<div id="map"></div>
-
-<div class="res-bar">
-    <div class="res-item"><span class="res-label">Золото</span><span class="res-val" id="gold" style="color: #ffd700;">10,000</span></div>
-    <div class="res-item"><span class="res-label">Сталь</span><span class="res-val" id="steel" style="color: #aaa;">5,000</span></div>
-    <div class="res-item"><span class="res-label">Нефть</span><span class="res-val" id="oil" style="color: #ff00ff;">3,000</span></div>
-    <div class="res-item"><span class="res-label">Армия</span><span class="res-val" id="army" style="color: var(--red);">1,000</span></div>
-</div>
-
-<div class="ui-side">
-    <h2 id="country-name" style="margin: 0 0 12px 0; color: var(--blue); font-weight: 900; letter-spacing: 1px;">THE GENESIS</h2>
-    <div id="country-desc" style="font-size: 14px; color: #ccc; line-height: 1.5;">Кликните по неоновой границе на карте, чтобы возглавить нацию.</div>
+<div id="ui-left" class="glass">
+    <h2 id="current-country" style="margin:0; font-size: 18px;">Выберите страну</h2>
+    <div style="display:flex; justify-content: space-between; margin: 10px 0;">
+        <span>💰 <b id="gold">1000</b></span>
+        <span>⚔️ <b id="army">100</b></span>
+    </div>
+    <button onclick="updateStat('gold', 300)">📈 Экономика (-$200)</button>
+    <button onclick="updateStat('army', 50)">🎖 Нанять войска (-$300)</button>
+    <button id="attack-btn" class="btn-war" disabled onclick="initAttack()">🚀 ВТОРЖЕНИЕ</button>
     
-    <div id="actions" style="display: none;">
-        <div style="margin-top: 18px; font-size: 13px; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px;">
-            Статус: <span id="market-status" style="color: var(--green);">Стабилен</span><br>
-            Отношения: <span id="relation-status">Нейтралитет</span>
-        </div>
-        <div class="btn-group">
-            <button class="peace" onclick="changeDiplomacy('Мир')">Заключить Мир</button>
-            <button class="war" onclick="changeDiplomacy('Конфликт')">Объявить Войну</button>
-            <button class="trade" onclick="doTrade()">Поставка ресурсов</button>
-            <button onclick="buildArmy()">Нанять дивизию (-1к $)</button>
-        </div>
+    <div id="chat-box"><b>Система:</b> Ожидание подключения...</div>
+    <div style="margin-top:5px;">
+        <input type="text" id="chat-input" placeholder="Сообщение...">
+        <button style="width:25%; display:inline;" onclick="sendChat()">></button>
     </div>
 </div>
 
-<div class="news-feed" id="news">
-    <div class="news-item"><b>ГЛОБАЛЬНЫЙ ЭФИР:</b> Ожидание действий лидеров...</div>
+<div id="ui-right" class="glass">
+    <div style="font-size: 11px;">
+        Ваш сетевой ID: <b id="my-id" style="color:#58a6ff">...</b><br><br>
+        <input type="text" id="target-id" style="width:60%" placeholder="ID друга">
+        <button style="width:30%; display:inline; padding:5px;" onclick="connect()">ОК</button>
+    </div>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<div id="army-unit" class="army-dot" style="display:none"></div>
+<div id="map-container"></div>
+
 <script>
-    // --- 1. КРУТАЯ КАРТА (Dark Matter - неоновый стиль) ---
-    const map = L.map('map', { center: [50.0, 30.0], zoom: 4, zoomControl: false });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+    let resources = { gold: 1000, army: 100 };
+    let selectedCountry = null;
+    let peer, conn;
 
-    let game = {
-        gold: 10000, steel: 5000, oil: 3000, army: 1000, economy: 1, income: 100,
-        myCountryId: null,
-        targetCountryId: null,
-    };
-
-    const newsBox = document.getElementById('news');
-    function addNews(text, urgent = false) {
-        const time = new Date().toLocaleTimeString();
-        const item = document.createElement('div');
-        item.className = 'news-item';
-        if(urgent) item.style.color = '#ff3a3a';
-        item.innerHTML = `> [${time}] ${text}`;
-        newsBox.prepend(item);
-        if(newsBox.children.length > 8) newsBox.lastChild.remove();
-    }
-
-    function updateUI() {
-        document.getElementById('gold').innerText = Math.floor(game.gold).toLocaleString();
-        document.getElementById('steel').innerText = Math.floor(game.steel).toLocaleString();
-        document.getElementById('oil').innerText = Math.floor(game.oil).toLocaleString();
-        document.getElementById('army').innerText = Math.floor(game.army).toLocaleString();
-    }
-
-    // --- 2. ФУНКЦИИ СТИЛЯ (Неоновая подсветка) ---
-    function getDefaultStyle(feature) {
-        return { color: '#ffffff', weight: 1.5, fillColor: 'rgba(255,255,255,0.02)', fillOpacity: 0.02, className: '' };
-    }
-
-    function getHoverStyle(feature) {
-        return { color: '#ff3333', weight: 2.5, fillColor: 'rgba(255,51,51,0.1)', fillOpacity: 0.1, className: 'map-danger-zone' };
-    }
-
-    function getMyCountryStyle(feature) {
-        return { color: '#00ff88', weight: 3, fillColor: 'rgba(0,255,136,0.1)', fillOpacity: 0.1, className: 'map-danger-zone' };
-    }
-
-    let geojsonLayer;
-
-    // --- 3. ЗАГРУЗКА ТОЧНЫХ ГРАНИЦ СТРАН (География 100% точность) ---
-    // Это JSON с координатами России, США, Китая, Украины, Беларуси, Казахстана.
-    fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
-    .then(response => response.json())
-    .then(data => {
-        
-        const targetCountries = ["Russia", "USA", "China", "Ukraine", "Belarus", "Kazakhstan"];
-        
-        const filteredData = {
-            "type": "FeatureCollection",
-            "features": data.features.filter(f => targetCountries.includes(f.properties.ADMIN))
-        };
-        
-        geojsonLayer = L.geoJSON(filteredData, {
-            style: getDefaultStyle,
-            onEachFeature: onEachFeature
-        }).addTo(map);
-
+    // Отрисовка настоящей карты
+    const width = window.innerWidth, height = window.innerHeight;
+    const projection = d3.geoMercator().scale(250).translate([width / 3, height / 1.5]);
+    const path = d3.geoPath().projection(projection);
+    const svg = d3.select("#map-container").append("svg").attr("width", width).attr("height", height);// Загрузка реальных границ стран мира
+    d3.json("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/world.geojson").then(data => {
+        svg.selectAll("path")
+            .data(data.features)
+            .enter().append("path")
+            .attr("d", path)
+            .attr("class", "country")
+            .attr("id", d => d.properties.name.replace(/\s+/g, ''))
+            .on("click", function(e, d) {
+                d3.selectAll(".country").classed("highlight", false);
+                d3.select(this).classed("highlight", true);
+                selectedCountry = { id: this.id, name: d.properties.name, el: this };
+                document.getElementById('current-country').innerText = d.properties.name;
+                document.getElementById('attack-btn').disabled = false;
+            });
     });
 
-    // --- 4. ОТРИСОВКА И ЛОГИКА ---
-    function onEachFeature(feature, layer) {
-        // Добавляем игровые параметры
-        if(feature.properties.ADMIN === "Russia") feature.properties.game = { gold: 15000, army: 2000, steel: 1200, oil: 1500 };
-        if(feature.properties.ADMIN === "USA") feature.properties.game = { gold: 20000, army: 1500, steel: 900, oil: 1100 };
-        if(feature.properties.ADMIN === "China") feature.properties.game = { gold: 18000, army: 3000, steel: 1800, oil: 600 };
-        if(feature.properties.ADMIN === "Ukraine") feature.properties.game = { gold: 5000, army: 600, steel: 300, oil: 200 };
-        if(feature.properties.ADMIN === "Belarus") feature.properties.game = { gold: 4000, army: 300, steel: 200, oil: 100 };
-        if(feature.properties.ADMIN === "Kazakhstan") feature.properties.game = { gold: 7000, army: 400, steel: 400, oil: 800 };
+    // Сетевой код (PeerJS)
+    peer = new Peer();
+    peer.on('open', id => document.getElementById('my-id').innerText = id);
+    peer.on('connection', c => { conn = c; setupChat(); log("Друг вошел в игру!"); });
 
-        layer.on({
-            mouseover: function(e) {
-                if (!game.myCountryId || game.myCountryId !== feature.properties.ISO_A3) {
-                    this.setStyle(getHoverStyle(feature));
-                }
-            },
-            mouseout: function(e) {
-                if (!game.myCountryId || game.myCountryId !== feature.properties.ISO_A3) {
-                    this.setStyle(getDefaultStyle(feature));
-                }
-            },
-            click: function(e) {
-                // Если страна не выбрана — выбираем её
-                if (!game.myCountryId) {
-                    game.myCountryId = feature.properties.ISO_A3;
-                    let cData = feature.properties.game;
-                    game.gold = cData.gold; game.steel = cData.steel; game.oil = cData.oil; game.army = cData.army;
-                    document.getElementById('country-name').innerText = feature.properties.ADMIN.toUpperCase();
-                    document.getElementById('country-desc').innerText = "Ваша суверенная территория. Неоновые границы подтверждают ваш статус.";
-                    document.getElementById('actions').style.display = 'block';
-                    this.setStyle(getMyCountryStyle(feature)); // Засветили зеленым
-                    addNews(`Нация <b>${feature.properties.ADMIN}</b> выбрала вас своим лидером.`, '#00ff88');
-                } 
-                // Если это наша страна — ничего не делаем
-                else if (game.myCountryId === feature.properties.ISO_A3) {
-                    addLog("Это ваша территория.", "#4af");
-                }
-                // Если это другая страна — меню действий
-                else {
-                    game.targetCountryId = feature.properties.ISO_A3;
-                    const c = feature.properties;
-                    document.getElementById('relation-status').innerText = "Контакт: " + c.ADMIN;
-                    L.popup().setLatLng(e.latlng).setContent(`<b>${c.ADMIN}</b><br><small>Армия: ${c.game.army}<br>Золото: ${c.game.gold}</small>`).openOn(map);
-                }
-                updateUI();
-            }
+    function connect() {
+        conn = peer.connect(document.getElementById('target-id').value);
+        setupChat();
+        log("Подключаемся к штабу...");
+    }
+
+    function setupChat() {
+        conn.on('data', data => {
+            if(data.type === 'msg') log(<b>Друг:</b> ${data.val});
+            if(data.type === 'war') remoteWar(data.id);
         });
     }
 
-    function updateUI() {
-        document.getElementById('gold').innerText = Math.floor(game.gold).toLocaleString();
-        document.getElementById('steel').innerText = Math.floor(game.steel).toLocaleString();
-        document.getElementById('oil').innerText = Math.floor(game.oil).toLocaleString();
-        document.getElementById('army').innerText = Math.floor(game.army).toLocaleString();
+    function sendChat() {
+        const val = document.getElementById('chat-input').value;
+        if(conn) conn.send({type: 'msg', val});
+        log(<b>Вы:</b> ${val});
+        document.getElementById('chat-input').value = "";
     }
 
-    // Логика экономики (Доход каждую секунду)
-    setInterval(() => {
-        if(game.myCountryId) {
-            game.gold += 10; game.steel += 2; game.oil += 1; // Упрощенный доход
-            updateUI();
-        }
-    }, 1000);
+    // Механика войны
+    function initAttack() {
+        if(resources.army < 40) return alert("Мало войск!");
+        resources.army -= 40;
+        updateUI();
+        
+        const rect = selectedCountry.el.getBoundingClientRect();
+        const dot = document.getElementById('army-unit');
+        dot.style.display = "block";
+        dot.style.left = "20px"; dot.style.top = "80%";
+        
+        setTimeout(() => {
+            dot.style.left = (rect.left + rect.width/2) + "px";
+            dot.style.top = (rect.top + rect.height/2) + "px";
+        }, 100);
 
+        setTimeout(() => {
+            dot.style.display = "none";
+            selectedCountry.el.classList.add('owned-me');
+            log(Захвачена территория: ${selectedCountry.name});
+            if(conn) conn.send({type: 'war', id: selectedCountry.id});
+        }, 1600);
+    }
+
+    function remoteWar(id) {
+        document.getElementById(id).classList.add('owned-enemy');
+        log(ВРАГ ЗАХВАТИЛ ${id}!);
+    }
+
+    function updateStat(type, val) {
+        if(type === 'gold' && resources.gold >= 200) { resources.gold += val - 200; }
+        if(type === 'army' && resources.gold >= 300) { resources.army += val; resources.gold -= 300; }
+        updateUI();
+    }
+
+    function updateUI() {
+        document.getElementById('gold').innerText = resources.gold;
+        document.getElementById('army').innerText = resources.army;
+    }
+
+    function log(m) {
+        const b = document.getElementById('chat-box');
+        b.innerHTML += <div>${m}</div>;
+        b.scrollTop = b.scrollHeight;
+    }
 </script>
 </body>
 </html>
