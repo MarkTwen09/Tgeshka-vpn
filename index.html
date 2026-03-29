@@ -2,88 +2,131 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>THE EMPIRE: Глобальная Стратегия</title>
+    <title>THE EMPIRE: Global Strategy</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root { --main-red: #ff3333; --main-green: #00ff88; --bg: #050505; --ui-bg: rgba(10,10,15,0.9); }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: #fff; overflow: hidden; height: 100vh; }
-        #map { height: 100%; width: 100%; z-index: 1; filter: saturate(1.3) contrast(1.1); }
+        body { margin: 0; padding: 0; background: #000; font-family: sans-serif; height: 100vh; overflow: hidden; }
+        #map { height: 100%; width: 100%; background: #1a1a2e; }
         
-        /* Панель игрока */
-        .player-panel {
-            position: fixed; bottom: 20px; left: 20px; width: 320px;
-            background: var(--ui-bg); border: 2px solid rgba(255,51,51,0.3);
-            border-radius: 15px; padding: 15px; z-index: 1000;
-            backdrop-filter: blur(10px); color: #fff;
+        .ui-panel {
+            position: fixed; bottom: 20px; left: 20px; width: 280px;
+            background: rgba(0, 0, 0, 0.9); border: 2px solid #ff3333;
+            border-radius: 10px; padding: 15px; z-index: 1000; color: white;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
         }
-        .stat-item { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 14px; }
-        .stat-value { font-weight: bold; color: var(--main-green); }
-
-        /* Лента событий */
-        .log-panel {
-            position: fixed; top: 20px; right: 20px; width: 300px;
-            max-height: 250px; background: rgba(0,0,0,0.8);
-            border-radius: 8px; padding: 10px; font-size: 11px;
-            font-family: monospace; color: #aaa; z-index: 1000;
-            border-left: 3px solid var(--main-red); overflow-y: hidden;
+        .stat { display: flex; justify-content: space-between; margin: 5px 0; font-size: 14px; }
+        .val { color: #00ff88; font-weight: bold; }
+        
+        .log {
+            position: fixed; top: 20px; right: 20px; width: 250px;
+            background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px;
+            font-size: 11px; color: #aaa; z-index: 1000; border-left: 3px solid #ff3333;
         }
-        .log-entry { margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-        /* Стили карты Leaflet */
-        @keyframes zonePulse { 0% { fill-opacity: 0.1; } 100% { fill-opacity: 0.4; } }
-        .map-danger-zone { animation: zonePulse 1.2s infinite alternate; }
+        button { 
+            width: 100%; margin-top: 5px; padding: 5px; cursor: pointer; 
+            background: #333; color: white; border: 1px solid #555; border-radius: 3px;
+        }
+        button:hover { background: #444; }
     </style>
 </head>
 <body>
 
 <div id="map"></div>
 
-<div class="player-panel">
-    <div style="font-size: 18px; font-weight: 900; color: var(--main-red); margin-bottom: 12px; letter-spacing: 1px;">МОЯ ИМПЕРИЯ</div>
-    <div class="stat-item"><span>Лидер:</span> <span class="stat-value">Игрок #1</span></div>
-    <div class="stat-item"><span>Казна (Золото):</span> <span class="stat-value" id="gold">10,000$</span></div>
-    <div class="stat-item"><span>Армия (Солдаты):</span> <span class="stat-value" id="army">1,000 чел.</span></div>
-    <div class="stat-item"><span>Уровень Экономики:</span> <span class="stat-value" id="economy">1</span></div>
-    <div class="stat-item"><span>Доход (Ход):</span> <span class="stat-value" id="income">+100$</span></div>
+<div class="ui-panel">
+    <div style="color:#ff3333; font-weight:900; margin-bottom:10px;">МОЯ ИМПЕРИЯ</div>
+    <div class="stat">Золото: <span class="val" id="gold">10000</span></div>
+    <div class="stat">Армия: <span class="val" id="army">1000</span></div>
+    <div class="stat">Доход: <span class="val" id="inc">+100</span></div>
+    <hr style="border:0; border-top:1px solid #333; margin:10px 0;">
+    <div id="status" style="font-size:12px; color:#888;">Выберите страну на карте...</div>
 </div>
 
-<div class="log-panel" id="log-box">
-    <div class="log-entry">> [15:00:00] Старт Сессии. Выберите страну на карте.</div>
-</div>
+<div class="log" id="log">--- ЛОГ СОБЫТИЙ ---</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // --- 1. КРУТАЯ КАРТА (Dark Matter - неоновый стиль) ---
-    const map = L.map('map', { center: [50.0, 30.0], zoom: 4, zoomControl: false });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+    // 1. Создаем карту (Стандартная, чтобы точно прогрузилась)
+    const map = L.map('map', { center: [55, 60], zoom: 3, zoomControl: false });
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    const logBox = document.getElementById('log-box');
-    function addLog(msg, color = '#aaa') {
-        const time = new Date().toLocaleTimeString();
-        const entry = document.createElement('div');
-        entry.className = 'log-entry';
-        entry.style.color = color;
-        entry.innerHTML = `> [${time}] ${msg}`;
-        logBox.prepend(entry);
-        if (logBox.children.length > 10) logBox.lastChild.remove();
+    let stats = { gold: 10000, army: 1000, inc: 100, country: null };
+
+    // 2. Данные стран (координаты-боксы для начала)
+    const countries = [
+        { name: "Россия", bounds: [[41, 19], [81, 180]], army: 2000, gold: 15000 },
+        { name: "Украина", bounds: [[44, 22], [52, 40]], army: 500, gold: 5000 },
+        { name: "Казахстан", bounds: [[40, 46], [55, 87]], army: 400, gold: 6000 },
+        { name: "Беларусь", bounds: [[51, 23], [56, 32]], army: 300, gold: 4000 },
+        { name: "Китай", bounds: [[18, 73], [53, 134]], army: 3000, gold: 20000 },
+        { name: "США", bounds: [[24, -125], [49, -66]], army: 2500, gold: 25000 },
+        { name: "Европа", bounds: [[36, -10], [70, 30]], army: 1200, gold: 18000 }
+    ];
+
+    function addLog(text) {
+        const l = document.getElementById('log');
+        l.innerHTML = `<div>> ${text}</div>` + l.innerHTML;
     }
 
-    // --- 2. ГРАНИЦЫ СТРАН (Вшиты в код) ---
-    const countryData = {
-        "Russia": { coords: [[[65,30],[168,30],[168,76],[65,76],[65,30]]], name: "Российская Империя", income: 200, army: 2000, gold: 10000 },
-        "USA": { coords: [[[-125,25],[-67,25],[-67,49],[-125,49],[-125,25]]], name: "США", income: 300, army: 1500, gold: 15000 },
-        "China": { coords: [[[73,18],[135,18],[135,53],[73,53],[73,18]]], name: "КНР", income: 250, army: 3000, gold: 12000 },
-        "Germany": { coords: [[[6,47],[15,47],[15,55],[6,55],[6,47]]], name: "Германский Рейх", income: 150, army: 800, gold: 8000 },
-        "Ukraine": { coords: [[[22,44],[40,44],[40,52],[22,52],[22,44]]], name: "Украина", income: 100, army: 500, gold: 5000 }
+    // 3. Рисуем страны
+    countries.forEach(c => {
+        const rect = L.rectangle(c.bounds, {
+            color: 'white', weight: 1, fillColor: 'blue', fillOpacity: 0.1
+        }).addTo(map);
+
+        rect.on('mouseover', function() { this.setStyle({ fillOpacity: 0.4, color: '#ff3333' }); });
+        rect.on('mouseout', function() { if(stats.country !== c.name) this.setStyle({ fillOpacity: 0.1, color: 'white' }); });
+
+        rect.on('click', function() {
+            if (!stats.country) {
+                stats.country = c.name;
+                stats.gold = c.gold; stats.army = c.army;
+                document.getElementById('status').innerHTML = "ВАША СТРАНА: " + c.name;
+                this.setStyle({ fillColor: 'red', fillOpacity: 0.5 });
+                addLog("Вы возглавили: " + c.name);
+            } else {
+                const action = `<b>${c.name}</b><br>Армия: ${c.army}<br>` +
+                               `<button onclick="attack('${c.name}', ${c.army})">Атаковать</button>` +
+                               `<button onclick="trade('${c.name}')">Торговля</button>`;
+                L.popup().setLatLng(rect.getBounds().getCenter()).setContent(action).openOn(map);
+            }
+        });
+    });
+
+    // 4. Механики
+    window.attack = (name, eArmy) => {
+        if (stats.army > eArmy) {
+            stats.gold += 2000; stats.army -= Math.floor(eArmy/2);
+            addLog("ПОБЕДА над " + name + "! Захвачено +2000$");
+        } else {
+            stats.army = Math.floor(stats.army/2);
+            addLog("ПОРАЖЕНИЕ от " + name + "! Потеряно пол-армии");
+        }
+        map.closePopup();
+        updateUI();
     };
 
-    // --- 3. ИГРОВЫЕ ПЕРЕМЕННЫЕ ---
-    let player = { gold: 10000, army: 1000, economy: 1, income: 100, chosenCountry: null };
+    window.trade = (name) => {
+        stats.inc += 20;
+        addLog("Торговля с " + name + ": Доход +20");
+        map.closePopup();
+        updateUI();
+    };
 
-    // --- 4. ОТРИСОВКА И ВЗАИМОДЕЙСТВИЕ ---
-    const countryLayers = {};
+    function updateUI() {
+        document.getElementById('gold').innerText = stats.gold;
+        document.getElementById('army').innerText = stats.army;
+        document.getElementById('inc').innerText = "+" + stats.inc;
+    }
 
-    function getCountryStyle(isActive = false) {
-        return { color: isActive ? '#
+    // Цикл экономики (каждые 2 сек)
+    setInterval(() => {
+        if(stats.country) {
+            stats.gold += stats.inc;
+            updateUI();
+        }
+    }, 2000);
+
+</script>
+</body>
+</html>
