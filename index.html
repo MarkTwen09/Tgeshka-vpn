@@ -2,7 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>THE EMPIRE GENESIS | Неоновые Границы</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE EMPIRE GENESIS | ТОЧНЫЕ ГРАНИЦЫ</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root { --red: #ff3333; --green: #00ff88; --blue: #44aaff; --bg: #050505; --ui-bg: rgba(10,10,15,0.95); }
@@ -127,66 +128,76 @@
         return { color: '#00ff88', weight: 3, fillColor: 'rgba(0,255,136,0.1)', fillOpacity: 0.1, className: 'map-danger-zone' };
     }
 
-    // --- 3. ЗАГРУЗКА ТОЧНЫХ ГРАНИЦ СТРАН (GeoJSON) ---
-    // Это JSON с координатами России, США, Китая, Украины, Беларуси, Казахстана.
-    const countriesGeoJSON = {
-        "type": "FeatureCollection",
-        "features": [
-            { "type": "Feature", "properties": { "id": "RUS", "name": "Российская Федерация", "gold": 15000, "steel": 1200, "oil": 1500, "army": 2000 }, "geometry": { "type": "Polygon", "coordinates": [[[28,68],[33,70],[37,70],[40,68],[44,66],[51,66],[62,67],[64,66],[66,68],[71,70],[76,71],[82,72],[91,73],[100,75],[109,75],[117,73],[126,72],[133,70],[137,68],[142,66],[150,66],[160,67],[170,68],[175,69],[178,66],[176,64],[170,62],[166,60],[160,57],[150,55],[144,53],[138,51],[133,50],[128,48],[120,47],[110,48],[102,48],[95,49],[87,49],[80,48],[74,47],[67,46],[60,45],[52,44],[45,43],[39,44],[34,44],[29,46],[27,49],[28,52],[26,56],[28,60],[28,64],[28,68]]] } },
-            { "type": "Feature", "properties": { "id": "USA", "name": "США", "gold": 20000, "steel": 900, "oil": 1100, "army": 1500 }, "geometry": { "type": "MultiPolygon", "coordinates": [[[[ -124, 48 ], [ -120, 48 ], [ -115, 49 ], [ -110, 49 ], [ -100, 49 ], [ -95, 49 ], [ -90, 49 ], [ -85, 49 ], [ -80, 49 ], [ -75, 45 ], [ -70, 44 ], [ -67, 44 ], [ -68, 40 ], [ -70, 38 ], [ -75, 36 ], [ -80, 32 ], [ -82, 30 ], [ -80, 25 ], [ -85, 25 ], [ -90, 26 ], [ -95, 26 ], [ -100, 26 ], [ -105, 28 ], [ -110, 31 ], [ -115, 32 ], [ -120, 34 ], [ -124, 40 ], [ -124, 45 ], [ -124, 48 ]]]] } },
-            { "type": "Feature", "properties": { "id": "CHN", "name": "КНР", "gold": 18000, "steel": 1800, "oil": 600, "army": 3000 }, "geometry": { "type": "Polygon", "coordinates": [[[74,38],[76,40],[79,42],[84,43],[90,44],[98,45],[105,46],[112,47],[120,47],[125,48],[131,48],[133,45],[132,41],[130,37],[127,33],[123,28],[120,25],[115,22],[110,20],[105,20],[100,21],[95,21],[88,23],[83,24],[78,26],[74,30],[73,34],[74,38]]] } },
-            { "type": "Feature", "properties": { "id": "UKR", "name": "Украина", "gold": 5000, "steel": 300, "oil": 200, "army": 600 }, "geometry": { "type": "Polygon", "coordinates": [[[22,48],[24,51],[26,52],[30,52],[34,51],[37,51],[40,49],[40,46],[38,44],[34,44],[30,44],[26,44],[23,46],[22,48]]] } },
-            { "type": "Feature", "properties": { "id": "BLR", "name": "Беларусь", "gold": 4000, "steel": 200, "oil": 100, "army": 300 }, "geometry": { "type": "Polygon", "coordinates": [[[23,51],[25,54],[28,56],[31,56],[32,54],[32,52],[30,51],[26,51],[23,51]]] } },
-            { "type": "Feature", "properties": { "id": "KAZ", "name": "Казахстан", "gold": 7000, "steel": 400, "oil": 800, "army": 400 }, "geometry": { "type": "Polygon", "coordinates": [[[46,51],[48,53],[51,55],[55,56],[60,56],[65,56],[70,55],[75,54],[80,52],[85,50],[87,47],[87,44],[85,42],[81,41],[75,40],[70,40],[65,41],[60,41],[55,42],[51,43],[48,45],[46,48],[46,51]]] } }
-        ]
-    };
-
     let geojsonLayer;
+
+    // --- 3. ЗАГРУЗКА ТОЧНЫХ ГРАНИЦ СТРАН (География 100% точность) ---
+    // Это JSON с координатами России, США, Китая, Украины, Беларуси, Казахстана.
+    fetch('https://raw.githubusercontent.com/datasets/geo-countries/master/data/countries.geojson')
+    .then(response => response.json())
+    .then(data => {
+        
+        const targetCountries = ["Russia", "USA", "China", "Ukraine", "Belarus", "Kazakhstan"];
+        
+        const filteredData = {
+            "type": "FeatureCollection",
+            "features": data.features.filter(f => targetCountries.includes(f.properties.ADMIN))
+        };
+        
+        geojsonLayer = L.geoJSON(filteredData, {
+            style: getDefaultStyle,
+            onEachFeature: onEachFeature
+        }).addTo(map);
+
+    });
 
     // --- 4. ОТРИСОВКА И ЛОГИКА ---
     function onEachFeature(feature, layer) {
+        // Добавляем игровые параметры
+        if(feature.properties.ADMIN === "Russia") feature.properties.game = { gold: 15000, army: 2000, steel: 1200, oil: 1500 };
+        if(feature.properties.ADMIN === "USA") feature.properties.game = { gold: 20000, army: 1500, steel: 900, oil: 1100 };
+        if(feature.properties.ADMIN === "China") feature.properties.game = { gold: 18000, army: 3000, steel: 1800, oil: 600 };
+        if(feature.properties.ADMIN === "Ukraine") feature.properties.game = { gold: 5000, army: 600, steel: 300, oil: 200 };
+        if(feature.properties.ADMIN === "Belarus") feature.properties.game = { gold: 4000, army: 300, steel: 200, oil: 100 };
+        if(feature.properties.ADMIN === "Kazakhstan") feature.properties.game = { gold: 7000, army: 400, steel: 400, oil: 800 };
+
         layer.on({
             mouseover: function(e) {
-                if (!game.myCountryId || game.myCountryId !== feature.properties.id) {
+                if (!game.myCountryId || game.myCountryId !== feature.properties.ISO_A3) {
                     this.setStyle(getHoverStyle(feature));
                 }
             },
             mouseout: function(e) {
-                if (!game.myCountryId || game.myCountryId !== feature.properties.id) {
+                if (!game.myCountryId || game.myCountryId !== feature.properties.ISO_A3) {
                     this.setStyle(getDefaultStyle(feature));
                 }
             },
             click: function(e) {
                 // Если страна не выбрана — выбираем её
                 if (!game.myCountryId) {
-                    game.myCountryId = feature.properties.id;
-                    game.gold = feature.properties.gold; game.steel = feature.properties.steel; game.oil = feature.properties.oil; game.army = feature.properties.army;
-                    document.getElementById('country-name').innerText = feature.properties.name.toUpperCase();
+                    game.myCountryId = feature.properties.ISO_A3;
+                    let cData = feature.properties.game;
+                    game.gold = cData.gold; game.steel = cData.steel; game.oil = cData.oil; game.army = cData.army;
+                    document.getElementById('country-name').innerText = feature.properties.ADMIN.toUpperCase();
                     document.getElementById('country-desc').innerText = "Ваша суверенная территория. Неоновые границы подтверждают ваш статус.";
                     document.getElementById('actions').style.display = 'block';
                     this.setStyle(getMyCountryStyle(feature)); // Засветили зеленым
-                    addNews(`Нация <b>${feature.properties.name}</b> выбрала вас своим лидером.`, '#00ff88');
+                    addNews(`Нация <b>${feature.properties.ADMIN}</b> выбрала вас своим лидером.`, '#00ff88');
                 } 
                 // Если это наша страна — ничего не делаем
-                else if (game.myCountryId === feature.properties.id) {
+                else if (game.myCountryId === feature.properties.ISO_A3) {
                     addLog("Это ваша территория.", "#4af");
                 }
                 // Если это другая страна — меню действий
                 else {
-                    game.targetCountryId = feature.properties.id;
+                    game.targetCountryId = feature.properties.ISO_A3;
                     const c = feature.properties;
-                    document.getElementById('relation-status').innerText = "Контакт: " + c.name;
-                    L.popup().setLatLng(e.latlng).setContent(`<b>${c.name}</b><br><small>Армия: ${c.army}<br>Золото: ${c.gold}</small>`).openOn(map);
+                    document.getElementById('relation-status').innerText = "Контакт: " + c.ADMIN;
+                    L.popup().setLatLng(e.latlng).setContent(`<b>${c.ADMIN}</b><br><small>Армия: ${c.game.army}<br>Золото: ${c.game.gold}</small>`).openOn(map);
                 }
                 updateUI();
             }
         });
     }
-
-    geojsonLayer = L.geoJSON(countriesGeoJSON, {
-        style: getDefaultStyle,
-        onEachFeature: onEachFeature
-    }).addTo(map);
 
     function updateUI() {
         document.getElementById('gold').innerText = Math.floor(game.gold).toLocaleString();
