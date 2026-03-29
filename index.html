@@ -3,82 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SlowMail Mobile Pro</title>
+    <title>SlowMail Mobile Pro FIX</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500&display=swap');
-        body { font-family: 'Google Sans', sans-serif; background-color: #f6f8fc; -webkit-tap-highlight-color: transparent; }
-        .active-tab { background-color: #d3e3fd !important; color: #041e49 !important; font-weight: 600; }
-        .mail-card { transition: transform 0.2s, opacity 0.2s; touch-action: pan-y; position: relative; background: white; }
-        .swipe-action { position: absolute; inset: 0; display: flex; align-items: center; px: 20px; color: white; z-index: 0; }
-        @media (max-width: 768px) {
-            .desktop-sidebar { display: none; }
-            .mobile-nav { display: flex; }
-            .content-container { margin-right: 0 !important; border-radius: 0 !important; }
+        body { font-family: 'Google Sans', sans-serif; background-color: #f6f8fc; -webkit-tap-highlight-color: transparent; touch-action: pan-y; overflow: hidden; }
+        
+        /* Стили для свайпов */
+        .mail-wrapper { position: relative; overflow: hidden; background: #fff; border-bottom: 1px solid #f9fafb; cursor: grab; }
+        .swipe-bg { position: absolute; inset: 0; display: flex; align-items: center; padding: 0 25px; color: white; z-index: 0; opacity: 0; transition: opacity 0.2s; }
+        .bg-archive { background-color: #34a853; justify-content: flex-start; }
+        .bg-delete { background-color: #ea4335; justify-content: flex-end; }
+        
+        .mail-content { 
+            position: relative; 
+            background: white; 
+            z-index: 10; 
+            transition: transform 0.1s ease-out; 
+            user-select: none;
+        }
+        
+        .removed { transform: translateX(100%) !important; opacity: 0; transition: 0.4s !important; }
+        .removed-left { transform: translateX(-100%) !important; opacity: 0; transition: 0.4s !important; }
+
+        .desktop-nav { display: none; }
+        .mobile-nav { display: flex; }
+        .main-content { margin-left: 0; border-radius: 0; }
+        .mobile-active { color: #0b57d0 !important; }
+        .desktop-active { background-color: #d3e3fd; color: #041e49 !important; font-weight: 500; }
+
+        /* НАДЕЖНЫЕ МЕДИА-ЗАПРОСЫ ДЛЯ МОБИЛЬНЫХ */
+        @media screen and (min-width: 768px) {
+            .desktop-nav { display: flex !important; }
+            .mobile-nav { display: none !important; }
+            .main-content { margin-left: 256px !important; border-radius: 24px !important; margin-right: 16px !important; }
+            .mail-card { transition: none !important; cursor: pointer; }
         }
     </style>
 </head>
-<body class="h-screen flex flex-col overflow-hidden">
+<body class="h-screen flex flex-col">
 
-    <header class="h-14 md:h-16 flex items-center justify-between px-4 bg-[#f6f8fc] z-50">
+    <header class="h-16 flex items-center justify-between px-4 bg-white border-b border-gray-200 z-50">
         <div class="flex items-center gap-3">
-            <i class="material-icons-outlined md:block hidden p-2 hover:bg-gray-200 rounded-full cursor-pointer">menu</i>
-            <img src="https://i.ibb.co/LzdS0mK/1000140751.png" class="w-8 h-8 md:w-10 md:h-10 rounded-lg shadow-sm">
-            <span class="text-xl md:text-2xl text-[#5f6368] font-medium">SlowMail</span>
+            <img src="https://marktwen09.github.io/SlowMail/Logo.png" class="w-9 h-9 rounded-lg" onerror="this.src='https://i.ibb.co/S3D6x3f/placeholder-S.png'" alt="S">
+            <span class="text-2xl text-gray-500 font-normal">SlowMail</span>
         </div>
-        <div class="flex items-center gap-2">
-            <div class="w-8 h-8 md:w-10 md:h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">S</div>
-        </div>
+        <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-md">S</div>
     </header>
 
     <div class="flex flex-1 overflow-hidden relative">
-        <aside class="desktop-sidebar w-64 pt-2 pr-4 flex flex-col gap-1">
-            <button onclick="openCompose()" class="flex items-center gap-4 bg-[#c2e7ff] hover:shadow-lg py-5 px-7 rounded-2xl font-medium text-gray-800 mb-4 ml-2 transition-all">
-                <i class="material-icons-outlined">edit</i> Написать
+        <aside class="desktop-nav fixed left-0 top-16 bottom-16 w-64 p-3 flex-col gap-1 border-r border-gray-100 bg-white">
+            <button onclick="openCompose()" class="flex items-center gap-4 bg-[#c2e7ff] hover:shadow-lg py-4 px-7 rounded-2xl font-medium mb-6 mt-2 w-max transition-all active:scale-95">
+                <i class="material-icons-outlined text-2xl">edit</i> Написать
             </button>
-            <div onclick="switchTab('inbox')" id="d-inbox" class="active-tab flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm cursor-pointer hover:bg-gray-200 transition-colors">
+            <div id="d-inbox" onclick="switchTab('inbox')" class="desktop-active flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm cursor-pointer transition-colors">
                 <i class="material-icons-outlined">inbox</i> Входящие
             </div>
-            <div onclick="switchTab('sent')" id="d-sent" class="flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-200">
-                <i class="material-icons-outlined">send</i> Отправленные
+            <div id="d-sent" onclick="switchTab('sent')" class="flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-100 transition-colors"><i class="material-icons-outlined">send</i> Отправленные
             </div>
-            <div onclick="switchTab('trash')" id="d-trash" class="flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-200">
+            <div id="d-trash" onclick="switchTab('trash')" class="flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-100">
                 <i class="material-icons-outlined">delete_outline</i> Корзина
-            </div>
-            <div onclick="switchTab('spam')" id="d-spam" class="flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-200">
-                <i class="material-icons-outlined">report_gmailerrorred</i> Спам
             </div>
         </aside>
 
-        <main class="content-container flex-1 bg-white md:my-2 md:mr-4 md:rounded-3xl shadow-sm border border-gray-100 flex flex-col overflow-hidden">
-            <div id="search-bar" class="p-3 border-b border-gray-50 flex items-center gap-3">
-                <div class="flex-1 bg-[#eaf1fb] rounded-xl flex items-center px-4 py-2">
-                    <i class="material-icons-outlined text-gray-500 mr-3">search</i>
-                    <input type="text" placeholder="Поиск в почте" class="bg-transparent outline-none w-full text-sm">
+        <main class="main-content flex-1 bg-white my-2 rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col">
+            <div class="p-4 border-b text-gray-400 text-[10px] font-bold uppercase tracking-widest hidden md:block">SlowMail Pro</div>
+            <div id="mail-list" class="overflow-y-auto flex-1 divide-y divide-gray-50">
                 </div>
-            </div><div id="mail-list" class="flex-1 overflow-y-auto divide-y divide-gray-50">
-                </div>
-            
-            <button onclick="openCompose()" class="md:hidden fixed bottom-20 right-6 w-14 h-14 bg-[#c2e7ff] rounded-2xl shadow-xl flex items-center justify-center text-gray-800 z-40">
+            <button onclick="openCompose()" class="md:hidden fixed bottom-20 right-6 w-14 h-14 bg-[#c2e7ff] rounded-full shadow-2xl flex items-center justify-center text-gray-800 z-40 active:scale-95">
                 <i class="material-icons-outlined text-3xl">edit</i>
             </button>
         </main>
     </div>
 
-    <nav class="mobile-nav hidden h-16 bg-[#f6f8fc] border-t flex items-center justify-around text-gray-500 z-50">
-        <div onclick="switchTab('inbox')" id="m-inbox" class="flex flex-col items-center gap-1 opacity-100 text-blue-800">
-            <i class="material-icons-outlined">inbox</i><span class="text-[10px]">Почта</span>
+    <nav class="mobile-nav fixed bottom-0 left-0 right-0 h-16 bg-white border-t border-gray-200 flex items-center justify-around text-gray-500 z-50 px-2">
+        <div onclick="switchTab('inbox')" id="m-inbox" class="flex flex-col items-center gap-1.5 mobile-active cursor-pointer">
+            <div class="bg-blue-100 rounded-full px-5 py-1 flex items-center justify-center"><i class="material-icons-outlined text-2xl">inbox</i></div>
+            <span class="text-[10px] font-medium">Почта</span>
         </div>
-        <div onclick="switchTab('sent')" id="m-sent" class="flex flex-col items-center gap-1">
-            <i class="material-icons-outlined">send</i><span class="text-[10px]">Отправленные</span>
+        <div onclick="switchTab('sent')" id="m-sent" class="flex flex-col items-center gap-1 cursor-pointer">
+            <i class="material-icons-outlined text-2xl">send</i>
+            <span class="text-[10px] font-medium">Отправленные</span>
         </div>
-        <div onclick="switchTab('trash')" id="m-trash" class="flex flex-col items-center gap-1">
-            <i class="material-icons-outlined">delete_outline</i><span class="text-[10px]">Корзина</span>
+        <div onclick="switchTab('trash')" id="m-trash" class="flex flex-col items-center gap-1 cursor-pointer">
+            <i class="material-icons-outlined text-2xl">delete_outline</i>
+            <span class="text-[10px] font-medium">Корзина</span>
         </div>
     </nav>
 
-    <div id="composeModal" class="hidden fixed inset-0 md:inset-auto md:bottom-0 md:right-10 md:w-[500px] bg-white md:rounded-t-2xl shadow-2xl z-[100] flex flex-col">
+    <div id="composeModal" class="hidden fixed inset-0 md:inset-auto md:bottom-0 md:right-10 md:w-[500px] bg-white md:rounded-t-2xl shadow-2xl z-[100] flex flex-col transition-all duration-300">
         <div class="bg-[#f2f6fc] p-4 flex justify-between items-center md:rounded-t-2xl border-b">
             <span class="font-bold text-gray-700">Новое письмо</span>
             <i onclick="closeCompose()" class="material-icons-outlined cursor-pointer p-1 hover:bg-gray-200 rounded">close</i>
@@ -86,32 +100,86 @@
         <div class="p-4 flex flex-col gap-3 flex-1">
             <input id="inp-to" type="email" placeholder="Кому" class="border-b py-2 outline-none text-sm w-full">
             <input id="inp-sub" type="text" placeholder="Тема" class="border-b py-2 outline-none text-sm w-full">
-            <textarea id="inp-msg" class="flex-1 outline-none text-sm resize-none py-2" placeholder="Текст сообщения..."></textarea>
+            <textarea id="inp-msg" rows="12" class="flex-1 outline-none text-sm resize-none py-2" placeholder="Текст сообщения..."></textarea>
             <div class="flex items-center justify-between pt-4 border-t">
-                <button onclick="sendMail()" class="bg-[#0b57d0] text-white px-8 py-2.5 rounded-full font-bold shadow-md active:scale-95 transition-all">Отправить</button>
-                <i onclick="closeCompose()" class="material-icons-outlined text-gray-400 p-2 hover:bg-red-50 hover:text-red-500 rounded-full cursor-pointer">delete</i>
+                <button onclick="alert('Отправлено (имитация)')" class="bg-[#0b57d0] text-white px-10 py-2.5 rounded-full font-bold shadow-md active:scale-95">Отправить</button>
             </div>
         </div>
     </div>
 
     <script>
-        let currentTab = 'inbox';
+        // Имитация базы писем
         let mails = [
-            { id: 1, from: 'SlowMail Team', sub: 'Добро пожаловать!', msg: 'Это ваша настоящая почта. Попробуйте свайпать письма!', tab: 'inbox', time: '22:10' },
-            { id: 2, from: 'Brawl Stars', sub: 'Новый скин на Спайка', msg: 'Заходи в игру и забери подарок!', tab: 'inbox', time: '18:30' },
-            { id: 3, from: 'Мама', sub: 'Ужин готов', msg: 'Иди кушать, всё на столе.', tab: 'inbox', time: '14:20' }
+            { id: 1, from: 'SlowMail Support', sub: 'Настоящая копия готова!', msg: 'Дизайн исправлен, свайпы работают влево и вправо. Проверь.', tab: 'inbox', time: '12:00' },
+            { id: 2, from: 'Друг', sub: 'Зацени SlowMail', msg: 'Привет, Марк! Кажется, твоя копия Gmail готова.', tab: 'inbox', time: '11:30' }
         ];
+        let currentTab = 'inbox';
 
-        function render() {
+        // ЛОГИКА СВАЙПОВ (Нативный JS)
+        let startX = 0;
+        let currentElement = null;function startSwipe(e) {
+            currentElement = e.currentTarget;
+            startX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            currentElement.style.transition = 'none';
+            
+            const events = e.type.includes('touch') ? ['touchmove', 'touchend'] : ['mousemove', 'mouseup'];
+            document.addEventListener(events[0], moveSwipe);
+            document.addEventListener(events[1], endSwipe);
+        }
+
+        function moveSwipe(e) {
+            if (!currentElement) return;
+            const x = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+            const walk = x - startX;
+            currentElement.style.transform = translateX(${walk}px);
+            
+            const wrapper = currentElement.parentElement;
+            if (walk > 50) {
+                wrapper.querySelector('.bg-archive').style.opacity = 1;
+                wrapper.querySelector('.bg-delete').style.opacity = 0;
+            } else if (walk < -50) {
+                wrapper.querySelector('.bg-archive').style.opacity = 0;
+                wrapper.querySelector('.bg-delete').style.opacity = 1;
+            }
+        }
+
+        function endSwipe(e) {
+            if (!currentElement) return;
+            const endX = e.type.includes('touchend') ? e.changedTouches[0].clientX : e.clientX;
+            const walk = endX - startX;
+            currentElement.style.transition = 'transform 0.3s ease';
+
+            if (walk > 150) { // Свайп вправо
+                currentElement.classList.add('removed');
+                setTimeout(() => currentElement.parentElement.remove(), 400);
+            } else if (walk < -150) { // Свайп влево
+                currentElement.classList.add('removed-left');
+                setTimeout(() => currentElement.parentElement.remove(), 400);
+            } else {
+                currentElement.style.transform = 'translateX(0)';
+            }
+
+            currentElement = null;
+            document.removeEventListener('mousemove', moveSwipe);
+            document.removeEventListener('mouseup', endSwipe);
+            document.removeEventListener('touchmove', moveSwipe);
+            document.removeEventListener('touchend', endSwipe);
+        }
+
+        // Логика отрисовки и переключения табов
+        function renderMails() {
             const list = document.getElementById('mail-list');
             const filtered = mails.filter(m => m.tab === currentTab);
-            list.innerHTML = filtered.length ? '' : '<div class="p-20 text-center text-gray-400 italic">Пусто</div>';
+            list.innerHTML = filtered.length ? '' : '<div class="p-20 text-center text-gray-400 text-sm italic">Здесь пока пусто...</div>';
 
             filtered.forEach(m => {
-                list.innerHTML += `
-                    <div class="mail-card overflow-hidden" id="mail-${m.id}">
-                        <div class="mail-content p-4 flex items-start gap-4 active:bg-gray-50 transition-colors" onclick="alert('Письмо от: ${m.from}\\n\\n${m.msg}')">
-                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold shrink-0">${m.from[0]}</div><div class="flex-1 min-w-0">
+                list.innerHTML += 
+                    <div class="mail-wrapper border-b border-gray-50">
+                        <div class="swipe-bg bg-archive"><i class="material-icons-outlined">archive</i></div>
+                        <div class="swipe-bg bg-delete"><i class="material-icons-outlined">delete</i></div>
+                        <div class="mail-content p-4 flex items-start gap-4" onmousedown="startSwipe(event)" ontouchstart="startSwipe(event)">
+                            <div class="w-10 h-10 bg-green-100 text-green-700 rounded-full flex items-center justify-center font-bold text-sm shrink-0">A</div>
+                            <div class="flex-1 min-w-0">
                                 <div class="flex justify-between items-center mb-0.5">
                                     <span class="font-bold text-sm text-gray-900 truncate">${m.from}</span>
                                     <span class="text-xs text-gray-500">${m.time}</span>
@@ -121,49 +189,45 @@
                             </div>
                         </div>
                     </div>
-                `;
+                ;
             });
             updateNavUI();
-        }
-
-        function switchTab(tab) {
+        }function switchTab(tab) {
             currentTab = tab;
-            render();
+            renderMails();
         }
 
         function updateNavUI() {
-            // Desktop
-            ['inbox', 'sent', 'trash', 'spam'].forEach(t => {
-                document.getElementById('d-'+t).className = (t === currentTab) ? 'sidebar-active active-tab flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm cursor-pointer' : 'flex items-center gap-4 px-6 py-2.5 rounded-r-full text-sm text-gray-600 cursor-pointer hover:bg-gray-200';
+            // Desktop UI
+            ['inbox', 'sent', 'trash'].forEach(t => {
+                const el = document.getElementById('d-'+t);
+                if(t === currentTab) el.classList.add('desktop-active');
+                else el.classList.remove('desktop-active');
             });
-            // Mobile
+            // Mobile UI
             ['inbox', 'sent', 'trash'].forEach(t => {
                 const el = document.getElementById('m-'+t);
-                if (t === currentTab) { el.classList.add('text-blue-800'); el.classList.remove('text-gray-500'); }
-                else { el.classList.remove('text-blue-800'); el.classList.add('text-gray-500'); }
+                const icon = el.querySelector('i');
+                if(t === currentTab) {
+                    el.classList.add('mobile-active');
+                    icon.style.color = '#0b57d0';
+                    icon.classList.remove('material-icons-outlined');
+                    icon.classList.add('material-icons');
+                } else {
+                    el.classList.remove('mobile-active');
+                    icon.style.color = '#5f6368';
+                    icon.classList.remove('material-icons');
+                    icon.classList.add('material-icons-outlined');
+                }
             });
         }
 
+        // Функции окна отправки
         function openCompose() { document.getElementById('composeModal').classList.remove('hidden'); }
         function closeCompose() { document.getElementById('composeModal').classList.add('hidden'); }
 
-        function sendMail() {
-            const to = document.getElementById('inp-to').value;
-            const sub = document.getElementById('inp-sub').value;
-            const msg = document.getElementById('inp-msg').value;
-            if(!to) return alert("Введите адрес");
-
-            mails.push({ id: Date.now(), from: to, sub: sub, msg: msg, tab: 'sent', time: 'Сейчас' });
-            closeCompose();
-            alert("Отправлено!");
-            render();
-            
-            document.getElementById('inp-to').value = '';
-            document.getElementById('inp-sub').value = '';
-            document.getElementById('inp-msg').value = '';
-        }
-
-        render();
+        // По умолчанию грузим Входящие
+        renderMails();
     </script>
 </body>
 </html>
