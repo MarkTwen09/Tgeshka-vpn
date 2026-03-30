@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: GLOW & PULSE V13.0</title>
+    <title>SO2: FULL ACCESS V13.1</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -52,12 +52,16 @@
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 30px; overflow-y: auto; max-height: 50vh; width: 100%; }
         .card { background: var(--glass); padding: 15px; border-radius: 22px; text-align: center; border: 1px solid var(--border); position: relative; transition: 0.2s; }
         
-        /* РЫНОК КРАСОТА */
         .market-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .price-change-row { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 900; }
         .price-up { color: var(--up); } .price-down { color: var(--down); }
 
-        /* ЭФФЕКТЫ ОКНА ВЫИГРЫША (ВОССТАНОВЛЕНО) */
+        /* ВЫБОР КЕЙСОВ */
+        .case-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 15px; }
+        .case-card { background: var(--glass); padding: 8px; border-radius: 15px; border: 1px solid var(--border); text-align: center; cursor: pointer; font-size: 10px; }
+        .case-card.active { border-color: var(--blue); background: rgba(0, 210, 255, 0.1); }
+
+        /* ЭФФЕКТЫ */
         .glow-circle { 
             position: absolute; width: 320px; height: 320px; 
             background: radial-gradient(circle, var(--rarity-color) 0%, transparent 70%);
@@ -96,7 +100,7 @@
             <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
             <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
         </div>
-        <div style="font-size: 12px; opacity: 0.4;">V13.0 • kaoface</div>
+        <div style="font-size: 12px; opacity: 0.4;">V13.1 • kaoface</div>
     </div>
 
     <div class="mission-panel" id="missionBox">
@@ -112,6 +116,12 @@
     </div>
 
     <div id="shop" class="view" style="display: block;">
+        <div class="case-selector">
+            <div id="c0" class="case-card" onclick="setCase(0)">🔘 100S</div>
+            <div id="c1" class="case-card active" onclick="setCase(1)">📦 250G</div>
+            <div id="c2" class="case-card" onclick="setCase(2)">📦 500G</div>
+            <div id="c3" class="case-card" onclick="setCase(3)">🔪 1500G</div>
+        </div>
         <div class="roulette-container"><div class="pointer"></div><div id="track" class="track"></div></div>
         <button id="spinBtn" class="btn-main" onclick="openCase()">Открыть</button>
     </div>
@@ -153,9 +163,41 @@
             silver: parseInt(localStorage.getItem('v12_silver')) || 1000,
             inv: JSON.parse(localStorage.getItem('v12_inv')) || [],
             market: JSON.parse(localStorage.getItem('v12_market')) || SKINS.map(s => ({id: s.id, cur: s.p, chg: 0, old: s.p})),
-            lastWin: null, selCraft: [],
-            mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
+            curCase: 1, lastWin: null, mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
         };
+
+        function setCase(i) {
+            state.curCase = i;
+            document.querySelectorAll('.case-card').forEach(c => c.classList.remove('active'));
+            document.getElementById('c'+i).classList.add('active');
+        }
+
+        function openCase() {
+            const costs = [{s:100}, {g:250}, {g:500}, {g:1500}];
+            const cost = costs[state.curCase];
+            if(cost.g && state.money < cost.g) return alert("Мало Gold!");
+            if(cost.s && state.silver < cost.s) return alert("Мало Silver!");
+            
+            if(cost.g) state.money -= cost.g; else state.silver -= cost.s;
+            if(state.curCase === 0) checkMission('open_silver');
+            
+            sync();
+            const track = document.getElementById('track');
+            track.style.transition = 'none'; track.style.transform = 'translateX(0)'; track.innerHTML = '';
+            let win;
+            const getSkin = () => {
+                const rng = Math.random();
+                if(rng < 0.005) return SKINS[Math.floor(Math.random()*2)+5];
+                if(rng < 0.06) return SKINS[4]; if(rng < 0.18) return SKINS[3];
+                return SKINS[Math.floor(Math.random()*3)];
+            };
+            for(let i=0; i<60; i++) {
+                const s = getSkin(); if(i === 52) win = s;
+                track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${s.i}</div>`;
+            }
+            setTimeout(() => { track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0, 1)'; track.style.transform = `translateX(-${52*122 - (window.innerWidth/2 - 61)}px)`; }, 50);
+            setTimeout(() => { state.lastWin = win; showWin(win); }, 6200);
+        }
 
         function updateMarket() {
             state.market.forEach(item => {
@@ -168,6 +210,18 @@
             sync();
         }
         setInterval(updateMarket, 6000);
+
+        function showWin(win) {
+            document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
+            document.getElementById('winIcon').innerText = win.i;
+            document.getElementById('winIcon').style.color = `var(--${win.rar})`;
+            document.getElementById('winName').innerText = win.name;
+            const rt = document.getElementById('winRarity');
+            rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
+            const price = Math.floor(state.market.find(m => m.id === win.id).cur * 0.8);
+            document.getElementById('sellBtnWin').innerText = `Продать за ${price} ${win.currency}`;
+            document.getElementById('winOverlay').style.display = 'flex';
+        }
 
         function checkMission(type, amount = 1) {
             const m = MISSIONS[state.mission.typeIdx];
@@ -192,49 +246,20 @@
             sync();
         }
 
-        function openCase() {
-            if(state.money < 250) return alert("Мало Gold!");
-            state.money -= 250; sync();
-            const track = document.getElementById('track');
-            track.style.transition = 'none'; track.style.transform = 'translateX(0)'; track.innerHTML = '';
-            let win;
-            const getSkin = () => {
-                const rng = Math.random();
-                if(rng < 0.005) return SKINS[Math.floor(Math.random()*2)+5];
-                if(rng < 0.06) return SKINS[4]; if(rng < 0.18) return SKINS[3];
-                return SKINS[Math.floor(Math.random()*3)];
-            };
-            for(let i=0; i<60; i++) {
-                const s = getSkin(); if(i === 52) win = s;
-                track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${s.i}</div>`;
-            }
-            setTimeout(() => { track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0, 1)'; track.style.transform = `translateX(-${52*122 - (window.innerWidth/2 - 61)}px)`; }, 50);
-            setTimeout(() => { state.lastWin = win; showWin(win); }, 6200);
-        }
-
-        function showWin(win) {
-            document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
-            document.getElementById('winIcon').innerText = win.i;
-            document.getElementById('winIcon').style.setProperty('--rarity-color', `var(--${win.rar})`);
-            document.getElementById('winName').innerText = win.name;
-            const rt = document.getElementById('winRarity');
-            rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
-            const mPrice = state.market.find(m => m.id === win.id);
-            document.getElementById('sellBtnWin').innerText = `Продать за ${Math.floor(mPrice.cur*0.8)} G`;
-            document.getElementById('winOverlay').style.display = 'flex';
-        }
-
         function takeWin() { state.inv.unshift(state.lastWin); document.getElementById('winOverlay').style.display = 'none'; sync(); }
         function sellWin() { 
             const p = Math.floor(state.market.find(m => m.id === state.lastWin.id).cur * 0.8);
-            state.money += p; checkMission('sell');
-            document.getElementById('winOverlay').style.display = 'none'; sync(); 
+            if(state.lastWin.currency === "G") state.money += p; else state.silver += p;
+            checkMission('sell'); document.getElementById('winOverlay').style.display = 'none'; sync(); 
         }
 
         function buyMarket(id) {
             const mData = state.market.find(m => m.id === id);
-            if(state.money < mData.cur) return alert("Мало G!");
-            state.money -= mData.cur; state.inv.unshift({...SKINS.find(x => x.id === id)}); sync();
+            const skin = SKINS.find(x => x.id === id);
+            if(skin.currency === "G" && state.money < mData.cur) return alert("Мало Gold!");
+            if(skin.currency === "S" && state.silver < mData.cur) return alert("Мало Silver!");
+            if(skin.currency === "G") state.money -= mData.cur; else state.silver -= mData.cur;
+            state.inv.unshift({...skin}); sync();
         }
 
         function sync() {
@@ -262,7 +287,7 @@
                 state.market.forEach(m => {
                     const s = SKINS.find(x => x.id === m.id);
                     const col = m.cur >= m.old ? 'price-up' : 'price-down';
-                    mg.innerHTML += `<div class="card" onclick="buyMarket(${s.id})"><div class="market-header"><span>${s.i}</span><div class="price-change-row ${col}">${m.chg}%</div></div><div style="font-size:10px">${s.name}</div><b>${m.cur}G</b></div>`;
+                    mg.innerHTML += `<div class="card" onclick="buyMarket(${s.id})"><div class="market-header"><span>${s.i}</span><div class="price-change-row ${col}">${m.chg}%</div></div><div style="font-size:10px">${s.name}</div><b>${m.cur}${s.currency}</b></div>`;
                 });
             }
         }
