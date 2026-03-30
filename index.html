@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: FULL RECOVERY V12.5</title>
+    <title>SO2: TRADER ULTIMATE V12.6</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -42,9 +42,12 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 40px; overflow-y: auto; max-height: 55vh; width: 100%; }
-        .card { background: var(--glass); padding: 20px; border-radius: 28px; text-align: center; border: 1px solid var(--border); position: relative; }
+        .card { background: var(--glass); padding: 20px; border-radius: 28px; text-align: center; border: 1px solid var(--border); position: relative; transition: 0.2s; }
+        .card.selected { border: 2px solid var(--up); box-shadow: 0 0 15px rgba(0,255,136,0.2); }
 
-        /* ВЫБОР КЕЙСОВ */
+        .price-change { font-size: 10px; position: absolute; top: 10px; right: 10px; font-weight: bold; }
+        .price-up { color: var(--up); } .price-down { color: var(--down); }
+
         .case-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
         .case-card { background: var(--glass); padding: 10px; border-radius: 20px; border: 1px solid var(--border); text-align: center; cursor: pointer; font-size: 11px; }
         .case-card.active { border-color: var(--blue); background: rgba(0, 210, 255, 0.1); }
@@ -58,10 +61,7 @@
         }
         @keyframes pulse { 0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.3); } }
         
-        .win-item-icon { 
-            font-size: 110px; margin-bottom: 20px; filter: drop-shadow(0 0 30px var(--rarity-color)); 
-            animation: float 3s infinite ease-in-out; 
-        }
+        .win-item-icon { font-size: 110px; margin-bottom: 20px; animation: float 3s infinite ease-in-out; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
 
         .roulette-container { height: 140px; background: rgba(0,0,0,0.4); border-radius: 28px; position: relative; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border); }
@@ -70,6 +70,7 @@
         .pointer { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff3e3e; z-index: 10; transform: translateX(-50%); }
 
         .btn-main { width: 100%; padding: 20px; border: none; border-radius: 22px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; }
+        .btn-main:disabled { opacity: 0.3; cursor: not-allowed; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,7,12,0.96); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(20px); }
         .modal { background: #121929; padding: 30px; border-radius: 35px; border: 1px solid var(--border); width: 90%; max-width: 400px; text-align: center; }
     </style>
@@ -81,7 +82,7 @@
             <div class="balance-item"><label>Золото</label><b class="gold-txt"><span id="money">0</span> G</b></div>
             <div class="balance-item"><label>Серебро</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
         </div>
-        <div style="font-size: 14px; opacity: 0.5;">ID: kaoface</div>
+        <div style="font-size: 14px; opacity: 0.5;">kaoface</div>
     </div>
 
     <div class="tabs">
@@ -104,14 +105,18 @@
 
     <div id="inv" class="view"><div id="invGrid" class="grid"></div></div>
     <div id="market" class="view"><div id="marketGrid" class="grid"></div></div>
-    <div id="craft" class="view"><div id="craftGrid" class="grid"></div><button id="craftBtn" class="btn-main" disabled onclick="doCraft()">Крафт (10 шт)</button></div>
+    <div id="craft" class="view">
+        <div style="text-align:center; margin-bottom:10px;">Выбрано: <span id="selCount">0</span>/10</div>
+        <button id="craftBtn" class="btn-main" style="margin-bottom:15px;" disabled onclick="doCraft()">Скрафтить</button>
+        <div id="craftGrid" class="grid"></div>
+    </div>
 
     <div id="winOverlay" class="overlay">
         <div style="text-align:center">
             <div id="rarityGlow" class="glow-circle"></div>
             <div id="winIcon" class="win-item-icon">🔫</div>
-            <h2 id="winName" style="font-size: 28px; margin: 0;">Item</h2>
-            <p id="winRarity" style="font-weight: 900; letter-spacing: 2px; margin: 10px 0 30px;"></p>
+            <h2 id="winName" style="margin:0">Item</h2>
+            <p id="winRarity" style="font-weight:900; letter-spacing:2px; margin:10px 0 30px;"></p>
             <button class="btn-main" onclick="takeWin()">В инвентарь</button>
             <button class="btn-main" style="background:none; color:#555; margin-top:10px;" id="sellBtnWin" onclick="sellWin()">Продать (-20%)</button>
         </div>
@@ -119,11 +124,11 @@
 
     <div id="confirmOverlay" class="overlay">
         <div class="modal">
-            <h3 style="margin-top:0">Подтверждение</h3>
-            <p id="confirmText" style="opacity: 0.8; margin-bottom: 25px;"></p>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn-main" style="background: #222; color: #fff;" onclick="closeConfirm()">Отмена</button>
-                <button class="btn-main" id="confirmOk" style="background: var(--up);">Продать</button>
+            <h3 style="margin-top:0">Точно продать?</h3>
+            <p id="confirmText" style="opacity:0.8; margin-bottom:25px;"></p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-main" style="background:#222; color:#fff;" onclick="closeConfirm()">Нет</button>
+                <button class="btn-main" id="confirmOk" style="background:var(--up);">Да</button>
             </div>
         </div>
     </div>
@@ -139,19 +144,32 @@
             { id: 6, name: "Butterfly | Star", rar: "arcane", p: 24000, i: "🦋", currency: "G" }
         ];
 
+        const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "arcane"];
+
         let state = {
             money: parseInt(localStorage.getItem('v12_money')) || 1000,
             silver: parseInt(localStorage.getItem('v12_silver')) || 1000,
             inv: JSON.parse(localStorage.getItem('v12_inv')) || [],
-            curCase: 1, lastWin: null
+            market: JSON.parse(localStorage.getItem('v12_market')) || SKINS.map(s => ({id: s.id, cur: s.p, chg: 0})),
+            curCase: 1, lastWin: null, selCraft: []
         };
+
+        function updateMarket() {
+            state.market.forEach(item => {
+                const move = (Math.random() - 0.5) * 0.1;
+                item.chg = (move * 100).toFixed(1);
+                item.cur = Math.max(Math.floor(item.cur * (1 + move)), 5);
+            });
+            sync();
+        }
+        setInterval(updateMarket, 5000);
 
         function tab(name) {
             document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.getElementById(name).style.display = 'block';
             document.getElementById('t-'+name).classList.add('active');
-            sync();
+            state.selCraft = []; sync();
         }
 
         function setCase(i) {
@@ -165,14 +183,12 @@
             const cost = costs[state.curCase];
             if(cost.g && state.money < cost.g) return alert("Мало G!");
             if(cost.s && state.silver < cost.s) return alert("Мало S!");
-
             if(cost.g) state.money -= cost.g; else state.silver -= cost.s;
             sync();
 
             const track = document.getElementById('track');
             track.style.transition = 'none'; track.style.transform = 'translateX(0)';
             track.innerHTML = '';
-            
             let win;
             const pools = [[0,1,2], [0,1,2], [1,2,3,4], [3,4,5,6]]; 
             for(let i=0; i<60; i++) {
@@ -180,7 +196,6 @@
                 if(i === 52) win = s;
                 track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${s.i}</div>`;
             }
-            
             setTimeout(() => {
                 track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0, 1)';
                 track.style.transform = `translateX(-${52 * 122 - (window.innerWidth/2 - 61)}px)`;
@@ -194,14 +209,16 @@
             document.getElementById('winName').innerText = win.name;
             const rt = document.getElementById('winRarity');
             rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
-            document.getElementById('sellBtnWin').innerText = `Продать за ${Math.floor(win.p*0.8)} ${win.currency}`;
+            const price = state.market.find(m => m.id === win.id).cur;
+            document.getElementById('sellBtnWin').innerText = `Продать за ${Math.floor(price*0.8)} ${win.currency}`;
             document.getElementById('winOverlay').style.display = 'flex';
         }
 
-        function sellItemWithConfirm(idx) {
+        function sellWithConfirm(idx) {
             const it = state.inv[idx];
-            const p = Math.floor(it.p * 0.8);
-            document.getElementById('confirmText').innerText = `Продать ${it.name} за ${p} ${it.currency}? (Комиссия 20%)`;
+            const price = state.market.find(m => m.id === it.id).cur;
+            const p = Math.floor(price * 0.8);
+            document.getElementById('confirmText').innerText = `${it.name} за ${p} ${it.currency}? (Комиссия 20%)`;
             document.getElementById('confirmOverlay').style.display = 'flex';
             document.getElementById('confirmOk').onclick = () => {
                 if(it.currency === "G") state.money += p; else state.silver += p;
@@ -209,23 +226,71 @@
             };
         }
 
-        function closeConfirm() { document.getElementById('confirmOverlay').style.display = 'none'; }
-        function takeWin() { state.inv.unshift(state.lastWin); document.getElementById('winOverlay').style.display = 'none'; sync(); }
-        function sellWin() { 
-            const p = Math.floor(state.lastWin.p * 0.8);
-            if(state.lastWin.currency === "G") state.money += p; else state.silver += p;
-            document.getElementById('winOverlay').style.display = 'none'; sync(); 
+        function buyMarket(id) {
+            const mData = state.market.find(m => m.id === id);
+            const s = SKINS.find(x => x.id === id);
+            if(s.currency === "G" && state.money < mData.cur) return alert("Мало G!");
+            if(s.currency === "S" && state.silver < mData.cur) return alert("Мало S!");
+            if(s.currency === "G") state.money -= mData.cur; else state.silver -= mData.cur;
+            state.inv.unshift({...s}); sync();
         }
+
+        function toggleCraft(idx) {
+            const pos = state.selCraft.indexOf(idx);
+            if(pos > -1) state.selCraft.splice(pos, 1);
+            else if(state.selCraft.length < 10) {
+                if(state.selCraft.length > 0 && state.inv[state.selCraft[0]].rar !== state.inv[idx].rar) return;
+                state.selCraft.push(idx);
+            }
+            sync();
+        }
+
+        function doCraft() {
+            const rar = state.inv[state.selCraft[0]].rar;
+            const nextRar = RARITIES[RARITIES.indexOf(rar)+1] || "arcane";
+            const possible = SKINS.filter(s => s.rar === nextRar);
+            const win = possible[Math.floor(Math.random()*possible.length)];
+            state.selCraft.sort((a,b)=>b-a).forEach(i => state.inv.splice(i,1));
+            state.selCraft = []; state.lastWin = win; showWin(win); sync();
+        }
+
+        function takeWin() { state.inv.unshift(state.lastWin); closeOverlay(); sync(); }
+        function sellWin() { 
+            const price = state.market.find(m => m.id === state.lastWin.id).cur;
+            const p = Math.floor(price * 0.8);
+            if(state.lastWin.currency === "G") state.money += p; else state.silver += p;
+            closeOverlay(); sync(); 
+        }
+        function closeOverlay() { document.getElementById('winOverlay').style.display = 'none'; }
+        function closeConfirm() { document.getElementById('confirmOverlay').style.display = 'none'; }
 
         function sync() {
             document.getElementById('money').innerText = state.money.toLocaleString();
             document.getElementById('silver').innerText = state.silver.toLocaleString();
             localStorage.setItem('v12_money', state.money); localStorage.setItem('v12_silver', state.silver);
             localStorage.setItem('v12_inv', JSON.stringify(state.inv));
+            localStorage.setItem('v12_market', JSON.stringify(state.market));
             
             const ig = document.getElementById('invGrid'); if(ig) {
                 ig.innerHTML = '';
-                state.inv.forEach((it, i) => ig.innerHTML += `<div class="card" onclick="sellItemWithConfirm(${i})"><div>${it.i}</div><div style="font-size:10px">${it.name}</div><div style="color:var(--${it.rar})">${Math.floor(it.p*0.8)}${it.currency}</div></div>`);
+                state.inv.forEach((it, i) => {
+                    const mp = state.market.find(m => m.id === it.id).cur;
+                    ig.innerHTML += `<div class="card" onclick="sellWithConfirm(${i})"><div>${it.i}</div><div style="font-size:10px">${it.name}</div><div style="color:var(--${it.rar})">${Math.floor(mp*0.8)}${it.currency}</div></div>`;
+                });
+            }
+            const mg = document.getElementById('marketGrid'); if(mg) {
+                mg.innerHTML = '';
+                state.market.forEach(m => {
+                    const s = SKINS.find(x => x.id === m.id);
+                    const col = m.chg >= 0 ? 'price-up' : 'price-down';
+                    mg.innerHTML += `<div class="card" onclick="buyMarket(${s.id})"><div class="price-change ${col}">${m.chg}%</div><div style="font-size:40px">${s.i}</div><div style="font-size:10px">${s.name}</div><b>${m.cur}${s.currency}</b></div>`;
+                });
+            }
+            const cg = document.getElementById('craftGrid'); if(cg) {
+                cg.innerHTML = '';
+                state.inv.forEach((it, i) => { if(it.rar !== "arcane") cg.innerHTML += `<div class="card ${state.selCraft.includes(i)?'selected':''}" onclick="toggleCraft(${i})"><div>${it.i}</div><div style="font-size:10px">${it.rar}</div></div>`; });
+                document.getElementById('selCount').innerText = state.selCraft.length;
+                document.getElementById('craftBtn').disabled = state.selCraft.length < 10;
             }
         }
         sync();
