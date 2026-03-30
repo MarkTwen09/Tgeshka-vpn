@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: FIXED V14.0.1</title>
+    <title>SO2: DAILY GIFT V14.0</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -25,12 +25,12 @@
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); width: 100%; max-width: 480px;
             padding: 15px 20px; border-radius: 32px; border: 1px solid var(--border); margin-bottom: 10px;
             display: flex; justify-content: space-between; align-items: center; width: 100%;
-            cursor: pointer; transition: transform 0.1s; position: relative;
+            cursor: pointer; transition: transform 0.1s; position: relative; overflow: hidden;
         }
         .header:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.07); }
         
-        /* КНОПКИ ТЕПЕРЬ ВНУТРИ ХЕДЕРА */
-        .top-btns-inline { display: flex; gap: 8px; align-items: center; }
+        /* КНОПКИ УПРАВЛЕНИЯ */
+        .top-btns { position: fixed; top: 25px; right: 20px; display: flex; gap: 8px; z-index: 100; }
         .ctrl-btn {
             width: 35px; height: 35px; background: var(--glass); border: 1px solid var(--border);
             border-radius: 10px; display: flex; align-items: center; justify-content: center;
@@ -111,18 +111,17 @@
 </head>
 <body>
 
+    <div class="top-btns">
+        <div class="ctrl-btn" onclick="openDaily()">🎁</div>
+        <div class="ctrl-btn" onclick="openPromo()">🎟️</div>
+    </div>
+
     <div class="header" onclick="clicker(event)">
         <div class="currency-row">
             <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
             <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
         </div>
-        
-        <div class="top-btns-inline">
-            <div class="ctrl-btn" onclick="openDaily()">🎁</div>
-            <div class="ctrl-btn" onclick="openPromo()">🎟️</div>
-        </div>
-
-        <div style="font-size: 10px; opacity: 0.4; text-align: right; margin-left: 10px;">ТАПАЙ ТУТ<br>V14.0.1 • kaoface</div>
+        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V14.0 • kaoface</div>
     </div>
 
     <div class="mission-panel" id="missionBox">
@@ -220,25 +219,44 @@
             mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
         };
 
+        // DAILY SYSTEM
         function openDaily() {
-            const now = Date.now(); const wait = 24 * 60 * 60 * 1000;
-            const btn = document.getElementById('claimDailyBtn'); const status = document.getElementById('dailyStatus');
+            const now = Date.now();
+            const wait = 24 * 60 * 60 * 1000;
+            const btn = document.getElementById('claimDailyBtn');
+            const status = document.getElementById('dailyStatus');
+            
             if (now - state.lastDaily < wait) {
                 const left = wait - (now - state.lastDaily);
-                const h = Math.floor(left / 3600000); const m = Math.floor((left % 3600000) / 60000);
-                status.innerText = `Бонус будет доступен через ${h}ч ${m}м`; btn.disabled = true;
-            } else { status.innerText = "Твой ежедневный бонус готов!"; btn.disabled = false; }
+                const h = Math.floor(left / 3600000);
+                const m = Math.floor((left % 3600000) / 60000);
+                status.innerText = `Бонус будет доступен через ${h}ч ${m}м`;
+                btn.disabled = true;
+            } else {
+                status.innerText = "Твой ежедневный бонус готов!";
+                btn.disabled = false;
+            }
             document.getElementById('dailyOverlay').style.display = 'flex';
         }
 
         function claimDaily() {
-            const now = Date.now(); state.lastDaily = now; localStorage.setItem('v12_last_daily', now);
-            if (Math.random() > 0.5) { const amt = Math.floor(Math.random() * 41) + 10; state.money += amt; alert(`Получено ${amt} Gold!`);
-            } else { const amt = Math.floor(Math.random() * 201) + 100; state.silver += amt; alert(`Получено ${amt} Silver!`); }
+            const now = Date.now();
+            state.lastDaily = now;
+            localStorage.setItem('v12_last_daily', now);
+            
+            if (Math.random() > 0.5) {
+                const amt = Math.floor(Math.random() * 41) + 10;
+                state.money += amt; alert(`Получено ${amt} Gold!`);
+            } else {
+                const amt = Math.floor(Math.random() * 201) + 100;
+                state.silver += amt; alert(`Получено ${amt} Silver!`);
+            }
             sync(); closeDaily();
         }
 
         function closeDaily() { document.getElementById('dailyOverlay').style.display = 'none'; }
+
+        // PROMO SYSTEM
         function openPromo() { document.getElementById('promoOverlay').style.display = 'flex'; }
         function closePromo() { document.getElementById('promoOverlay').style.display = 'none'; }
         function applyPromo() {
@@ -251,12 +269,14 @@
             } else { alert("Код не найден"); }
         }
 
+        // CLICKER
         function clicker(e) {
-            if(e.target.closest('.top-btns-inline')) return;
             state.silver += 0.01;
-            const anim = document.createElement('div'); anim.className = 'click-anim'; anim.innerText = '+0.01 S';
+            const anim = document.createElement('div');
+            anim.className = 'click-anim'; anim.innerText = '+0.01 S';
             anim.style.left = e.clientX - 20 + 'px'; anim.style.top = e.clientY - 20 + 'px';
-            document.body.appendChild(anim); setTimeout(() => anim.remove(), 600);
+            document.body.appendChild(anim);
+            setTimeout(() => anim.remove(), 600);
             sync();
         }
 
@@ -267,13 +287,15 @@
         }
 
         function openCase() {
-            const costs = [{s:100}, {g:250}, {g:500}, {g:1500}]; const cost = costs[state.curCase];
+            const costs = [{s:100}, {g:250}, {g:500}, {g:1500}];
+            const cost = costs[state.curCase];
             if(cost.g && state.money < cost.g) return alert("Мало Gold!");
             if(cost.s && state.silver < cost.s) return alert("Мало Silver!");
             if(cost.g) state.money -= cost.g; else state.silver -= cost.s;
             if(state.curCase === 0) checkMission('open_silver');
             sync();
-            const track = document.getElementById('track'); track.style.transition = 'none'; track.style.transform = 'translateX(0)'; track.innerHTML = '';
+            const track = document.getElementById('track');
+            track.style.transition = 'none'; track.style.transform = 'translateX(0)'; track.innerHTML = '';
             let win;
             const getSkin = () => {
                 const rng = Math.random();
@@ -290,7 +312,9 @@
         }
 
         function sellWithConfirm(idx) {
-            const it = state.inv[idx]; const mPrice = state.market.find(m => m.id === it.id).cur; const p = Math.floor(mPrice * 0.8);
+            const it = state.inv[idx];
+            const mPrice = state.market.find(m => m.id === it.id).cur;
+            const p = Math.floor(mPrice * 0.8);
             document.getElementById('confirmText').innerText = `${it.name} за ${p} ${it.currency}?`;
             document.getElementById('confirmOverlay').style.display = 'flex';
             document.getElementById('confirmOk').onclick = () => {
@@ -322,16 +346,22 @@
 
         function claimMission() {
             const m = MISSIONS[state.mission.typeIdx];
-            if (m.reward.g) state.money += m.reward.g; if (m.reward.s) state.silver += m.reward.s;
+            if (m.reward.g) state.money += m.reward.g;
+            if (m.reward.s) state.silver += m.reward.s;
             state.mission.cooldown = true; state.mission.progress = 0; sync();
-            setTimeout(() => { state.mission.typeIdx = Math.floor(Math.random()*MISSIONS.length); state.mission.cooldown = false; sync(); }, 120000);
+            setTimeout(() => { 
+                state.mission.typeIdx = Math.floor(Math.random()*MISSIONS.length); 
+                state.mission.cooldown = false; sync(); 
+            }, 120000);
         }
 
         function showWin(win) {
             document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
-            document.getElementById('winIcon').innerText = win.i; document.getElementById('winIcon').style.color = `var(--${win.rar})`;
+            document.getElementById('winIcon').innerText = win.i;
+            document.getElementById('winIcon').style.color = `var(--${win.rar})`;
             document.getElementById('winName').innerText = win.name;
-            const rt = document.getElementById('winRarity'); rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
+            const rt = document.getElementById('winRarity');
+            rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
             const price = Math.floor(state.market.find(m => m.id === win.id).cur * 0.8);
             document.getElementById('sellBtnWin').innerText = `Продать за ${price} ${win.currency}`;
             document.getElementById('winOverlay').style.display = 'flex';
@@ -345,7 +375,8 @@
         }
 
         function buyMarket(id) {
-            const mData = state.market.find(m => m.id === id); const s = SKINS.find(x => x.id === id);
+            const mData = state.market.find(m => m.id === id);
+            const s = SKINS.find(x => x.id === id);
             if(s.currency === "G" && state.money < mData.cur) return alert("Мало G!");
             if(s.currency === "S" && state.silver < mData.cur) return alert("Мало S!");
             if(s.currency === "G") state.money -= mData.cur; else state.silver -= mData.cur;
@@ -356,23 +387,29 @@
         function tab(name) {
             document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(name).style.display = 'block'; document.getElementById('t-'+name).classList.add('active');
+            document.getElementById(name).style.display = 'block';
+            document.getElementById('t-'+name).classList.add('active');
             state.selCraft = []; sync();
         }
 
         function sync() {
             document.getElementById('money').innerText = Math.floor(state.money).toLocaleString();
             document.getElementById('silver').innerText = state.silver.toFixed(2);
-            localStorage.setItem('v12_money', state.money); localStorage.setItem('v12_silver', state.silver);
-            localStorage.setItem('v12_inv', JSON.stringify(state.inv)); localStorage.setItem('v12_mission', JSON.stringify(state.mission));
+            localStorage.setItem('v12_money', state.money); 
+            localStorage.setItem('v12_silver', state.silver);
+            localStorage.setItem('v12_inv', JSON.stringify(state.inv)); 
+            localStorage.setItem('v12_mission', JSON.stringify(state.mission));
+
             const m = MISSIONS[state.mission.typeIdx];
             if (state.mission.cooldown) {
                 document.getElementById('mTitle').innerText = "Ожидание..."; document.getElementById('mProgress').innerText = "⏰";
                 document.getElementById('mClaimBtn').style.display = 'none';
             } else {
-                document.getElementById('mTitle').innerText = m.title; document.getElementById('mProgress').innerText = `${state.mission.progress}/${m.target}`;
+                document.getElementById('mTitle').innerText = m.title;
+                document.getElementById('mProgress').innerText = `${state.mission.progress}/${m.target}`;
                 document.getElementById('mClaimBtn').style.display = (state.mission.progress >= m.target) ? 'block' : 'none';
             }
+
             const ig = document.getElementById('invGrid'); if(ig) {
                 ig.innerHTML = '';
                 state.inv.forEach((it, i) => { ig.innerHTML += `<div class="card" onclick="sellWithConfirm(${i})"><div>${it.i}</div><div style="font-size:10px">${it.name}</div><div style="color:var(--${it.rar}); font-size:11px;">Цена: ${state.market.find(m=>m.id===it.id).cur}${it.currency}</div></div>`; });
@@ -380,7 +417,8 @@
             const mg = document.getElementById('marketGrid'); if(mg) {
                 mg.innerHTML = '';
                 state.market.forEach(m => {
-                    const s = SKINS.find(x => x.id === m.id); const col = m.cur >= m.old ? 'price-up' : 'price-down';
+                    const s = SKINS.find(x => x.id === m.id);
+                    const col = m.cur >= m.old ? 'price-up' : 'price-down';
                     mg.innerHTML += `<div class="card" onclick="buyMarket(${s.id})"><div class="market-header"><span>${s.i}</span><div class="price-change-row ${col}">${m.chg}%</div></div><div style="font-size:10px">${s.name}</div><b>${m.cur}${s.currency}</b></div>`;
                 });
             }
@@ -392,19 +430,23 @@
         }
 
         function checkMission(type, amount = 1) {
-            const m = MISSIONS[state.mission.typeIdx]; if (state.mission.cooldown || m.id !== type) return;
-            state.mission.progress = Math.min(state.mission.progress + amount, m.target); sync();
+            const m = MISSIONS[state.mission.typeIdx];
+            if (state.mission.cooldown || m.id !== type) return;
+            state.mission.progress = Math.min(state.mission.progress + amount, m.target);
+            sync();
         }
 
         function updateMarket() {
             state.market.forEach(item => {
                 const s = SKINS.find(x => x.id === item.id); item.old = item.cur;
-                const move = (Math.random() - 0.5) * 0.2; item.cur = Math.max(Math.floor(s.p * (1 + move)), 2);
+                const move = (Math.random() - 0.5) * 0.2;
+                item.cur = Math.max(Math.floor(s.p * (1 + move)), 2);
                 item.chg = (((item.cur - item.old) / item.old) * 100).toFixed(1);
             });
             sync();
         }
-        setInterval(updateMarket, 6000); sync();
+        setInterval(updateMarket, 6000);
+        sync();
     </script>
 </body>
 </html>
