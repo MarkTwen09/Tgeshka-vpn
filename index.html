@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CRYSTAL STABLE V11</title>
+    <title>SO2: SILVER & GOLD V12</title>
     <style>
         :root {
             --bg: #0a0f1b;
             --glass: rgba(255, 255, 255, 0.05);
             --border: rgba(255, 255, 255, 0.1);
-            --accent: #ffcc00;
+            --accent: #ffcc00; /* Gold */
+            --silver: #b0c3d9; /* Silver */
             --blue: #00d2ff;
             --up: #00ff88;
             --down: #ff4d4d;
@@ -28,14 +29,17 @@
 
         .header {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px);
-            width: 100%; max-width: 480px; padding: 25px; border-radius: 32px;
+            width: 100%; max-width: 480px; padding: 20px; border-radius: 32px;
             border: 1px solid var(--border); margin-bottom: 20px;
             display: flex; justify-content: space-between; align-items: center;
         }
         .balance-info { display: flex; flex-direction: column; gap: 4px; }
-        .balance-info label { font-size: 10px; opacity: 0.5; text-transform: uppercase; }
-        .balance-info b { font-size: 26px; color: var(--accent); }
-        .inv-val-small { font-size: 11px; color: #888; }
+        .currency-row { display: flex; align-items: center; gap: 15px; }
+        .balance-item { display: flex; flex-direction: column; }
+        .balance-item label { font-size: 9px; opacity: 0.5; text-transform: uppercase; }
+        .balance-item b { font-size: 18px; }
+        .gold-txt { color: var(--accent); }
+        .silver-txt { color: var(--silver); }
 
         .tabs { display: flex; gap: 8px; width: 100%; max-width: 480px; margin-bottom: 20px; }
         .tab { 
@@ -48,13 +52,14 @@
         .view { display: none; width: 100%; max-width: 480px; animation: fadeIn 0.3s ease-out; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .case-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .case-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
         .case-card { 
-            background: var(--glass); padding: 15px 10px; border-radius: 22px; 
+            background: var(--glass); padding: 12px 5px; border-radius: 20px; 
             border: 1px solid var(--border); text-align: center; cursor: pointer; transition: 0.3s;
         }
         .case-card.active { border-color: var(--blue); background: rgba(0,210,255,0.1); }
-        .case-card b { font-size: 11px; color: #fff; }
+        .case-card b { font-size: 10px; color: #fff; display: block; margin-top: 5px; }
+        .case-card.silver-box { border-color: var(--silver); }
 
         .roulette-container { height: 140px; background: rgba(0,0,0,0.4); border-radius: 28px; position: relative; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border); }
         .pointer { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff3e3e; z-index: 10; transform: translateX(-50%); }
@@ -62,8 +67,7 @@
         .t-item { min-width: 110px; height: 110px; margin: 0 6px; background: rgba(255,255,255,0.03); border-radius: 22px; display: flex; align-items: center; justify-content: center; border-bottom: 5px solid #333; font-size: 45px; }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 40px; overflow-y: auto; max-height: 55vh; width: 100%; }
-        .card { background: var(--glass); padding: 20px; border-radius: 28px; text-align: center; border: 1px solid var(--border); transition: 0.2s; }
-        .card.selected { border: 2px solid var(--up); box-shadow: 0 0 15px rgba(0,255,136,0.2); }
+        .card { background: var(--glass); padding: 20px; border-radius: 28px; text-align: center; border: 1px solid var(--border); }
         
         .btn-main { width: 100%; padding: 20px; border: none; border-radius: 22px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 14px; }
         .btn-main:disabled { opacity: 0.3; }
@@ -79,12 +83,17 @@
 <body>
 
     <div class="header">
-        <div class="balance-info">
-            <label>Баланс</label>
-            <b><span id="money">0</span> <small style="font-size: 14px; color: var(--accent);">G</small></b>
-            <span class="inv-val-small">Инвентарь: <span id="invVal">0</span> G</span>
+        <div class="currency-row">
+            <div class="balance-item">
+                <label>Золото</label>
+                <b class="gold-txt"><span id="money">0</span> G</b>
+            </div>
+            <div class="balance-item">
+                <label>Серебро</label>
+                <b class="silver-txt"><span id="silver">0</span> S</b>
+            </div>
         </div>
-        <div style="font-size: 30px;">💎</div>
+        <div style="font-size: 20px; opacity: 0.5;">ИНВ: <span id="invVal">0</span></div>
     </div>
 
     <div class="tabs">
@@ -96,23 +105,16 @@
 
     <div id="shop" class="view" style="display: block;">
         <div class="case-selector">
-            <div id="c0" class="case-card active" onclick="setCase(0)"><span>📦</span><b>250G</b></div>
-            <div id="c1" class="case-card" onclick="setCase(1)"><span>📦</span><b>500G</b></div>
-            <div id="c2" class="case-card" onclick="setCase(2)"><span>🔪</span><b>1500G</b></div>
+            <div id="c0" class="case-card silver-box" onclick="setCase(0)"><span>🔘</span><b style="color:var(--silver)">100 S</b></div>
+            <div id="c1" class="case-card active" onclick="setCase(1)"><span>📦</span><b>250 G</b></div>
+            <div id="c2" class="case-card" onclick="setCase(2)"><span>📦</span><b>500 G</b></div>
+            <div id="c3" class="case-card" onclick="setCase(3)"><span>🔪</span><b>1500 G</b></div>
         </div>
         <div class="roulette-container"><div class="pointer"></div><div class="track" id="track"></div></div>
         <button id="spinBtn" class="btn-main" onclick="openCase()">Открыть кейс</button>
     </div>
 
-    <div id="craft" class="view">
-        <div style="text-align:center; padding: 20px; background: var(--glass); border-radius: 25px; margin-bottom: 15px;">
-            <div style="font-size: 12px; opacity: 0.6;">Контракт (шанс на ранг выше)</div>
-            <div style="font-size: 24px; font-weight: 900; margin: 10px 0;"><span id="selCount">0</span> / 10</div>
-            <button id="craftBtn" class="btn-main" disabled onclick="doCraft()">Создать предмет</button>
-        </div>
-        <div id="craftGrid" class="grid"></div>
-    </div>
-
+    <div id="craft" class="view"><div id="craftGrid" class="grid"></div></div>
     <div id="market" class="view"><div id="marketGrid" class="grid"></div></div>
     <div id="inv" class="view"><div id="invGrid" class="grid"></div></div>
 
@@ -123,47 +125,37 @@
             <h2 id="winName" style="font-size: 32px; margin: 0;">Item</h2>
             <p id="winRarity" style="font-weight: 900; margin: 10px 0 40px; letter-spacing: 3px;"></p>
             <button class="btn-main" onclick="takeWin()">В инвентарь</button>
-            <button class="btn-main" style="background:none; color:#555; margin-top:10px;" onclick="sellWin()">Продать за <span id="winPrice">0</span> G</button>
+            <button class="btn-main" style="background:none; color:#555; margin-top:10px;" id="sellBtnWin" onclick="sellWin()">Продать</button>
         </div>
     </div>
 
     <script>
         const SKINS = [
-            { id: 0, name: "G22 | Casual", rar: "common", p: 15, i: "🔫", weight: 65 },
-            { id: 1, name: "USP | Genesis", rar: "uncommon", p: 45, i: "🔫", weight: 25 },
-            { id: 2, name: "M4 | Tiger", rar: "rare", p: 160, i: "🔫", weight: 8 },
-            { id: 3, name: "AKR | Necro", rar: "epic", p: 550, i: "🔫", weight: 1.5 },
-            { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1400, i: "🎯", weight: 0.4 },
-            { id: 5, name: "Karambit | Gold", rar: "arcane", p: 28000, i: "🔪", weight: 0.05 },
-            { id: 6, name: "Butterfly | Star", rar: "arcane", p: 24000, i: "🦋", weight: 0.05 }
+            { id: 0, name: "G22 | Casual", rar: "common", p: 15, i: "🔫", weight: 65, currency: "S" },
+            { id: 1, name: "USP | Genesis", rar: "uncommon", p: 45, i: "🔫", weight: 25, currency: "S" },
+            { id: 2, name: "M4 | Tiger", rar: "rare", p: 160, i: "🔫", weight: 8, currency: "G" },
+            { id: 3, name: "AKR | Necro", rar: "epic", p: 550, i: "🔫", weight: 1.5, currency: "G" },
+            { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1400, i: "🎯", weight: 0.4, currency: "G" },
+            { id: 5, name: "Karambit | Gold", rar: "arcane", p: 28000, i: "🔪", weight: 0.05, currency: "G" },
+            { id: 6, name: "Butterfly | Star", rar: "arcane", p: 24000, i: "🦋", weight: 0.05, currency: "G" }
         ];
 
         const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "arcane"];
 
         let state = {
-            money: parseInt(localStorage.getItem('v11_money')) || 1000,
-            inv: JSON.parse(localStorage.getItem('v11_inv')) || [],
+            money: parseInt(localStorage.getItem('v12_money')) || 500,
+            silver: parseInt(localStorage.getItem('v12_silver')) || 200,
+            inv: JSON.parse(localStorage.getItem('v12_inv')) || [],
             prices: SKINS.map(s => ({ id: s.id, cur: s.p * 1.5, old: s.p * 1.5 })),
-            curCase: 0,
-            lastWin: null,
-            selectedForCraft: []
+            curCase: 1,
+            lastWin: null
         };
-
-        setInterval(() => {
-            state.prices.forEach(p => { 
-                p.old = p.cur; 
-                p.cur = Math.floor(p.cur * (1 + (Math.random() * 0.2 - 0.1))); 
-                if(p.cur < 5) p.cur = 5;
-            });
-            renderMarket();
-        }, 6000);
 
         function tab(name) {
             document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.getElementById(name).style.display = 'block';
             document.getElementById('t-'+name).classList.add('active');
-            state.selectedForCraft = [];
             sync();
         }
 
@@ -171,42 +163,39 @@
             state.curCase = i;
             document.querySelectorAll('.case-card').forEach(c => c.classList.remove('active'));
             document.getElementById('c'+i).classList.add('active');
-        }
-
-        function getDrop(poolIds) {
-            const pool = SKINS.filter(s => poolIds.includes(s.id));
-            const total = pool.reduce((a, s) => a + s.weight, 0);
-            let r = Math.random() * total;
-            for (let s of pool) {
-                if (r < s.weight) return s;
-                r -= s.weight;
-            }
-            return pool[0];
+            const btn = document.getElementById('spinBtn');
+            if(i === 0) btn.style.background = 'var(--silver)';
+            else btn.style.background = 'var(--accent)';
         }
 
         function openCase() {
-            const cost = [250, 500, 1500][state.curCase];
-            if(state.money < cost) return alert("Недостаточно голды!");
-            state.money -= cost; sync();
+            const costs = [ {s:100}, {g:250}, {g:500}, {g:1500} ];
+            const cost = costs[state.curCase];
             
-            const btn = document.getElementById('spinBtn');
-            btn.disabled = true;
+            if(cost.g && state.money < cost.g) return alert("Мало голды!");
+            if(cost.s && state.silver < cost.s) return alert("Мало серебра!");
+
+            if(cost.g) { state.money -= cost.g; state.silver += 20; } // Кешбэк серебром
+            else state.silver -= cost.s;
+            
+            sync();
+            
+            const btn = document.getElementById('spinBtn'); btn.disabled = true;
             const track = document.getElementById('track');
             track.style.transition = 'none'; track.style.transform = 'translateX(0)';
             track.innerHTML = '';
             
             let win;
-            const pools = [[0,1,2], [1,2,3,4], [3,4,5,6]];
+            const pools = [[0,1,2], [0,1,2], [1,2,3,4], [3,4,5,6]]; 
             for(let i=0; i<60; i++) {
-                const s = getDrop(pools[state.curCase]);
+                const s = SKINS[pools[state.curCase][Math.floor(Math.random()*pools[state.curCase].length)]];
                 if(i === 52) win = s;
                 track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${s.i}</div>`;
             }
             
             setTimeout(() => {
                 track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0, 1)';
-                const centerOffset = window.innerWidth / 2 - 61;
-                track.style.transform = `translateX(-${52 * 122 - centerOffset}px)`;
+                track.style.transform = `translateX(-${52 * 122 - (window.innerWidth/2 - 61)}px)`;
             }, 50);
             
             setTimeout(() => { state.lastWin = win; showWin(win); btn.disabled = false; }, 6200);
@@ -215,97 +204,51 @@
         function showWin(win) {
             document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
             document.getElementById('winIcon').innerText = win.i;
-            document.getElementById('winIcon').style.setProperty('--rarity-color', `var(--${win.rar})`);
             document.getElementById('winName').innerText = win.name;
             const rt = document.getElementById('winRarity');
             rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
-            document.getElementById('winPrice').innerText = Math.floor(win.p * 0.8);
+            
+            const sellBtn = document.getElementById('sellBtnWin');
+            const price = Math.floor(win.p * 0.8);
+            sellBtn.innerText = `Продать за ${price} ${win.currency}`;
+            
             document.getElementById('winOverlay').style.display = 'flex';
         }
 
-        function renderInventory() {
-            const g = document.getElementById('invGrid'); if(!g) return; g.innerHTML = '';
-            state.inv.forEach((it, idx) => {
-                g.innerHTML += `<div class="card" onclick="sellItem(${idx})">
-                    <div style="font-size:45px">${it.i}</div>
-                    <div style="font-size:11px; margin-top:10px">${it.name}</div>
-                    <div style="color:var(--${it.rar}); font-weight:900; font-size:10px; margin-top:5px">${Math.floor(it.p * 0.8)} G</div>
-                </div>`;
-            });
-        }
-
-        function renderCraft() {
-            const g = document.getElementById('craftGrid'); if(!g) return; g.innerHTML = '';
-            state.inv.forEach((it, idx) => {
-                if(it.rar === 'arcane') return;
-                const isSel = state.selectedForCraft.includes(idx);
-                g.innerHTML += `<div class="card ${isSel?'selected':''}" onclick="toggleCraft(${idx})">
-                    <div style="font-size:45px">${it.i}</div>
-                    <div style="font-size:10px; margin-top:10px">${it.rar.toUpperCase()}</div>
-                </div>`;
-            });
-            document.getElementById('selCount').innerText = state.selectedForCraft.length;
-            document.getElementById('craftBtn').disabled = state.selectedForCraft.length !== 10;
-        }
-
-        function renderMarket() {
-            const g = document.getElementById('marketGrid'); if(!g) return; g.innerHTML = '';
-            SKINS.forEach(s => {
-                const p = state.prices.find(x => x.id === s.id);
-                const up = p.cur >= p.old;
-                g.innerHTML += `<div class="card" onclick="buyMarket(${s.id}, ${p.cur})">
-                    <div style="font-size:45px">${s.i}</div>
-                    <div style="font-size:10px; margin-top:10px">${s.name}</div>
-                    <div style="color:${up?'var(--up)':'var(--down)'}; font-weight:900; margin-top:5px">${p.cur} G</div>
-                </div>`;
-            });
-        }
-
-        function toggleCraft(idx) {
-            const i = state.selectedForCraft.indexOf(idx);
-            if(i > -1) state.selectedForCraft.splice(i, 1);
-            else if(state.selectedForCraft.length < 10) {
-                if(state.selectedForCraft.length > 0 && state.inv[state.selectedForCraft[0]].rar !== state.inv[idx].rar) return;
-                state.selectedForCraft.push(idx);
-            }
-            sync();
-        }
-
-        function doCraft() {
-            const currentRar = state.inv[state.selectedForCraft[0]].rar;
-            const nextRar = RARITIES[RARITIES.indexOf(currentRar) + 1];
-            const pool = SKINS.filter(s => s.rar === nextRar);
-            const win = pool[Math.floor(Math.random()*pool.length)];
-            state.selectedForCraft.sort((a,b)=>b-a).forEach(i => state.inv.splice(i,1));
-            state.selectedForCraft = [];
-            state.lastWin = win; showWin(win); sync();
-        }
-
         function sellItem(idx) {
-            const p = Math.floor(state.inv[idx].p * 0.8);
-            if(confirm("Продать " + state.inv[idx].name + " за " + p + " G?")) {
-                state.money += p;
-                state.inv.splice(idx, 1);
-                sync();
-            }
-        }
-
-        function buyMarket(id, pr) {
-            if(state.money < pr) return alert("Мало голды!");
-            state.money -= pr; state.inv.unshift({...SKINS.find(x => x.id === id)});
+            const it = state.inv[idx];
+            const p = Math.floor(it.p * 0.8);
+            if(it.currency === "G") state.money += p; else state.silver += p;
+            state.inv.splice(idx, 1);
             sync();
         }
 
         function takeWin() { state.inv.unshift(state.lastWin); closeWin(); sync(); }
-        function sellWin() { state.money += Math.floor(state.lastWin.p * 0.8); closeWin(); sync(); }
+        function sellWin() { 
+            const p = Math.floor(state.lastWin.p * 0.8);
+            if(state.lastWin.currency === "G") state.money += p; else state.silver += p;
+            closeWin(); sync(); 
+        }
         function closeWin() { document.getElementById('winOverlay').style.display = 'none'; }
 
         function sync() {
             document.getElementById('money').innerText = state.money.toLocaleString();
-            document.getElementById('invVal').innerText = state.inv.reduce((a,b)=>a+(b.p*0.8),0).toLocaleString();
-            localStorage.setItem('v11_money', state.money);
-            localStorage.setItem('v11_inv', JSON.stringify(state.inv));
-            renderInventory(); renderCraft(); renderMarket();
+            document.getElementById('silver').innerText = state.silver.toLocaleString();
+            document.getElementById('invVal').innerText = state.inv.length;
+            localStorage.setItem('v12_money', state.money);
+            localStorage.setItem('v12_silver', state.silver);
+            localStorage.setItem('v12_inv', JSON.stringify(state.inv));
+            
+            const g = document.getElementById('invGrid'); if(g) {
+                g.innerHTML = '';
+                state.inv.forEach((it, idx) => {
+                    g.innerHTML += `<div class="card" onclick="sellItem(${idx})">
+                        <div style="font-size:45px">${it.i}</div>
+                        <div style="font-size:10px; margin-top:10px">${it.name}</div>
+                        <div style="color:var(--${it.rar}); font-weight:900; font-size:10px;">${Math.floor(it.p*0.8)}${it.currency}</div>
+                    </div>`;
+                });
+            }
         }
 
         sync();
