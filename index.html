@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: STABLE V13.2</title>
+    <title>SO2: STABLE V13.2 FIXED</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -61,7 +61,6 @@
         .case-card { background: var(--glass); padding: 8px; border-radius: 15px; border: 1px solid var(--border); text-align: center; cursor: pointer; font-size: 10px; }
         .case-card.active { border-color: var(--blue); background: rgba(0, 210, 255, 0.1); }
 
-        /* ЭФФЕКТЫ ВЫИГРЫША */
         .glow-circle { 
             position: absolute; width: 320px; height: 320px; 
             background: radial-gradient(circle, var(--rarity-color) 0%, transparent 70%);
@@ -101,12 +100,12 @@
             <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
             <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
         </div>
-        <div style="font-size: 12px; opacity: 0.4;">V13.2 • kaoface</div>
+        <div style="font-size: 12px; opacity: 0.4;">V13.2 STABLE • kaoface</div>
     </div>
 
     <div class="mission-panel" id="missionBox">
         <div class="mission-info"><h4 id="mTitle">Миссии</h4><p id="mDesc" style="margin:2px 0; font-size:11px; opacity:0.7;">Фарми валюту</p></div>
-        <div style="display:flex; align-items:center; gap:10px;"><span class="m-progress" id="mProgress">0/0</span><button id="mClaimBtn" onclick="claimMission()" style="background:var(--up); border:none; border-radius:10px; padding:8px 12px; font-weight:bold; display:none;">Взять</button></div>
+        <div style="display:flex; align-items:center; gap:10px;"><span class="m-progress" id="mProgress">0/0</span><button id="mClaimBtn" onclick="claimMission()" style="background:var(--up); border:none; border-radius:10px; padding:8px 12px; font-weight:bold; display:none; color:#000;">Взять</button></div>
     </div>
 
     <div class="tabs">
@@ -243,7 +242,21 @@
             const pool = SKINS.filter(s => s.rar === nextRar);
             const win = pool[Math.floor(Math.random()*pool.length)];
             state.selCraft.sort((a,b)=>b-a).forEach(i => state.inv.splice(i,1));
-            state.selCraft = []; state.lastWin = win; checkMission('craft'); showWin(win); sync();
+            state.selCraft = []; state.lastWin = win; 
+            checkMission('craft'); // ТЕПЕРЬ МИССИЯ КРАФТА РАБОТАЕТ
+            showWin(win); sync();
+        }
+
+        function claimMission() {
+            const m = MISSIONS[state.mission.typeIdx];
+            if (m.reward.g) state.money += m.reward.g;
+            if (m.reward.s) state.silver += m.reward.s;
+            state.mission.cooldown = true; state.mission.progress = 0; 
+            sync(); // ДЕНЬГИ ЗАЧИСЛЯЮТСЯ СРАЗУ
+            setTimeout(() => { 
+                state.mission.typeIdx = Math.floor(Math.random()*MISSIONS.length); 
+                state.mission.cooldown = false; sync(); 
+            }, 120000);
         }
 
         function showWin(win) {
