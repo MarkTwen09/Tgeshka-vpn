@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: FULL ACCESS V13.1</title>
+    <title>SO2: STABLE V13.2</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -50,18 +50,18 @@
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 30px; overflow-y: auto; max-height: 50vh; width: 100%; }
-        .card { background: var(--glass); padding: 15px; border-radius: 22px; text-align: center; border: 1px solid var(--border); position: relative; transition: 0.2s; }
+        .card { background: var(--glass); padding: 15px; border-radius: 22px; text-align: center; border: 1px solid var(--border); position: relative; transition: 0.2s; cursor: pointer; }
+        .card.selected { border: 2px solid var(--up); box-shadow: 0 0 15px rgba(0,255,136,0.2); }
         
         .market-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .price-change-row { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 900; }
         .price-up { color: var(--up); } .price-down { color: var(--down); }
 
-        /* ВЫБОР КЕЙСОВ */
         .case-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 15px; }
         .case-card { background: var(--glass); padding: 8px; border-radius: 15px; border: 1px solid var(--border); text-align: center; cursor: pointer; font-size: 10px; }
         .case-card.active { border-color: var(--blue); background: rgba(0, 210, 255, 0.1); }
 
-        /* ЭФФЕКТЫ */
+        /* ЭФФЕКТЫ ВЫИГРЫША */
         .glow-circle { 
             position: absolute; width: 320px; height: 320px; 
             background: radial-gradient(circle, var(--rarity-color) 0%, transparent 70%);
@@ -89,8 +89,9 @@
         .pointer { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff3e3e; z-index: 10; transform: translateX(-50%); }
 
         .btn-main { width: 100%; padding: 18px; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 13px; }
-        .btn-main:disabled { opacity: 0.2; }
+        .btn-main:disabled { opacity: 0.2; pointer-events: none; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,7,12,0.98); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(20px); }
+        .modal { background: #121929; padding: 25px; border-radius: 30px; border: 1px solid var(--border); width: 85%; max-width: 380px; text-align: center; }
     </style>
 </head>
 <body>
@@ -100,11 +101,11 @@
             <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
             <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
         </div>
-        <div style="font-size: 12px; opacity: 0.4;">V13.1 • kaoface</div>
+        <div style="font-size: 12px; opacity: 0.4;">V13.2 • kaoface</div>
     </div>
 
     <div class="mission-panel" id="missionBox">
-        <div class="mission-info"><h4 id="mTitle">Загрузка...</h4><p id="mDesc" style="margin:2px 0; font-size:11px; opacity:0.7;">Выполняйте цели</p></div>
+        <div class="mission-info"><h4 id="mTitle">Миссии</h4><p id="mDesc" style="margin:2px 0; font-size:11px; opacity:0.7;">Фарми валюту</p></div>
         <div style="display:flex; align-items:center; gap:10px;"><span class="m-progress" id="mProgress">0/0</span><button id="mClaimBtn" onclick="claimMission()" style="background:var(--up); border:none; border-radius:10px; padding:8px 12px; font-weight:bold; display:none;">Взять</button></div>
     </div>
 
@@ -128,7 +129,10 @@
 
     <div id="inv" class="view"><div id="invGrid" class="grid"></div></div>
     <div id="market" class="view"><div id="marketGrid" class="grid"></div></div>
-    <div id="craft" class="view"><button id="craftBtn" class="btn-main" style="margin-bottom:15px;" disabled onclick="doCraft()">Начать крафт (10 шт)</button><div id="craftGrid" class="grid"></div></div>
+    <div id="craft" class="view">
+        <button id="craftBtn" class="btn-main" style="margin-bottom:15px;" disabled onclick="doCraft()">Начать крафт (10 шт)</button>
+        <div id="craftGrid" class="grid"></div>
+    </div>
 
     <div id="winOverlay" class="overlay">
         <div style="text-align:center; position:relative;">
@@ -138,6 +142,17 @@
             <p id="winRarity" style="font-weight:900; letter-spacing:4px; margin:15px 0 40px; font-size: 14px;"></p>
             <button class="btn-main" onclick="takeWin()" style="margin-bottom: 12px;">В инвентарь</button>
             <button class="btn-main" style="background:none; color:rgba(255,255,255,0.3); border: 1px solid var(--border);" id="sellBtnWin" onclick="sellWin()">Продать</button>
+        </div>
+    </div>
+
+    <div id="confirmOverlay" class="overlay">
+        <div class="modal">
+            <h3>Продать предмет?</h3>
+            <p id="confirmText" style="opacity:0.7; margin-bottom:20px;"></p>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-main" style="background:#222; color:#fff;" onclick="closeConfirm()">Отмена</button>
+                <button class="btn-main" id="confirmOk" style="background:var(--up);">Продать</button>
+            </div>
         </div>
     </div>
 
@@ -158,12 +173,15 @@
             { id: 'open_silver', title: 'Коллекционер', target: 5, reward: {s: 200} }
         ];
 
+        const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "arcane"];
+
         let state = {
             money: parseInt(localStorage.getItem('v12_money')) || 1000,
             silver: parseInt(localStorage.getItem('v12_silver')) || 1000,
             inv: JSON.parse(localStorage.getItem('v12_inv')) || [],
             market: JSON.parse(localStorage.getItem('v12_market')) || SKINS.map(s => ({id: s.id, cur: s.p, chg: 0, old: s.p})),
-            curCase: 1, lastWin: null, mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
+            curCase: 1, lastWin: null, selCraft: [],
+            mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
         };
 
         function setCase(i) {
@@ -177,10 +195,8 @@
             const cost = costs[state.curCase];
             if(cost.g && state.money < cost.g) return alert("Мало Gold!");
             if(cost.s && state.silver < cost.s) return alert("Мало Silver!");
-            
             if(cost.g) state.money -= cost.g; else state.silver -= cost.s;
             if(state.curCase === 0) checkMission('open_silver');
-            
             sync();
             const track = document.getElementById('track');
             track.style.transition = 'none'; track.style.transform = 'translateX(0)'; track.innerHTML = '';
@@ -199,17 +215,36 @@
             setTimeout(() => { state.lastWin = win; showWin(win); }, 6200);
         }
 
-        function updateMarket() {
-            state.market.forEach(item => {
-                const s = SKINS.find(x => x.id === item.id);
-                item.old = item.cur;
-                const move = (Math.random() - 0.5) * 0.2;
-                item.cur = Math.max(Math.floor(s.p * (1 + move)), 2);
-                item.chg = (((item.cur - item.old) / item.old) * 100).toFixed(1);
-            });
+        function sellWithConfirm(idx) {
+            const it = state.inv[idx];
+            const mPrice = state.market.find(m => m.id === it.id).cur;
+            const p = Math.floor(mPrice * 0.8);
+            document.getElementById('confirmText').innerText = `${it.name} за ${p} ${it.currency}?`;
+            document.getElementById('confirmOverlay').style.display = 'flex';
+            document.getElementById('confirmOk').onclick = () => {
+                if(it.currency === "G") state.money += p; else state.silver += p;
+                state.inv.splice(idx, 1); checkMission('sell'); closeConfirm(); sync();
+            };
+        }
+
+        function toggleCraft(idx) {
+            const pos = state.selCraft.indexOf(idx);
+            if(pos > -1) state.selCraft.splice(pos, 1);
+            else if(state.selCraft.length < 10) {
+                if(state.selCraft.length > 0 && state.inv[state.selCraft[0]].rar !== state.inv[idx].rar) return;
+                state.selCraft.push(idx);
+            }
             sync();
         }
-        setInterval(updateMarket, 6000);
+
+        function doCraft() {
+            const rar = state.inv[state.selCraft[0]].rar;
+            const nextRar = RARITIES[Math.min(RARITIES.indexOf(rar) + 1, 5)];
+            const pool = SKINS.filter(s => s.rar === nextRar);
+            const win = pool[Math.floor(Math.random()*pool.length)];
+            state.selCraft.sort((a,b)=>b-a).forEach(i => state.inv.splice(i,1));
+            state.selCraft = []; state.lastWin = win; checkMission('craft'); showWin(win); sync();
+        }
 
         function showWin(win) {
             document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
@@ -223,29 +258,6 @@
             document.getElementById('winOverlay').style.display = 'flex';
         }
 
-        function checkMission(type, amount = 1) {
-            const m = MISSIONS[state.mission.typeIdx];
-            if (state.mission.cooldown || m.id !== type) return;
-            state.mission.progress = Math.min(state.mission.progress + amount, m.target);
-            sync();
-        }
-
-        function claimMission() {
-            const m = MISSIONS[state.mission.typeIdx];
-            if (m.reward.g) state.money += m.reward.g;
-            if (m.reward.s) state.silver += m.reward.s;
-            state.mission.cooldown = true; state.mission.progress = 0; sync();
-            setTimeout(() => { state.mission.typeIdx = Math.floor(Math.random()*3); state.mission.cooldown = false; sync(); }, 120000);
-        }
-
-        function tab(name) {
-            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(name).style.display = 'block';
-            document.getElementById('t-'+name).classList.add('active');
-            sync();
-        }
-
         function takeWin() { state.inv.unshift(state.lastWin); document.getElementById('winOverlay').style.display = 'none'; sync(); }
         function sellWin() { 
             const p = Math.floor(state.market.find(m => m.id === state.lastWin.id).cur * 0.8);
@@ -255,11 +267,20 @@
 
         function buyMarket(id) {
             const mData = state.market.find(m => m.id === id);
-            const skin = SKINS.find(x => x.id === id);
-            if(skin.currency === "G" && state.money < mData.cur) return alert("Мало Gold!");
-            if(skin.currency === "S" && state.silver < mData.cur) return alert("Мало Silver!");
-            if(skin.currency === "G") state.money -= mData.cur; else state.silver -= mData.cur;
-            state.inv.unshift({...skin}); sync();
+            const s = SKINS.find(x => x.id === id);
+            if(s.currency === "G" && state.money < mData.cur) return alert("Мало G!");
+            if(s.currency === "S" && state.silver < mData.cur) return alert("Мало S!");
+            if(s.currency === "G") state.money -= mData.cur; else state.silver -= mData.cur;
+            state.inv.unshift({...s}); sync();
+        }
+
+        function closeConfirm() { document.getElementById('confirmOverlay').style.display = 'none'; }
+        function tab(name) {
+            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(name).style.display = 'block';
+            document.getElementById('t-'+name).classList.add('active');
+            state.selCraft = []; sync();
         }
 
         function sync() {
@@ -280,7 +301,7 @@
 
             const ig = document.getElementById('invGrid'); if(ig) {
                 ig.innerHTML = '';
-                state.inv.forEach((it, i) => { ig.innerHTML += `<div class="card"><div>${it.i}</div><div style="font-size:10px">${it.name}</div></div>`; });
+                state.inv.forEach((it, i) => { ig.innerHTML += `<div class="card" onclick="sellWithConfirm(${i})"><div>${it.i}</div><div style="font-size:10px">${it.name}</div><div style="color:var(--${it.rar}); font-size:11px;">Цена: ${state.market.find(m=>m.id===it.id).cur}${it.currency}</div></div>`; });
             }
             const mg = document.getElementById('marketGrid'); if(mg) {
                 mg.innerHTML = '';
@@ -290,7 +311,31 @@
                     mg.innerHTML += `<div class="card" onclick="buyMarket(${s.id})"><div class="market-header"><span>${s.i}</span><div class="price-change-row ${col}">${m.chg}%</div></div><div style="font-size:10px">${s.name}</div><b>${m.cur}${s.currency}</b></div>`;
                 });
             }
+            const cg = document.getElementById('craftGrid'); if(cg) {
+                cg.innerHTML = '';
+                state.inv.forEach((it, i) => { if(it.rar !== "arcane") cg.innerHTML += `<div class="card ${state.selCraft.includes(i)?'selected':''}" onclick="toggleCraft(${i})"><div>${it.i}</div><div style="font-size:10px">${it.rar}</div></div>`; });
+                document.getElementById('craftBtn').disabled = (state.selCraft.length < 10);
+            }
         }
+
+        function checkMission(type, amount = 1) {
+            const m = MISSIONS[state.mission.typeIdx];
+            if (state.mission.cooldown || m.id !== type) return;
+            state.mission.progress = Math.min(state.mission.progress + amount, m.target);
+            sync();
+        }
+
+        function updateMarket() {
+            state.market.forEach(item => {
+                const s = SKINS.find(x => x.id === item.id);
+                item.old = item.cur;
+                const move = (Math.random() - 0.5) * 0.2;
+                item.cur = Math.max(Math.floor(s.p * (1 + move)), 2);
+                item.chg = (((item.cur - item.old) / item.old) * 100).toFixed(1);
+            });
+            sync();
+        }
+        setInterval(updateMarket, 6000);
         sync();
     </script>
 </body>
