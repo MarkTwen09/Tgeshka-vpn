@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: STABLE V13.2 FIXED</title>
+    <title>SO2: CLICKER EDITION V13.5</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -21,11 +21,24 @@
             display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden;
         }
 
+        /* КЛИКЕР-ЗОНА В ШАПКЕ */
         .header {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); width: 100%; max-width: 480px;
             padding: 15px 20px; border-radius: 32px; border: 1px solid var(--border); margin-bottom: 10px;
             display: flex; justify-content: space-between; align-items: center; width: 100%;
+            cursor: pointer; transition: transform 0.1s; position: relative; overflow: hidden;
         }
+        .header:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.07); }
+        
+        .click-anim {
+            position: absolute; color: var(--silver); font-weight: 900; font-size: 14px;
+            pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 100;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-40px); opacity: 0; }
+        }
+
         .currency-row { display: flex; gap: 15px; }
         .balance-item { display: flex; flex-direction: column; }
         .balance-item label { font-size: 9px; opacity: 0.5; text-transform: uppercase; }
@@ -95,12 +108,12 @@
 </head>
 <body>
 
-    <div class="header">
+    <div class="header" onclick="clicker(event)">
         <div class="currency-row">
             <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
             <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
         </div>
-        <div style="font-size: 12px; opacity: 0.4;">V13.2 STABLE • kaoface</div>
+        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.5 • kaoface</div>
     </div>
 
     <div class="mission-panel" id="missionBox">
@@ -175,13 +188,29 @@
         const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "arcane"];
 
         let state = {
-            money: parseInt(localStorage.getItem('v12_money')) || 1000,
-            silver: parseInt(localStorage.getItem('v12_silver')) || 1000,
+            money: parseFloat(localStorage.getItem('v12_money')) || 1000,
+            silver: parseFloat(localStorage.getItem('v12_silver')) || 1000,
             inv: JSON.parse(localStorage.getItem('v12_inv')) || [],
             market: JSON.parse(localStorage.getItem('v12_market')) || SKINS.map(s => ({id: s.id, cur: s.p, chg: 0, old: s.p})),
             curCase: 1, lastWin: null, selCraft: [],
             mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
         };
+
+        // ФУНКЦИЯ КЛИКЕРА
+        function clicker(e) {
+            state.silver += 0.01;
+            
+            // Анимация текста +0.01
+            const anim = document.createElement('div');
+            anim.className = 'click-anim';
+            anim.innerText = '+0.01 S';
+            anim.style.left = e.clientX - 20 + 'px';
+            anim.style.top = e.clientY - 20 + 'px';
+            document.body.appendChild(anim);
+            setTimeout(() => anim.remove(), 600);
+            
+            sync();
+        }
 
         function setCase(i) {
             state.curCase = i;
@@ -243,7 +272,7 @@
             const win = pool[Math.floor(Math.random()*pool.length)];
             state.selCraft.sort((a,b)=>b-a).forEach(i => state.inv.splice(i,1));
             state.selCraft = []; state.lastWin = win; 
-            checkMission('craft'); // ТЕПЕРЬ МИССИЯ КРАФТА РАБОТАЕТ
+            checkMission('craft');
             showWin(win); sync();
         }
 
@@ -251,8 +280,7 @@
             const m = MISSIONS[state.mission.typeIdx];
             if (m.reward.g) state.money += m.reward.g;
             if (m.reward.s) state.silver += m.reward.s;
-            state.mission.cooldown = true; state.mission.progress = 0; 
-            sync(); // ДЕНЬГИ ЗАЧИСЛЯЮТСЯ СРАЗУ
+            state.mission.cooldown = true; state.mission.progress = 0; sync();
             setTimeout(() => { 
                 state.mission.typeIdx = Math.floor(Math.random()*MISSIONS.length); 
                 state.mission.cooldown = false; sync(); 
@@ -297,10 +325,14 @@
         }
 
         function sync() {
-            document.getElementById('money').innerText = state.money.toLocaleString();
-            document.getElementById('silver').innerText = state.silver.toLocaleString();
-            localStorage.setItem('v12_money', state.money); localStorage.setItem('v12_silver', state.silver);
-            localStorage.setItem('v12_inv', JSON.stringify(state.inv)); localStorage.setItem('v12_mission', JSON.stringify(state.mission));
+            // Исправлено отображение дробных чисел для серебра
+            document.getElementById('money').innerText = Math.floor(state.money).toLocaleString();
+            document.getElementById('silver').innerText = state.silver.toFixed(2);
+            
+            localStorage.setItem('v12_money', state.money); 
+            localStorage.setItem('v12_silver', state.silver);
+            localStorage.setItem('v12_inv', JSON.stringify(state.inv)); 
+            localStorage.setItem('v12_mission', JSON.stringify(state.mission));
 
             const m = MISSIONS[state.mission.typeIdx];
             if (state.mission.cooldown) {
