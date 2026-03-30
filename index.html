@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: SILVER & GOLD V12</title>
+    <title>SO2: SILVER & GOLD V12.1 FIX</title>
     <style>
         :root {
             --bg: #0a0f1b;
             --glass: rgba(255, 255, 255, 0.05);
             --border: rgba(255, 255, 255, 0.1);
-            --accent: #ffcc00; /* Gold */
-            --silver: #b0c3d9; /* Silver */
+            --accent: #ffcc00; 
+            --silver: #b0c3d9; 
             --blue: #00d2ff;
             --up: #00ff88;
             --down: #ff4d4d;
@@ -33,7 +33,6 @@
             border: 1px solid var(--border); margin-bottom: 20px;
             display: flex; justify-content: space-between; align-items: center;
         }
-        .balance-info { display: flex; flex-direction: column; gap: 4px; }
         .currency-row { display: flex; align-items: center; gap: 15px; }
         .balance-item { display: flex; flex-direction: column; }
         .balance-item label { font-size: 9px; opacity: 0.5; text-transform: uppercase; }
@@ -59,7 +58,6 @@
         }
         .case-card.active { border-color: var(--blue); background: rgba(0,210,255,0.1); }
         .case-card b { font-size: 10px; color: #fff; display: block; margin-top: 5px; }
-        .case-card.silver-box { border-color: var(--silver); }
 
         .roulette-container { height: 140px; background: rgba(0,0,0,0.4); border-radius: 28px; position: relative; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border); }
         .pointer { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff3e3e; z-index: 10; transform: translateX(-50%); }
@@ -67,15 +65,15 @@
         .t-item { min-width: 110px; height: 110px; margin: 0 6px; background: rgba(255,255,255,0.03); border-radius: 22px; display: flex; align-items: center; justify-content: center; border-bottom: 5px solid #333; font-size: 45px; }
 
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 40px; overflow-y: auto; max-height: 55vh; width: 100%; }
-        .card { background: var(--glass); padding: 20px; border-radius: 28px; text-align: center; border: 1px solid var(--border); }
+        .card { background: var(--glass); padding: 20px; border-radius: 28px; text-align: center; border: 1px solid var(--border); transition: 0.2s; }
+        .card:active { transform: scale(0.95); }
         
         .btn-main { width: 100%; padding: 20px; border: none; border-radius: 22px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 14px; }
         .btn-main:disabled { opacity: 0.3; }
 
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,7,12,0.98); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(25px); }
         .win-modal { text-align: center; width: 90%; max-width: 400px; animation: winShow 0.6s cubic-bezier(0.17, 0.89, 0.32, 1.28); }
-        .glow-circle { position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, var(--rarity-color) 0%, transparent 70%); top: 40%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5; filter: blur(40px); z-index: -1; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.2); } }
+        @keyframes winShow { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .win-item-icon { font-size: 120px; margin-bottom: 20px; filter: drop-shadow(0 0 30px var(--rarity-color)); animation: float 3s infinite ease-in-out; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
     </style>
@@ -98,14 +96,13 @@
 
     <div class="tabs">
         <div id="t-shop" class="tab active" onclick="tab('shop')">Кейсы</div>
-        <div id="t-craft" class="tab" onclick="tab('craft')">Крафт</div>
-        <div id="t-market" class="tab" onclick="tab('market')">Рынок</div>
         <div id="t-inv" class="tab" onclick="tab('inv')">Инв</div>
+        <div id="t-market" class="tab" onclick="tab('market')">Рынок</div>
     </div>
 
     <div id="shop" class="view" style="display: block;">
         <div class="case-selector">
-            <div id="c0" class="case-card silver-box" onclick="setCase(0)"><span>🔘</span><b style="color:var(--silver)">100 S</b></div>
+            <div id="c0" class="case-card" onclick="setCase(0)"><span>🔘</span><b style="color:var(--silver)">100 S</b></div>
             <div id="c1" class="case-card active" onclick="setCase(1)"><span>📦</span><b>250 G</b></div>
             <div id="c2" class="case-card" onclick="setCase(2)"><span>📦</span><b>500 G</b></div>
             <div id="c3" class="case-card" onclick="setCase(3)"><span>🔪</span><b>1500 G</b></div>
@@ -114,16 +111,14 @@
         <button id="spinBtn" class="btn-main" onclick="openCase()">Открыть кейс</button>
     </div>
 
-    <div id="craft" class="view"><div id="craftGrid" class="grid"></div></div>
-    <div id="market" class="view"><div id="marketGrid" class="grid"></div></div>
     <div id="inv" class="view"><div id="invGrid" class="grid"></div></div>
+    <div id="market" class="view"><div id="marketGrid" class="grid"></div></div>
 
     <div id="winOverlay" class="overlay">
         <div class="win-modal">
-            <div class="glow-circle" id="rarityGlow"></div>
-            <div class="win-item-icon" id="winIcon">🔫</div>
-            <h2 id="winName" style="font-size: 32px; margin: 0;">Item</h2>
-            <p id="winRarity" style="font-weight: 900; margin: 10px 0 40px; letter-spacing: 3px;"></p>
+            <div id="winIcon" class="win-item-icon">🔫</div>
+            <h2 id="winName" style="font-size: 28px; margin: 0;">Item</h2>
+            <p id="winRarity" style="font-weight: 900; margin: 10px 0 30px; letter-spacing: 2px;"></p>
             <button class="btn-main" onclick="takeWin()">В инвентарь</button>
             <button class="btn-main" style="background:none; color:#555; margin-top:10px;" id="sellBtnWin" onclick="sellWin()">Продать</button>
         </div>
@@ -140,13 +135,10 @@
             { id: 6, name: "Butterfly | Star", rar: "arcane", p: 24000, i: "🦋", weight: 0.05, currency: "G" }
         ];
 
-        const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "arcane"];
-
         let state = {
             money: parseInt(localStorage.getItem('v12_money')) || 500,
             silver: parseInt(localStorage.getItem('v12_silver')) || 200,
             inv: JSON.parse(localStorage.getItem('v12_inv')) || [],
-            prices: SKINS.map(s => ({ id: s.id, cur: s.p * 1.5, old: s.p * 1.5 })),
             curCase: 1,
             lastWin: null
         };
@@ -156,30 +148,24 @@
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.getElementById(name).style.display = 'block';
             document.getElementById('t-'+name).classList.add('active');
-            sync();
+            renderInv();
         }
 
         function setCase(i) {
             state.curCase = i;
             document.querySelectorAll('.case-card').forEach(c => c.classList.remove('active'));
             document.getElementById('c'+i).classList.add('active');
-            const btn = document.getElementById('spinBtn');
-            if(i === 0) btn.style.background = 'var(--silver)';
-            else btn.style.background = 'var(--accent)';
         }
 
         function openCase() {
             const costs = [ {s:100}, {g:250}, {g:500}, {g:1500} ];
             const cost = costs[state.curCase];
-            
-            if(cost.g && state.money < cost.g) return alert("Мало голды!");
+            if(cost.g && state.money < cost.g) return alert("Мало золота!");
             if(cost.s && state.silver < cost.s) return alert("Мало серебра!");
 
-            if(cost.g) { state.money -= cost.g; state.silver += 20; } // Кешбэк серебром
-            else state.silver -= cost.s;
-            
+            if(cost.g) { state.money -= cost.g; state.silver += 20; } else { state.silver -= cost.s; }
             sync();
-            
+
             const btn = document.getElementById('spinBtn'); btn.disabled = true;
             const track = document.getElementById('track');
             track.style.transition = 'none'; track.style.transform = 'translateX(0)';
@@ -202,25 +188,27 @@
         }
 
         function showWin(win) {
-            document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
             document.getElementById('winIcon').innerText = win.i;
+            document.getElementById('winIcon').style.setProperty('--rarity-color', `var(--${win.rar})`);
             document.getElementById('winName').innerText = win.name;
             const rt = document.getElementById('winRarity');
             rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
-            
-            const sellBtn = document.getElementById('sellBtnWin');
-            const price = Math.floor(win.p * 0.8);
-            sellBtn.innerText = `Продать за ${price} ${win.currency}`;
-            
+            document.getElementById('sellBtnWin').innerText = `Продать за ${Math.floor(win.p*0.8)} ${win.currency}`;
             document.getElementById('winOverlay').style.display = 'flex';
         }
 
+        // ВОССТАНОВЛЕННАЯ ФУНКЦИЯ С ОКНОМ ПОДТВЕРЖДЕНИЯ
         function sellItem(idx) {
             const it = state.inv[idx];
-            const p = Math.floor(it.p * 0.8);
-            if(it.currency === "G") state.money += p; else state.silver += p;
-            state.inv.splice(idx, 1);
-            sync();
+            const price = Math.floor(it.p * 0.8);
+            
+            // ТО САМОЕ ОКНО ПОДТВЕРЖДЕНИЯ
+            if(confirm(`Вы действительно хотите продать ${it.name} за ${price} ${it.currency}?`)) {
+                if(it.currency === "G") state.money += price; else state.silver += price;
+                state.inv.splice(idx, 1);
+                sync();
+                renderInv();
+            }
         }
 
         function takeWin() { state.inv.unshift(state.lastWin); closeWin(); sync(); }
@@ -231,6 +219,18 @@
         }
         function closeWin() { document.getElementById('winOverlay').style.display = 'none'; }
 
+        function renderInv() {
+            const g = document.getElementById('invGrid'); if(!g) return;
+            g.innerHTML = '';
+            state.inv.forEach((it, idx) => {
+                g.innerHTML += `<div class="card" onclick="sellItem(${idx})">
+                    <div style="font-size:45px">${it.i}</div>
+                    <div style="font-size:10px; margin-top:10px; font-weight:bold">${it.name}</div>
+                    <div style="color:var(--${it.rar}); font-size:10px; font-weight:900">${Math.floor(it.p*0.8)} ${it.currency}</div>
+                </div>`;
+            });
+        }
+
         function sync() {
             document.getElementById('money').innerText = state.money.toLocaleString();
             document.getElementById('silver').innerText = state.silver.toLocaleString();
@@ -238,17 +238,6 @@
             localStorage.setItem('v12_money', state.money);
             localStorage.setItem('v12_silver', state.silver);
             localStorage.setItem('v12_inv', JSON.stringify(state.inv));
-            
-            const g = document.getElementById('invGrid'); if(g) {
-                g.innerHTML = '';
-                state.inv.forEach((it, idx) => {
-                    g.innerHTML += `<div class="card" onclick="sellItem(${idx})">
-                        <div style="font-size:45px">${it.i}</div>
-                        <div style="font-size:10px; margin-top:10px">${it.name}</div>
-                        <div style="color:var(--${it.rar}); font-weight:900; font-size:10px;">${Math.floor(it.p*0.8)}${it.currency}</div>
-                    </div>`;
-                });
-            }
         }
 
         sync();
