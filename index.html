@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CLICKER EDITION V13.9</title>
+    <title>SO2: DAILY GIFT V14.0</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -21,7 +21,6 @@
             display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden;
         }
 
-        /* КЛИКЕР-ЗОНА В ШАПКЕ */
         .header {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); width: 100%; max-width: 480px;
             padding: 15px 20px; border-radius: 32px; border: 1px solid var(--border); margin-bottom: 10px;
@@ -30,22 +29,19 @@
         }
         .header:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.07); }
         
-        /* КНОПКА ПРОМОКОДА */
-        .promo-trigger {
-            position: fixed; top: 25px; right: 20px; width: 35px; height: 35px;
-            background: var(--glass); border: 1px solid var(--border); border-radius: 10px;
-            display: flex; align-items: center; justify-content: center; z-index: 100; cursor: pointer;
-            backdrop-filter: blur(5px);
+        /* КНОПКИ УПРАВЛЕНИЯ */
+        .top-btns { position: fixed; top: 25px; right: 20px; display: flex; gap: 8px; z-index: 100; }
+        .ctrl-btn {
+            width: 35px; height: 35px; background: var(--glass); border: 1px solid var(--border);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; backdrop-filter: blur(5px); font-size: 16px;
         }
 
         .click-anim {
             position: absolute; color: var(--silver); font-weight: 900; font-size: 14px;
             pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 100;
         }
-        @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-40px); opacity: 0; }
-        }
+        @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-40px); opacity: 0; } }
 
         .currency-row { display: flex; gap: 15px; }
         .balance-item { display: flex; flex-direction: column; }
@@ -98,10 +94,7 @@
             filter: drop-shadow(0 0 30px var(--rarity-color));
             animation: floating 3s infinite ease-in-out; 
         }
-        @keyframes floating { 
-            0%, 100% { transform: translateY(0) rotate(0deg); } 
-            50% { transform: translateY(-25px) rotate(5deg); } 
-        }
+        @keyframes floating { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-25px) rotate(5deg); } }
 
         .roulette-container { height: 130px; background: rgba(0,0,0,0.4); border-radius: 25px; position: relative; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border); }
         .track { display: flex; position: absolute; left: 0; top: 10px; transition: transform 6s cubic-bezier(0.1, 0, 0, 1); }
@@ -113,22 +106,22 @@
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,7,12,0.98); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(20px); }
         .modal { background: #121929; padding: 25px; border-radius: 30px; border: 1px solid var(--border); width: 85%; max-width: 380px; text-align: center; }
 
-        .promo-input {
-            width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-            border-radius: 15px; color: #fff; text-align: center; font-size: 18px; margin-bottom: 15px;
-        }
+        .promo-input { width: 100%; padding: 15px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 15px; color: #fff; text-align: center; font-size: 18px; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-    <div class="promo-trigger" onclick="openPromo()">🎟️</div>
+    <div class="top-btns">
+        <div class="ctrl-btn" onclick="openDaily()">🎁</div>
+        <div class="ctrl-btn" onclick="openPromo()">🎟️</div>
+    </div>
 
     <div class="header" onclick="clicker(event)">
         <div class="currency-row">
             <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
             <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
         </div>
-        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.9 • kaoface</div>
+        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V14.0 • kaoface</div>
     </div>
 
     <div class="mission-panel" id="missionBox">
@@ -172,23 +165,27 @@
         </div>
     </div>
 
-    <div id="confirmOverlay" class="overlay">
+    <div id="promoOverlay" class="overlay">
         <div class="modal">
-            <h3>Продать предмет?</h3>
-            <p id="confirmText" style="opacity:0.7; margin-bottom:20px;"></p>
-            <div style="display:flex; gap:10px;">
-                <button class="btn-main" style="background:#222; color:#fff;" onclick="closeConfirm()">Отмена</button>
-                <button class="btn-main" id="confirmOk" style="background:var(--up);">Продать</button>
-            </div>
+            <h3>Промокод</h3>
+            <input type="text" id="promoInput" class="promo-input" placeholder="КОД">
+            <button class="btn-main" onclick="applyPromo()">Применить</button>
+            <button class="btn-main" style="background:none; color:#777; margin-top:10px;" onclick="closePromo()">Закрыть</button>
         </div>
     </div>
 
-    <div id="promoOverlay" class="overlay">
+    <div id="dailyOverlay" class="overlay">
         <div class="modal">
-            <h3>Активация кода</h3>
-            <input type="text" id="promoInput" class="promo-input" placeholder="ВВЕДИТЕ КОД">
-            <button class="btn-main" onclick="applyPromo()">Применить</button>
-            <button class="btn-main" style="background:none; color:#777; margin-top: 10px;" onclick="closePromo()">Закрыть</button>
+            <h3>Ежедневный бонус</h3>
+            <p id="dailyStatus" style="opacity:0.7; margin-bottom:20px;">Забирай награду каждые 24 часа!</p>
+            <button id="claimDailyBtn" class="btn-main" onclick="claimDaily()">Забрать</button>
+            <button class="btn-main" style="background:none; color:#777; margin-top:10px;" onclick="closeDaily()">Закрыть</button>
+        </div>
+    </div>
+
+    <div id="confirmOverlay" class="overlay">
+        <div class="modal"><h3>Продать?</h3><p id="confirmText"></p>
+            <div style="display:flex; gap:10px;"><button class="btn-main" style="background:#222; color:#fff;" onclick="closeConfirm()">Отмена</button><button class="btn-main" id="confirmOk" style="background:var(--up);">Да</button></div>
         </div>
     </div>
 
@@ -217,38 +214,67 @@
             inv: JSON.parse(localStorage.getItem('v12_inv')) || [],
             market: JSON.parse(localStorage.getItem('v12_market')) || SKINS.map(s => ({id: s.id, cur: s.p, chg: 0, old: s.p})),
             usedPromos: JSON.parse(localStorage.getItem('v12_used_promos')) || [],
+            lastDaily: parseInt(localStorage.getItem('v12_last_daily')) || 0,
             curCase: 1, lastWin: null, selCraft: [],
             mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
         };
 
-        // ЛОГИКА ПРОМОКОДА
+        // DAILY SYSTEM
+        function openDaily() {
+            const now = Date.now();
+            const wait = 24 * 60 * 60 * 1000;
+            const btn = document.getElementById('claimDailyBtn');
+            const status = document.getElementById('dailyStatus');
+            
+            if (now - state.lastDaily < wait) {
+                const left = wait - (now - state.lastDaily);
+                const h = Math.floor(left / 3600000);
+                const m = Math.floor((left % 3600000) / 60000);
+                status.innerText = `Бонус будет доступен через ${h}ч ${m}м`;
+                btn.disabled = true;
+            } else {
+                status.innerText = "Твой ежедневный бонус готов!";
+                btn.disabled = false;
+            }
+            document.getElementById('dailyOverlay').style.display = 'flex';
+        }
+
+        function claimDaily() {
+            const now = Date.now();
+            state.lastDaily = now;
+            localStorage.setItem('v12_last_daily', now);
+            
+            if (Math.random() > 0.5) {
+                const amt = Math.floor(Math.random() * 41) + 10;
+                state.money += amt; alert(`Получено ${amt} Gold!`);
+            } else {
+                const amt = Math.floor(Math.random() * 201) + 100;
+                state.silver += amt; alert(`Получено ${amt} Silver!`);
+            }
+            sync(); closeDaily();
+        }
+
+        function closeDaily() { document.getElementById('dailyOverlay').style.display = 'none'; }
+
+        // PROMO SYSTEM
         function openPromo() { document.getElementById('promoOverlay').style.display = 'flex'; }
         function closePromo() { document.getElementById('promoOverlay').style.display = 'none'; }
-        
         function applyPromo() {
             const input = document.getElementById('promoInput').value.trim();
             if(state.usedPromos.includes(input)) return alert("Уже использован!");
-            
             if(input === "67") {
-                state.money += 5000;
-                state.usedPromos.push(input);
+                state.money += 5000; state.usedPromos.push(input);
                 localStorage.setItem('v12_used_promos', JSON.stringify(state.usedPromos));
-                alert("Успешно: +5000 Gold!");
-                sync();
-                closePromo();
-            } else {
-                alert("Код не найден");
-            }
+                alert("Успешно: +5000 Gold!"); sync(); closePromo();
+            } else { alert("Код не найден"); }
         }
 
-        // ФУНКЦИЯ КЛИКЕРА
+        // CLICKER
         function clicker(e) {
             state.silver += 0.01;
             const anim = document.createElement('div');
-            anim.className = 'click-anim';
-            anim.innerText = '+0.01 S';
-            anim.style.left = e.clientX - 20 + 'px';
-            anim.style.top = e.clientY - 20 + 'px';
+            anim.className = 'click-anim'; anim.innerText = '+0.01 S';
+            anim.style.left = e.clientX - 20 + 'px'; anim.style.top = e.clientY - 20 + 'px';
             document.body.appendChild(anim);
             setTimeout(() => anim.remove(), 600);
             sync();
@@ -315,8 +341,7 @@
             const win = pool[Math.floor(Math.random()*pool.length)];
             state.selCraft.sort((a,b)=>b-a).forEach(i => state.inv.splice(i,1));
             state.selCraft = []; state.lastWin = win; 
-            checkMission('craft');
-            showWin(win); sync();
+            checkMission('craft'); showWin(win); sync();
         }
 
         function claimMission() {
@@ -370,7 +395,6 @@
         function sync() {
             document.getElementById('money').innerText = Math.floor(state.money).toLocaleString();
             document.getElementById('silver').innerText = state.silver.toFixed(2);
-            
             localStorage.setItem('v12_money', state.money); 
             localStorage.setItem('v12_silver', state.silver);
             localStorage.setItem('v12_inv', JSON.stringify(state.inv)); 
@@ -414,8 +438,7 @@
 
         function updateMarket() {
             state.market.forEach(item => {
-                const s = SKINS.find(x => x.id === item.id);
-                item.old = item.cur;
+                const s = SKINS.find(x => x.id === item.id); item.old = item.cur;
                 const move = (Math.random() - 0.5) * 0.2;
                 item.cur = Math.max(Math.floor(s.p * (1 + move)), 2);
                 item.chg = (((item.cur - item.old) / item.old) * 100).toFixed(1);
