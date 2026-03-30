@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: BALANCED MARKET V12.7</title>
+    <title>SO2: MISSIONS V12.8</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -23,65 +23,84 @@
 
         .header {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); width: 100%; max-width: 480px;
-            padding: 20px; border-radius: 32px; border: 1px solid var(--border); margin-bottom: 20px;
-            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; border-radius: 32px; border: 1px solid var(--border); margin-bottom: 10px;
+            display: flex; justify-content: space-between; align-items: center; width: 100%;
         }
         .currency-row { display: flex; gap: 15px; }
         .balance-item { display: flex; flex-direction: column; }
         .balance-item label { font-size: 9px; opacity: 0.5; text-transform: uppercase; }
         .gold-txt { color: var(--accent); } .silver-txt { color: var(--silver); }
 
-        .tabs { display: flex; gap: 8px; width: 100%; max-width: 480px; margin-bottom: 20px; }
+        /* МИССИИ ИНТЕРФЕЙС */
+        .mission-panel {
+            background: rgba(0, 210, 255, 0.05); border: 1px dashed var(--blue);
+            width: 100%; max-width: 480px; border-radius: 20px; padding: 12px; margin-bottom: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .mission-info h4 { margin: 0; font-size: 13px; color: var(--blue); }
+        .mission-info p { margin: 2px 0 0; font-size: 11px; opacity: 0.7; }
+        .m-progress { font-weight: 900; color: #fff; margin-left: 10px; }
+
+        .tabs { display: flex; gap: 8px; width: 100%; max-width: 480px; margin-bottom: 15px; }
         .tab { 
-            flex: 1; padding: 14px; background: var(--glass); border: 1px solid var(--border);
-            color: #777; border-radius: 18px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px; text-align: center;
+            flex: 1; padding: 12px; background: var(--glass); border: 1px solid var(--border);
+            color: #777; border-radius: 15px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px; text-align: center;
         }
         .tab.active { background: var(--blue); color: #000; border: none; }
 
         .view { display: none; width: 100%; max-width: 480px; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding-bottom: 40px; overflow-y: auto; max-height: 55vh; width: 100%; }
-        .card { background: var(--glass); padding: 20px; border-radius: 28px; text-align: center; border: 1px solid var(--border); position: relative; transition: 0.2s; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 30px; overflow-y: auto; max-height: 50vh; width: 100%; }
+        .card { background: var(--glass); padding: 15px; border-radius: 22px; text-align: center; border: 1px solid var(--border); position: relative; }
         .card.selected { border: 2px solid var(--up); }
 
-        .price-change { font-size: 10px; position: absolute; top: 10px; right: 10px; font-weight: bold; }
-        .price-up { color: var(--up); } .price-down { color: var(--down); }
-
-        .case-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 20px; }
-        .case-card { background: var(--glass); padding: 10px; border-radius: 20px; border: 1px solid var(--border); text-align: center; cursor: pointer; font-size: 11px; }
+        .case-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 15px; }
+        .case-card { background: var(--glass); padding: 8px; border-radius: 15px; border: 1px solid var(--border); text-align: center; cursor: pointer; font-size: 10px; }
         .case-card.active { border-color: var(--blue); background: rgba(0, 210, 255, 0.1); }
 
         /* ЭФФЕКТЫ */
         .glow-circle { 
-            position: absolute; width: 300px; height: 300px; 
+            position: absolute; width: 280px; height: 280px; 
             background: radial-gradient(circle, var(--rarity-color) 0%, transparent 75%);
             top: 40%; left: 50%; transform: translate(-50%, -50%); opacity: 0.5; 
-            filter: blur(50px); z-index: -1; animation: pulse 2s infinite; 
+            filter: blur(45px); z-index: -1; animation: pulse 2s infinite; 
         }
-        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.3); } }
+        @keyframes pulse { 0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.2); } }
         
-        .win-item-icon { font-size: 110px; margin-bottom: 20px; animation: float 3s infinite ease-in-out; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        .win-item-icon { font-size: 100px; margin-bottom: 15px; animation: float 3s infinite ease-in-out; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        .roulette-container { height: 140px; background: rgba(0,0,0,0.4); border-radius: 28px; position: relative; overflow: hidden; margin-bottom: 20px; border: 1px solid var(--border); }
-        .track { display: flex; position: absolute; left: 0; top: 15px; transition: transform 6s cubic-bezier(0.1, 0, 0, 1); }
-        .t-item { min-width: 110px; height: 110px; margin: 0 6px; background: var(--glass); border-radius: 22px; display: flex; align-items: center; justify-content: center; font-size: 45px; border-bottom: 5px solid #333; }
+        .roulette-container { height: 130px; background: rgba(0,0,0,0.4); border-radius: 25px; position: relative; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border); }
+        .track { display: flex; position: absolute; left: 0; top: 10px; transition: transform 6s cubic-bezier(0.1, 0, 0, 1); }
+        .t-item { min-width: 110px; height: 110px; margin: 0 6px; background: var(--glass); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; border-bottom: 5px solid #333; }
         .pointer { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff3e3e; z-index: 10; transform: translateX(-50%); }
 
-        .btn-main { width: 100%; padding: 20px; border: none; border-radius: 22px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,7,12,0.96); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(20px); }
-        .modal { background: #121929; padding: 30px; border-radius: 35px; border: 1px solid var(--border); width: 90%; max-width: 400px; text-align: center; }
+        .btn-main { width: 100%; padding: 18px; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 13px; }
+        .btn-main:disabled { opacity: 0.2; filter: grayscale(1); }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,7,12,0.97); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(15px); }
+        .modal { background: #121929; padding: 25px; border-radius: 30px; border: 1px solid var(--border); width: 85%; max-width: 380px; text-align: center; }
     </style>
 </head>
 <body>
 
     <div class="header">
         <div class="currency-row">
-            <div class="balance-item"><label>Золото</label><b class="gold-txt"><span id="money">0</span> G</b></div>
-            <div class="balance-item"><label>Серебро</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
+            <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
+            <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
         </div>
-        <div style="font-size: 14px; opacity: 0.5;">kaoface</div>
+        <div style="font-size: 12px; opacity: 0.4;">V12.8 • kaoface</div>
+    </div>
+
+    <div class="mission-panel" id="missionBox">
+        <div class="mission-info">
+            <h4 id="mTitle">Загрузка...</h4>
+            <p id="mDesc">Выполняйте действия для фарма</p>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span class="m-progress" id="mProgress">0/0</span>
+            <button id="mClaimBtn" onclick="claimMission()" style="background:var(--up); border:none; border-radius:10px; padding:8px 12px; font-weight:bold; display:none;">Взять</button>
+        </div>
     </div>
 
     <div class="tabs">
@@ -93,25 +112,29 @@
 
     <div id="shop" class="view" style="display: block;">
         <div class="case-selector">
-            <div id="c0" class="case-card" onclick="setCase(0)">🔘<br>100S</div>
-            <div id="c1" class="case-card active" onclick="setCase(1)">📦<br>250G</div>
-            <div id="c2" class="case-card" onclick="setCase(2)">📦<br>500G</div>
-            <div id="c3" class="case-card" onclick="setCase(3)">🔪<br>1500G</div>
+            <div id="c0" class="case-card" onclick="setCase(0)">🔘 100S</div>
+            <div id="c1" class="case-card active" onclick="setCase(1)">📦 250G</div>
+            <div id="c2" class="case-card" onclick="setCase(2)">📦 500G</div>
+            <div id="c3" class="case-card" onclick="setCase(3)">🔪 1500G</div>
         </div>
         <div class="roulette-container"><div class="pointer"></div><div id="track" class="track"></div></div>
-        <button id="spinBtn" class="btn-main" onclick="openCase()">Открыть кейс</button>
+        <button id="spinBtn" class="btn-main" onclick="openCase()">Открыть</button>
     </div>
 
     <div id="inv" class="view"><div id="invGrid" class="grid"></div></div>
     <div id="market" class="view"><div id="marketGrid" class="grid"></div></div>
-    <div id="craft" class="view"><div id="craftGrid" class="grid"></div><button id="craftBtn" class="btn-main" disabled onclick="doCraft()">Скрафтить (10 шт)</button></div>
+    <div id="craft" class="view">
+        <p style="text-align:center; font-size:12px; opacity:0.6;">Выберите 10 предметов одной редкости</p>
+        <button id="craftBtn" class="btn-main" style="margin-bottom:15px;" disabled onclick="doCraft()">Начать крафт</button>
+        <div id="craftGrid" class="grid"></div>
+    </div>
 
     <div id="winOverlay" class="overlay">
         <div style="text-align:center">
             <div id="rarityGlow" class="glow-circle"></div>
             <div id="winIcon" class="win-item-icon">🔫</div>
-            <h2 id="winName">Item</h2>
-            <p id="winRarity" style="font-weight:900; letter-spacing:2px; margin:10px 0 30px;"></p>
+            <h2 id="winName" style="margin:0">Item</h2>
+            <p id="winRarity" style="font-weight:900; letter-spacing:2px; margin:10px 0 25px;"></p>
             <button class="btn-main" onclick="takeWin()">В инвентарь</button>
             <button class="btn-main" style="background:none; color:#555; margin-top:10px;" id="sellBtnWin" onclick="sellWin()">Продать (-20%)</button>
         </div>
@@ -119,11 +142,11 @@
 
     <div id="confirmOverlay" class="overlay">
         <div class="modal">
-            <h3 style="margin-top:0">Подтверждение</h3>
-            <p id="confirmText" style="opacity:0.8; margin-bottom:25px;"></p>
+            <h3>Продать предмет?</h3>
+            <p id="confirmText" style="opacity:0.7; margin-bottom:20px;"></p>
             <div style="display:flex; gap:10px;">
-                <button class="btn-main" style="background:#222; color:#fff;" onclick="closeConfirm()">Нет</button>
-                <button class="btn-main" id="confirmOk" style="background:var(--up);">Да</button>
+                <button class="btn-main" style="background:#222; color:#fff;" onclick="closeConfirm()">Отмена</button>
+                <button class="btn-main" id="confirmOk" style="background:var(--up);">Продать</button>
             </div>
         </div>
     </div>
@@ -139,25 +162,57 @@
             { id: 6, name: "Butterfly | Star", rar: "arcane", p: 18000, i: "🦋", currency: "G" }
         ];
 
-        const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "arcane"];
+        const MISSIONS = [
+            { id: 'craft', title: 'Крафтер', desc: 'Скрафтите 1 предмет', target: 1, reward: {g: 100} },
+            { id: 'sell', title: 'Торговец', desc: 'Продайте 3 скина', target: 3, reward: {g: 50} },
+            { id: 'open_silver', title: 'Коллекционер', desc: 'Откройте 5 серебр. кейсов', target: 5, reward: {s: 200} }
+        ];
 
         let state = {
             money: parseInt(localStorage.getItem('v12_money')) || 1000,
             silver: parseInt(localStorage.getItem('v12_silver')) || 1000,
             inv: JSON.parse(localStorage.getItem('v12_inv')) || [],
             market: JSON.parse(localStorage.getItem('v12_market')) || SKINS.map(s => ({id: s.id, cur: s.p, chg: 0})),
-            curCase: 1, lastWin: null, selCraft: []
+            curCase: 1, lastWin: null, selCraft: [],
+            mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
         };
 
         function updateMarket() {
             state.market.forEach(item => {
-                const move = (Math.random() - 0.5) * 0.12;
+                const move = (Math.random() - 0.5) * 0.15;
                 item.chg = (move * 100).toFixed(1);
                 item.cur = Math.max(Math.floor(item.cur * (1 + move)), 2);
             });
             sync();
         }
-        setInterval(updateMarket, 5000);
+        setInterval(updateMarket, 6000);
+
+        // ЛОГИКА МИССИЙ
+        function checkMission(type, amount = 1) {
+            const currentM = MISSIONS[state.mission.typeIdx];
+            if (state.mission.cooldown || currentM.id !== type) return;
+            state.mission.progress += amount;
+            if (state.mission.progress >= currentM.target) {
+                state.mission.progress = currentM.target;
+            }
+            sync();
+        }
+
+        function claimMission() {
+            const m = MISSIONS[state.mission.typeIdx];
+            if (m.reward.g) state.money += m.reward.g;
+            if (m.reward.s) state.silver += m.reward.s;
+            
+            state.mission.cooldown = true;
+            state.mission.progress = 0;
+            sync();
+
+            setTimeout(() => {
+                state.mission.typeIdx = Math.floor(Math.random() * MISSIONS.length);
+                state.mission.cooldown = false;
+                sync();
+            }, 120000); // 2 минуты откат
+        }
 
         function tab(name) {
             document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
@@ -178,7 +233,11 @@
             const cost = costs[state.curCase];
             if(cost.g && state.money < cost.g) return alert("Мало G!");
             if(cost.s && state.silver < cost.s) return alert("Мало S!");
+            
             if(cost.g) state.money -= cost.g; else state.silver -= cost.s;
+            if(state.curCase === 0) checkMission('open_silver');
+            
+            document.getElementById('spinBtn').disabled = true;
             sync();
 
             const track = document.getElementById('track');
@@ -186,18 +245,17 @@
             track.innerHTML = '';
             
             let win;
-            // Шанс на Аркану 0.5% (1 из 200)
-            const getSkinByChance = () => {
+            const getSkin = () => {
                 const rng = Math.random();
-                if(rng < 0.005) return SKINS[Math.floor(Math.random() * 2) + 5]; // Arcane
-                if(rng < 0.05) return SKINS[4]; // Legendary
-                if(rng < 0.15) return SKINS[3]; // Epic
-                if(rng < 0.40) return SKINS[2]; // Rare
-                return SKINS[Math.floor(Math.random() * 2)]; // Common/Uncommon
+                if(rng < 0.005) return SKINS[Math.floor(Math.random() * 2) + 5]; // 0.5% Аркана
+                if(rng < 0.06) return SKINS[4];
+                if(rng < 0.18) return SKINS[3];
+                if(rng < 0.45) return SKINS[2];
+                return SKINS[Math.floor(Math.random() * 2)];
             };
 
             for(let i=0; i<60; i++) {
-                const s = getSkinByChance();
+                const s = getSkin();
                 if(i === 52) win = s;
                 track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${s.i}</div>`;
             }
@@ -206,13 +264,12 @@
                 track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0, 1)';
                 track.style.transform = `translateX(-${52 * 122 - (window.innerWidth/2 - 61)}px)`;
             }, 50);
-            setTimeout(() => { state.lastWin = win; showWin(win); }, 6200);
+            setTimeout(() => { state.lastWin = win; showWin(win); document.getElementById('spinBtn').disabled = false; }, 6200);
         }
 
         function showWin(win) {
             document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
             document.getElementById('winIcon').innerText = win.i;
-            document.getElementById('winIcon').style.color = `var(--${win.rar})`;
             document.getElementById('winName').innerText = win.name;
             const rt = document.getElementById('winRarity');
             rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
@@ -229,17 +286,23 @@
             document.getElementById('confirmOverlay').style.display = 'flex';
             document.getElementById('confirmOk').onclick = () => {
                 if(it.currency === "G") state.money += p; else state.silver += p;
-                state.inv.splice(idx, 1); closeConfirm(); sync();
+                state.inv.splice(idx, 1);
+                checkMission('sell');
+                closeConfirm(); sync();
             };
         }
 
-        function buyMarket(id) {
-            const mData = state.market.find(m => m.id === id);
-            const s = SKINS.find(x => x.id === id);
-            if(s.currency === "G" && state.money < mData.cur) return alert("Мало G!");
-            if(s.currency === "S" && state.silver < mData.cur) return alert("Мало S!");
-            if(s.currency === "G") state.money -= mData.cur; else state.silver -= mData.cur;
-            state.inv.unshift({...s}); sync();
+        function doCraft() {
+            const rar = state.inv[state.selCraft[0]].rar;
+            const rarList = ["common", "uncommon", "rare", "epic", "legendary", "arcane"];
+            const nextIdx = Math.min(rarList.indexOf(rar) + 1, 5);
+            const win = SKINS.filter(s => s.rar === rarList[nextIdx])[0];
+            
+            state.selCraft.sort((a,b)=>b-a).forEach(i => state.inv.splice(i,1));
+            state.selCraft = [];
+            state.lastWin = win;
+            checkMission('craft');
+            showWin(win); sync();
         }
 
         function toggleCraft(idx) {
@@ -252,12 +315,13 @@
             sync();
         }
 
-        function doCraft() {
-            const rar = state.inv[state.selCraft[0]].rar;
-            const nextIdx = RARITIES.indexOf(rar) + 1;
-            const win = SKINS.filter(s => s.rar === (RARITIES[nextIdx] || "arcane"))[0];
-            state.selCraft.sort((a,b)=>b-a).forEach(i => state.inv.splice(i,1));
-            state.selCraft = []; state.lastWin = win; showWin(win); sync();
+        function buyMarket(id) {
+            const mData = state.market.find(m => m.id === id);
+            const s = SKINS.find(x => x.id === id);
+            if(s.currency === "G" && state.money < mData.cur) return alert("Мало G!");
+            if(s.currency === "S" && state.silver < mData.cur) return alert("Мало S!");
+            if(s.currency === "G") state.money -= mData.cur; else state.silver -= mData.cur;
+            state.inv.unshift({...s}); sync();
         }
 
         function takeWin() { state.inv.unshift(state.lastWin); closeOverlay(); sync(); }
@@ -265,6 +329,7 @@
             const price = state.market.find(m => m.id === state.lastWin.id).cur;
             const p = Math.floor(price * 0.8);
             if(state.lastWin.currency === "G") state.money += p; else state.silver += p;
+            checkMission('sell');
             closeOverlay(); sync(); 
         }
         function closeOverlay() { document.getElementById('winOverlay').style.display = 'none'; }
@@ -276,6 +341,21 @@
             localStorage.setItem('v12_money', state.money); localStorage.setItem('v12_silver', state.silver);
             localStorage.setItem('v12_inv', JSON.stringify(state.inv));
             localStorage.setItem('v12_market', JSON.stringify(state.market));
+            localStorage.setItem('v12_mission', JSON.stringify(state.mission));
+
+            // Обновление миссий
+            const mData = MISSIONS[state.mission.typeIdx];
+            if (state.mission.cooldown) {
+                document.getElementById('mTitle').innerText = "Ожидание новых задач...";
+                document.getElementById('mDesc').innerText = "Задания обновляются раз в 2 минуты";
+                document.getElementById('mProgress').innerText = "⏰";
+                document.getElementById('mClaimBtn').style.display = 'none';
+            } else {
+                document.getElementById('mTitle').innerText = mData.title;
+                document.getElementById('mDesc').innerText = mData.desc;
+                document.getElementById('mProgress').innerText = `${state.mission.progress}/${mData.target}`;
+                document.getElementById('mClaimBtn').style.display = (state.mission.progress >= mData.target) ? 'block' : 'none';
+            }
             
             const ig = document.getElementById('invGrid'); if(ig) {
                 ig.innerHTML = '';
@@ -289,7 +369,7 @@
                 state.market.forEach(m => {
                     const s = SKINS.find(x => x.id === m.id);
                     const col = m.chg >= 0 ? 'price-up' : 'price-down';
-                    mg.innerHTML += `<div class="card" onclick="buyMarket(${s.id})"><div class="price-change ${col}">${m.chg}%</div><div style="font-size:40px">${s.i}</div><div style="font-size:10px">${s.name}</div><b>${m.cur}${s.currency}</b></div>`;
+                    mg.innerHTML += `<div class="card" onclick="buyMarket(${s.id})"><div class="price-change ${col}">${m.chg}%</div><div style="font-size:35px">${s.i}</div><div style="font-size:9px">${s.name}</div><b>${m.cur}${s.currency}</b></div>`;
                 });
             }
             const cg = document.getElementById('craftGrid'); if(cg) {
