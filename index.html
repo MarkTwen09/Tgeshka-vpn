@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CLICKER EDITION V13.6</title>
+    <title>SO2: CLICKER EDITION V13.7</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -62,11 +62,10 @@
         .card { background: var(--glass); padding: 15px; border-radius: 22px; text-align: center; border: 1px solid var(--border); position: relative; transition: 0.2s; cursor: pointer; }
         .card.selected { border: 2px solid var(--up); box-shadow: 0 0 15px rgba(0,255,136,0.2); }
         
-        /* Стили для картинок в карточках */
-        .card img { width: 100%; height: 50px; object-fit: contain; margin-bottom: 5px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
+        .card img { width: 100%; height: 60px; object-fit: contain; margin-bottom: 5px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
 
         .market-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .market-header img { width: 35px; height: 35px; object-fit: contain; }
+        .market-header img { width: 40px; height: 30px; object-fit: contain; }
         .price-change-row { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 900; }
         .price-up { color: var(--up); } .price-down { color: var(--down); }
 
@@ -83,15 +82,13 @@
         @keyframes pulseGlow { 0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); } 50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.25); } }
         
         .win-item-icon { margin-bottom: 20px; animation: floating 3s infinite ease-in-out; }
-        .win-item-icon img { width: 180px; filter: drop-shadow(0 0 30px var(--rarity-color)); }
-        .win-item-icon span { font-size: 110px; filter: drop-shadow(0 0 30px var(--rarity-color)); }
+        .win-item-icon img { width: 220px; filter: drop-shadow(0 0 30px var(--rarity-color)); }
         @keyframes floating { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-25px) rotate(5deg); } }
 
         .roulette-container { height: 130px; background: rgba(0,0,0,0.4); border-radius: 25px; position: relative; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border); }
         .track { display: flex; position: absolute; left: 0; top: 10px; transition: transform 6s cubic-bezier(0.1, 0, 0, 1); }
         .t-item { min-width: 110px; height: 110px; margin: 0 6px; background: var(--glass); border-radius: 20px; display: flex; align-items: center; justify-content: center; border-bottom: 5px solid #333; }
-        .t-item img { width: 80%; height: 80%; object-fit: contain; }
-        .t-item span { font-size: 40px; }
+        .t-item img { width: 85%; height: 85%; object-fit: contain; }
         .pointer { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff3e3e; z-index: 10; transform: translateX(-50%); }
 
         .btn-main { width: 100%; padding: 18px; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 13px; }
@@ -107,7 +104,7 @@
             <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
             <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
         </div>
-        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.6 • kaoface</div>
+        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.7 • kaoface</div>
     </div>
 
     <div class="mission-panel" id="missionBox">
@@ -164,13 +161,14 @@
 
     <script>
         const SKINS = [
-            { id: 0, name: "G22 | Casual", rar: "common", p: 5, i: "https://share.google/images/9OQlRMH9jIe739efw", currency: "S" },
-            { id: 1, name: "USP | Genesis", rar: "uncommon", p: 35, i: "🔫", currency: "S" },
-            { id: 2, name: "M4 | Tiger", rar: "rare", p: 120, i: "🔫", currency: "G" },
-            { id: 3, name: "AKR | Necro", rar: "epic", p: 480, i: "🔫", currency: "G" },
-            { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1200, i: "🎯", currency: "G" },
-            { id: 5, name: "Karambit | Gold", rar: "arcane", p: 25000, i: "🔪", currency: "G" },
-            { id: 6, name: "Butterfly | Star", rar: "arcane", p: 18000, i: "🦋", currency: "G" }
+            { id: 0, name: "G22 | Casual", rar: "common", p: 10, i: "https://wiki.standoff2.com/images/thumb/5/53/G22_Casual.png/256px-G22_Casual.png", currency: "S" },
+            { id: 1, name: "USP | Genesis", rar: "uncommon", p: 45, i: "https://wiki.standoff2.com/images/thumb/2/23/USP_Genesis.png/256px-USP_Genesis.png", currency: "S" },
+            { id: 2, name: "M4 | Tiger", rar: "rare", p: 150, i: "https://wiki.standoff2.com/images/thumb/9/90/M4_Tiger.png/256px-M4_Tiger.png", currency: "G" },
+            { id: 3, name: "AKR | Necromancer", rar: "epic", p: 600, i: "https://wiki.standoff2.com/images/thumb/5/52/AKR_Necromancer.png/256px-AKR_Necromancer.png", currency: "G" },
+            { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1400, i: "https://wiki.standoff2.com/images/thumb/9/97/AWM_Scratch.png/256px-AWM_Scratch.png", currency: "G" },
+            { id: 5, name: "Karambit | Gold", rar: "arcane", p: 35000, i: "https://wiki.standoff2.com/images/thumb/9/98/Karambit_Gold.png/256px-Karambit_Gold.png", currency: "G" },
+            { id: 6, name: "Butterfly | Starfall", rar: "arcane", p: 28000, i: "https://wiki.standoff2.com/images/thumb/0/07/Butterfly_Starfall.png/256px-Butterfly_Starfall.png", currency: "G" },
+            { id: 7, name: "Desert Eagle | Orochi", rar: "epic", p: 550, i: "https://wiki.standoff2.com/images/thumb/a/a2/Desert_Eagle_Orochi.png/256px-Desert_Eagle_Orochi.png", currency: "G" }
         ];
 
         const MISSIONS = [
@@ -190,19 +188,13 @@
             mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
         };
 
-        // Помощник для отрисовки иконок (текст или картинка)
-        function getIconHTML(iconStr, isWin = false) {
-            if (iconStr.startsWith('http')) {
-                return `<img src="${iconStr}">`;
-            }
-            return `<span>${iconStr}</span>`;
-        }
+        function getImg(url) { return `<img src="${url}" onerror="this.src='https://wiki.standoff2.com/images/thumb/e/e0/Icon_Question_Mark.png/128px-Icon_Question_Mark.png'">`; }
 
         function clicker(e) {
-            state.silver += 0.01;
+            state.silver += 0.05;
             const anim = document.createElement('div');
             anim.className = 'click-anim';
-            anim.innerText = '+0.01 S';
+            anim.innerText = '+0.05 S';
             anim.style.left = e.clientX - 20 + 'px';
             anim.style.top = e.clientY - 20 + 'px';
             document.body.appendChild(anim);
@@ -229,13 +221,14 @@
             let win;
             const getSkin = () => {
                 const rng = Math.random();
-                if(rng < 0.005) return SKINS[Math.floor(Math.random()*2)+5];
-                if(rng < 0.06) return SKINS[4]; if(rng < 0.18) return SKINS[3];
+                if(rng < 0.008) return SKINS[Math.floor(Math.random()*2)+5];
+                if(rng < 0.08) return SKINS[4]; 
+                if(rng < 0.25) return SKINS[Math.random() > 0.5 ? 3 : 7];
                 return SKINS[Math.floor(Math.random()*3)];
             };
             for(let i=0; i<60; i++) {
                 const s = getSkin(); if(i === 52) win = s;
-                track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${getIconHTML(s.i)}</div>`;
+                track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${getImg(s.i)}</div>`;
             }
             setTimeout(() => { track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0, 1)'; track.style.transform = `translateX(-${52*122 - (window.innerWidth/2 - 61)}px)`; }, 50);
             setTimeout(() => { state.lastWin = win; showWin(win); }, 6200);
@@ -288,8 +281,7 @@
         function showWin(win) {
             document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
             const winIcon = document.getElementById('winIcon');
-            winIcon.innerHTML = getIconHTML(win.i);
-            winIcon.style.color = `var(--${win.rar})`;
+            winIcon.innerHTML = getImg(win.i);
             document.getElementById('winName').innerText = win.name;
             const rt = document.getElementById('winRarity');
             rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
@@ -341,19 +333,19 @@
             }
             const ig = document.getElementById('invGrid'); if(ig) {
                 ig.innerHTML = '';
-                state.inv.forEach((it, i) => { ig.innerHTML += `<div class="card" onclick="sellWithConfirm(${i})"><div>${getIconHTML(it.i)}</div><div style="font-size:10px">${it.name}</div><div style="color:var(--${it.rar}); font-size:11px;">Цена: ${state.market.find(m=>m.id===it.id).cur}${it.currency}</div></div>`; });
+                state.inv.forEach((it, i) => { ig.innerHTML += `<div class="card" onclick="sellWithConfirm(${i})"><div>${getImg(it.i)}</div><div style="font-size:10px">${it.name}</div><div style="color:var(--${it.rar}); font-size:11px;">Цена: ${state.market.find(m=>m.id===it.id).cur}${it.currency}</div></div>`; });
             }
             const mg = document.getElementById('marketGrid'); if(mg) {
                 mg.innerHTML = '';
                 state.market.forEach(m => {
                     const s = SKINS.find(x => x.id === m.id);
                     const col = m.cur >= m.old ? 'price-up' : 'price-down';
-                    mg.innerHTML += `<div class="card" onclick="buyMarket(${s.id})"><div class="market-header"><span>${getIconHTML(s.i)}</span><div class="price-change-row ${col}">${m.chg}%</div></div><div style="font-size:10px">${s.name}</div><b>${m.cur}${s.currency}</b></div>`;
+                    mg.innerHTML += `<div class="card" onclick="buyMarket(s.id)"><div class="market-header"><span>${getImg(s.i)}</span><div class="price-change-row ${col}">${m.chg}%</div></div><div style="font-size:10px">${s.name}</div><b>${m.cur}${s.currency}</b></div>`;
                 });
             }
             const cg = document.getElementById('craftGrid'); if(cg) {
                 cg.innerHTML = '';
-                state.inv.forEach((it, i) => { if(it.rar !== "arcane") cg.innerHTML += `<div class="card ${state.selCraft.includes(i)?'selected':''}" onclick="toggleCraft(${i})"><div>${getIconHTML(it.i)}</div><div style="font-size:10px">${it.rar}</div></div>`; });
+                state.inv.forEach((it, i) => { if(it.rar !== "arcane") cg.innerHTML += `<div class="card ${state.selCraft.includes(i)?'selected':''}" onclick="toggleCraft(${i})"><div>${getImg(it.i)}</div><div style="font-size:10px">${it.rar}</div></div>`; });
                 document.getElementById('craftBtn').disabled = (state.selCraft.length < 10);
             }
         }
