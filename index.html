@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CLICKER EDITION V13.6 (SKINS)</title>
+    <title>SO2: CLICKER EDITION V13.7 (SKINS FIXED)</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -89,7 +89,7 @@
             <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
             <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
         </div>
-        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.6 • kaoface</div>
+        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.7 • kaoface</div>
     </div>
 
     <div class="mission-panel" id="missionBox">
@@ -144,15 +144,15 @@
     </div>
 
     <script>
-        // БАЗА СКИНОВ С КАРТИНКАМИ
+        // ИСПОЛЬЗУЕМ WSRV.NL ДЛЯ ГАРАНТИРОВАННОЙ ЗАГРУЗКИ КАРТИНОК
         const SKINS = [
-            { id: 0, name: "G22 | Casual", rar: "common", p: 5, img: "https://files.so2.help/items/full/422.png", currency: "S" },
-            { id: 1, name: "USP | Genesis", rar: "uncommon", p: 35, img: "https://files.so2.help/items/full/438.png", currency: "S" },
-            { id: 2, name: "M4 | Tiger", rar: "rare", p: 120, img: "https://files.so2.help/items/full/428.png", currency: "G" },
-            { id: 3, name: "AKR | Necromancer", rar: "epic", p: 480, img: "https://files.so2.help/items/full/420.png", currency: "G" },
-            { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1200, img: "https://files.so2.help/items/full/421.png", currency: "G" },
-            { id: 5, name: "Karambit | Gold", rar: "arcane", p: 25000, img: "https://files.so2.help/items/full/432.png", currency: "G" },
-            { id: 6, name: "Butterfly | Legacy", rar: "arcane", p: 18000, img: "https://files.so2.help/items/full/434.png", currency: "G" }
+            { id: 0, name: "G22 | Casual", rar: "common", p: 5, img: "https://wsrv.nl/?url=https://files.so2.help/items/full/422.png", currency: "S" },
+            { id: 1, name: "USP | Genesis", rar: "uncommon", p: 35, img: "https://wsrv.nl/?url=https://files.so2.help/items/full/438.png", currency: "S" },
+            { id: 2, name: "M4 | Tiger", rar: "rare", p: 120, img: "https://wsrv.nl/?url=https://files.so2.help/items/full/428.png", currency: "G" },
+            { id: 3, name: "AKR | Necromancer", rar: "epic", p: 480, img: "https://wsrv.nl/?url=https://files.so2.help/items/full/420.png", currency: "G" },
+            { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1200, img: "https://wsrv.nl/?url=https://files.so2.help/items/full/421.png", currency: "G" },
+            { id: 5, name: "Karambit | Gold", rar: "arcane", p: 25000, img: "https://wsrv.nl/?url=https://files.so2.help/items/full/432.png", currency: "G" },
+            { id: 6, name: "Butterfly | Legacy", rar: "arcane", p: 18000, img: "https://wsrv.nl/?url=https://files.so2.help/items/full/434.png", currency: "G" }
         ];
 
         const MISSIONS = [
