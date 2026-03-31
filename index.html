@@ -1,379 +1,939 @@
- <!DOCTYPE html>
+открой эту игру <!doctype html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CLICKER EDITION V13.5</title>
-    <style>
-        :root {
-            --bg: #0a0f1b;
-            --glass: rgba(255, 255, 255, 0.05);
-            --border: rgba(255, 255, 255, 0.1);
-            --accent: #ffcc00; --silver: #b0c3d9; --blue: #00d2ff;
-            --up: #00ff88; --down: #ff4d4d;
-            --common: #b0c3d9; --uncommon: #5e98d9; --rare: #4b69ff; --epic: #8847ff; --legendary: #d32ce6; --arcane: #eb4b4b;
-        }
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SO2: CLICKER EDITION</title>
+<style>
+  :root{
+    --bg1:#1a2a4d;
+    --bg2:#0a0f1b;
+    --glass-bg: rgba(255,255,255,0.06);
+    --glass-border: rgba(255,255,255,0.08);
+    --accent: #7ee7ff;
+    --radius: 22px;
+    --panel-padding: 18px;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body {
-            background: var(--bg); background: radial-gradient(circle at 50% -10%, #1a2a4d 0%, #0a0f1b 100%);
-            color: white; font-family: 'SF Pro Display', sans-serif; margin: 0; padding: 12px;
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden;
-        }
+  /* rarity colors: gray, cyan, blue, purple, pink, red */
+  .rarity-common { border-left: 6px solid #9aa0a6; }     /* серый */
+  .rarity-uncommon { border-left: 6px solid #7fd2ff; }   /* голубой */
+  .rarity-rare { border-left: 6px solid #3b82f6; }       /* синий */
+  .rarity-epic { border-left: 6px solid #8b5cf6; }       /* фиолетовый */
+  .rarity-legendary { border-left: 6px solid #ff70b8; }  /* розовый */
+  .rarity-arcane { border-left: 6px solid #ff4d4d; }     /* красный */
 
-        /* КЛИКЕР-ЗОНА В ШАПКЕ */
-        .header {
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); width: 100%; max-width: 480px;
-            padding: 15px 20px; border-radius: 32px; border: 1px solid var(--border); margin-bottom: 10px;
-            display: flex; justify-content: space-between; align-items: center; width: 100%;
-            cursor: pointer; transition: transform 0.1s; position: relative; overflow: hidden;
-        }
-        .header:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.07); }
-        
-        .click-anim {
-            position: absolute; color: var(--silver); font-weight: 900; font-size: 14px;
-            pointer-events: none; animation: floatUp 0.6s ease-out forwards; z-index: 100;
-        }
-        @keyframes floatUp {
-            0% { transform: translateY(0); opacity: 1; }
-            100% { transform: translateY(-40px); opacity: 0; }
-        }
+  html,body{
+    height:100%;
+    margin:0;
+    background: linear-gradient(135deg,var(--bg1),var(--bg2));
+    color:#e8eef8;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+  }
 
-        .currency-row { display: flex; gap: 15px; }
-        .balance-item { display: flex; flex-direction: column; }
-        .balance-item label { font-size: 9px; opacity: 0.5; text-transform: uppercase; }
-        .gold-txt { color: var(--accent); } .silver-txt { color: var(--silver); }
+  .app{
+    max-width:1100px;
+    margin:24px auto;
+    padding:20px;
+    display:grid;
+    grid-template-columns: 1fr 360px;
+    gap:20px;
+  }
 
-        .mission-panel {
-            background: rgba(0, 210, 255, 0.05); border: 1px dashed var(--blue);
-            width: 100%; max-width: 480px; border-radius: 20px; padding: 12px; margin-bottom: 15px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .mission-info h4 { margin: 0; font-size: 13px; color: var(--blue); }
-        .m-progress { font-weight: 900; color: #fff; margin-left: 10px; }
+  @media (max-width:920px){
+    .app { grid-template-columns: 1fr; padding:12px; }
+    .sidebar { order: -1; }
+  }
 
-        .tabs { display: flex; gap: 8px; width: 100%; max-width: 480px; margin-bottom: 15px; }
-        .tab { 
-            flex: 1; padding: 12px; background: var(--glass); border: 1px solid var(--border);
-            color: #777; border-radius: 15px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 10px; text-align: center;
-        }
-        .tab.active { background: var(--blue); color: #000; border: none; }
+  .panel{
+    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border:1px solid var(--glass-border);
+    border-radius: var(--radius);
+    padding: var(--panel-padding);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 6px 24px rgba(2,6,23,0.6);
+  }
 
-        .view { display: none; width: 100%; max-width: 480px; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:12px;
+  }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 30px; overflow-y: auto; max-height: 50vh; width: 100%; }
-        .card { background: var(--glass); padding: 15px; border-radius: 22px; text-align: center; border: 1px solid var(--border); position: relative; transition: 0.2s; cursor: pointer; }
-        .card.selected { border: 2px solid var(--up); box-shadow: 0 0 15px rgba(0,255,136,0.2); }
-        
-        .market-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .price-change-row { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 900; }
-        .price-up { color: var(--up); } .price-down { color: var(--down); }
+  .logo{
+    font-weight:700;
+    letter-spacing:1px;
+    font-size:18px;
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
 
-        .case-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 15px; }
-        .case-card { background: var(--glass); padding: 8px; border-radius: 15px; border: 1px solid var(--border); text-align: center; cursor: pointer; font-size: 10px; }
-        .case-card.active { border-color: var(--blue); background: rgba(0, 210, 255, 0.1); }
+  .currency{
+    font-size:18px;
+    background:linear-gradient(90deg,#ffffff22,#ffffff11);
+    padding:8px 12px;
+    border-radius:12px;
+  }
 
-        .glow-circle { 
-            position: absolute; width: 320px; height: 320px; 
-            background: radial-gradient(circle, var(--rarity-color) 0%, transparent 70%);
-            top: 45%; left: 50%; transform: translate(-50%, -50%); opacity: 0.6; 
-            filter: blur(50px); z-index: -1; animation: pulseGlow 2.5s infinite ease-in-out; 
-        }
-        @keyframes pulseGlow { 
-            0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); } 
-            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.25); } 
-        }
-        
-        .win-item-icon { 
-            font-size: 110px; margin-bottom: 20px; 
-            filter: drop-shadow(0 0 30px var(--rarity-color));
-            animation: floating 3s infinite ease-in-out; 
-        }
-        @keyframes floating { 
-            0%, 100% { transform: translateY(0) rotate(0deg); } 
-            50% { transform: translateY(-25px) rotate(5deg); } 
-        }
+  /* main left column layout */
+  .grid{
+    display:grid;
+    grid-template-columns: 1fr 320px;
+    gap:18px;
+  }
 
-        .roulette-container { height: 130px; background: rgba(0,0,0,0.4); border-radius: 25px; position: relative; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border); }
-        .track { display: flex; position: absolute; left: 0; top: 10px; transition: transform 6s cubic-bezier(0.1, 0, 0, 1); }
-        .t-item { min-width: 110px; height: 110px; margin: 0 6px; background: var(--glass); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; border-bottom: 5px solid #333; }
-        .pointer { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff3e3e; z-index: 10; transform: translateX(-50%); }
+  @media (max-width:1100px){
+    .grid{ grid-template-columns: 1fr; }
+  }
 
-        .btn-main { width: 100%; padding: 18px; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 13px; }
-        .btn-main:disabled { opacity: 0.2; pointer-events: none; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,7,12,0.98); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(20px); }
-        .modal { background: #121929; padding: 25px; border-radius: 30px; border: 1px solid var(--border); width: 85%; max-width: 380px; text-align: center; }
-    </style>
+  /* clicker */
+  .clicker{
+    display:flex;
+    align-items:center;
+    gap:16px;
+  }
+
+  .big-button{
+    width:160px;
+    height:160px;
+    border-radius:22px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:22px;
+    cursor:pointer;
+    user-select:none;
+    transition: transform .08s ease;
+    background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.02));
+    border:1px solid rgba(255,255,255,0.06);
+    box-shadow: inset 0 -6px 14px rgba(0,0,0,0.4);
+  }
+  .big-button:active{ transform: scale(0.98) }
+
+  .stats{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  .small{
+    font-size:13px;
+    opacity:0.9;
+  }
+
+  /* market, cases, inventory lists */
+  .list{
+    max-height:420px;
+    overflow:auto;
+    padding-right:6px;
+  }
+  .item{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    padding:8px;
+    border-radius:14px;
+    margin-bottom:8px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.015), transparent);
+    border:1px solid rgba(255,255,255,0.02);
+  }
+  .icon{
+    width:54px;
+    height:54px;
+    border-radius:10px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+    flex-shrink:0;
+    border:1px solid rgba(255,255,255,0.03);
+  }
+  .item .meta{ flex:1; min-width:0; }
+  .meta .name{ font-weight:600; font-size:14px; }
+  .meta .sub{ font-size:12px; opacity:0.85; }
+
+  .btn{
+    padding:8px 10px;
+    border-radius:10px;
+    background: linear-gradient(90deg,#0ea5e9,#7c3aed);
+    color:white;
+    cursor:pointer;
+    border:none;
+    font-weight:600;
+  }
+  .btn.alt{
+    background:linear-gradient(90deg,#111827,#0b1220);
+    border:1px solid rgba(255,255,255,0.04);
+  }
+
+  .controls{ display:flex; gap:8px; flex-wrap:wrap; }
+
+  .market-header{
+    display:flex; justify-content:space-between; align-items:center; gap:8px;
+    margin-bottom:10px;
+  }
+  .arrow-up{ color:#7ef59c; }
+  .arrow-down{ color:#ff8b8b; }
+
+  /* missions */
+  .mission{
+    padding:10px;
+    border-radius:12px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+    margin-bottom:8px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+
+  /* craft panel */
+  .craft-grid{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+  .rarity-chip{
+    padding:8px 10px;
+    border-radius:10px;
+    background: rgba(0,0,0,0.22);
+    cursor:pointer;
+    font-weight:600;
+  }
+
+  /* fireworks particles */
+  .firework-canvas{
+    pointer-events:none;
+    position:fixed;
+    left:0; top:0; width:100%; height:100%;
+  }
+
+  /* footer small */
+  .muted{ opacity:0.75; font-size:12px; }
+
+  /* scrollbar small */
+  .list::-webkit-scrollbar{ width:8px; height:8px; }
+  .list::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.03); border-radius:8px; }
+</style>
 </head>
 <body>
-
-    <div class="header" onclick="clicker(event)">
-        <div class="currency-row">
-            <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
-            <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
-        </div>
-        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.5 • kaoface</div>
+<div class="app">
+  <div>
+    <div class="panel header">
+      <div class="logo">
+        <div style="width:42px;height:42;border-radius:10px;background:linear-gradient(45deg,#fff2,#fff1);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0b1220">SO2</div>
+        SO2: CLICKER EDITION
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;">
+        <div class="currency" id="currencyDisplay">S 0.00</div>
+        <button class="btn alt" id="resetBtn">Сброс</button>
+      </div>
     </div>
 
-    <div class="mission-panel" id="missionBox">
-        <div class="mission-info"><h4 id="mTitle">Миссии</h4><p id="mDesc" style="margin:2px 0; font-size:11px; opacity:0.7;">Фарми валюту</p></div>
-        <div style="display:flex; align-items:center; gap:10px;"><span class="m-progress" id="mProgress">0/0</span><button id="mClaimBtn" onclick="claimMission()" style="background:var(--up); border:none; border-radius:10px; padding:8px 12px; font-weight:bold; display:none; color:#000;">Взять</button></div>
-    </div>
-
-    <div class="tabs">
-        <div id="t-shop" class="tab active" onclick="tab('shop')">Кейсы</div>
-        <div id="t-inv" class="tab" onclick="tab('inv')">Инв</div>
-        <div id="t-market" class="tab" onclick="tab('market')">Рынок</div>
-        <div id="t-craft" class="tab" onclick="tab('craft')">Крафт</div>
-    </div>
-
-    <div id="shop" class="view" style="display: block;">
-        <div class="case-selector">
-            <div id="c0" class="case-card" onclick="setCase(0)">🔘 100S</div>
-            <div id="c1" class="case-card active" onclick="setCase(1)">📦 250G</div>
-            <div id="c2" class="case-card" onclick="setCase(2)">📦 500G</div>
-            <div id="c3" class="case-card" onclick="setCase(3)">🔪 1500G</div>
-        </div>
-        <div class="roulette-container"><div class="pointer"></div><div id="track" class="track"></div></div>
-        <button id="spinBtn" class="btn-main" onclick="openCase()">Открыть</button>
-    </div>
-
-    <div id="inv" class="view"><div id="invGrid" class="grid"></div></div>
-    <div id="market" class="view"><div id="marketGrid" class="grid"></div></div>
-    <div id="craft" class="view">
-        <button id="craftBtn" class="btn-main" style="margin-bottom:15px;" disabled onclick="doCraft()">Начать крафт (10 шт)</button>
-        <div id="craftGrid" class="grid"></div>
-    </div>
-
-    <div id="winOverlay" class="overlay">
-        <div style="text-align:center; position:relative;">
-            <div id="rarityGlow" class="glow-circle"></div>
-            <div id="winIcon" class="win-item-icon">🔪</div>
-            <h2 id="winName" style="margin:0; font-size: 28px;">Item</h2>
-            <p id="winRarity" style="font-weight:900; letter-spacing:4px; margin:15px 0 40px; font-size: 14px;"></p>
-            <button class="btn-main" onclick="takeWin()" style="margin-bottom: 12px;">В инвентарь</button>
-            <button class="btn-main" style="background:none; color:rgba(255,255,255,0.3); border: 1px solid var(--border);" id="sellBtnWin" onclick="sellWin()">Продать</button>
-        </div>
-    </div>
-
-    <div id="confirmOverlay" class="overlay">
-        <div class="modal">
-            <h3>Продать предмет?</h3>
-            <p id="confirmText" style="opacity:0.7; margin-bottom:20px;"></p>
-            <div style="display:flex; gap:10px;">
-                <button class="btn-main" style="background:#222; color:#fff;" onclick="closeConfirm()">Отмена</button>
-                <button class="btn-main" id="confirmOk" style="background:var(--up);">Продать</button>
+    <div class="grid">
+      <div class="panel">
+        <div class="clicker">
+          <div class="big-button" id="clickBtn">КЛИК</div>
+          <div class="stats">
+            <div class="small">За клик: <strong>+0.01 S</strong></div>
+            <div class="small">Всего кликов: <span id="clickCount">0</span></div>
+            <div class="controls">
+              <button class="btn" id="openCaseBtn">Открыть кейс (6с)</button>
+              <button class="btn alt" id="marketToggle">Рынок</button>
+              <button class="btn alt" id="invToggle">Инвентарь</button>
             </div>
+          </div>
         </div>
+      </div>
+
+      <div class="panel sidebar">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-weight:700">Рынок</div>
+          <div class="muted small" id="marketTimer">Обновление: 6s</div>
+        </div>
+        <div class="list" id="marketList" style="max-height:260px;"></div>
+
+        <div style="height:12px"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-weight:700">Крафт</div>
+          <div class="muted small">10 → 1</div>
+        </div>
+        <div class="craft-grid" id="craftPanel"></div>
+      </div>
+
+      <div class="panel">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-weight:700">Инвентарь</div>
+          <div class="muted small">Всего предметов: <span id="invCount">0</span></div>
+        </div>
+        <div class="list" id="inventoryList" style="max-height:300px;"></div>
+
+        <div style="height:12px"></div>
+
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div style="font-weight:700">Миссии</div>
+          <div class="muted small">Награды: S / предметы</div>
+        </div>
+        <div id="missionsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-weight:700">Кейс: Рулетка (6с)</div>
+        <div class="muted small">Шанс по редкостям отображён</div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+        <div style="flex:1">
+          <div style="height:8px;border-radius:8px;background:rgba(255,255,255,0.03);overflow:hidden">
+            <div id="caseProgress" style="height:8px;width:0;background:linear-gradient(90deg,#7fd2ff,#8b5cf6);"></div>
+          </div>
+        </div>
+        <div id="caseStatus" class="muted small">Готов</div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <button class="btn" id="spinBtn">Крутить кейс (10 S)</button>
+        <button class="btn alt" id="openRecentBtn">Открыть последние</button>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div style="font-weight:700;margin-bottom:8px">История выпадений</div>
+      <div class="list" id="dropHistory" style="max-height:220px;"></div>
     </div>
 
-    <script>
-        const SKINS = [
-            { id: 0, name: "G22 | Casual", rar: "common", p: 5, i: "🔫", currency: "S" },
-            { id: 1, name: "USP | Genesis", rar: "uncommon", p: 35, i: "🔫", currency: "S" },
-            { id: 2, name: "M4 | Tiger", rar: "rare", p: 120, i: "🔫", currency: "G" },
-            { id: 3, name: "AKR | Necro", rar: "epic", p: 480, i: "🔫", currency: "G" },
-            { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1200, i: "🎯", currency: "G" },
-            { id: 5, name: "Karambit | Gold", rar: "arcane", p: 25000, i: "🔪", currency: "G" },
-            { id: 6, name: "Butterfly | Star", rar: "arcane", p: 18000, i: "🦋", currency: "G" }
-        ];
+    <div style="height:14px"></div>
 
-        const MISSIONS = [
-            { id: 'craft', title: 'Крафтер', target: 1, reward: {g: 100} },
-            { id: 'sell', title: 'Торговец', target: 3, reward: {g: 50} },
-            { id: 'open_silver', title: 'Коллекционер', target: 5, reward: {s: 200} }
-        ];
+    <div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <div style="font-weight:700">Инфо / Помощь</div>
+        <div class="muted small">LocalStorage | Чистый JS</div>
+      </div>
+      <div class="muted small">
+        Редкости: Common (серый), Uncommon (голубой), Rare (синий), Epic (фиолет), Legendary (розовый), Arcane (красный).
+        Arcane также даёт фейерверки — можно использовать в инвентаре.
+      </div>
+    </div>
+  </div>
+</div>
 
-        const RARITIES = ["common", "uncommon", "rare", "epic", "legendary", "arcane"];
+<canvas id="fwCanvas" class="firework-canvas"></canvas>
 
-        let state = {
-            money: parseFloat(localStorage.getItem('v12_money')) || 1000,
-            silver: parseFloat(localStorage.getItem('v12_silver')) || 1000,
-            inv: JSON.parse(localStorage.getItem('v12_inv')) || [],
-            market: JSON.parse(localStorage.getItem('v12_market')) || SKINS.map(s => ({id: s.id, cur: s.p, chg: 0, old: s.p})),
-            curCase: 1, lastWin: null, selCraft: [],
-            mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
-        };
+<script>
+/*
+  SO2: CLICKER EDITION
+  - LocalStorage keys: so2_currency, so2_inventory, so2_market, so2_clicks, so2_missions
+  - Pure JS, single-file
+*/
 
-        function clicker(e) {
-            state.silver += 0.01;
-            const anim = document.createElement('div');
-            anim.className = 'click-anim';
-            anim.innerText = '+0.01 S';
-            anim.style.left = e.clientX - 20 + 'px';
-            anim.style.top = e.clientY - 20 + 'px';
-            document.body.appendChild(anim);
-            setTimeout(() => anim.remove(), 600);
-            sync();
-        }
+/* --------------------
+   Data: rarities & SKINS
+   -------------------- */
+const RARITIES = [
+  { id:0, key:'common', name:'Common', color:'#9aa0a6' },
+  { id:1, key:'uncommon', name:'Uncommon', color:'#7fd2ff' },
+  { id:2, key:'rare', name:'Rare', color:'#3b82f6' },
+  { id:3, key:'epic', name:'Epic', color:'#8b5cf6' },
+  { id:4, key:'legendary', name:'Legendary', color:'#ff70b8' },
+  { id:5, key:'arcane', name:'Arcane', color:'#ff4d4d' }
+];
 
-        function setCase(i) {
-            state.curCase = i;
-            document.querySelectorAll('.case-card').forEach(c => c.classList.remove('active'));
-            document.getElementById('c'+i).classList.add('active');
-        }
+// Simple SKINS array (id, name, rarity index, base price, icon)
+const SKINS = [
+  { id:'c1', name:'Urban Blade', rarity:0, price:1.0, icon:'🔪' },
+  { id:'c2', name:'Desert Grip', rarity:0, price:1.5, icon:'🟫' },
+  { id:'u1', name:'Blue Line', rarity:1, price:3.0, icon:'🔷' },
+  { id:'u2', name:'Sky Guard', rarity:1, price:3.5, icon:'☁️' },
+  { id:'r1', name:'Ocean Strike', rarity:2, price:8.0, icon:'🌊' },
+  { id:'r2', name:'Nightfall', rarity:2, price:9.5, icon:'🌌' },
+  { id:'e1', name:'Violet Fury', rarity:3, price:25.0, icon:'💜' },
+  { id:'e2', name:'Royal Echo', rarity:3, price:30.0, icon:'👑' },
+  { id:'l1', name:'Pink Phantom', rarity:4, price:80.0, icon:'🎀' },
+  { id:'l2', name:'Aurora', rarity:4, price:95.0, icon:'🌈' },
+  { id:'a1', name:'Arcane Burst', rarity:5, price:300.0, icon:'✨' }
+];
 
-        function openCase() {
-            const costs = [{s:100}, {g:250}, {g:500}, {g:1500}];
-            const cost = costs[state.curCase];
-            if(cost.g && state.money < cost.g) return alert("Мало Gold!");
-            if(cost.s && state.silver < cost.s) return alert("Мало Silver!");
-            if(cost.g) state.money -= cost.g; else state.silver -= cost.s;
-            if(state.curCase === 0) checkMission('open_silver');
-            sync();
-            const track = document.getElementById('track');
-            track.style.transition = 'none'; track.style.transform = 'translateX(0)'; track.innerHTML = '';
-            let win;
-            const getSkin = () => {
-                const rng = Math.random();
-                if(rng < 0.005) return SKINS[Math.floor(Math.random()*2)+5];
-                if(rng < 0.06) return SKINS[4]; if(rng < 0.18) return SKINS[3];
-                return SKINS[Math.floor(Math.random()*3)];
-            };
-            for(let i=0; i<60; i++) {
-                const s = getSkin(); if(i === 52) win = s;
-                track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${s.i}</div>`;
-            }
-            setTimeout(() => { track.style.transition = 'transform 6s cubic-bezier(0.1, 0, 0, 1)'; track.style.transform = `translateX(-${52*122 - (window.innerWidth/2 - 61)}px)`; }, 50);
-            setTimeout(() => { state.lastWin = win; showWin(win); }, 6200);
-        }
+// Helper maps
+const SKINS_MAP = {};
+SKINS.forEach(s => SKINS_MAP[s.id] = s);
 
-        function sellWithConfirm(idx) {
-            const it = state.inv[idx];
-            const mPrice = state.market.find(m => m.id === it.id).cur;
-            const p = Math.floor(mPrice * 0.8);
-            document.getElementById('confirmText').innerText = `${it.name} за ${p} ${it.currency}?`;
-            document.getElementById('confirmOverlay').style.display = 'flex';
-            document.getElementById('confirmOk').onclick = () => {
-                if(it.currency === "G") state.money += p; else state.silver += p;
-                state.inv.splice(idx, 1); checkMission('sell'); closeConfirm(); sync();
-            };
-        }
+/* --------------------
+   Storage & State
+   -------------------- */
+const STORAGE_KEYS = {
+  currency:'so2_currency',
+  inventory:'so2_inventory',
+  market:'so2_market',
+  clicks:'so2_clicks',
+  missions:'so2_missions',
+  drops:'so2_drops'
+};
 
-        function toggleCraft(idx) {
-            const pos = state.selCraft.indexOf(idx);
-            if(pos > -1) state.selCraft.splice(pos, 1);
-            else if(state.selCraft.length < 10) {
-                if(state.selCraft.length > 0 && state.inv[state.selCraft[0]].rar !== state.inv[idx].rar) return;
-                state.selCraft.push(idx);
-            }
-            sync();
-        }
+let state = {
+  currency: loadNumber(STORAGE_KEYS.currency, 0),
+  inventory: loadJSON(STORAGE_KEYS.inventory, {}), // {skinId: count}
+  marketMultipliers: loadJSON(STORAGE_KEYS.market, {}), // {skinId: multiplier}
+  clicks: loadNumber(STORAGE_KEYS.clicks, 0),
+  missions: loadJSON(STORAGE_KEYS.missions, null) || null,
+  drops: loadJSON(STORAGE_KEYS.drops, []) // recent drops array
+};
 
-        function doCraft() {
-            const rar = state.inv[state.selCraft[0]].rar;
-            const nextRar = RARITIES[Math.min(RARITIES.indexOf(rar) + 1, 5)];
-            const pool = SKINS.filter(s => s.rar === nextRar);
-            const win = pool[Math.floor(Math.random()*pool.length)];
-            state.selCraft.sort((a,b)=>b-a).forEach(i => state.inv.splice(i,1));
-            state.selCraft = []; state.lastWin = win; 
-            checkMission('craft');
-            showWin(win); sync();
-        }
+// Initialize default market multipliers if missing
+SKINS.forEach(s => {
+  if (!state.marketMultipliers[s.id]) state.marketMultipliers[s.id] = 1.0;
+});
 
-        function claimMission() {
-            const m = MISSIONS[state.mission.typeIdx];
-            if (m.reward.g) state.money += m.reward.g;
-            if (m.reward.s) state.silver += m.reward.s;
-            state.mission.cooldown = true; state.mission.progress = 0; sync();
-            setTimeout(() => { 
-                state.mission.typeIdx = Math.floor(Math.random()*MISSIONS.length); 
-                state.mission.cooldown = false; sync(); 
-            }, 120000);
-        }
+/* --------------------
+   DOM refs
+   -------------------- */
+const currencyDisplay = document.getElementById('currencyDisplay');
+const clickBtn = document.getElementById('clickBtn');
+const clickCountEl = document.getElementById('clickCount');
+const openCaseBtn = document.getElementById('openCaseBtn');
+const clickValue = 0.01;
+const marketList = document.getElementById('marketList');
+const inventoryList = document.getElementById('inventoryList');
+const invCountEl = document.getElementById('invCount');
+const spinBtn = document.getElementById('spinBtn');
+const caseProgress = document.getElementById('caseProgress');
+const caseStatus = document.getElementById('caseStatus');
+const dropHistory = document.getElementById('dropHistory');
+const marketTimerEl = document.getElementById('marketTimer');
+const craftPanel = document.getElementById('craftPanel');
+const missionsList = document.getElementById('missionsList');
+const resetBtn = document.getElementById('resetBtn');
+const openRecentBtn = document.getElementById('openRecentBtn');
+const fwCanvas = document.getElementById('fwCanvas');
 
-        function showWin(win) {
-            document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
-            document.getElementById('winIcon').innerText = win.i;
-            document.getElementById('winIcon').style.color = `var(--${win.rar})`;
-            document.getElementById('winName').innerText = win.name;
-            const rt = document.getElementById('winRarity');
-            rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
-            const price = Math.floor(state.market.find(m => m.id === win.id).cur * 0.8);
-            document.getElementById('sellBtnWin').innerText = `Продать за ${price} ${win.currency}`;
-            document.getElementById('winOverlay').style.display = 'flex';
-        }
+/* --------------------
+   UI Helpers
+   -------------------- */
+function saveState(){
+  localStorage.setItem(STORAGE_KEYS.currency, state.currency);
+  localStorage.setItem(STORAGE_KEYS.inventory, JSON.stringify(state.inventory));
+  localStorage.setItem(STORAGE_KEYS.market, JSON.stringify(state.marketMultipliers));
+  localStorage.setItem(STORAGE_KEYS.clicks, state.clicks);
+  localStorage.setItem(STORAGE_KEYS.missions, JSON.stringify(state.missions));
+  localStorage.setItem(STORAGE_KEYS.drops, JSON.stringify(state.drops));
+}
 
-        function takeWin() { state.inv.unshift(state.lastWin); document.getElementById('winOverlay').style.display = 'none'; sync(); }
-        function sellWin() { 
-            const p = Math.floor(state.market.find(m => m.id === state.lastWin.id).cur * 0.8);
-            if(state.lastWin.currency === "G") state.money += p; else state.silver += p;
-            checkMission('sell'); document.getElementById('winOverlay').style.display = 'none'; sync(); 
-        }
+function formatS(v){ return 'S ' + Number(v).toFixed(2); }
 
-        function buyMarket(id) {
-            const mData = state.market.find(m => m.id === id);
-            const s = SKINS.find(x => x.id === id);
-            if(s.currency === "G" && state.money < mData.cur) return alert("Мало G!");
-            if(s.currency === "S" && state.silver < mData.cur) return alert("Мало S!");
-            if(s.currency === "G") state.money -= mData.cur; else state.silver -= mData.cur;
-            state.inv.unshift({...s}); sync();
-        }
+function loadJSON(key, def){ try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : def; } catch(e){ return def; } }
+function loadNumber(key, def){ const v = localStorage.getItem(key); return v!==null ? Number(v) : def; }
 
-        function closeConfirm() { document.getElementById('confirmOverlay').style.display = 'none'; }
-        function tab(name) {
-            document.querySelectorAll('.view').forEach(v => v.style.display = 'none');
-            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-            document.getElementById(name).style.display = 'block';
-            document.getElementById('t-'+name).classList.add('active');
-            state.selCraft = []; sync();
-        }
+/* --------------------
+   Currency & Clicker
+   -------------------- */
+function updateCurrencyDisplay(){
+  currencyDisplay.textContent = formatS(state.currency);
+}
+function addCurrency(amount){
+  state.currency = Math.max(0, state.currency + amount);
+  updateCurrencyDisplay();
+  saveState();
+}
 
-        function sync() {
-            document.getElementById('money').innerText = Math.floor(state.money).toLocaleString();
-            document.getElementById('silver').innerText = state.silver.toFixed(2);
-            localStorage.setItem('v12_money', state.money); 
-            localStorage.setItem('v12_silver', state.silver);
-            localStorage.setItem('v12_inv', JSON.stringify(state.inv)); 
-            localStorage.setItem('v12_mission', JSON.stringify(state.mission));
-            const m = MISSIONS[state.mission.typeIdx];
-            if (state.mission.cooldown) {
-                document.getElementById('mTitle').innerText = "Ожидание..."; document.getElementById('mProgress').innerText = "⏰";
-                document.getElementById('mClaimBtn').style.display = 'none';
-            } else {
-                document.getElementById('mTitle').innerText = m.title;
-                document.getElementById('mProgress').innerText = `${state.mission.progress}/${m.target}`;
-                document.getElementById('mClaimBtn').style.display = (state.mission.progress >= m.target) ? 'block' : 'none';
-            }
-            const ig = document.getElementById('invGrid'); if(ig) {
-                ig.innerHTML = '';
-                state.inv.forEach((it, i) => { ig.innerHTML += `<div class="card" onclick="sellWithConfirm(${i})"><div>${it.i}</div><div style="font-size:10px">${it.name}</div><div style="color:var(--${it.rar}); font-size:11px;">Цена: ${state.market.find(m=>m.id===it.id).cur}${it.currency}</div></div>`; });
-            }
-            const mg = document.getElementById('marketGrid'); if(mg) {
-                mg.innerHTML = '';
-                state.market.forEach(m => {
-                    const s = SKINS.find(x => x.id === m.id);
-                    const col = m.cur >= m.old ? 'price-up' : 'price-down';
-                    mg.innerHTML += `<div class="card" onclick="buyMarket(${s.id})"><div class="market-header"><span>${s.i}</span><div class="price-change-row ${col}">${m.chg}%</div></div><div style="font-size:10px">${s.name}</div><b>${m.cur}${s.currency}</b></div>`;
-                });
-            }
-            const cg = document.getElementById('craftGrid'); if(cg) {
-                cg.innerHTML = '';
-                state.inv.forEach((it, i) => { if(it.rar !== "arcane") cg.innerHTML += `<div class="card ${state.selCraft.includes(i)?'selected':''}" onclick="toggleCraft(${i})"><div>${it.i}</div><div style="font-size:10px">${it.rar}</div></div>`; });
-                document.getElementById('craftBtn').disabled = (state.selCraft.length < 10);
-            }
-        }
+clickBtn.addEventListener('click', ()=>{
+  addCurrency(clickValue);
+  state.clicks++;
+  clickCountEl.textContent = state.clicks;
+  updateMissions('clicks', state.clicks);
+});
 
-        function checkMission(type, amount = 1) {
-            const m = MISSIONS[state.mission.typeIdx];
-            if (state.mission.cooldown || m.id !== type) return;
-            state.mission.progress = Math.min(state.mission.progress + amount, m.target);
-            sync();
-        }
+resetBtn.addEventListener('click', ()=>{
+  if (!confirm('Сбросить прогресс? Это очистит LocalStorage.')) return;
+  localStorage.clear();
+  location.reload();
+});
 
-        function updateMarket() {
-            state.market.forEach(item => {
-                const s = SKINS.find(x => x.id === item.id);
-                item.old = item.cur;
-                const move = (Math.random() - 0.5) * 0.2;
-                item.cur = Math.max(Math.floor(s.p * (1 + move)), 2);
-                item.chg = (((item.cur - item.old) / item.old) * 100).toFixed(1);
-            });
-            sync();
-        }
-        setInterval(updateMarket, 6000);
-        sync();
-    </script>
+/* --------------------
+   Market (update every 6s)
+   -------------------- */
+let marketInterval = 6000;
+let marketCountdown = marketInterval / 1000;
+function renderMarket(){
+  marketList.innerHTML = '';
+  const sorted = SKINS.slice().sort((a,b)=> a.rarity - b.rarity || a.price - b.price);
+  sorted.forEach(s => {
+    const mul = state.marketMultipliers[s.id] || 1.0;
+    const price = Math.max(0.01, s.price * mul);
+    const item = document.createElement('div');
+    item.className = `item rarity-${RARITIES[s.rarity].key} rarity-${RARITIES[s.rarity].key}`; // for potential styling
+    item.innerHTML = `
+      <div class="icon" style="background:linear-gradient(180deg,rgba(255,255,255,0.015),transparent);">${s.icon}</div>
+      <div class="meta">
+        <div class="name">${s.name}</div>
+        <div class="sub">${RARITIES[s.rarity].name} • Базовая ${s.price.toFixed(2)} S</div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-weight:700">${price.toFixed(2)} S</div>
+        <div style="margin-top:6px;display:flex;gap:6px;justify-content:flex-end">
+          <button class="btn alt" data-buy="${s.id}">Купить</button>
+          <button class="btn" data-sell="${s.id}">Продать</button>
+        </div>
+      </div>
+    `;
+    marketList.appendChild(item);
+  });
+  // attach buy/sell
+  marketList.querySelectorAll('[data-buy]').forEach(b=>{
+    b.addEventListener('click', (e)=>{
+      const id = e.currentTarget.getAttribute('data-buy');
+      buySkin(id);
+    });
+  });
+  marketList.querySelectorAll('[data-sell]').forEach(b=>{
+    b.addEventListener('click', (e)=>{
+      const id = e.currentTarget.getAttribute('data-sell');
+      sellSkin(id);
+    });
+  });
+}
+
+function buySkin(id){
+  const skin = SKINS_MAP[id];
+  const price = Math.max(0.01, skin.price * (state.marketMultipliers[id] || 1.0));
+  if (state.currency < price) { alert('Недостаточно S'); return; }
+  addCurrency(-price);
+  addToInventory(id, 1);
+  addDrop({type:'buy', skinId:id, price});
+}
+
+function sellSkin(id){
+  if (!state.inventory[id] || state.inventory[id] < 1) { alert('Нет такого предмета в инвентаре'); return; }
+  const skin = SKINS_MAP[id];
+  const price = Math.max(0.01, skin.price * (state.marketMultipliers[id] || 1.0)) * 0.7; // sell for 70%
+  removeFromInventory(id,1);
+  addCurrency(price);
+  addDrop({type:'sell', skinId:id, price});
+}
+
+/* Market update tick */
+function marketTick(){
+  // randomly adjust multipliers a bit
+  SKINS.forEach(s => {
+    const cur = state.marketMultipliers[s.id] || 1.0;
+    // random change -10%..+10%
+    const change = (Math.random() * 0.2) - 0.1;
+    let next = cur * (1 + change);
+    next = Math.min(3, Math.max(0.3, next));
+    state.marketMultipliers[s.id] = Number(next.toFixed(3));
+  });
+  // indicate arrows briefly by animating marketList items
+  // For simplicity: show arrows next to top rows (random)
+  renderMarket();
+  saveState();
+  // update timer display
+  marketCountdown = marketInterval / 1000;
+}
+
+/* countdown for UI */
+setInterval(()=>{
+  marketCountdown--;
+  if (marketCountdown <= 0) { marketTick(); marketCountdown = marketInterval/1000; }
+  marketTimerEl.textContent = `Обновление: ${marketCountdown}s`;
+}, 1000);
+
+/* --------------------
+   Inventory
+   -------------------- */
+function addToInventory(id, count=1){
+  state.inventory[id] = (state.inventory[id] || 0) + count;
+  renderInventory();
+  saveState();
+}
+function removeFromInventory(id, count=1){
+  if (!state.inventory[id]) return;
+  state.inventory[id] -= count;
+  if (state.inventory[id] <= 0) delete state.inventory[id];
+  renderInventory();
+  saveState();
+}
+
+function renderInventory(){
+  inventoryList.innerHTML = '';
+  const items = Object.keys(state.inventory);
+  let total = 0;
+  if (items.length === 0){
+    inventoryList.innerHTML = '<div class="muted small">Инвентарь пуст</div>';
+  } else {
+    // show inventory sorted by rarity desc
+    items.sort((a,b)=> SKINS_MAP[b].rarity - SKINS_MAP[a].rarity);
+    items.forEach(id=>{
+      const cnt = state.inventory[id];
+      total += cnt;
+      const s = SKINS_MAP[id];
+      const el = document.createElement('div');
+      el.className = 'item';
+      el.innerHTML = `
+        <div class="icon">${s.icon}</div>
+        <div class="meta">
+          <div class="name">${s.name} <span style="opacity:0.8;font-weight:500">x${cnt}</span></div>
+          <div class="sub">${RARITIES[s.rarity].name}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;">
+          <button class="btn" data-use="${id}">Использовать</button>
+          <button class="btn alt" data-sellinv="${id}">Продать</button>
+        </div>
+      `;
+      inventoryList.appendChild(el);
+    });
+    // attach events
+    inventoryList.querySelectorAll('[data-use]').forEach(b=>{
+      b.addEventListener('click', (e)=>{
+        const id = e.currentTarget.getAttribute('data-use');
+        useItem(id);
+      });
+    });
+    inventoryList.querySelectorAll('[data-sellinv]').forEach(b=>{
+      b.addEventListener('click', (e)=>{
+        const id = e.currentTarget.getAttribute('data-sellinv');
+        // selling from inventory at 60% base price
+        if (!confirm('Продать 1 предмет за 60% цены?')) return;
+        const s = SKINS_MAP[id];
+        removeFromInventory(id,1);
+        addCurrency(s.price * 0.6);
+      });
+    });
+  }
+  invCountEl.textContent = total;
+}
+
+/* Using items: if arcane -> fireworks, else show info */
+function useItem(id){
+  const s = SKINS_MAP[id];
+  if (s.rarity === 5){ // Arcane: trigger fireworks and reward
+    removeFromInventory(id,1);
+    launchFireworks(); // visual
+    addCurrency(20); // small reward
+    alert('Arcane activated! Вы получили 20 S и фейерверк!');
+    updateMissions('fireworks', 1);
+  } else {
+    alert(`Использован предмет: ${s.name} (${RARITIES[s.rarity].name})`);
+  }
+}
+
+/* --------------------
+   Drops / History
+   -------------------- */
+function addDrop(entry){
+  // entry: {type:'spin'|'buy'|'sell', skinId, price?}
+  state.drops.unshift({ ts: Date.now(), ...entry });
+  if (state.drops.length > 30) state.drops.pop();
+  renderDrops();
+  saveState();
+}
+function renderDrops(){
+  dropHistory.innerHTML = '';
+  if (state.drops.length === 0) dropHistory.innerHTML = '<div class="muted small">История пустая</div>';
+  state.drops.forEach(d=>{
+    const s = SKINS_MAP[d.skinId];
+    const el = document.createElement('div');
+    el.className = 'item';
+    el.innerHTML = `
+      <div class="icon">${s.icon}</div>
+      <div class="meta">
+        <div class="name">${s.name}</div>
+        <div class="sub">${d.type || 'drop'} • ${new Date(d.ts).toLocaleTimeString()}</div>
+      </div>
+      <div style="text-align:right">
+        ${d.price ? '<div style="font-weight:700">' + Number(d.price).toFixed(2) + ' S</div>' : ''}
+      </div>
+    `;
+    dropHistory.appendChild(el);
+  });
+}
+
+/* --------------------
+   Cases / Roulette (6s)
+   -------------------- */
+let spinInProgress = false;
+const CASE_SPIN_SECONDS = 6;
+const CASE_COST = 10;
+
+spinBtn.addEventListener('click', ()=> startCaseSpin());
+openCaseBtn.addEventListener('click', ()=> startCaseSpin());
+openRecentBtn.addEventListener('click', ()=> { if (state.drops.length) alert('Последний: ' + SKINS_MAP[state.drops[0].skinId].name); else alert('Нет выпадений'); });
+
+function startCaseSpin(){
+  if (spinInProgress) return;
+  if (state.currency < CASE_COST){ alert('Недостаточно S для кейса'); return; }
+  spinInProgress = true;
+  addCurrency(-CASE_COST);
+  caseStatus.textContent = 'Крутим...';
+  let elapsed = 0;
+  caseProgress.style.width = '0%';
+  const iv = setInterval(()=>{
+    elapsed += 0.1;
+    const p = Math.min(1, elapsed/CASE_SPIN_SECONDS);
+    caseProgress.style.width = (p*100) + '%';
+    if (elapsed >= CASE_SPIN_SECONDS){
+      clearInterval(iv);
+      spinInProgress = false;
+      caseStatus.textContent = 'Готов';
+      caseProgress.style.width = '0%';
+      // determine drop
+      const drop = spinRandomSkin();
+      addToInventory(drop.id,1);
+      addDrop({ type:'spin', skinId:drop.id });
+      state.clicks += 0; // nothing
+      updateMissions('cases', 1);
+      renderInventory();
+    }
+  }, 100);
+}
+
+/* Spin logic: weighted by rarity (common high chance, arcane very low) */
+function spinRandomSkin(){
+  // weights per rarity
+  const rarityWeights = [60,20,10,6,3,1]; // sums to 100
+  // pick rarity
+  const r = pickByWeight(rarityWeights);
+  // pick random skin of that rarity
+  const pool = SKINS.filter(s => s.rarity === r);
+  const skin = pool[Math.floor(Math.random()*pool.length)];
+  return skin;
+}
+function pickByWeight(weights){
+  const total = weights.reduce((a,b)=>a+b,0);
+  let rnd = Math.random()*total;
+  for (let i=0;i<weights.length;i++){
+    if (rnd < weights[i]) return i;
+    rnd -= weights[i];
+  }
+  return weights.length-1;
+}
+
+/* --------------------
+   Crafting 10 -> 1
+   -------------------- */
+function renderCraftPanel(){
+  craftPanel.innerHTML = '';
+  for (let r=0; r<RARITIES.length-1; r++){
+    const btn = document.createElement('div');
+    btn.className = 'rarity-chip';
+    btn.style.borderLeft = `6px solid ${RARITIES[r].color}`;
+    btn.textContent = `${RARITIES[r].name} → ${RARITIES[r+1].name}`;
+    btn.setAttribute('data-rarity', r);
+    craftPanel.appendChild(btn);
+    btn.addEventListener('click', ()=> attemptCraft(r));
+  }
+}
+
+function attemptCraft(rarity){
+  // count total items of that rarity in inventory
+  let total = 0;
+  const idsOfR = [];
+  for (const id in state.inventory){
+    if (SKINS_MAP[id].rarity === rarity){
+      total += state.inventory[id];
+      idsOfR.push(id);
+    }
+  }
+  if (total < 10){ alert('Недостаточно предметов этой редкости для крафта (нужны 10)'); return; }
+  // remove 10 items (iterating arbitrary order)
+  let left = 10;
+  for (const id of idsOfR){
+    if (left<=0) break;
+    const use = Math.min(state.inventory[id], left);
+    removeFromInventory(id, use);
+    left -= use;
+  }
+  // produce one random skin of next rarity
+  const nextR = rarity+1;
+  const pool = SKINS.filter(s => s.rarity === nextR);
+  const produced = pool[Math.floor(Math.random()*pool.length)];
+  addToInventory(produced.id,1);
+  addDrop({ type:'craft', skinId:produced.id });
+  alert(`Крафт успешен! Вы получили: ${produced.name}`);
+  updateMissions('crafts', 1);
+}
+
+/* --------------------
+   Missions
+   -------------------- */
+function initMissionsIfNeeded(){
+  if (state.missions) return;
+  state.missions = {
+    list:[
+      { id:'m1', name:'Кликнуть 100 раз', type:'clicks', target:100, progress:0, reward:{currency:5} },
+      { id:'m2', name:'Открыть 5 кейсов', type:'cases', target:5, progress:0, reward:{currency:10} },
+      { id:'m3', name:'Сделать 1 крафт', type:'crafts', target:1, progress:0, reward:{currency:15} },
+      { id:'m4', name:'Использовать 1 Arcane', type:'fireworks', target:1, progress:0, reward:{currency:25} }
+    ]
+  };
+  saveState();
+}
+function renderMissions(){
+  missionsList.innerHTML = '';
+  state.missions.list.forEach(m=>{
+    const el = document.createElement('div');
+    el.className = 'mission';
+    el.innerHTML = `
+      <div>
+        <div style="font-weight:700">${m.name}</div>
+        <div class="muted small">${m.progress}/${m.target}</div>
+      </div>
+      <div>
+        ${m.progress>=m.target ? `<button class="btn" data-claim="${m.id}">Получить ${m.reward.currency?formatS(m.reward.currency):'НАГРАДА'}</button>` : `<button class="btn alt" disabled>В процессе</button>`}
+      </div>
+    `;
+    missionsList.appendChild(el);
+  });
+  // attach claim
+  missionsList.querySelectorAll('[data-claim]').forEach(b=>{
+    b.addEventListener('click', (e)=>{
+      const id = e.currentTarget.getAttribute('data-claim');
+      claimMission(id);
+    });
+  });
+}
+
+function updateMissions(type, value){
+  if (!state.missions) return;
+  state.missions.list.forEach(m=>{
+    if (m.type === type){
+      m.progress = Math.min(m.target, m.progress + (typeof value === 'number' ? value : 1));
+    }
+  });
+  renderMissions();
+  saveState();
+}
+
+function claimMission(id){
+  const m = state.missions.list.find(x=>x.id===id);
+  if (!m || m.progress < m.target) return;
+  if (m.reward.currency) addCurrency(m.reward.currency);
+  // could also grant items
+  m.progress = 0;
+  m.target = Math.max(1, m.target); // keep as is
+  renderMissions();
+  saveState();
+}
+
+/* --------------------
+   Misc: drop rendering, inventory count etc.
+   -------------------- */
+function updateAllUI(){
+  updateCurrencyDisplay();
+  clickCountEl.textContent = state.clicks;
+  renderMarket();
+  renderInventory();
+  renderDrops();
+  renderCraftPanel();
+  renderMissions();
+}
+initMissionsIfNeeded();
+updateAllUI();
+
+/* --------------------
+   Market animation: show arrows next to price change (simple)
+   -------------------- */
+// We'll visually indicate up/down by briefly toggling arrow class when multipliers change
+let lastMultipliers = Object.assign({}, state.marketMultipliers);
+
+/* --------------------
+   Utility: pick random with weight, etc.
+   -------------------- */
+function randomChoice(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+/* --------------------
+   Fireworks visual (Arcane)
+   -------------------- */
+const fwCtx = fwCanvas.getContext('2d');
+let particles = [];
+function resizeFW(){ fwCanvas.width = window.innerWidth; fwCanvas.height = window.innerHeight; }
+window.addEventListener('resize', resizeFW);
+resizeFW();
+
+function launchFireworks(){
+  // create particles at random positions
+  const centerX = window.innerWidth * (0.3 + Math.random()*0.4);
+  const centerY = window.innerHeight * (0.2 + Math.random()*0.4);
+  const count = 120 + Math.floor(Math.random()*80);
+  for (let i=0;i<count;i++){
+    const angle = Math.random()*Math.PI*2;
+    const speed = 1 + Math.random()*6;
+    particles.push({
+      x:centerX, y:centerY,
+      vx: Math.cos(angle)*speed,
+      vy: Math.sin(angle)*speed,
+      life: 60 + Math.random()*60,
+      color: randomChoice([ '#ff4d4d','#ff70b8','#8b5cf6','#3b82f6','#7fd2ff' ]),
+      size: 1 + Math.random()*3
+    });
+  }
+  // small currency bonus
+  addCurrency(5);
+  animateFW();
+}
+
+let fwAnimating = false;
+function animateFW(){
+  if (fwAnimating) return;
+  fwAnimating = true;
+  (function frame(){
+    fwCtx.clearRect(0,0,fwCanvas.width,fwCanvas.height);
+    // update particles
+    for (let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.vy += 0.08; // gravity
+      p.vx *= 0.995;
+      p.vy *= 0.995;
+      p.life--;
+      if (p.life <= 0){ particles.splice(i,1); continue; }
+      fwCtx.beginPath();
+      fwCtx.fillStyle = p.color;
+      fwCtx.globalAlpha = Math.max(0, p.life/120);
+      fwCtx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+      fwCtx.fill();
+    }
+    fwCtx.globalAlpha = 1.0;
+    if (particles.length > 0) requestAnimationFrame(frame);
+    else fwAnimating = false;
+  })();
+}
+
+/* --------------------
+   Helper: spin history & actions
+   -------------------- */
+function initDemoInventory(){
+  // for testing: give a few items if inventory empty
+  if (Object.keys(state.inventory).length === 0){
+    addToInventory('c1', 5);
+    addToInventory('u1', 3);
+    addToInventory('r1', 1);
+    saveState();
+  }
+}
+// Uncomment next line to give starter items
+// initDemoInventory();
+
+/* --------------------
+   Initialize periodic save
+   -------------------- */
+setInterval(saveState, 5000);
+
+/* --------------------
+   Intro / small bits
+   -------------------- */
+marketTick(); // initial tick for multiplier variety
+saveState();
+
+/* --------------------
+   Helpers: buy/sell from event bubble protections
+   -------------------- */
+// nothing extra
+
+</script>
 </body>
 </html>
