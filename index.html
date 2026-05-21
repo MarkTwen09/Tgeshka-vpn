@@ -24,7 +24,6 @@
             overflow-x: hidden;
         }
 
-        /* Задний фон с неоновыми бликами */
         body::before {
             content: '';
             position: absolute;
@@ -67,66 +66,125 @@
             margin-bottom: 5px;
         }
 
-        /* Топовая панель баланса */
+        /* Двойная панель балансов */
+        .balance-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            width: 100%;
+            max-width: 460px;
+            margin-bottom: 30px;
+        }
+
         .balance-card {
             background: rgba(20, 15, 38, 0.7);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 12px 24px;
-            border-radius: 50px;
+            padding: 15px 24px;
+            border-radius: 20px;
             display: flex;
             align-items: center;
-            gap: 25px;
+            justify-content: space-between;
             backdrop-filter: blur(20px);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            margin-bottom: 35px;
             transition: all 0.3s ease;
         }
 
         .balance-card:hover {
-            border-color: rgba(0, 242, 254, 0.4);
-            box-shadow: 0 8px 32px 0 rgba(0, 242, 254, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .balance-info {
+            display: flex;
+            flex-direction: column;
         }
 
         .balance-text {
-            font-size: 1.1rem;
+            font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #9d96b8;
+            margin-bottom: 4px;
         }
 
-        #balance {
+        .balance-value {
             font-weight: 800;
+            font-size: 1.4rem;
             color: #fff;
+        }
+
+        #game-balance {
             background: linear-gradient(to right, #ffe600, #ff9900);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-size: 1.3rem;
         }
 
-        .btn-deposit {
-            background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
+        #payout-balance {
+            background: linear-gradient(to right, #00ff88, #00f2fe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Кнопки действий */
+        .btn-action {
             border: none;
             color: white;
-            padding: 8px 20px;
+            padding: 10px 22px;
             font-weight: 700;
-            font-size: 0.9rem;
-            border-radius: 25px;
+            font-size: 0.85rem;
+            border-radius: 12px;
             cursor: pointer;
             text-decoration: none;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+        }
+
+        .btn-deposit {
+            background: linear-gradient(90deg, #ff007f 0%, #7928ca 100%);
+            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.2);
         }
 
         .btn-deposit:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.5);
+        }
+
+        .btn-withdraw {
+            background: linear-gradient(90deg, #00ff88 0%, #00eaec 100%);
+            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
+            color: #07040d;
+        }
+
+        .btn-withdraw:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+
+        /* Поле ввода для вывода */
+        .withdraw-box {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            width: 130px;
+        }
+
+        .withdraw-input {
+            width: 100%;
+            background: #05030a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #00ff88;
+            padding: 8px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-align: center;
+            outline: none;
         }
 
         /* Корпус автомата */
         .slot-machine {
             background: linear-gradient(145deg, #18132b, #0f0b1e);
-            border: 2px solid rgba(255, 0, 127, 0.3);
+            border: 2px solid rgba(255, 0, 127, 0.2);
             border-radius: 24px;
             padding: 35px;
             width: 100%;
@@ -135,7 +193,6 @@
             box-shadow: 0 20px 50px rgba(0,0,0,0.6), 
                         inset 0 0 20px rgba(255, 0, 127, 0.1),
                         0 0 30px rgba(121, 40, 202, 0.2);
-            position: relative;
         }
 
         /* Экран со слотами */
@@ -155,7 +212,6 @@
             gap: 15px;
         }
 
-        /* Слот и анимация движения */
         .slot-window {
             background: linear-gradient(180deg, #0e0a1a 0%, #17112a 50%, #0e0a1a 100%);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -175,7 +231,6 @@
             top: 0;
             left: 0;
             width: 100%;
-            transition: top 0s;
         }
 
         .slot-tile {
@@ -188,13 +243,11 @@
             user-select: none;
         }
 
-        /* Эффект размытия при кручении */
         .blur-effect {
             filter: blur(4px);
             transform: scaleY(1.2);
         }
 
-        /* Сияние при победе */
         .winner-glow {
             border-color: #00ff88 !important;
             box-shadow: 0 0 15px rgba(0, 255, 136, 0.5), inset 0 0 15px rgba(0, 255, 136, 0.2);
@@ -223,11 +276,6 @@
             letter-spacing: 1px;
         }
 
-        .bet-input-wrapper {
-            position: relative;
-            width: 100%;
-        }
-
         .bet-input {
             width: 100%;
             background: #090611;
@@ -239,15 +287,12 @@
             font-weight: 700;
             text-align: center;
             outline: none;
-            transition: all 0.3s;
         }
 
         .bet-input:focus {
             border-color: #ff007f;
-            box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
         }
 
-        /* Кнопка крутить */
         .btn-spin {
             background: linear-gradient(135deg, #ff007f 0%, #7928ca 100%);
             border: none;
@@ -266,12 +311,6 @@
         .btn-spin:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(255, 0, 127, 0.5);
-            filter: brightness(1.1);
-        }
-
-        .btn-spin:active {
-            transform: translateY(1px);
-            box-shadow: 0 2px 10px rgba(255, 0, 127, 0.3);
         }
 
         .btn-spin:disabled {
@@ -282,7 +321,6 @@
             transform: none;
         }
 
-        /* Вывод инфо */
         #status-display {
             margin-top: 20px;
             font-size: 1.1rem;
@@ -305,69 +343,67 @@
 
     <header>
         <h1>STARDUST SLOTS</h1>
-        <p style="color: #6c6382; font-weight: 500;">Испытай удачу на чистом рандоме</p>
+        <p style="color: #6c6382; font-weight: 500;">Играй на игровые, выводи реальные</p>
     </header>
 
-    <!-- Панель баланса -->
-    <div class="balance-card">
-        <div class="balance-text">Баланс: <span id="balance">100</span> ⭐</div>
-        <a href="https://t.me/markplau" target="_blank" class="btn-deposit">Пополнить</a>
+    <div class="balance-container">
+        <div class="balance-card">
+            <div class="balance-info">
+                <span class="balance-text">Игровой баланс</span>
+                <span class="balance-value" id="game-balance">100 ⭐</span>
+            </div>
+            <a href="https://t.me/markplau" target="_blank" class="btn-action btn-deposit">Пополнить</a>
+        </div>
+
+        <div class="balance-card" style="border-color: rgba(0, 255, 136, 0.15);">
+            <div class="balance-info">
+                <span class="balance-text">Баланс вывода (Мин. 15 / Макс. 100)</span>
+                <span class="balance-value" id="payout-balance">0 🏆</span>
+            </div>
+            <div class="withdraw-box">
+                <input type="number" id="withdraw-amount" class="withdraw-input" value="15" min="15" max="100">
+                <button class="btn-action btn-withdraw" onclick="requestWithdraw()">Вывод</button>
+            </div>
+        </div>
     </div>
 
-    <!-- Корпус казино -->
     <div class="slot-machine">
         <div class="screen">
             <div class="slots-container">
-                <!-- Барабан 1 -->
-                <div class="slot-window" id="w1">
-                    <div class="slot-reel" id="reel1"></div>
-                </div>
-                <!-- Барабан 2 -->
-                <div class="slot-window" id="w2">
-                    <div class="slot-reel" id="reel2"></div>
-                </div>
-                <!-- Барабан 3 -->
-                <div class="slot-window" id="w3">
-                    <div class="slot-reel" id="reel3"></div>
-                </div>
+                <div class="slot-window" id="w1"><div class="slot-reel" id="reel1"></div></div>
+                <div class="slot-window" id="w2"><div class="slot-reel" id="reel2"></div></div>
+                <div class="slot-window" id="w3"><div class="slot-reel" id="reel3"></div></div>
             </div>
         </div>
 
         <div class="control-panel">
             <div class="input-group">
-                <span class="input-label">Ваша ставка (⭐)</span>
-                <div class="bet-input-wrapper">
-                    <input type="number" id="bet" class="bet-input" value="10" min="1">
-                </div>
+                <span class="input-label">Ставка (Тратит ⭐)</span>
+                <input type="number" id="bet" class="bet-input" value="10" min="1">
             </div>
             <button class="btn-spin" id="spin-btn" onclick="startSpin()">ЗАПУСК</button>
         </div>
 
-        <div id="status-display">Удачи! Нажми Запуск.</div>
+        <div id="status-display">Удачи! Твой выигрыш пойдет на выводной баланс!</div>
     </div>
 
     <script>
-        let balance = 100;
-        // Набор крутых игровых символов
-        const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎', '7️⃣'];
+        let gameBalance = 100;   // Баланс для игры (стартовые)
+        let payoutBalance = 0;    // Баланс выбитых звезд для вывода
         
-        // Высота одного тайла (символа) в пикселях совпадает с CSS (110px)
+        const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎', '7️⃣'];
         const TILE_HEIGHT = 110; 
-        // Количество элементов в ленте прокрутки для создания иллюзии бесконечной ленты
         const REEL_SEQUENCE_COUNT = 30;
 
-        // Инициализируем стартовые барабаны
         function initReels() {
             for (let i = 1; i <= 3; i++) {
                 const reel = document.getElementById(`reel${i}`);
                 let html = '';
-                // Генерируем случайную стартовую ленту
                 for (let j = 0; j < REEL_SEQUENCE_COUNT; j++) {
                     const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
                     html += `<div class="slot-tile">${randomSymbol}</div>`;
                 }
                 reel.innerHTML = html;
-                // Смещаем ленту в самый низ, чтобы крутить наверх
                 reel.style.top = `-${(REEL_SEQUENCE_COUNT - 1) * TILE_HEIGHT}px`;
             }
         }
@@ -376,55 +412,47 @@
             const betInput = document.getElementById('bet');
             const btn = document.getElementById('spin-btn');
             const display = document.getElementById('status-display');
-            const balanceEl = document.getElementById('balance');
+            const gameBalanceEl = document.getElementById('game-balance');
 
             let bet = parseInt(betInput.value);
 
-            // Проверки
             if (isNaN(bet) || bet <= 0) {
                 display.className = 'lose-text';
                 display.innerText = '⚠️ Введи верную ставку!';
                 return;
             }
-            if (bet > balance) {
+            if (bet > gameBalance) {
                 display.className = 'lose-text';
-                display.innerText = '⚠️ Недостаточно звёзд!';
+                display.innerText = '⚠️ Недостаточно игровых звёзд ⭐!';
                 return;
             }
 
-            // Блокируем интерфейс во время игры
             btn.disabled = true;
             betInput.disabled = true;
             display.className = 'info-text';
-            display.innerText = 'Ставки сделаны, барабаны крутятся...';
+            display.innerText = 'Барабаны запущены...';
 
-            // Убираем старую подсветку победы
             for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.remove('winner-glow');
 
-            // Списываем баланс
-            balance -= bet;
-            balanceEl.innerText = balance;
+            // Списываем ставку ТОЛЬКО с игрового баланса
+            gameBalance -= bet;
+            gameBalanceEl.innerText = `${gameBalance} ⭐`;
 
-            // Генерируем финальные итоговые результаты по настоящему рандому
             const finalResults = [
                 symbols[Math.floor(Math.random() * symbols.length)],
                 symbols[Math.floor(Math.random() * symbols.length)],
                 symbols[Math.floor(Math.random() * symbols.length)]
             ];
 
-            // Запускаем продвинутую анимацию для каждого барабана с задержкой (Stagger effect)
             const p1 = animateReel(1, finalResults[0], 1.5);
             const p2 = animateReel(2, finalResults[1], 2.0);
             const p3 = animateReel(3, finalResults[2], 2.5);
 
-            // Ждем завершения кручения всех трех слотов
             await Promise.all([p1, p2, p3]);
 
-            // Разблокируем интерфейс
             btn.disabled = false;
             betInput.disabled = false;
 
-            // Проверяем выигрыш
             processResult(finalResults, bet);
         }
 
@@ -433,33 +461,24 @@
                 const reel = document.getElementById(`reel${reelNum}`);
                 const windowEl = document.getElementById(`w${reelNum}`);
                 
-                // Перестраиваем ленту: верхний элемент делаем целевым финальным символом
                 const tiles = reel.getElementsByClassName('slot-tile');
                 tiles[0].innerText = targetSymbol; 
                 
-                // Добавляем размытие во время движения
                 windowEl.classList.add('blur-effect');
-
-                // Переход через CSS Transitions
                 reel.style.transition = `top ${durationSeconds}s cubic-bezier(0.25, 0.1, 0.2, 1)`;
-                // Смещаем топ к 0px (к нашему целевому верхнему символу)
                 reel.style.top = '0px';
 
                 setTimeout(() => {
-                    // Убираем эффект размытия при остановке
                     windowEl.classList.remove('blur-effect');
                     
-                    // Переставляем моментально ленту назад вниз для следующего круга, меняя внутренний символ незаметно
                     setTimeout(() => {
                         reel.style.transition = 'none';
-                        // Заполняем ленту новыми рандомными символами, а самый нижний делаем текущим выигрышным
                         let html = '';
                         for (let j = 0; j < REEL_SEQUENCE_COUNT - 1; j++) {
                             html += `<div class="slot-tile">${symbols[Math.floor(Math.random() * symbols.length)]}</div>`;
                         }
                         html += `<div class="slot-tile">${targetSymbol}</div>`;
                         reel.innerHTML = html;
-                        // Сбрасываем позицию в низ без анимации
                         reel.style.top = `-${(REEL_SEQUENCE_COUNT - 1) * TILE_HEIGHT}px`;
                         resolve();
                     }, 50);
@@ -470,46 +489,78 @@
 
         function processResult(results, bet) {
             const display = document.getElementById('status-display');
-            const balanceEl = document.getElementById('balance');
+            const payoutBalanceEl = document.getElementById('payout-balance');
             
             const [r1, r2, r3] = results;
 
-            // Три в ряд (ДЖЕКПОТ)
+            // Выигрыш начисляется ТОЛЬКО на выводной баланс (🏆)
             if (r1 === r2 && r2 === r3) {
                 let multiplier = 5;
-                if (r1 === '7️⃣') multiplier = 15; // Супер джекпот за семерки
-                if (r1 === '💎') multiplier = 10; // За алмазы
+                if (r1 === '7️⃣') multiplier = 15;
+                if (r1 === '💎') multiplier = 10;
 
                 let win = bet * multiplier;
-                balance += win;
+                payoutBalance += win;
                 display.className = 'win-text';
-                display.innerText = `🔥 ДЖЕКПОТ x${multiplier}! Вы выиграли ${win} ⭐!`;
+                display.innerText = `🔥 ДЖЕКПОТ x${multiplier}! На вывод зачислено +${win} 🏆!`;
                 
-                // Добавляем неоновую подсветку всем слотам
                 for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.add('winner-glow');
             } 
-            // Два совпадения
             else if (r1 === r2 || r2 === r3 || r1 === r3) {
                 let win = Math.floor(bet * 1.5);
-                balance += win;
+                payoutBalance += win;
                 display.className = 'win-text';
-                display.innerText = `🎉 Двойное совпадение! Возврат +${win} ⭐`;
+                display.innerText = `🎉 Совпадение! На вывод зачислено +${win} 🏆`;
                 
-                // Подсвечиваем совпавшие окна
                 if (r1 === r2) { document.getElementById('w1').classList.add('winner-glow'); document.getElementById('w2').classList.add('winner-glow'); }
                 else if (r2 === r3) { document.getElementById('w2').classList.add('winner-glow'); document.getElementById('w3').classList.add('winner-glow'); }
                 else if (r1 === r3) { document.getElementById('w1').classList.add('winner-glow'); document.getElementById('w3').classList.add('winner-glow'); }
             } 
-            // Проигрыш
             else {
                 display.className = 'lose-text';
-                display.innerText = 'Попробуй еще раз, удача близко!';
+                display.innerText = 'Увы, пустая комбинация. Попробуй еще!';
             }
 
-            balanceEl.innerText = balance;
+            payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
         }
 
-        // Запуск при старте страницы
+        // Функция обработки вывода средств
+        function requestWithdraw() {
+            const display = document.getElementById('status-display');
+            const withdrawInput = document.getElementById('withdraw-amount');
+            const payoutBalanceEl = document.getElementById('payout-balance');
+            
+            let amount = parseInt(withdrawInput.value);
+
+            if (isNaN(amount) || amount < 15 || amount > 100) {
+                display.className = 'lose-text';
+                display.innerText = '⚠️ Лимиты вывода: от 15 до 100 🏆 звёзд!';
+                return;
+            }
+
+            if (amount > payoutBalance) {
+                display.className = 'lose-text';
+                display.innerText = '⚠️ Недостаточно выбитых звёзд на балансе вывода!';
+                return;
+            }
+
+            // Списываем звёзды с баланса вывода
+            payoutBalance -= amount;
+            payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
+
+            display.className = 'win-text';
+            display.innerText = `Заявка одобрена! Перенаправление на @markplau...`;
+
+            // Генерируем красивую ссылку в ТГ с готовым текстом сообщения
+            const textMessage = encodeURIComponent(`Привет! Я хочу вывести ${amount} звёзд из казино.`);
+            const tgUrl = `https://t.me/markplau?text=${textMessage}`;
+
+            // Перенаправляем пользователя через секунду
+            setTimeout(() => {
+                window.open(tgUrl, '_blank');
+            }, 1000);
+        }
+
         window.onload = initReels;
     </script>
 </body>
