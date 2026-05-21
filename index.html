@@ -3,20 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVT Terminal Ultra Pro</title>
+    <title>SVT Analytics Terminal Premium</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0"></script>
     <style>
         :root {
             --bg-main: #06080A;
-            --bg-card: #0E1216;
-            --bg-field: #151A20;
-            --bg-input: #1C242C;
-            --text-main: #F5F5F5;
-            --text-muted: #6B7583;
+            --bg-card: #0B0E11;
+            --bg-field: #141A22;
+            --bg-input: #1B232D;
+            --text-main: #EAEEF3;
+            --text-muted: #667382;
             --accent-green: #0ECB81;
             --accent-red: #F6465D;
-            --border-color: #202832;
+            --border-color: #1F2833;
         }
 
         * {
@@ -41,12 +42,12 @@
             max-width: 440px;
             background: var(--bg-card);
             border: 1px solid var(--border-color);
-            border-radius: 24px;
-            padding: 18px;
+            border-radius: 20px;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 16px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.8);
         }
 
         /* Шапка */
@@ -55,7 +56,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border-color);
-            padding-bottom: 12px;
+            padding-bottom: 14px;
         }
 
         .brand-zone {
@@ -65,19 +66,19 @@
         }
 
         .logo-badge {
-            background: linear-gradient(135deg, #0ECB81, #00C37B);
+            background: linear-gradient(135deg, #0ECB81, #00A364);
             color: #06080A;
             font-weight: 800;
-            width: 34px;
-            height: 34px;
+            width: 32px;
+            height: 32px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 10px;
-            font-size: 15px;
+            border-radius: 8px;
+            font-size: 14px;
         }
 
-        .title-pair h1 { font-size: 15px; font-weight: 700; }
+        .title-pair h1 { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
         .title-pair span { font-size: 11px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
 
         .live-pulse {
@@ -87,10 +88,10 @@
             font-size: 11px;
             color: var(--accent-green);
             font-weight: 600;
-            background: rgba(14, 203, 129, 0.08);
+            background: rgba(14, 203, 129, 0.06);
             padding: 5px 12px;
-            border-radius: 30px;
-            border: 1px solid rgba(14, 203, 129, 0.15);
+            border-radius: 6px;
+            border: 1px solid rgba(14, 203, 129, 0.12);
         }
 
         .pulse-dot {
@@ -101,31 +102,29 @@
             animation: blink 1.2s infinite;
         }
 
-        /* Главная цена */
+        /* Информационная панель курса */
         .main-price-box {
             background: var(--bg-field);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 14px;
             padding: 16px;
             text-align: center;
             position: relative;
-            overflow: hidden;
         }
 
         .price-label {
             font-size: 11px;
             color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.8px;
             margin-bottom: 4px;
         }
 
         .price-value {
-            font-size: 36px;
+            font-size: 38px;
             font-weight: 700;
             font-family: 'JetBrains Mono', monospace;
             letter-spacing: -1px;
-            transition: all 0.15s ease;
         }
 
         .price-direction {
@@ -137,18 +136,7 @@
             gap: 4px;
         }
 
-        /* Мини-таймер до обновления */
-        .tick-timer {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            height: 2px;
-            background: var(--accent-green);
-            width: 100%;
-            transition: width 3s linear;
-        }
-
-        /* Сетка лимитов */
+        /* Сетка мини-статистики */
         .stats-mini-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -156,31 +144,34 @@
         }
 
         .stat-mini-card {
-            background: rgba(255,255,255,0.01);
+            background: rgba(20, 26, 34, 0.5);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
+            border-radius: 10px;
             padding: 10px 12px;
         }
 
-        .stat-mini-label { font-size: 10px; color: var(--text-muted); margin-bottom: 3px; text-transform: uppercase;}
+        .stat-mini-label { font-size: 10px; color: var(--text-muted); margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.3px;}
         .stat-mini-value { font-size: 13px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
 
-        /* График */
+        /* Контейнер графика */
         .chart-box {
             position: relative;
-            height: 200px;
+            height: 210px;
             background: var(--bg-field);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 14px;
             padding: 10px;
         }
 
-        /* ИНТЕРАКТИВНЫЙ БЛОК: КАЛЬКУЛЯТОР */
+        /* ПРОФЕССИОНАЛЬНЫЙ ТОРГОВЫЙ БЛОК */
         .calculator-box {
             background: var(--bg-field);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 14px;
             padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .calc-title {
@@ -188,7 +179,6 @@
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            margin-bottom: 10px;
             font-weight: 600;
         }
 
@@ -196,11 +186,10 @@
             display: flex;
             background: var(--bg-input);
             border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 10px 12px;
+            border-radius: 8px;
+            padding: 12px;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 8px;
         }
 
         .input-wrapper input {
@@ -208,9 +197,9 @@
             border: none;
             color: #fff;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 16px;
+            font-size: 17px;
             font-weight: 600;
-            width: 70%;
+            width: 75%;
             outline: none;
         }
 
@@ -225,14 +214,40 @@
             color: var(--text-muted);
             display: flex;
             justify-content: space-between;
-            padding: 2px 4px;
+            padding: 0 2px;
         }
+        
         .calc-result span strong {
-            color: var(--accent-green);
+            color: #fff;
             font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
         }
 
-        /* Метрики сети */
+        /* Торговая интегрированная кнопка */
+        .btn-trade-action {
+            background: var(--accent-green);
+            color: #06080A;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 14px;
+            border-radius: 8px;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.15s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-trade-action:hover {
+            opacity: 0.95;
+            box-shadow: 0 4px 15px rgba(14, 203, 129, 0.2);
+        }
+
+        /* Метрики */
         .market-info-block {
             border-top: 1px dashed var(--border-color);
             border-bottom: 1px dashed var(--border-color);
@@ -244,13 +259,14 @@
 
         .info-row { display: flex; justify-content: space-between; font-size: 12px; }
         .info-row .lbl { color: var(--text-muted); }
-        .info-row .val { font-family: 'JetBrains Mono', monospace; }
+        .info-row .val { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
 
         /* Лента сделок */
         .tape-box {
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 12px;
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 10px;
             padding: 12px;
+            border: 1px solid rgba(255,255,255,0.02);
         }
 
         .tape-title {
@@ -259,6 +275,7 @@
             margin-bottom: 6px;
             text-transform: uppercase;
             font-size: 10px;
+            letter-spacing: 0.3px;
         }
 
         .tape-row {
@@ -270,41 +287,17 @@
             animation: fadeIn 0.4s ease;
         }
 
-        /* Кнопка закупа */
-        .btn-buy-crypto {
-            background: var(--accent-green);
-            color: #06080A;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 15px;
-            padding: 14px;
-            border-radius: 12px;
-            text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 20px rgba(14, 203, 129, 0.15);
-        }
-
-        .btn-buy-crypto:hover {
-            opacity: 0.95;
-            transform: translateY(-1px);
-            box-shadow: 0 6px 24px rgba(14, 203, 129, 0.25);
-        }
-
-        /* Стили состояний */
+        /* Служебное */
         .up { color: var(--accent-green); }
         .down { color: var(--accent-red); }
         
-        .flash-green { animation: flashG 0.4s ease; }
-        .flash-red { animation: flashR 0.4s ease; }
+        .flash-green { animation: flashG 0.3s ease; }
+        .flash-red { animation: flashR 0.3s ease; }
 
         @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-2px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes flashG { 0% { background: rgba(14, 203, 129, 0.2); } 100% { background: var(--bg-field); } }
-        @keyframes flashR { 0% { background: rgba(246, 70, 93, 0.2); } 100% { background: var(--bg-field); } }
+        @keyframes flashG { 0% { background: rgba(14, 203, 129, 0.15); } 100% { background: var(--bg-field); } }
+        @keyframes flashR { 0% { background: rgba(246, 70, 93, 0.15); } 100% { background: var(--bg-field); } }
     </style>
 </head>
 <body>
@@ -325,10 +318,9 @@
     </div>
 
     <div class="main-price-box" id="price-card">
-        <div class="price-label">Текущая рыночная стоимость</div>
+        <div class="price-label">Рыночная цена</div>
         <div class="price-value" id="current-price">10.00 ₽</div>
         <div class="price-direction up" id="price-change">+0.00%</div>
-        <div class="tick-timer" id="progress-bar"></div>
     </div>
 
     <div class="stats-mini-grid">
@@ -347,25 +339,29 @@
     </div>
 
     <div class="calculator-box">
-        <div class="calc-title">Быстрый расчет ордера</div>
+        <div class="calc-title">Создать ордер на покупку</div>
         <div class="input-wrapper">
-            <input type="number" id="rub-input" value="1000" placeholder="0.00" min="0">
+            <input type="number" id="rub-input" value="1000" placeholder="Укажите сумму">
             <span class="input-currency">RUB</span>
         </div>
         <div class="calc-result">
-            <span>Вы получите примерно:</span>
-            <span><strong id="svt-output">100.00</strong> SVT</span>
+            <span>К зачислению:</span>
+            <span><strong id="svt-output" style="color: var(--accent-green);">100.00</strong> <strong>SVT</strong></span>
         </div>
+        
+        <a href="https://t.me/markplau" target="_blank" class="btn-trade-action" id="buy-btn">
+            <span>Купить 100.00 SVT</span>
+        </a>
     </div>
 
     <div class="market-info-block">
         <div class="info-row">
             <span class="lbl">Рыночная капитализация</span>
-            <span class="val" id="market-cap" style="color: #fff; font-weight: 500;">120,500,000 ₽</span>
+            <span class="val" id="market-cap" style="color: #fff;">120,500,000 ₽</span>
         </div>
         <div class="info-row">
             <span class="lbl">Объем торгов (24ч)</span>
-            <span class="val" style="color: var(--accent-green);">4,812,400 ₽</span>
+            <span class="val" style="color: #fff;">4,812,400 ₽</span>
         </div>
         <div class="info-row">
             <span class="lbl">Циркулирующее предложение</span>
@@ -374,14 +370,9 @@
     </div>
 
     <div class="tape-box">
-        <div class="tape-title">Потоковая лента ордеров</div>
+        <div class="tape-title">Лента сделок в реальном времени</div>
         <div id="orders-tape"></div>
     </div>
-
-    <a href="https://t.me/markplau" target="_blank" class="btn-buy-crypto">
-        <span>Перейти к покупке SVT</span>
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-    </a>
 </div>
 
 <script>
@@ -395,12 +386,18 @@
     const labels = Array(maxDataPoints).fill('');
     const dataPoints = Array(maxDataPoints).fill(basePrice);
 
-    // Инициализация Chart.js
+    // Градиенты для динамической заливки графика
     const ctx = document.getElementById('analyticsChart').getContext('2d');
-    const gradient = ctx.createLinearGradient(0, 0, 0, 180);
-    gradient.addColorStop(0, 'rgba(14, 203, 129, 0.12)');
-    gradient.addColorStop(1, 'rgba(14, 203, 129, 0.0)');
+    
+    const gradientGreen = ctx.createLinearGradient(0, 0, 0, 180);
+    gradientGreen.addColorStop(0, 'rgba(14, 203, 129, 0.12)');
+    gradientGreen.addColorStop(1, 'rgba(14, 203, 129, 0.0)');
 
+    const gradientRed = ctx.createLinearGradient(0, 0, 0, 180);
+    gradientRed.addColorStop(0, 'rgba(246, 70, 93, 0.12)');
+    gradientRed.addColorStop(1, 'rgba(246, 70, 93, 0.0)');
+
+    // Инициализация Chart.js с поддержкой динамической линии цены
     const chart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -411,18 +408,36 @@
                 borderWidth: 2,
                 pointRadius: 0,
                 fill: true,
-                backgroundColor: gradient,
+                backgroundColor: gradientGreen,
                 tension: 0.35
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            plugins: { 
+                legend: { display: false },
+                // Добавляем горизонтальную линию актуальной стоимости (Price Line)
+                annotation: {
+                    annotations: {
+                        line1: {
+                            type: 'line',
+                            yMin: basePrice,
+                            yMax: basePrice,
+                            borderColor: 'rgba(14, 203, 129, 0.4)',
+                            borderWidth: 1,
+                            borderDash: [4, 4],
+                            label: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            },
             scales: {
                 x: { grid: { display: false }, ticks: { display: false } },
                 y: {
-                    grid: { color: '#151A20' },
+                    grid: { color: '#141A22' },
                     ticks: {
                         color: '#475261',
                         font: { family: 'JetBrains Mono', size: 10 },
@@ -433,38 +448,29 @@
         }
     });
 
-    // Анимация таймера (полоски прогресса)
-    const progressBar = document.getElementById('progress-bar');
-    function restartTimerBar() {
-        progressBar.style.transition = 'none';
-        progressBar.style.width = '100%';
-        setTimeout(() => {
-            progressBar.style.transition = 'width 3s linear';
-            progressBar.style.width = '0%';
-        }, 50);
-    }
-
-    // Логика калькулятора ордеров
+    // Связка Калькулятора и Кнопки
     const rubInput = document.getElementById('rub-input');
     const svtOutput = document.getElementById('svt-output');
+    const buyBtn = document.getElementById('buy-btn');
 
-    function calculateSvt() {
+    function updateCalculator() {
         const rubAmount = parseFloat(rubInput.value) || 0;
         const result = rubAmount / currentPrice;
+        
         svtOutput.innerText = result.toFixed(2);
+        buyBtn.innerHTML = `<span>Купить ${result.toFixed(2)} SVT</span>`;
     }
-    rubInput.addEventListener('input', calculateSvt);
+    rubInput.addEventListener('input', updateCalculator);
 
-    // Рыночный движок
-    function simulateCryptoMarket() {
-        restartTimerBar();
-
+    // Торговое ядро терминала
+    function tickMarketEngine() {
+        // Симуляция изменения цены (очень плавная, без таймера на экране)
         if (Math.random() > 0.6) {
             marketTrend = (Math.random() * 2 - 1);
         }
 
-        let changePercent = (Math.random() * 0.35 - 0.175); 
-        changePercent += marketTrend * 0.12; 
+        let changePercent = (Math.random() * 0.32 - 0.16); 
+        changePercent += marketTrend * 0.1; 
 
         const priceDiff = currentPrice * (changePercent / 100);
         currentPrice += priceDiff;
@@ -476,49 +482,61 @@
         if (currentPrice > maxPrice) maxPrice = currentPrice;
         if (currentPrice < minPrice) minPrice = currentPrice;
 
-        // Рендер цен
+        // Обновление интерфейса текста
         document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
         document.getElementById('max-price').innerText = maxPrice.toFixed(2) + ' ₽';
         document.getElementById('min-price').innerText = minPrice.toFixed(2) + ' ₽';
 
-        // Обновляем калькулятор "на лету" при изменении цены
-        calculateSvt();
+        // Синхронный пересчет калькулятора под новую цену
+        updateCalculator();
 
         // Капитализация
         const currentCap = Math.round(12050000 * currentPrice);
         document.getElementById('market-cap').innerText = currentCap.toLocaleString('ru-RU') + ' ₽';
 
-        // Эффект вспышки и цвета при изменении курса
         const priceCard = document.getElementById('price-card');
         const changeEl = document.getElementById('price-change');
         
         priceCard.classList.remove('flash-green', 'flash-red');
 
+        // Переключение состояний графика и аннотаций цены
         if (priceDiff >= 0) {
-            void priceCard.offsetWidth; // Триггер перезапуска анимации
+            void priceCard.offsetWidth; 
             priceCard.classList.add('flash-green');
             changeEl.innerText = '+' + totalChange.toFixed(2) + '%';
             changeEl.className = 'price-direction up';
+            
             chart.data.datasets[0].borderColor = '#0ECB81';
+            chart.data.datasets[0].backgroundColor = gradientGreen;
+            chart.options.plugins.annotation.annotations.line1.borderColor = 'rgba(14, 203, 129, 0.4)';
         } else {
             void priceCard.offsetWidth; 
             priceCard.classList.add('flash-red');
             changeEl.innerText = totalChange.toFixed(2) + '%';
             changeEl.className = 'price-direction down';
+            
             chart.data.datasets[0].borderColor = '#F6465D';
+            chart.data.datasets[0].backgroundColor = gradientRed;
+            chart.options.plugins.annotation.annotations.line1.borderColor = 'rgba(246, 70, 93, 0.4)';
         }
 
+        // Двигаем график
         chart.data.datasets[0].data.shift();
         chart.data.datasets[0].data.push(currentPrice);
+        
+        // Смещаем горизонтальную Price Line за актуальной ценой
+        chart.options.plugins.annotation.annotations.line1.yMin = currentPrice;
+        chart.options.plugins.annotation.annotations.line1.yMax = currentPrice;
+        
         chart.update('none');
 
         generateTapeOrder(priceDiff >= 0);
     }
 
-    // Генератор стакана/ленты
+    // Потоковая лента ордеров
     const tapeContainer = document.getElementById('orders-tape');
     function generateTapeOrder(isBuy) {
-        const amount = (Math.random() * 600 + 5).toFixed(1);
+        const amount = (Math.random() * 500 + 10).toFixed(1);
         const typeText = isBuy ? 'Купить' : 'Продать';
         const typeClass = isBuy ? 'up' : 'down';
         
@@ -534,10 +552,12 @@
         }
     }
 
-    // Старт
+    // Рендер при старте
     for(let i=0; i<3; i++) generateTapeOrder(Math.random() > 0.5);
-    simulateCryptoMarket();
-    setInterval(simulateCryptoMarket, 3000);
+    tickMarketEngine();
+    
+    // Курс меняется скрыто в фоне каждые 3 секунды, имитируя живой поток данных
+    setInterval(tickMarketEngine, 3000);
 </script>
 
 </body>
