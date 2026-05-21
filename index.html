@@ -3,299 +3,514 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Stars Casino</title>
+    <title>Neon Cyber Stars Casino</title>
     <style>
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
-            background: radial-gradient(circle, #1a1a2e 0%, #0f0f1b 100%);
+            background: radial-gradient(circle at center, #140d26 0%, #07040d 100%);
             color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center;
             min-height: 100vh;
             padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Задний фон с неоновыми бликами */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: #ff0055;
+            filter: blur(150px);
+            opacity: 0.15;
+            top: 10%;
+            left: 15%;
+            z-index: -1;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: #00f2fe;
+            filter: blur(150px);
+            opacity: 0.15;
+            bottom: 10%;
+            right: 15%;
+            z-index: -1;
         }
 
         header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
 
         h1 {
-            font-size: 2.5rem;
-            color: #00f2fe;
-            text-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
-            margin-bottom: 10px;
+            font-size: 2.8rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            background: linear-gradient(45deg, #00f2fe, #ff007f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 242, 254, 0.3);
+            margin-bottom: 5px;
         }
 
-        /* Панель баланса */
-        .balance-container {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(0, 242, 254, 0.2);
-            padding: 15px 30px;
-            border-radius: 15px;
+        /* Топовая панель баланса */
+        .balance-card {
+            background: rgba(20, 15, 38, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 24px;
+            border-radius: 50px;
             display: flex;
             align-items: center;
-            gap: 20px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            margin-bottom: 40px;
+            gap: 25px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            margin-bottom: 35px;
+            transition: all 0.3s ease;
+        }
+
+        .balance-card:hover {
+            border-color: rgba(0, 242, 254, 0.4);
+            box-shadow: 0 8px 32px 0 rgba(0, 242, 254, 0.1);
         }
 
         .balance-text {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #9d96b8;
         }
 
         #balance {
-            font-weight: bold;
-            color: #ffe600;
-            text-shadow: 0 0 8px rgba(255, 230, 0, 0.5);
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(to right, #ffe600, #ff9900);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.3rem;
         }
 
         .btn-deposit {
-            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            background: linear-gradient(90deg, #00f2fe 0%, #4facfe 100%);
             border: none;
             color: white;
-            padding: 10px 20px;
-            font-weight: bold;
-            border-radius: 8px;
+            padding: 8px 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            border-radius: 25px;
             cursor: pointer;
             text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .btn-deposit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.6);
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
         }
 
-        /* Игровой автомат (Слот-машина) */
-        .casino-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 30px;
+        /* Корпус автомата */
+        .slot-machine {
+            background: linear-gradient(145deg, #18132b, #0f0b1e);
+            border: 2px solid rgba(255, 0, 127, 0.3);
+            border-radius: 24px;
+            padding: 35px;
             width: 100%;
-            max-width: 450px;
+            max-width: 460px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 
+                        inset 0 0 20px rgba(255, 0, 127, 0.1),
+                        0 0 30px rgba(121, 40, 202, 0.2);
+            position: relative;
         }
 
-        .slots {
+        /* Экран со слотами */
+        .screen {
+            background: #05030a;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+            overflow: hidden;
+        }
+
+        .slots-container {
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin: 30px 0;
         }
 
-        .slot {
-            background: #0a0a14;
-            border: 2px solid #333;
-            border-radius: 10px;
-            width: 80px;
-            height: 100px;
-            font-size: 3rem;
+        /* Слот и анимация движения */
+        .slot-window {
+            background: linear-gradient(180deg, #0e0a1a 0%, #17112a 50%, #0e0a1a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            width: 90px;
+            height: 110px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
+        }
+
+        .slot-reel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            transition: top 0s;
+        }
+
+        .slot-tile {
+            width: 100%;
+            height: 110px;
+            font-size: 3.2rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
-            transition: border-color 0.3s;
+            user-select: none;
         }
 
-        .slot.win-glow {
-            border-color: #00ff88;
-            animation: pulse 0.5s infinite alternate;
+        /* Эффект размытия при кручении */
+        .blur-effect {
+            filter: blur(4px);
+            transform: scaleY(1.2);
         }
 
-        .controls {
+        /* Сияние при победе */
+        .winner-glow {
+            border-color: #00ff88 !important;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5), inset 0 0 15px rgba(0, 255, 136, 0.2);
+            animation: pulseGlow 0.4s infinite alternate;
+        }
+
+        /* Управление */
+        .control-panel {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .input-label {
+            color: #8a8a9e;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .bet-input-wrapper {
+            position: relative;
+            width: 100%;
         }
 
         .bet-input {
-            background: #0a0a14;
-            border: 1px solid #444;
+            width: 100%;
+            background: #090611;
+            border: 1px solid rgba(255, 255, 255, 0.1);
             color: white;
-            padding: 12px;
-            border-radius: 8px;
-            font-size: 1.1rem;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 700;
             text-align: center;
             outline: none;
+            transition: all 0.3s;
         }
 
         .bet-input:focus {
-            border-color: #00f2fe;
+            border-color: #ff007f;
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
         }
 
+        /* Кнопка крутить */
         .btn-spin {
-            background: linear-gradient(45deg, #ff007f, #7928ca);
+            background: linear-gradient(135deg, #ff007f 0%, #7928ca 100%);
             border: none;
             color: white;
-            padding: 15px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 8px;
+            padding: 16px;
+            font-size: 1.3rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 12px;
             cursor: pointer;
-            transition: background 0.3s, transform 0.1s;
+            box-shadow: 0 6px 20px rgba(255, 0, 127, 0.3);
+            transition: all 0.2s ease;
         }
 
         .btn-spin:hover {
-            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 0, 127, 0.5);
+            filter: brightness(1.1);
         }
 
         .btn-spin:active {
-            transform: scale(0.98);
+            transform: translateY(1px);
+            box-shadow: 0 2px 10px rgba(255, 0, 127, 0.3);
         }
 
-        #message {
+        .btn-spin:disabled {
+            background: #332d42;
+            color: #665f7a;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Вывод инфо */
+        #status-display {
             margin-top: 20px;
             font-size: 1.1rem;
-            min-height: 27px;
-            font-weight: 500;
+            font-weight: 600;
+            min-height: 28px;
+            letter-spacing: 0.5px;
         }
 
-        .text-success { color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.4); }
-        .text-danger { color: #ff3366; }
+        .win-text { color: #00ff88; text-shadow: 0 0 15px rgba(0, 255, 136, 0.6); }
+        .lose-text { color: #ff3366; text-shadow: 0 0 10px rgba(255, 51, 102, 0.3); }
+        .info-text { color: #00f2fe; }
 
-        @keyframes pulse {
-            from { box-shadow: 0 0 10px rgba(0,255,136,0.5); }
-            to { box-shadow: 0 0 20px rgba(0,255,136,0.8); }
+        @keyframes pulseGlow {
+            from { transform: scale(1); }
+            to { transform: scale(1.02); }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>⭐️ STAR CASINO ⭐️</h1>
-        <p style="color: #8a8a9e;">Испытай свою удачу прямо сейчас</p>
+        <h1>STARDUST SLOTS</h1>
+        <p style="color: #6c6382; font-weight: 500;">Испытай удачу на чистом рандоме</p>
     </header>
 
-    <!-- Баланс и Пополнение -->
-    <div class="balance-container">
+    <!-- Панель баланса -->
+    <div class="balance-card">
         <div class="balance-text">Баланс: <span id="balance">100</span> ⭐</div>
-        <!-- Ссылка перенаправляет на аккаунт в Telegram -->
         <a href="https://t.me/markplau" target="_blank" class="btn-deposit">Пополнить</a>
     </div>
 
-    <!-- Игровой автомат -->
-    <div class="casino-card">
-        <h3>МЕГА СЛОТЫ</h3>
-        
-        <div class="slots">
-            <div class="slot" id="slot1">🍒</div>
-            <div class="slot" id="slot2">🍒</div>
-            <div class="slot" id="slot3">🍒</div>
+    <!-- Корпус казино -->
+    <div class="slot-machine">
+        <div class="screen">
+            <div class="slots-container">
+                <!-- Барабан 1 -->
+                <div class="slot-window" id="w1">
+                    <div class="slot-reel" id="reel1"></div>
+                </div>
+                <!-- Барабан 2 -->
+                <div class="slot-window" id="w2">
+                    <div class="slot-reel" id="reel2"></div>
+                </div>
+                <!-- Барабан 3 -->
+                <div class="slot-window" id="w3">
+                    <div class="slot-reel" id="reel3"></div>
+                </div>
+            </div>
         </div>
 
-        <div class="controls">
-            <label for="bet" style="color: #aaa; font-size: 0.9rem; text-align: left;">Ставка (⭐):</label>
-            <input type="number" id="bet" class="bet-input" value="10" min="1">
-            <button class="btn-spin" onclick="spin()">КРУТИТЬ</button>
+        <div class="control-panel">
+            <div class="input-group">
+                <span class="input-label">Ваша ставка (⭐)</span>
+                <div class="bet-input-wrapper">
+                    <input type="number" id="bet" class="bet-input" value="10" min="1">
+                </div>
+            </div>
+            <button class="btn-spin" id="spin-btn" onclick="startSpin()">ЗАПУСК</button>
         </div>
 
-        <div id="message"></div>
+        <div id="status-display">Удачи! Нажми Запуск.</div>
     </div>
 
     <script>
-        // Изначальный баланс игрока
         let balance = 100;
-        const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎'];
+        // Набор крутых игровых символов
+        const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎', '7️⃣'];
+        
+        // Высота одного тайла (символа) в пикселях совпадает с CSS (110px)
+        const TILE_HEIGHT = 110; 
+        // Количество элементов в ленте прокрутки для создания иллюзии бесконечной ленты
+        const REEL_SEQUENCE_COUNT = 30;
 
-        function spin() {
-            const balanceEl = document.getElementById('balance');
+        // Инициализируем стартовые барабаны
+        function initReels() {
+            for (let i = 1; i <= 3; i++) {
+                const reel = document.getElementById(`reel${i}`);
+                let html = '';
+                // Генерируем случайную стартовую ленту
+                for (let j = 0; j < REEL_SEQUENCE_COUNT; j++) {
+                    const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+                    html += `<div class="slot-tile">${randomSymbol}</div>`;
+                }
+                reel.innerHTML = html;
+                // Смещаем ленту в самый низ, чтобы крутить наверх
+                reel.style.top = `-${(REEL_SEQUENCE_COUNT - 1) * TILE_HEIGHT}px`;
+            }
+        }
+
+        async function startSpin() {
             const betInput = document.getElementById('bet');
-            const messageEl = document.getElementById('message');
-            
-            const slot1 = document.getElementById('slot1');
-            const slot2 = document.getElementById('slot2');
-            const slot3 = document.getElementById('slot3');
-
-            // Очищаем предыдущие эффекты победы
-            slot1.classList.remove('win-glow');
-            slot2.classList.remove('win-glow');
-            slot3.classList.remove('win-glow');
+            const btn = document.getElementById('spin-btn');
+            const display = document.getElementById('status-display');
+            const balanceEl = document.getElementById('balance');
 
             let bet = parseInt(betInput.value);
 
-            // Проверки на корректность ставки
+            // Проверки
             if (isNaN(bet) || bet <= 0) {
-                messageEl.className = 'text-danger';
-                messageEl.innerText = 'Введите корректную ставку!';
+                display.className = 'lose-text';
+                display.innerText = '⚠️ Введи верную ставку!';
                 return;
             }
-
             if (bet > balance) {
-                messageEl.className = 'text-danger';
-                messageEl.innerText = 'Недостаточно звёзд на балансе!';
+                display.className = 'lose-text';
+                display.innerText = '⚠️ Недостаточно звёзд!';
                 return;
             }
 
-            // Списываем ставку
+            // Блокируем интерфейс во время игры
+            btn.disabled = true;
+            betInput.disabled = true;
+            display.className = 'info-text';
+            display.innerText = 'Ставки сделаны, барабаны крутятся...';
+
+            // Убираем старую подсветку победы
+            for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.remove('winner-glow');
+
+            // Списываем баланс
             balance -= bet;
             balanceEl.innerText = balance;
-            messageEl.innerText = 'Слоты крутятся...';
 
-            // Эффект кручения (рандомный выбор символов)
-            let counter = 0;
-            const interval = setInterval(() => {
-                slot1.innerText = symbols[Math.floor(Math.random() * symbols.length)];
-                slot2.innerText = symbols[Math.floor(Math.random() * symbols.length)];
-                slot3.innerText = symbols[Math.floor(Math.random() * symbols.length)];
-                counter++;
+            // Генерируем финальные итоговые результаты по настоящему рандому
+            const finalResults = [
+                symbols[Math.floor(Math.random() * symbols.length)],
+                symbols[Math.floor(Math.random() * symbols.length)],
+                symbols[Math.floor(Math.random() * symbols.length)]
+            ];
 
-                if (counter > 10) {
-                    clearInterval(interval);
-                    checkResult(bet);
-                }
-            }, 70);
+            // Запускаем продвинутую анимацию для каждого барабана с задержкой (Stagger effect)
+            const p1 = animateReel(1, finalResults[0], 1.5);
+            const p2 = animateReel(2, finalResults[1], 2.0);
+            const p3 = animateReel(3, finalResults[2], 2.5);
+
+            // Ждем завершения кручения всех трех слотов
+            await Promise.all([p1, p2, p3]);
+
+            // Разблокируем интерфейс
+            btn.disabled = false;
+            betInput.disabled = false;
+
+            // Проверяем выигрыш
+            processResult(finalResults, bet);
         }
 
-        function checkResult(bet) {
+        function animateReel(reelNum, targetSymbol, durationSeconds) {
+            return new Promise(resolve => {
+                const reel = document.getElementById(`reel${reelNum}`);
+                const windowEl = document.getElementById(`w${reelNum}`);
+                
+                // Перестраиваем ленту: верхний элемент делаем целевым финальным символом
+                const tiles = reel.getElementsByClassName('slot-tile');
+                tiles[0].innerText = targetSymbol; 
+                
+                // Добавляем размытие во время движения
+                windowEl.classList.add('blur-effect');
+
+                // Переход через CSS Transitions
+                reel.style.transition = `top ${durationSeconds}s cubic-bezier(0.25, 0.1, 0.2, 1)`;
+                // Смещаем топ к 0px (к нашему целевому верхнему символу)
+                reel.style.top = '0px';
+
+                setTimeout(() => {
+                    // Убираем эффект размытия при остановке
+                    windowEl.classList.remove('blur-effect');
+                    
+                    // Переставляем моментально ленту назад вниз для следующего круга, меняя внутренний символ незаметно
+                    setTimeout(() => {
+                        reel.style.transition = 'none';
+                        // Заполняем ленту новыми рандомными символами, а самый нижний делаем текущим выигрышным
+                        let html = '';
+                        for (let j = 0; j < REEL_SEQUENCE_COUNT - 1; j++) {
+                            html += `<div class="slot-tile">${symbols[Math.floor(Math.random() * symbols.length)]}</div>`;
+                        }
+                        html += `<div class="slot-tile">${targetSymbol}</div>`;
+                        reel.innerHTML = html;
+                        // Сбрасываем позицию в низ без анимации
+                        reel.style.top = `-${(REEL_SEQUENCE_COUNT - 1) * TILE_HEIGHT}px`;
+                        resolve();
+                    }, 50);
+
+                }, durationSeconds * 1000);
+            });
+        }
+
+        function processResult(results, bet) {
+            const display = document.getElementById('status-display');
             const balanceEl = document.getElementById('balance');
-            const messageEl = document.getElementById('message');
             
-            const res1 = document.getElementById('slot1').innerText;
-            const res2 = document.getElementById('slot2').innerText;
-            const res3 = document.getElementById('slot3').innerText;
+            const [r1, r2, r3] = results;
 
-            // Логика выигрыша
-            if (res1 === res2 && res2 === res3) {
-                let winAmount = bet * 5; // Х5 за три одинаковых символа
-                
-                // Дополнительный бонус за три джекпот-звезды или алмаза
-                if(res1 === '⭐' || res1 === '💎') {
-                    winAmount = bet * 10;
-                }
+            // Три в ряд (ДЖЕКПОТ)
+            if (r1 === r2 && r2 === r3) {
+                let multiplier = 5;
+                if (r1 === '7️⃣') multiplier = 15; // Супер джекпот за семерки
+                if (r1 === '💎') multiplier = 10; // За алмазы
 
-                balance += winAmount;
-                balanceEl.innerText = balance;
+                let win = bet * multiplier;
+                balance += win;
+                display.className = 'win-text';
+                display.innerText = `🔥 ДЖЕКПОТ x${multiplier}! Вы выиграли ${win} ⭐!`;
                 
-                messageEl.className = 'text-success';
-                messageEl.innerText = `ВЫИГРЫШ: +${winAmount} ⭐!`;
+                // Добавляем неоновую подсветку всем слотам
+                for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.add('winner-glow');
+            } 
+            // Два совпадения
+            else if (r1 === r2 || r2 === r3 || r1 === r3) {
+                let win = Math.floor(bet * 1.5);
+                balance += win;
+                display.className = 'win-text';
+                display.innerText = `🎉 Двойное совпадение! Возврат +${win} ⭐`;
                 
-                document.getElementById('slot1').classList.add('win-glow');
-                document.getElementById('slot2').classList.add('win-glow');
-                document.getElementById('slot3').classList.add('win-glow');
-
-            } else if (res1 === res2 || res2 === res3 || res1 === res3) {
-                // Х1.5 за два одинаковых символа
-                let winAmount = Math.floor(bet * 1.5);
-                balance += winAmount;
-                balanceEl.innerText = balance;
-                messageEl.className = 'text-success';
-                messageEl.innerText = `Частичный выигрыш: +${winAmount} ⭐`;
-            } else {
-                messageEl.className = 'text-danger';
-                messageEl.innerText = 'Увы, повезет в следующий раз!';
+                // Подсвечиваем совпавшие окна
+                if (r1 === r2) { document.getElementById('w1').classList.add('winner-glow'); document.getElementById('w2').classList.add('winner-glow'); }
+                else if (r2 === r3) { document.getElementById('w2').classList.add('winner-glow'); document.getElementById('w3').classList.add('winner-glow'); }
+                else if (r1 === r3) { document.getElementById('w1').classList.add('winner-glow'); document.getElementById('w3').classList.add('winner-glow'); }
+            } 
+            // Проигрыш
+            else {
+                display.className = 'lose-text';
+                display.innerText = 'Попробуй еще раз, удача близко!';
             }
+
+            balanceEl.innerText = balance;
         }
+
+        // Запуск при старте страницы
+        window.onload = initReels;
     </script>
 </body>
 </html>
