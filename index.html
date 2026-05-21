@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stardust Slots Premium</title>
+    <title>Stardust Slots Cyber Premium</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,7 +13,7 @@
         }
 
         body {
-            background: radial-gradient(circle at center, #130a2a 0%, #05030a 100%);
+            background: radial-gradient(circle at center, #110826 0%, #040208 100%);
             color: #fff;
             display: flex;
             flex-direction: column;
@@ -51,6 +51,7 @@
             text-shadow: 0 0 40px rgba(0, 242, 254, 0.4);
         }
 
+        /* Балансы */
         .balance-container {
             display: flex;
             flex-direction: column;
@@ -61,15 +62,15 @@
         }
 
         .balance-card {
-            background: rgba(24, 18, 43, 0.75);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(22, 16, 40, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.06);
             padding: 16px 24px;
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             backdrop-filter: blur(20px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
         }
 
         .balance-info { display: flex; flex-direction: column; }
@@ -102,53 +103,71 @@
         .withdraw-box { display: flex; gap: 10px; align-items: center; width: 135px; }
         .withdraw-input { width: 100%; background: #05030a; border: 1px solid rgba(255, 255, 255, 0.1); color: #00ff88; padding: 9px; border-radius: 8px; font-weight: 700; text-align: center; outline: none; }
 
-        /* Слот-Машина */
+        /* Игровой автомат */
         .slot-machine {
-            background: linear-gradient(145deg, #1d1635, #0c081a);
-            border: 2px solid rgba(255, 0, 127, 0.25);
-            border-radius: 24px;
-            padding: 35px;
+            background: linear-gradient(145deg, #18112e, #090614);
+            border: 2px solid rgba(255, 0, 127, 0.2);
+            border-radius: 28px;
+            padding: 30px;
             width: 100%;
             max-width: 460px;
             text-align: center;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+            box-shadow: 0 30px 70px rgba(0,0,0,0.8), inset 0 0 30px rgba(121, 40, 202, 0.1);
+            position: relative;
         }
 
+        /* ПРОКАЧАННАЯ СТИЛЬНАЯ ЗОНА ЭКРАНА */
         .screen {
-            background: #040207;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            border-radius: 18px;
-            padding: 22px;
+            background: radial-gradient(circle at center, #0c081d 0%, #030206 100%);
+            border: 2px solid rgba(0, 242, 254, 0.15);
+            border-radius: 22px;
+            padding: 25px 20px;
             margin-bottom: 25px;
-            box-shadow: inset 0 0 25px rgba(0,0,0,0.95);
+            box-shadow: 0 0 35px rgba(0, 242, 254, 0.05), inset 0 0 30px rgba(0,0,0,0.9);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Эффектная неоновая подложка */
+        .screen::before {
+            content: '';
+            position: absolute;
+            bottom: -10px; left: 10%; width: 80%; height: 20px;
+            background: #ff007f;
+            filter: blur(20px);
+            opacity: 0.4;
+            pointer-events: none;
         }
 
         .slots-container {
             display: flex;
             justify-content: center;
-            gap: 16px;
+            gap: 14px;
+            position: relative;
         }
 
-        /* Улучшенное 3D окно барабана с тенями */
+        /* Премиальное 3D окно барабана */
         .slot-window {
-            background: linear-gradient(180deg, #07050e 0%, #150f28 50%, #07050e 100%);
-            border: 2px solid rgba(255, 255, 255, 0.05);
+            background: linear-gradient(180deg, #05030a 0%, #16102b 25%, #16102b 75%, #05030a 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 16px;
-            width: 95px;
-            height: 110px;
+            width: 100px;
+            height: 115px;
             overflow: hidden;
             position: relative;
-            box-shadow: inset 0 8px 16px rgba(0,0,0,0.85), inset 0 -8px 16px rgba(0,0,0,0.85);
+            box-shadow: inset 0 12px 20px rgba(0,0,0,0.95), 
+                        inset 0 -12px 20px rgba(0,0,0,0.95),
+                        0 4px 15px rgba(0,0,0,0.5);
         }
 
-        /* Световой блик на стекле для реализма */
+        /* Дорогой блик на стекле слотов */
         .slot-window::after {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 50%);
+            background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0) 45%, rgba(0,242,254,0.02) 100%);
             pointer-events: none;
-            z-index: 2;
+            z-index: 3;
         }
 
         .slot-reel {
@@ -165,24 +184,46 @@
 
         .slot-tile {
             width: 100%;
-            height: 110px;
-            font-size: 3.3rem;
+            height: 115px;
+            font-size: 3.4rem;
             display: flex;
             align-items: center;
             justify-content: center;
             user-select: none;
-            text-shadow: 0 4px 8px rgba(0,0,0,0.5);
+            filter: drop-shadow(0 6px 10px rgba(0,0,0,0.6));
         }
 
-        /* Реалистичный Motion Blur */
+        /* Эффект вылетающих кубков +0.1 */
+        .floating-badge {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 255, 136, 0.15);
+            border: 1px solid #00ff88;
+            padding: 6px 14px;
+            border-radius: 30px;
+            color: #00ff88;
+            font-weight: 800;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px rgba(0,255,136,0.6);
+            box-shadow: 0 0 20px rgba(0,255,136,0.3);
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            animation: popUpAndFade 1.3s ease-out forwards;
+        }
+
+        /* Плавный размытый моушн-блур */
         .blur-effect {
             filter: blur(5px) saturate(1.2);
             will-change: filter;
         }
 
+        /* Сочный победный неон */
         .winner-glow {
             border-color: #00ff88 !important;
-            box-shadow: 0 0 25px rgba(0, 255, 136, 0.6), inset 0 0 15px rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 25px rgba(0, 255, 136, 0.7), inset 0 0 15px rgba(0, 255, 136, 0.4);
             animation: winPulse 0.3s infinite alternate;
         }
 
@@ -192,8 +233,8 @@
 
         .bet-input {
             width: 100%;
-            background: #07040d;
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: #06040a;
+            border: 1px solid rgba(255, 255, 255, 0.07);
             color: white;
             padding: 15px;
             border-radius: 14px;
@@ -218,11 +259,11 @@
             transition: all 0.2s ease;
         }
         .btn-spin:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(255, 0, 127, 0.5); }
-        .btn-spin:disabled { background: #282336; color: #575166; box-shadow: none; cursor: not-allowed; transform: none; }
+        .btn-spin:disabled { background: #221d2e; color: #524c61; box-shadow: none; cursor: not-allowed; transform: none; }
 
         #status-display {
             margin-top: 22px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 600;
             min-height: 28px;
         }
@@ -235,13 +276,20 @@
             from { transform: scale(1); }
             to { transform: scale(1.03); }
         }
+
+        @keyframes popUpAndFade {
+            0% { opacity: 0; transform: translate(-50%, -20%) scale(0.7); }
+            20% { opacity: 1; transform: translate(-50%, -60%) scale(1.1); }
+            45% { transform: translate(-50%, -70%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -120%) scale(0.9); }
+        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>STARDUST SLOTS</h1>
-        <p style="color: #6c6382; font-weight: 500;">Реалистичный отскок • Сложный сбор кубков (+0.1 🏆)</p>
+        <p style="color: #6c6382; font-weight: 500;">VIP Дизайн • Сложный сбор кубков (+0.1 🏆)</p>
     </header>
 
     <div class="balance-container">
@@ -266,7 +314,7 @@
     </div>
 
     <div class="slot-machine">
-        <div class="screen">
+        <div class="screen" id="slot-screen">
             <div class="slots-container">
                 <div class="slot-window" id="w1"><div class="slot-reel" id="reel1"></div></div>
                 <div class="slot-window" id="w2"><div class="slot-reel" id="reel2"></div></div>
@@ -282,7 +330,7 @@
             <button class="btn-spin" id="spin-btn" onclick="startSpin()">ЗАПУСК</button>
         </div>
 
-        <div id="status-display">Выбивай комбинации! Накопить кубки теперь очень непросто.</div>
+        <div id="status-display">Собери 3 одинаковых символа, чтобы заработать выводные кубки!</div>
     </div>
 
     <script>
@@ -290,9 +338,9 @@
         let payoutBalance = 0;    
         
         const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎', '7️⃣'];
-        const TILE_HEIGHT = 110; 
+        const TILE_HEIGHT = 115; 
         
-        // Сложные вероятности (RTP)
+        // Математика распределения шансов (RTP)
         const weights = [
             { sym: '🍒', weight: 28 },
             { sym: '🍋', weight: 26 },
@@ -339,19 +387,19 @@
 
             if (isNaN(bet) || bet <= 0) {
                 display.className = 'lose-text';
-                display.innerText = '⚠️ Введи корректную ставку!';
+                display.innerText = '⚠️ Укажи корректную ставку!';
                 return;
             }
             if (bet > gameBalance) {
                 display.className = 'lose-text';
-                display.innerText = '⚠️ Недостаточно звёзд ⭐!';
+                display.innerText = '⚠️ Не хватает звёзд ⭐!';
                 return;
             }
 
             btn.disabled = true;
             betInput.disabled = true;
             display.className = 'info-text';
-            display.innerText = 'Барабаны запущены...';
+            display.innerText = 'Удача испытывается...';
 
             for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.remove('winner-glow');
 
@@ -360,7 +408,6 @@
 
             const finalResults = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()];
 
-            // Время вращения настроено под красивый последовательный стоп
             const p1 = animateReel(1, finalResults[0], 1.5);
             const p2 = animateReel(2, finalResults[1], 2.0);
             const p3 = animateReel(3, finalResults[2], 2.5);
@@ -391,8 +438,8 @@
                 windowEl.classList.add('blur-effect');
                 reel.offsetHeight; 
 
-                // Физический кубический Безье, симулирующий резкую остановку и мягкий отскок назад (Bounce)
-                reel.style.transition = `transform ${duration}s cubic-bezier(0.25, 1.3, 0.4, 0.95)`;
+                // Профессиональный физический отскок (Bounce) в конце
+                reel.style.transition = `transform ${duration}s cubic-bezier(0.25, 1.28, 0.4, 0.96)`;
                 reel.style.transform = 'translate3d(0, 0, 0)';
 
                 setTimeout(() => {
@@ -400,6 +447,17 @@
                     resolve();
                 }, duration * 1000);
             });
+        }
+
+        function triggerFloatingScore() {
+            const screen = document.getElementById('slot-screen');
+            const badge = document.createElement('div');
+            badge.className = 'floating-badge';
+            badge.innerText = '+0.1 🏆';
+            screen.appendChild(badge);
+            
+            // Удаляем элемент после завершения анимации
+            setTimeout(() => { badge.remove(); }, 1300);
         }
 
         function processResult(results, bet) {
@@ -411,11 +469,11 @@
 
             // СТРОГО 3 В РЯД
             if (r1 === r2 && r2 === r3) {
-                // Игровой баланс получает x2 от ставки назад
+                // Игровой баланс: х2 от ставки обратно
                 let gameBonus = bet * 2;
                 gameBalance += gameBonus;
 
-                // Баланс вывода строго увеличивается на фиксированные 0.1 кубка!
+                // Выводной баланс: строго +0.1 кубка
                 let payoutWin = 0.1;
                 payoutBalance = parseFloat((payoutBalance + payoutWin).toFixed(1)); 
 
@@ -423,11 +481,14 @@
                 payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
 
                 display.className = 'win-text';
-                display.innerText = `🔥 ПОБЕДА! На игру: +${gameBonus} ⭐ (x2) | На вывод: +${payoutWin} 🏆`;
+                display.innerText = `🔥 ПОБЕДА! На игру: +${gameBonus} ⭐ | На вывод: +0.1 🏆`;
+                
+                // Запуск красивой вылетающей анимации над барабанами
+                triggerFloatingScore();
                 
                 for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.add('winner-glow');
             } 
-            // 2 совпадения (Просто небольшой возврат на игру, вывод равен 0)
+            // 2 совпадения (Вывод = 0, небольшой кэшбек на игру)
             else if (r1 === r2 || r2 === r3 || r1 === r3) {
                 let cashback = Math.floor(bet * 0.4);
                 gameBalance += cashback;
@@ -436,14 +497,13 @@
                 display.className = 'info-text';
                 display.innerText = `2 совпадения! Возврат на баланс игры: +${cashback} ⭐`;
             } 
-            // Проигрыш
+            // Полный проигрыш
             else {
                 display.className = 'lose-text';
-                display.innerText = 'Увы, пустая комбинация. Попробуй еще раз!';
+                display.innerText = 'Комбинация пуста. Испытай удачу снова!';
             }
         }
 
-        // Прямой метод редиректа без блокировок мобильных браузеров
         function redirectToTgDirect() {
             window.location.href = "https://t.me/markplau";
         }
@@ -476,7 +536,6 @@
             const textMessage = encodeURIComponent(`Привет! Я накопил выигрыш и хочу вывести ${amount} звёзд.`);
             
             setTimeout(() => {
-                // Надежное перенаправление в текущей вкладке смартфона
                 window.location.href = `https://t.me/markplau?text=${textMessage}`;
             }, 800);
         }
