@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultra Smooth Cyber Casino</title>
+    <title>Stardust Slots Premium</title>
     <style>
         * {
             box-sizing: border-box;
@@ -24,14 +24,13 @@
             overflow-x: hidden;
         }
 
-        /* Энергетические неоновые фоны */
         body::before, body::after {
             content: '';
             position: absolute;
             width: 350px;
             height: 350px;
             filter: blur(160px);
-            opacity: 0.15;
+            opacity: 0.12;
             z-index: -1;
         }
         body::before { background: #ff007f; top: 5%; left: 10%; }
@@ -52,7 +51,6 @@
             text-shadow: 0 0 40px rgba(0, 242, 254, 0.4);
         }
 
-        /* Контейнер балансов */
         .balance-container {
             display: flex;
             flex-direction: column;
@@ -81,7 +79,6 @@
         #game-balance { background: linear-gradient(to right, #ffe600, #ff9900); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         #payout-balance { background: linear-gradient(to right, #00ff88, #00f2fe); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* Кнопки */
         .btn-action {
             border: none;
             color: white;
@@ -114,7 +111,7 @@
             width: 100%;
             max-width: 460px;
             text-align: center;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.7), inset 0 0 30px rgba(255,0,127,0.05);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.7);
         }
 
         .screen {
@@ -132,19 +129,28 @@
             gap: 16px;
         }
 
-        /* Окно барабана */
+        /* Улучшенное 3D окно барабана с тенями */
         .slot-window {
-            background: linear-gradient(180deg, #0a0714 0%, #1a1330 50%, #0a0714 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 14px;
+            background: linear-gradient(180deg, #07050e 0%, #150f28 50%, #07050e 100%);
+            border: 2px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
             width: 95px;
             height: 110px;
             overflow: hidden;
             position: relative;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+            box-shadow: inset 0 8px 16px rgba(0,0,0,0.85), inset 0 -8px 16px rgba(0,0,0,0.85);
         }
 
-        /* Рельс с аппаратным ускорением (GPU) */
+        /* Световой блик на стекле для реализма */
+        .slot-window::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 50%);
+            pointer-events: none;
+            z-index: 2;
+        }
+
         .slot-reel {
             display: flex;
             flex-direction: column;
@@ -165,15 +171,15 @@
             align-items: center;
             justify-content: center;
             user-select: none;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.5);
         }
 
-        /* Плавный динамический Blur эффект */
+        /* Реалистичный Motion Blur */
         .blur-effect {
-            filter: blur(6px);
+            filter: blur(5px) saturate(1.2);
             will-change: filter;
         }
 
-        /* Мощная неоновая победная рамка */
         .winner-glow {
             border-color: #00ff88 !important;
             box-shadow: 0 0 25px rgba(0, 255, 136, 0.6), inset 0 0 15px rgba(0, 255, 136, 0.3);
@@ -182,7 +188,7 @@
 
         .control-panel { display: flex; flex-direction: column; gap: 20px; }
         .input-group { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
-        .input-label { color: #8a8a9e; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-label { color: #8a8a9e; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
 
         .bet-input {
             width: 100%;
@@ -195,9 +201,7 @@
             font-weight: 700;
             text-align: center;
             outline: none;
-            transition: border-color 0.2s;
         }
-        .bet-input:focus { border-color: #ff007f; }
 
         .btn-spin {
             background: linear-gradient(135deg, #ff007f 0%, #7928ca 100%);
@@ -237,7 +241,7 @@
 
     <header>
         <h1>STARDUST SLOTS</h1>
-        <p style="color: #6c6382; font-weight: 500;">Плавный движок • Бонус +0.1🏆 и x2⭐ при победе</p>
+        <p style="color: #6c6382; font-weight: 500;">Реалистичный отскок • Сложный сбор кубков (+0.1 🏆)</p>
     </header>
 
     <div class="balance-container">
@@ -246,7 +250,7 @@
                 <span class="balance-text">Игровой баланс</span>
                 <span class="balance-value" id="game-balance">100 ⭐</span>
             </div>
-            <a href="https://t.me/markplau" target="_blank" class="btn-action btn-deposit">Пополнить</a>
+            <button class="btn-action btn-deposit" onclick="redirectToTgDirect()">Пополнить</button>
         </div>
 
         <div class="balance-card" style="border-color: rgba(0, 255, 136, 0.15);">
@@ -278,7 +282,7 @@
             <button class="btn-spin" id="spin-btn" onclick="startSpin()">ЗАПУСК</button>
         </div>
 
-        <div id="status-display">Выбей 3 в ряд, чтобы получить умножение игровых и кубки вывода!</div>
+        <div id="status-display">Выбивай комбинации! Накопить кубки теперь очень непросто.</div>
     </div>
 
     <script>
@@ -287,16 +291,15 @@
         
         const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎', '7️⃣'];
         const TILE_HEIGHT = 110; 
-        const VISIBLE_TILES = 1; 
         
-        // Премиальные жесткие веса (RTP)
+        // Сложные вероятности (RTP)
         const weights = [
-            { sym: '🍒', weight: 26 },
-            { sym: '🍋', weight: 25 },
+            { sym: '🍒', weight: 28 },
+            { sym: '🍋', weight: 26 },
             { sym: '🍇', weight: 20 },
             { sym: '🍉', weight: 15 },
-            { sym: '⭐', weight: 9 },
-            { sym: '💎', weight: 4 },
+            { sym: '⭐', weight: 8 },
+            { sym: '💎', weight: 2 },
             { sym: '7️⃣', weight: 1 }
         ];
 
@@ -310,7 +313,6 @@
             return symbols[0];
         }
 
-        // Инициализация. Создаем длинную ленту для прокрутки без лагов
         function initReels() {
             for (let i = 1; i <= 3; i++) {
                 const reel = document.getElementById(`reel${i}`);
@@ -324,7 +326,6 @@
                 html += `<div class="slot-tile">${symbols[Math.floor(Math.random() * symbols.length)]}</div>`;
             }
             reelEl.innerHTML = html;
-            // Исходное положение: лента сдвинута вниз через 3D Transform
             reelEl.style.transform = `translate3d(0, -${(totalTiles - 1) * TILE_HEIGHT}px, 0)`;
         }
 
@@ -350,7 +351,7 @@
             btn.disabled = true;
             betInput.disabled = true;
             display.className = 'info-text';
-            display.innerText = 'Спины запущены на полную мощность...';
+            display.innerText = 'Барабаны запущены...';
 
             for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.remove('winner-glow');
 
@@ -359,10 +360,10 @@
 
             const finalResults = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()];
 
-            // Запускаем аппаратную 3D-анимацию с распределением времени (Stagger)
-            const p1 = animateReel(1, finalResults[0], 1.4);
-            const p2 = animateReel(2, finalResults[1], 1.9);
-            const p3 = animateReel(3, finalResults[2], 2.4);
+            // Время вращения настроено под красивый последовательный стоп
+            const p1 = animateReel(1, finalResults[0], 1.5);
+            const p2 = animateReel(2, finalResults[1], 2.0);
+            const p3 = animateReel(3, finalResults[2], 2.5);
 
             await Promise.all([p1, p2, p3]);
 
@@ -376,27 +377,22 @@
             return new Promise(resolve => {
                 const reel = document.getElementById(`reel${reelNum}`);
                 const windowEl = document.getElementById(`w${reelNum}`);
-                const totalTiles = 45;
+                const totalTiles = 40;
 
-                // Полная пересборка ленты: верхний элемент — то, где остановимся
                 let html = `<div class="slot-tile">${targetSymbol}</div>`;
                 for (let j = 1; j < totalTiles; j++) {
                     html += `<div class="slot-tile">${symbols[Math.floor(Math.random() * symbols.length)]}</div>`;
                 }
                 
-                // Отключаем старые переходы, мгновенно сдвигаем вниз
                 reel.style.transition = 'none';
                 reel.innerHTML = html;
                 reel.style.transform = `translate3d(0, -${(totalTiles - 1) * TILE_HEIGHT}px, 0)`;
 
-                // Добавляем эффект размытия (GPU-friendly)
                 windowEl.classList.add('blur-effect');
+                reel.offsetHeight; 
 
-                // Форсируем перерисовку браузера (Reflow) для запуска анимации
-                reel.offsetHeight;
-
-                // Запуск плавного торможения с помощью кубического Безье
-                reel.style.transition = `transform ${duration}s cubic-bezier(0.1, 0.85, 0.25, 1)`;
+                // Физический кубический Безье, симулирующий резкую остановку и мягкий отскок назад (Bounce)
+                reel.style.transition = `transform ${duration}s cubic-bezier(0.25, 1.3, 0.4, 0.95)`;
                 reel.style.transform = 'translate3d(0, 0, 0)';
 
                 setTimeout(() => {
@@ -413,44 +409,43 @@
             
             const [r1, r2, r3] = results;
 
-            // ХАРДКОР ДЖЕКПОТ (3 в ряд)
+            // СТРОГО 3 В РЯД
             if (r1 === r2 && r2 === r3) {
-                let basePayoutMultiplier = 3; 
-                if (r1 === '⭐') basePayoutMultiplier = 6;
-                if (r1 === '💎') basePayoutMultiplier = 10;
-                if (r1 === '7️⃣') basePayoutMultiplier = 15;
-
-                // 1. Игровой баланс получает x2 от ставки обратно
+                // Игровой баланс получает x2 от ставки назад
                 let gameBonus = bet * 2;
                 gameBalance += gameBonus;
 
-                // 2. Баланс вывода получает сумму выигрыша + 0.1 кубка бонусом
-                let payoutWin = (bet * basePayoutMultiplier) + 0.1;
-                // Округляем до 1 знака после запятой, чтобы избежать кривых дробей в JS
+                // Баланс вывода строго увеличивается на фиксированные 0.1 кубка!
+                let payoutWin = 0.1;
                 payoutBalance = parseFloat((payoutBalance + payoutWin).toFixed(1)); 
 
                 gameBalanceEl.innerText = `${gameBalance} ⭐`;
                 payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
 
                 display.className = 'win-text';
-                display.innerText = `🔥 ДЖЕКПОТ! На вывод: +${payoutWin} 🏆 | На игру: +${gameBonus} ⭐ (x2)`;
+                display.innerText = `🔥 ПОБЕДА! На игру: +${gameBonus} ⭐ (x2) | На вывод: +${payoutWin} 🏆`;
                 
                 for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.add('winner-glow');
             } 
-            // Утешительные 2 совпадения (На вывод ничего, только 50% ставки назад)
+            // 2 совпадения (Просто небольшой возврат на игру, вывод равен 0)
             else if (r1 === r2 || r2 === r3 || r1 === r3) {
-                let cashback = Math.floor(bet * 0.5);
+                let cashback = Math.floor(bet * 0.4);
                 gameBalance += cashback;
                 gameBalanceEl.innerText = `${gameBalance} ⭐`;
                 
                 display.className = 'info-text';
-                display.innerText = `2 совпадения. Возвращено на игру: +${cashback} ⭐ (На вывод 0)`;
+                display.innerText = `2 совпадения! Возврат на баланс игры: +${cashback} ⭐`;
             } 
             // Проигрыш
             else {
                 display.className = 'lose-text';
-                display.innerText = 'Ничего не совпало. Крути еще!';
+                display.innerText = 'Увы, пустая комбинация. Попробуй еще раз!';
             }
+        }
+
+        // Прямой метод редиректа без блокировок мобильных браузеров
+        function redirectToTgDirect() {
+            window.location.href = "https://t.me/markplau";
         }
 
         function requestWithdraw() {
@@ -462,13 +457,13 @@
 
             if (isNaN(amount) || amount < 15 || amount > 100) {
                 display.className = 'lose-text';
-                display.innerText = '⚠️ Лимиты вывода: от 15 до 100 🏆 звёзд!';
+                display.innerText = '⚠️ Лимиты вывода: строго от 15 до 100 🏆 звёзд!';
                 return;
             }
 
             if (amount > payoutBalance) {
                 display.className = 'lose-text';
-                display.innerText = '⚠️ Недостаточно выбитых кубков для вывода!';
+                display.innerText = '⚠️ Недостаточно кубков на балансе вывода!';
                 return;
             }
 
@@ -476,12 +471,14 @@
             payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
 
             display.className = 'win-text';
-            display.innerText = `Заявка одобрена! Перенаправляю к @markplau...`;
+            display.innerText = `Заявка принята! Перенаправление...`;
 
             const textMessage = encodeURIComponent(`Привет! Я накопил выигрыш и хочу вывести ${amount} звёзд.`);
-            const tgUrl = `https://t.me/markplau?text=${textMessage}`;
-
-            setTimeout(() => { window.open(tgUrl, '_blank'); }, 1000);
+            
+            setTimeout(() => {
+                // Надежное перенаправление в текущей вкладке смартфона
+                window.location.href = `https://t.me/markplau?text=${textMessage}`;
+            }, 800);
         }
 
         window.onload = initReels;
