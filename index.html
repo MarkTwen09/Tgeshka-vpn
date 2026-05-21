@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVT Analytics Terminal Quantum</title>
+    <title>SVT Premium Analytics Terminal</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0"></script>
@@ -96,7 +96,7 @@
             background: var(--bg-field);
             border: 1px solid var(--border-color);
             border-radius: 14px;
-            padding: 14px;
+            padding: 16px;
             text-align: center;
             position: relative;
         }
@@ -110,7 +110,7 @@
         }
 
         .price-value {
-            font-size: 36px;
+            font-size: 38px;
             font-weight: 700;
             font-family: 'JetBrains Mono', monospace;
             letter-spacing: -1px;
@@ -122,6 +122,7 @@
             display: inline-flex;
             align-items: center;
             gap: 4px;
+            margin-top: 2px;
         }
 
         /* Панель Таймфреймов */
@@ -163,7 +164,7 @@
             padding: 8px;
         }
 
-        /* ОРДЕР БУК (СТАКАН) */
+        /* Биржевой стакан */
         .orderbook-box {
             background: rgba(20, 26, 34, 0.3);
             border: 1px solid var(--border-color);
@@ -199,36 +200,23 @@
             margin-bottom: 3px;
         }
 
-        /* Калькулятор и Вкладки */
+        /* Калькулятор без лишних вкладок */
         .calculator-box {
             background: var(--bg-field);
             border: 1px solid var(--border-color);
             border-radius: 14px;
-            padding: 12px;
+            padding: 14px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-        }
-
-        .tabs-bar {
-            display: flex;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 6px;
             gap: 12px;
         }
 
-        .tab-item {
+        .calc-title {
             font-size: 11px;
             color: var(--text-muted);
-            font-weight: 600;
             text-transform: uppercase;
-            cursor: pointer;
-        }
-
-        .tab-item.active {
-            color: var(--text-main);
-            border-bottom: 2px solid var(--accent-green);
-            padding-bottom: 4px;
+            letter-spacing: 0.5px;
+            font-weight: 600;
         }
 
         .input-wrapper {
@@ -236,7 +224,7 @@
             background: var(--bg-input);
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            padding: 10px 12px;
+            padding: 12px;
             align-items: center;
             justify-content: space-between;
         }
@@ -257,7 +245,7 @@
         .calc-result {
             display: flex;
             justify-content: space-between;
-            font-size: 11px;
+            font-size: 12px;
             color: var(--text-muted);
             padding: 0 2px;
         }
@@ -267,8 +255,8 @@
             color: #050709;
             text-decoration: none;
             font-weight: 700;
-            font-size: 13px;
-            padding: 12px;
+            font-size: 14px;
+            padding: 14px;
             border-radius: 8px;
             text-align: center;
             display: flex;
@@ -276,7 +264,7 @@
             align-items: center;
             text-transform: uppercase;
             letter-spacing: 0.3px;
-            transition: opacity 0.1s;
+            transition: opacity 0.15s;
         }
 
         .btn-trade-action:hover { opacity: 0.9; }
@@ -297,8 +285,8 @@
         /* Служебное */
         .up { color: var(--accent-green); }
         .down { color: var(--accent-red); }
-        .flash-green { animation: flashG 0.25s ease; }
-        .flash-red { animation: flashR 0.25s ease; }
+        .flash-green { animation: flashG 0.3s ease; }
+        .flash-red { animation: flashR 0.3s ease; }
 
         @keyframes flashG { 0% { background: rgba(14, 203, 129, 0.12); } 100% { background: var(--bg-field); } }
         @keyframes flashR { 0% { background: rgba(246, 70, 93, 0.12); } 100% { background: var(--bg-field); } }
@@ -325,10 +313,10 @@
     </div>
 
     <div class="timeframes-bar">
-        <button class="tf-btn active" onclick="changeTimeframe('1m', 2000)">1м</button>
-        <button class="tf-btn" onclick="changeTimeframe('5m', 4000)">5м</button>
-        <button class="tf-btn" onclick="changeTimeframe('1h', 7000)">1ч</button>
-        <button class="tf-btn" onclick="changeTimeframe('1d', 12000)">1д</button>
+        <button class="tf-btn active" onclick="changeTimeframe('1m', 7000)">1м</button>
+        <button class="tf-btn" onclick="changeTimeframe('5m', 14000)">5м</button>
+        <button class="tf-btn" onclick="changeTimeframe('1ч', 25000)">1ч</button>
+        <button class="tf-btn" onclick="changeTimeframe('1д', 60000)">1д</button>
     </div>
 
     <div class="chart-box">
@@ -347,16 +335,13 @@
     </div>
 
     <div class="calculator-box">
-        <div class="tabs-bar">
-            <div class="tab-item active">Маркет</div>
-            <div class="tab-item" style="opacity: 0.4;">Лимит</div>
-        </div>
+        <div class="calc-title">Создать ордер на покупку</div>
         <div class="input-wrapper">
             <input type="number" id="rub-input" value="1000" placeholder="Сумма инвестиций">
             <span class="input-currency">RUB</span>
         </div>
         <div class="calc-result">
-            <span>Расчетный объем:</span>
+            <span>К зачислению на баланс:</span>
             <span><strong id="svt-output" style="color: var(--accent-green);">100.00</strong> <strong style="color:#fff">SVT</strong></span>
         </div>
         <a href="https://t.me/markplau" target="_blank" class="btn-trade-action" id="buy-btn">
@@ -379,15 +364,15 @@
 <script>
     let basePrice = 10.00;
     let currentPrice = basePrice;
+    
+    // Продвинутые макро-тренды: направление (-1 до +1) и сила затяжного тренда
     let marketTrend = 0;
-    let currentInterval = null;
-    let updateSpeed = 2000; // По дефолту 1 минута обновляется каждые 2 сек
+    let trendDuration = 0; 
 
     const maxDataPoints = 25;
     const labels = Array(maxDataPoints).fill('');
     const dataPoints = Array(maxDataPoints).fill(basePrice);
 
-    // Конфигурация графиков и градиентов
     const ctx = document.getElementById('analyticsChart').getContext('2d');
     const gradGreen = ctx.createLinearGradient(0, 0, 0, 160);
     gradGreen.addColorStop(0, 'rgba(14, 203, 129, 0.12)');
@@ -439,14 +424,15 @@
         }
     });
 
-    // Изменение таймфреймов
+    let currentInterval = null;
+    let updateSpeed = 7000; // Ровно 7 секунд по умолчанию
+
     function changeTimeframe(tf, speed) {
         document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
         
-        // Симулируем "пересчет" рынка под новый таймфрейм (встряхиваем массив цен)
         for(let i=0; i<maxDataPoints; i++) {
-            chart.data.datasets[0].data[i] = currentPrice * (1 + (Math.random()*0.02 - 0.01));
+            chart.data.datasets[0].data[i] = currentPrice * (1 + (Math.random()*0.04 - 0.02));
         }
         chart.update();
         
@@ -455,7 +441,6 @@
         currentInterval = setInterval(tickTerminalEngine, updateSpeed);
     }
 
-    // Калькулятор
     const rubInput = document.getElementById('rub-input');
     const svtOutput = document.getElementById('svt-output');
     const buyBtn = document.getElementById('buy-btn');
@@ -468,7 +453,6 @@
     }
     rubInput.addEventListener('input', updateCalculations);
 
-    // Генератор Биржевого Стакана (Order Book)
     function refreshOrderBook() {
         const bidsTable = document.getElementById('bids-table');
         const asksTable = document.getElementById('asks-table');
@@ -476,35 +460,52 @@
         asksTable.innerHTML = '';
 
         for(let i=0; i<4; i++) {
-            // Покупка (чуть ниже текущей цены)
-            const bidPrice = currentPrice - (Math.random() * 0.05 + 0.01);
-            const bidVol = (Math.random() * 800 + 50).toFixed(1);
-            bidsTable.innerHTML += `<div class="ob-row"><span class="up">${bidPrice.toFixed(2)}</span><span style="color:var(--text-muted)">${bidVol}</span></div>`;
+            const bidPrice = currentPrice - (Math.random() * 0.15 + 0.02);
+            const bidVol = (Math.random() * 900 + 40).toFixed(1);
+            bidsTable.innerHTML += `<div class="ob-row"><span class="up">${Math.max(0.1, bidPrice).toFixed(2)}</span><span style="color:var(--text-muted)">${bidVol}</span></div>`;
 
-            // Продажа (чуть выше текущей цены)
-            const askPrice = currentPrice + (Math.random() * 0.05 + 0.01);
-            const askVol = (Math.random() * 800 + 50).toFixed(1);
+            const askPrice = currentPrice + (Math.random() * 0.15 + 0.02);
+            const askVol = (Math.random() * 900 + 40).toFixed(1);
             asksTable.innerHTML += `<div class="ob-row"><span class="down">${askPrice.toFixed(2)}</span><span style="color:var(--text-muted)">${askVol}</span></div>`;
         }
     }
 
-    // Главный движок симуляции
+    // Ювелирное математическое ядро рынка
     function tickTerminalEngine() {
-        if (Math.random() > 0.6) marketTrend = (Math.random() * 2 - 1);
+        // Задаем затяжные тренды для выхода за пределы 10 рублей
+        if (trendDuration <= 0) {
+            // Определяем длительность волны (от 5 до 12 шагов)
+            trendDuration = Math.floor(Math.random() * 8) + 5;
+            // Куда идем: 65% шанс продолжить глобальные торги в рост, если упали слишком сильно
+            if (currentPrice <= 6) {
+                marketTrend = Math.random() * 0.6 + 0.4; // мощный бычий тренд вверх
+            } else if (currentPrice >= 45) {
+                marketTrend = -(Math.random() * 0.6 + 0.4); // отскок от хаев вниз
+            } else {
+                marketTrend = (Math.random() * 2 - 1); // обычные колебания рынка
+            }
+        }
+        trendDuration--;
 
-        let changePercent = (Math.random() * 0.3 - 0.15) + (marketTrend * 0.08);
+        // Базовый шаг изменения курса (в пределах 1.2% - 2.5% за шаг для ощутимого движения)
+        let volatility = (Math.random() * 1.5 + 0.5); 
+        let changePercent = (marketTrend * volatility);
+
         const priceDiff = currentPrice * (changePercent / 100);
         currentPrice += priceDiff;
 
-        if (currentPrice < 0.1) currentPrice = 0.1;
+        // Жесткие рамки реалистичности
+        if (currentPrice < 5.00) currentPrice = 5.00 + (Math.random() * 0.3);
+        if (currentPrice > 55.00) currentPrice = 55.00 - (Math.random() * 0.5);
+
+        // Расчет процентов от стартовых 10 рублей
         const totalChange = ((currentPrice - basePrice) / basePrice) * 100;
 
         document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
         updateCalculations();
 
-        // Капитализация и Объем
         document.getElementById('market-cap').innerText = Math.round(12050000 * currentPrice).toLocaleString('ru-RU') + ' ₽';
-        document.getElementById('volume-24h').innerText = Math.round(4812400 + (Math.random()*10000 - 5000)).toLocaleString('ru-RU') + ' ₽';
+        document.getElementById('volume-24h').innerText = Math.round(4812400 + (Math.random()*40000 - 20000)).toLocaleString('ru-RU') + ' ₽';
 
         const priceCard = document.getElementById('price-card');
         const changeEl = document.getElementById('price-change');
@@ -513,7 +514,7 @@
         if (priceDiff >= 0) {
             void priceCard.offsetWidth;
             priceCard.classList.add('flash-green');
-            changeEl.innerText = '+' + totalChange.toFixed(2) + '%';
+            changeEl.innerText = (totalChange >= 0 ? '+' : '') + totalChange.toFixed(2) + '%';
             changeEl.className = 'price-direction up';
             chart.data.datasets[0].borderColor = '#0ECB81';
             chart.data.datasets[0].backgroundColor = gradGreen;
@@ -537,7 +538,7 @@
         refreshOrderBook();
     }
 
-    // Запуск
+    // Старт
     currentInterval = setInterval(tickTerminalEngine, updateSpeed);
     tickTerminalEngine();
 </script>
