@@ -368,7 +368,6 @@
     let marketTrend = 0;
     let trendDuration = 0; 
 
-    // Заполнение тайм-меток для имитации истории (назад во времени от текущей секунды)
     const maxDataPoints = 25;
     const labels = [];
     let now = Date.now();
@@ -378,6 +377,30 @@
     }
     
     const dataPoints = Array(maxDataPoints).fill(basePrice);
+
+    // Кастомный плагин для рисования вертикальной линии Crosshair
+    const crosshairPlugin = {
+        id: 'crosshair',
+        afterDraw: (chart) => {
+            if (chart.tooltip?._active?.length) {
+                const activePoint = chart.tooltip._active[0];
+                const ctx = chart.ctx;
+                const x = activePoint.element.x;
+                const topY = chart.scales.y.top;
+                const bottomY = chart.scales.y.bottom;
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(x, topY);
+                ctx.lineTo(x, bottomY);
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = 'rgba(98, 112, 127, 0.5)'; // Цвет var(--text-muted) с прозрачностью
+                ctx.setLineDash([4, 4]); // Пунктир
+                ctx.stroke();
+                ctx.restore();
+            }
+        }
+    };
 
     const ctx = document.getElementById('analyticsChart').getContext('2d');
     const gradGreen = ctx.createLinearGradient(0, 0, 0, 160);
@@ -406,6 +429,7 @@
                 tension: 0.35
             }]
         },
+        plugins: [crosshairPlugin],
         options: {
             responsive: true,
             maintainAspectRatio: false,
@@ -415,7 +439,6 @@
             },
             plugins: {
                 legend: { display: false },
-                // Отключаем дефолтные тултипы Chart.js, чтобы сделать кастомный вывод прямо в шапку плашки курса
                 tooltip: {
                     enabled: false,
                     external: function(context) {
@@ -424,14 +447,13 @@
                         const tooltipModel = context.tooltip;
 
                         if (tooltipModel.opacity === 0) {
-                            // Если палец убрали — возвращаем текущую рыночную цену
                             labelText.innerText = "Рыночный курс";
                             labelText.style.color = "var(--text-muted)";
                             priceDisplay.innerText = currentPrice.toFixed(2) + ' ₽';
+                            chart.draw(); // Перерисовываем для скрытия линии
                             return;
                         }
 
-                        // Если ведем пальцем — вытаскиваем данные точки
                         const index = tooltipModel.dataPoints[0].dataIndex;
                         const hoveredPrice = tooltipModel.dataPoints[0].raw;
                         const hoveredTime = chart.data.labels[index];
@@ -465,7 +487,7 @@
     });
 
     let currentInterval = null;
-    let updateSpeed = 5000; // Ровно 5 секунд по запросу
+    let updateSpeed = 5000; 
 
     function changeTimeframe(tf, speed) {
         document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
@@ -510,7 +532,6 @@
         }
     }
 
-    // Ювелирное математическое ядро рынка (Интервал: 5 сек. Лимиты: 5₽ - 55₽)
     function tickTerminalEngine() {
         if (trendDuration <= 0) {
             trendDuration = Math.floor(Math.random() * 8) + 5;
@@ -535,7 +556,6 @@
 
         const totalChange = ((currentPrice - basePrice) / basePrice) * 100;
 
-        // Если пользователь сейчас не водит пальцем по графику, обновляем главный экран
         if (document.getElementById('price-label-text').innerText === "Рыночный курс") {
             document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
         }
@@ -567,7 +587,6 @@
             chart.options.plugins.annotation.annotations.line1.borderColor = 'rgba(246, 70, 93, 0.3)';
         }
 
-        // Добавляем новое время в массив меток
         let t = new Date();
         chart.data.labels.shift();
         chart.data.labels.push(t.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
