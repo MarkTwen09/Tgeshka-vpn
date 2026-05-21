@@ -3,284 +3,185 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tgeshka VPN — Бешеный Доступ</title>
+    <title>Tgeshka VPN — Официальный сайт</title>
     <style>
-        /* Глобальные стили: фон, шрифт и отключение скролла */
+        /* Строгая минималистичная база */
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #050505; /* Ещё чернее для контраста */
-            color: #ffffff;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0A0A0C; /* Глубокий премиальный графит */
+            color: #E4E4E7;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
-        a { text-decoration: none; color: inherit; transition: all 0.3s ease; }
+        a { 
+            text-decoration: none; 
+            color: inherit; 
+        }
 
-        /* ОСНОВНОЙ КОНТЕЙНЕР (ЦЕНТРОВКА) */
-        .page-wrapper {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+        /* Контейнер по центру */
+        .main-container {
             width: 100%;
-            max-width: 380px; /* Идеально для телефона */
-            padding: 20px 15px;
+            max-width: 400px;
+            padding: 60px 20px;
             box-sizing: border-box;
-            flex-grow: 1;
-        }
-
-        /* 1. ШАПКА: БЕШЕНАЯ АВАТАРКА */
-        .avatar-container {
-            position: relative;
-            margin-bottom: 30px;
-        }
-
-        /* Твой логотип с крыльями */
-        .avatar-img {
-            width: 100px;
-            height: 100px;
-            border-radius: 20px; /* Квадратный с закруглением, как в лого */
-            object-fit: cover;
-            border: 1px solid rgba(131, 251, 255, 0.3);
-            position: relative;
-            z-index: 2;
-            filter: drop-shadow(0 0 10px rgba(131, 251, 255, 0.4));
-        }
-
-        /* Бешеная пульсация и свечение вокруг лого */
-        .avatar-container::before {
-            content: '';
-            position: absolute;
-            top: -15px; left: -15px; right: -15px; bottom: -15px;
-            border-radius: 30px;
-            background: rgba(131, 251, 255, 0.15);
-            filter: blur(20px);
-            opacity: 0.8;
-            animation: pulse-border 2s infinite ease-in-out;
-            z-index: 1;
-        }
-        
-        .avatar-container::after {
-            content: '';
-            position: absolute;
-            top: -20px; left: -20px; right: -20px; bottom: -20px;
-            border-radius: 35px;
-            background: rgba(131, 251, 255, 0.1);
-            filter: blur(30px);
-            opacity: 0.6;
-            animation: pulse-border 2s infinite ease-in-out 0.5s;
-            z-index: 0;
-        }
-
-        @keyframes pulse-border {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.05); opacity: 0.4; }
-            100% { transform: scale(1); opacity: 0.8; }
-        }
-
-        /* 2. ЗАГОЛОВОК И ПОДЗАГОЛОВОК */
-        .brand-name {
-            font-size: 28px;
-            font-weight: 800;
-            color: #ffffff;
-            margin: 0;
-            text-shadow: 0 0 15px rgba(255, 255, 255, 0.6);
-            letter-spacing: 0.5px;
-        }
-
-        .tagline {
-            font-size: 13px;
-            font-weight: 400;
-            color: #83FBFF; /* Твой неоновый бирюзовый */
-            margin: 5px 0 40px 0;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-shadow: 0 0 10px rgba(131, 251, 255, 0.6);
-        }
-
-        /* 3. БЛОК ПРАЙС-ЛИСТА (НЕОНОВЫЕ КАРТОЧКИ) */
-        .price-list {
-            width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+        }
+
+        /* Серьезная минималистичная шапка без иконок */
+        .brand-header {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .brand-name {
+            font-size: 32px;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.5px;
+        }
+
+        .brand-status {
+            font-size: 14px;
+            font-weight: 500;
+            color: #00E676; /* Аккуратный зеленый индикатор работы */
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 230, 118, 0.1);
+            padding: 4px 12px;
+            border-radius: 100px;
+        }
+
+        .brand-status::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background-color: #00E676;
+            border-radius: 50%;
+        }
+
+        /* Минималистичные строгие карточки тарифов */
+        .tariffs-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
             margin-bottom: 40px;
         }
 
-        .price-card {
-            background-color: #121212;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 18px 22px;
+        .tariff-item {
+            background: #16161A; /* Однотонный плотный фон */
+            border: 1px solid #232329;
+            border-radius: 14px;
+            padding: 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            transition: border-color 0.2s ease, background 0.2s ease;
         }
 
-        /* Эффект наведения и активного состояния */
-        .price-card:hover {
-            background-color: #1a1a1a;
-            border-color: rgba(131, 251, 255, 0.4);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(131, 251, 255, 0.2);
+        /* Аккуратное выделение без неона */
+        .tariff-item:hover {
+            border-color: #3F3F46;
+            background: #1C1C21;
         }
 
-        /* Неоновая полоска внутри при ховере */
-        .price-card::after {
-            content: '';
-            position: absolute;
-            left: 0; top: 0; bottom: 0;
-            width: 3px;
-            background-color: #83FBFF;
-            box-shadow: 0 0 10px #83FBFF;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .price-card:hover::after { opacity: 1; }
-
-        .tariff-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 3px;
+        .tariff-left {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
-        .tariff-desc {
+        .tariff-period {
+            font-size: 17px;
+            font-weight: 600;
+            color: #FFFFFF;
+        }
+
+        .tariff-features {
             font-size: 13px;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.6);
+            color: #A1A1AA;
         }
 
         .tariff-price {
-            font-size: 20px;
-            font-weight: 800;
-            color: #83FBFF;
-            text-shadow: 0 0 10px rgba(131, 251, 255, 0.6);
+            font-size: 18px;
+            font-weight: 700;
+            color: #FFFFFF;
         }
 
-        /* 4. ГЛАВНАЯ КНОПКА (ГРАДИЕНТ И ПЕРЕЛИВ) */
-        .btn-tg-container {
-            width: 100%;
-            position: relative;
-            margin-top: auto; /* Прижать вниз, если контейнер вытянут */
-        }
-
-        .btn-tg {
+        /* Строгая, солидная кнопка действия */
+        .action-button {
             display: flex;
             justify-content: center;
             align-items: center;
             width: 100%;
-            height: 56px;
-            background: linear-gradient(135deg, #00C6FF 0%, #0072FF 100%);
-            border-radius: 14px;
-            font-size: 17px;
-            font-weight: 700;
-            color: #ffffff;
-            box-shadow: 0 4px 20px rgba(0, 114, 255, 0.5);
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            z-index: 10;
+            height: 54px;
+            background-color: #FFFFFF; /* Чисто белый, как у Apple */
+            color: #000000;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            transition: opacity 0.2s ease;
         }
 
-        /* Блик, переливающийся через кнопку */
-        .btn-tg::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            transition: all 0.5s;
-            animation: shine-btn 3s infinite;
+        .action-button:hover {
+            opacity: 0.9;
         }
 
-        @keyframes shine-btn {
-            0% { left: -100%; }
-            20% { left: 100%; }
-            100% { left: 100%; }
+        /* Лаконичный футер */
+        .brand-footer {
+            margin-top: auto;
+            text-align: center;
+            font-size: 12px;
+            color: #52525B;
+            padding-top: 40px;
         }
-
-        /* Неоновое свечение под кнопкой */
-        .btn-tg-glow {
-            position: absolute;
-            bottom: -5px; left: 5%; width: 90%; height: 20px;
-            background: rgba(0, 198, 255, 0.6);
-            border-radius: 14px;
-            filter: blur(20px);
-            opacity: 0.8;
-            z-index: 5;
-            transition: all 0.3s ease;
-        }
-
-        .btn-tg:hover {
-            transform: scale(1.02);
-            box-shadow: 0 6px 25px rgba(0, 114, 255, 0.7);
-        }
-        .btn-tg:hover + .btn-tg-glow {
-            filter: blur(25px);
-            opacity: 1;
-        }
-
-        /* ФУТЕР (МИНИМАЛ) */
-        .footer {
-            margin-top: 30px;
-            margin-bottom: 10px;
-            font-size: 11px;
-            color: rgba(255, 255, 255, 0.3);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
     </style>
 </head>
 <body>
 
-    <div class="page-wrapper">
+    <div class="main-container">
         
-        <div class="avatar-container">
-            <img src="ТВОЙ_ЛОГОТИП_TGESHKA.png" alt="Tgeshka VPN Logo" class="avatar-img">
+        <div class="brand-header">
+            <h1 class="brand-name">Tgeshka VPN</h1>
+            <span class="brand-status">Серверы работают стабильно</span>
         </div>
 
-        <h1 class="brand-name">Tgeshka VPN</h1>
-        <p class="tagline">Бешеный & Безопасный Доступ</p>
-
-        <div class="price-list">
+        <div class="tariffs-wrapper">
             
-            <a href="https://t.me/Tgeshkavpn" target="_blank" class="price-card-link">
-                <div class="price-card">
-                    <div class="tariff-info">
-                        <div class="tariff-title">1 Месяц</div>
-                        <div class="tariff-desc">Скорость & Стабильность</div>
+            <a href="https://t.me/Tgeshkavpn" target="_blank">
+                <div class="tariff-item">
+                    <div class="tariff-left">
+                        <span class="tariff-period">План на 1 месяц</span>
+                        <span class="tariff-features">Высокая скорость, без лимитов</span>
                     </div>
                     <div class="tariff-price">99 ₽</div>
                 </div>
             </a>
 
-            <a href="https://t.me/Tgeshkavpn" target="_blank" class="price-card-link">
-                <div class="price-card">
-                    <div class="tariff-info">
-                        <div class="tariff-title">3 Месяца</div>
-                        <div class="tariff-desc">Популярный Выбор</div>
+            <a href="https://t.me/Tgeshkavpn" target="_blank">
+                <div class="tariff-item">
+                    <div class="tariff-left">
+                        <span class="tariff-period">План на 3 месяца</span>
+                        <span class="tariff-features">Оптимальный вариант подписки</span>
                     </div>
                     <div class="tariff-price">249 ₽</div>
                 </div>
             </a>
 
-            <a href="https://t.me/Tgeshkavpn" target="_blank" class="price-card-link">
-                <div class="price-card">
-                    <div class="tariff-info">
-                        <div class="tariff-title">6 Месяцев</div>
-                        <div class="tariff-desc">Выгодная Подписка</div>
+            <a href="https://t.me/Tgeshkavpn" target="_blank">
+                <div class="tariff-item">
+                    <div class="tariff-left">
+                        <span class="tariff-period">План на 6 месяцев</span>
+                        <span class="tariff-features">Максимальная выгода</span>
                     </div>
                     <div class="tariff-price">449 ₽</div>
                 </div>
@@ -288,14 +189,14 @@
 
         </div>
 
-        <div class="btn-tg-container">
-            <a href="https://t.me/Tgeshkavpn" target="_blank" class="btn-tg">
-                Подключить в Telegram
-            </a>
-            <div class="btn-tg-glow"></div> </div>
+        <a href="https://t.me/Tgeshkavpn" target="_blank" class="action-button">
+            Оформить подписку
+        </a>
 
-    </div> <div class="footer">
-        © 2026 Tgeshka VPN. Premium Servers.
+        <div class="brand-footer">
+            © 2026 Tgeshka VPN. Безопасность и конфиденциальность.
+        </div>
+
     </div>
 
 </body>
