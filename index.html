@@ -3,697 +3,318 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stardust Slots Luxury Casino</title>
+    <title>Svetsky Coin (SVT) // Analytics Dashboard</title>
+    <!-- Подключаем шрифт для технологичного вида -->
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Подключаем библиотеку для крутых графиков -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        :root {
+            --bg-main: #0B0E11;
+            --bg-card: #141A23;
+            --text-main: #EAECEF;
+            --text-muted: #848E9C;
+            --accent-green: #0ECB81;
+            --accent-red: #F6465D;
+            --border-color: #2B3139;
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
         }
 
         body {
-            background: radial-gradient(circle at center, #0c051c 0%, #020104 100%);
-            color: #fff;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            padding: 30px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
             min-height: 100vh;
+        }
+
+        .dashboard {
+            width: 100%;
+            max-width: 1000px;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Шапка панели */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .coin-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .coin-title {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .coin-ticker {
+            background: var(--border-color);
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Сетка с метриками */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1-fraction));
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
             padding: 20px;
-            overflow-x: hidden;
         }
 
-        body::before, body::after {
-            content: '';
-            position: absolute;
-            width: 400px;
-            height: 400px;
-            filter: blur(200px);
-            opacity: 0.15;
-            z-index: -1;
-        }
-        body::before { background: #ff007f; top: 0%; left: 5%; }
-        body::after { background: #00f2fe; bottom: 0%; right: 5%; }
-
-        header {
-            text-align: center;
-            margin-bottom: 25px;
-        }
-
-        h1 {
-            font-size: 2.8rem;
-            font-weight: 900;
-            letter-spacing: 4px;
-            background: linear-gradient(45deg, #00f2fe, #ff007f);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 50px rgba(0, 242, 254, 0.4);
-        }
-
-        .balance-container {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            width: 100%;
-            max-width: 460px;
-            margin-bottom: 25px;
-        }
-
-        .balance-card {
-            background: linear-gradient(135deg, rgba(22, 13, 44, 0.9) 0%, rgba(11, 6, 24, 0.95) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            padding: 20px 24px;
-            border-radius: 24px;
-            backdrop-filter: blur(30px);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
-        }
-
-        .card-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            width: 100%;
-        }
-
-        .balance-info { display: flex; flex-direction: column; }
-        .balance-text { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #827a9e; margin-bottom: 4px; font-weight: 700; }
-        .balance-value { font-weight: 900; font-size: 1.6rem; color: #fff; }
-
-        #game-balance { background: linear-gradient(to right, #ffd700, #ff8800); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        #payout-balance { background: linear-gradient(to right, #00ff88, #00d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        .btn-action {
-            border: none;
-            color: white;
-            padding: 13px 28px;
-            font-weight: 800;
-            font-size: 0.85rem;
-            border-radius: 14px;
-            cursor: pointer;
+        .metric-label {
+            color: var(--text-muted);
+            font-size: 13px;
+            margin-bottom: 8px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-
-        .btn-deposit { 
-            background: linear-gradient(90deg, #ff007f 0%, #7928ca 100%); 
-            box-shadow: 0 4px 20px rgba(255, 0, 127, 0.3); 
-        }
-        .btn-deposit:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255, 0, 127, 0.6); }
-
-        .btn-withdraw { 
-            background: linear-gradient(90deg, #00ff88 0%, #00c8ff 100%); 
-            color: #020104; 
-            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
-            width: 100%;
-            margin-top: 15px;
-        }
-        .btn-withdraw:hover { transform: translateY(-1px); box-shadow: 0 0 30px rgba(0, 255, 136, 0.6); }
-        .btn-withdraw:disabled { background: #221d2a; color: #524c61; box-shadow: none; cursor: not-allowed; transform: none; opacity: 0.4; }
-
-        .withdraw-control-zone {
-            margin-top: 18px;
-            padding-top: 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .slider-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .slider-label { font-size: 0.8rem; color: #767090; font-weight: 700; text-transform: uppercase; }
-        .slider-current-value { font-size: 1.2rem; font-weight: 900; color: #00ff88; text-shadow: 0 0 12px rgba(0,255,136,0.4); }
-
-        .rate-indicator {
-            font-size: 0.75rem;
-            color: #00ff88;
-            background: rgba(0, 255, 136, 0.07);
-            border: 1px dashed rgba(0, 255, 136, 0.2);
-            padding: 6px 12px;
-            border-radius: 8px;
-            text-align: center;
-            font-weight: 600;
             letter-spacing: 0.5px;
         }
 
-        .modern-slider {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 6px;
-            border-radius: 10px;
-            background: #05030a;
-            outline: none;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-        }
-        .modern-slider:disabled { opacity: 0.3; cursor: not-allowed; }
-        .modern-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #00ff88 0%, #00e5ff 100%);
-            cursor: pointer;
-            box-shadow: 0 0 14px rgba(0, 255, 136, 0.7);
-            transition: transform 0.15s;
-        }
-        .modern-slider::-webkit-slider-thumb:hover { transform: scale(1.25); }
-
-        .preset-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 8px;
-        }
-        .btn-preset {
-            flex: 1;
-            background: #05030a;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            color: #767090;
-            padding: 9px;
-            font-size: 0.75rem;
+        .metric-value {
+            font-size: 28px;
             font-weight: 700;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        .btn-preset:hover:not(:disabled) { background: rgba(0, 242, 254, 0.08); color: #00f2fe; border-color: rgba(0, 242, 254, 0.25); }
-        .btn-preset:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        /* Игровой Корпус */
-        .slot-machine {
-            background: linear-gradient(145deg, #140d28, #05030b);
-            border: 2px solid rgba(255, 0, 127, 0.15);
-            border-radius: 32px;
-            padding: 30px;
-            width: 100%;
-            max-width: 460px;
-            text-align: center;
-            box-shadow: 0 40px 90px rgba(0,0,0,0.9);
-            transition: transform 0.1s ease;
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        /* Эффект тряски при Джекпоте */
-        .shake-machine {
-            animation: machineShake 0.5s ease-in-out infinite alternate;
-        }
-
-        .screen {
-            background: radial-gradient(circle at center, #070412 0%, #010003 100%);
-            border: 2px solid rgba(0, 242, 254, 0.1);
-            border-radius: 26px;
-            padding: 28px 20px;
-            margin-bottom: 22px;
-            box-shadow: inset 0 0 40px rgba(0,0,0,0.98);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .slots-container {
-            display: flex;
-            justify-content: center;
-            gap: 14px;
-            position: relative;
-        }
-
-        .slot-window {
-            background: linear-gradient(180deg, #020104 0%, #100b20 25%, #100b20 75%, #020104 100%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 20px;
-            width: 105px;
-            height: 115px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: inset 0 16px 28px rgba(0,0,0,0.95), 
-                        inset 0 -16px 28px rgba(0,0,0,0.95);
-        }
-
-        .slot-window::after {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 40%, rgba(0,242,254,0.02) 100%);
-            pointer-events: none;
-            z-index: 3;
-        }
-
-        .slot-reel {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: absolute;
-            width: 100%;
-            top: 0;
-            left: 0;
-            will-change: transform;
-            transform: translate3d(0, 0, 0);
-        }
-
-        .slot-tile {
-            width: 100%;
-            height: 115px;
-            font-size: 3.5rem;
+        .metric-change {
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 6px;
             display: flex;
             align-items: center;
-            justify-content: center;
-            user-select: none;
-            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.6));
+            gap: 4px;
         }
 
-        .floating-badge {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: rgba(0, 255, 136, 0.15);
-            border: 2px solid #00ff88;
-            padding: 10px 24px;
-            border-radius: 30px;
-            color: #00ff88;
-            font-weight: 900;
-            font-size: 1.5rem;
-            text-shadow: 0 0 15px rgba(0,255,136,0.8);
-            box-shadow: 0 0 35px rgba(0,255,136,0.5);
-            pointer-events: none;
-            z-index: 10;
-            opacity: 0;
-            animation: popUpAndFade 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-        }
-
-        .blur-effect { filter: blur(6px) saturate(1.3); will-change: filter; }
-
-        .winner-glow {
-            border-color: #00ff88 !important;
-            box-shadow: 0 0 30px rgba(0, 255, 136, 0.7), inset 0 0 18px rgba(0, 255, 136, 0.4);
-            animation: winPulse 0.3s infinite alternate;
-        }
-
-        .control-panel { display: flex; flex-direction: column; gap: 20px; }
-        .input-group { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
-        .input-label { color: #6c6687; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
-
-        .bet-input {
+        /* Зона графика */
+        .chart-container {
+            position: relative;
             width: 100%;
-            background: #040206;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            color: white;
+            height: 350px;
+            background: rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
             padding: 15px;
-            border-radius: 16px;
-            font-size: 1.3rem;
-            font-weight: 800;
-            text-align: center;
-            outline: none;
+            margin-bottom: 25px;
         }
 
-        .btn-spin {
-            background: linear-gradient(135deg, #ff007f 0%, #721cb8 100%);
-            border: none;
-            color: white;
-            padding: 18px;
-            font-size: 1.4rem;
-            font-weight: 900;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-radius: 16px;
-            cursor: pointer;
-            box-shadow: 0 8px 25px rgba(255, 0, 127, 0.35);
-            animation: pulseGlow 2s infinite ease-in-out;
-            transition: all 0.2s ease;
+        /* Кнопка действия */
+        .action-zone {
+            display: flex;
+            justify-content: flex-end;
         }
-        .btn-spin:hover { transform: translateY(-1px); box-shadow: 0 12px 35px rgba(255, 0, 127, 0.55); }
-        .btn-spin:disabled { background: #191424; color: #413c4a; box-shadow: none; cursor: not-allowed; transform: none; animation: none; }
 
-        #status-display {
-            margin-top: 20px;
-            font-size: 1rem;
+        .btn-buy {
+            background: var(--accent-green);
+            color: #000;
+            text-decoration: none;
             font-weight: 700;
-            min-height: 24px;
-            letter-spacing: 0.3px;
+            font-size: 16px;
+            padding: 14px 32px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(14, 203, 129, 0.2);
         }
 
-        .win-text { color: #00ff88; text-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
-        .lose-text { color: #ff3366; }
-        .info-text { color: #00e5ff; }
-
-        @keyframes winPulse {
-            from { transform: scale(1); }
-            to { transform: scale(1.02); }
+        .btn-buy:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(14, 203, 129, 0.3);
         }
 
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 8px 25px rgba(255, 0, 127, 0.3); }
-            50% { box-shadow: 0 8px 35px rgba(255, 0, 127, 0.6), 0 0 15px rgba(114, 28, 184, 0.4); }
-            100% { box-shadow: 0 8px 25px rgba(255, 0, 127, 0.3); }
+        .btn-buy:active {
+            transform: translateY(1px);
         }
 
-        @keyframes machineShake {
-            0% { transform: translate(1px, 1px) rotate(0deg); }
-            20% { transform: translate(-1px, -1px) rotate(-0.5deg); }
-            40% { transform: translate(-2px, 0px) rotate(0.5deg); }
-            60% { transform: translate(2px, 1px) rotate(0deg); }
-            80% { transform: translate(-1px, 2px) rotate(-0.5deg); }
-            100% { transform: translate(1px, -1px) rotate(0.5deg); }
-        }
-
-        @keyframes popUpAndFade {
-            0% { opacity: 0; transform: translate(-50%, -10%) scale(0.6); }
-            15% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
-            30% { transform: translate(-50%, -50%) scale(1); }
-            80% { opacity: 1; }
-            100% { opacity: 0; transform: translate(-50%, -130%) scale(0.8); }
-        }
+        /* Стили для статусов изменения */
+        .up { color: var(--accent-green); }
+        .down { color: var(--accent-red); }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>STARDUST CASINO</h1>
-        <p style="color: #514a69; font-weight: 700; font-size: 0.85rem; letter-spacing: 1px;">EXCLUSIVE VERIFIED EDITION</p>
-    </header>
-
-    <div class="balance-container">
-        <div class="balance-card">
-            <div class="card-row">
-                <div class="balance-info">
-                    <span class="balance-text">Игровой баланс</span>
-                    <span class="balance-value" id="game-balance">100 ⭐</span>
-                </div>
-                <button class="btn-action btn-deposit" onclick="redirectToTgDirect()">Пополнить</button>
-            </div>
+<div class="dashboard">
+    <!-- Header -->
+    <div class="header">
+        <div class="coin-info">
+            <h1 class="coin-title">Svetsky Coin Terminal</h1>
+            <span class="coin-ticker">SVT / RUB</span>
         </div>
-
-        <div class="balance-card" style="border-color: rgba(0, 255, 136, 0.15);">
-            <div class="card-row">
-                <div class="balance-info">
-                    <span class="balance-text">Баланс вывода</span>
-                    <span class="balance-value" id="payout-balance">0 🏆</span>
-                </div>
-            </div>
-            
-            <div class="withdraw-control-zone">
-                <div class="rate-indicator">
-                    Курс конвертации: 1 Кубок 🏆 = 1 ⭐ Звезда на вывод
-                </div>
-
-                <div class="slider-header">
-                    <span class="slider-label">Сумма к отправке:</span>
-                    <span class="slider-current-value" id="slider-val-display">15 🏆</span>
-                </div>
-                
-                <input type="range" id="withdraw-slider" class="modern-slider" min="15" max="100" value="15" oninput="updateSliderDisplay(this.value)">
-                
-                <div class="preset-container">
-                    <button class="btn-preset" id="preset-min" onclick="setPreset('min')">МИН (15)</button>
-                    <button class="btn-preset" id="preset-half" onclick="setPreset('half')">50%</button>
-                    <button class="btn-preset" id="preset-max" onclick="setPreset('max')">МАКС (100)</button>
-                </div>
-                
-                <button class="btn-action btn-withdraw" id="withdraw-btn" onclick="requestWithdraw()">Подтвердить Вывод</button>
-            </div>
+        <div style="text-align: right">
+            <span style="color: var(--text-muted); font-size: 12px;">Статус системы:</span>
+            <span style="color: var(--accent-green); font-size: 12px; font-weight: 600; display: block;">● LIVE MARKET</span>
         </div>
     </div>
 
-    <div class="slot-machine" id="machine-body">
-        <div class="screen" id="slot-screen">
-            <div class="slots-container">
-                <div class="slot-window" id="w1"><div class="slot-reel" id="reel1"></div></div>
-                <div class="slot-window" id="w2"><div class="slot-reel" id="reel2"></div></div>
-                <div class="slot-window" id="w3"><div class="slot-reel" id="reel3"></div></div>
-            </div>
+    <!-- Metrics -->
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div class="metric-label">Текущий курс</div>
+            <div class="metric-value" id="current-price">250.00 ₽</div>
+            <div class="metric-change up" id="price-change">+0.00%</div>
         </div>
-
-        <div class="control-panel">
-            <div class="input-group">
-                <span class="input-label">Ставка на раунд (⭐)</span>
-                <input type="number" id="bet" class="bet-input" value="10" min="1">
-            </div>
-            <button class="btn-spin" id="spin-btn" onclick="startSpin()">ЗАПУСК</button>
+        <div class="metric-card">
+            <div class="metric-label">Макс. за сессию</div>
+            <div class="metric-value" id="max-price" style="font-size: 20px; padding-top: 5px;">250.00 ₽</div>
         </div>
-
-        <div id="status-display">Добро пожаловать. Минимальная выплата: 15 🏆.</div>
+        <div class="metric-card">
+            <div class="metric-label">Мин. за сессию</div>
+            <div class="metric-value" id="min-price" style="font-size: 20px; padding-top: 5px;">250.00 ₽</div>
+        </div>
     </div>
 
-    <script>
-        let gameBalance = 100;   
-        let payoutBalance = 0.0;    
-        
-        const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎', '7️⃣'];
-        const TILE_HEIGHT = 115; 
-        
-        const weights = [
-            { sym: '🍒', weight: 28 },
-            { sym: '🍋', weight: 26 },
-            { sym: '🍇', weight: 20 },
-            { sym: '🍉', weight: 15 },
-            { sym: '⭐', weight: 8 },
-            { sym: '💎', weight: 2 },
-            { sym: '7️⃣', weight: 1 }
-        ];
+    <!-- Chart -->
+    <div class="chart-container">
+        <canvas id="analyticsChart"></canvas>
+    </div>
 
-        function getRandomSymbol() {
-            let num = Math.floor(Math.random() * 100);
-            let sum = 0;
-            for (let i = 0; i < weights.length; i++) {
-                sum += weights[i].weight;
-                if (num < sum) return weights[i].sym;
-            }
-            return symbols[0];
-        }
+    <!-- Action Button -->
+    <div class="action-zone">
+        <a href="https://t.me/markplau" target="_blank" class="btn-buy">
+            Закупить $SVT$
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+    </div>
+</div>
 
-        function initReels() {
-            for (let i = 1; i <= 3; i++) {
-                const reel = document.getElementById(`reel${i}`);
-                generateReelContent(reel, '🍒');
-            }
-            checkWithdrawAvailability();
-        }
+<script>
+    // Начальные настройки экономики Коина
+    let basePrice = 250.00;
+    let currentPrice = basePrice;
+    let maxPrice = basePrice;
+    let minPrice = basePrice;
+    
+    const maxDataPoints = 30; // Сколько точек одновременно отображается на графике
+    const labels = Array(maxDataPoints).fill('');
+    const dataPoints = Array(maxDataPoints).fill(basePrice);
 
-        function generateReelContent(reelEl, targetSymbol, totalTiles = 40) {
-            let html = `<div class="slot-tile">${targetSymbol}</div>`;
-            for (let j = 1; j < totalTiles; j++) {
-                html += `<div class="slot-tile">${symbols[Math.floor(Math.random() * symbols.length)]}</div>`;
-            }
-            reelEl.innerHTML = html;
-            reelEl.style.transform = `translate3d(0, -${(totalTiles - 1) * TILE_HEIGHT}px, 0)`;
-        }
+    // Инициализация графика Chart.js
+    const ctx = document.getElementById('analyticsChart').getContext('2d');
+    
+    // Создаем градиент под линией графика в стиле бирж
+    const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+    gradient.addColorStop(0, 'rgba(14, 203, 129, 0.2)');
+    gradient.addColorStop(1, 'rgba(14, 203, 129, 0.0)');
 
-        // Исправление бага: Управление доступностью вывода
-        function checkWithdrawAvailability() {
-            const slider = document.getElementById('withdraw-slider');
-            const withdrawBtn = document.getElementById('withdraw-btn');
-            const pMin = document.getElementById('preset-min');
-            const pHalf = document.getElementById('preset-half');
-            const pMax = document.getElementById('preset-max');
-
-            if (payoutBalance < 15) {
-                slider.disabled = true;
-                withdrawBtn.disabled = true;
-                pMin.disabled = true;
-                pHalf.disabled = true;
-                pMax.disabled = true;
-                document.getElementById('slider-val-display').innerText = "Недостаточно 🏆";
-            } else {
-                slider.disabled = false;
-                withdrawBtn.disabled = false;
-                pMin.disabled = false;
-                pHalf.disabled = false;
-                pMax.disabled = false;
-                
-                // Корректируем максимальный предел слайдера под реальный баланс игрока
-                let maxLimit = Math.min(100, Math.floor(payoutBalance));
-                slider.max = maxLimit;
-                if(parseInt(slider.value) > maxLimit) {
-                    slider.value = maxLimit;
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Рыночная цена SVT',
+                data: dataPoints,
+                borderColor: '#0ECB81',
+                borderWidth: 2,
+                pointRadius: 0, // Прячем точки для строгости
+                pointHoverRadius: 6,
+                fill: true,
+                backgroundColor: gradient,
+                tension: 0.4 // Плавные линии
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false } // Прячем легенду
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { display: false }
+                },
+                y: {
+                    grid: { color: '#2B3139' },
+                    ticks: {
+                        color: '#848E9C',
+                        font: { family: 'JetBrains Mono', size: 11 },
+                        callback: function(value) { return value.toFixed(2) + ' ₽'; }
+                    }
                 }
-                updateSliderDisplay(slider.value);
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index',
             }
         }
+    });
 
-        function updateSliderDisplay(val) {
-            if (payoutBalance >= 15) {
-                document.getElementById('slider-val-display').innerText = `${val} 🏆`;
-            }
+    // Функция генерации случайных реалистичных колебаний (алгоритм случайного блуждания)
+    function updateMarket() {
+        // Случайное изменение от -1.5% до +1.5% за шаг
+        const changePercent = (Math.random() * 3 - 1.5) / 100;
+        const priceDiff = currentPrice * changePercent;
+        currentPrice += priceDiff;
+        
+        // Ограничим, чтобы цена не падала ниже 1 рубля
+        if (currentPrice < 1) currentPrice = 1;
+
+        // Считаем общий процент изменения от первоначальной цены
+        const totalChange = ((currentPrice - basePrice) / basePrice) * 100;
+
+        // Фиксируем максимумы и минимумы сессии
+        if (currentPrice > maxPrice) maxPrice = currentPrice;
+        if (currentPrice < minPrice) minPrice = currentPrice;
+
+        // Обновляем текст в карточках интерфейса
+        document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
+        document.getElementById('max-price').innerText = maxPrice.toFixed(2) + ' ₽';
+        document.getElementById('min-price').innerText = minPrice.toFixed(2) + ' ₽';
+
+        // Элемент процента изменения
+        const changeEl = document.getElementById('price-change');
+        if (totalChange >= 0) {
+            changeEl.innerText = '+' + totalChange.toFixed(2) + '%';
+            changeEl.className = 'metric-change up';
+            chart.data.datasets[0].borderColor = '#0ECB81'; // Зеленый график при росте
+        } else {
+            changeEl.innerText = totalChange.toFixed(2) + '%';
+            changeEl.className = 'metric-change down';
+            chart.data.datasets[0].borderColor = '#F6465D'; // Красный при падении
         }
 
-        function setPreset(type) {
-            if (payoutBalance < 15) return;
-            const slider = document.getElementById('withdraw-slider');
-            let maxLimit = Math.min(100, Math.floor(payoutBalance));
+        // Двигаем массив данных графика (удаляем старую точку, добавляем новую)
+        chart.data.datasets[0].data.shift();
+        chart.data.datasets[0].data.push(currentPrice);
+        chart.update('none'); // Обновление без лишней анимации для экономии ресурсов
+    }
 
-            if (type === 'min') {
-                slider.value = 15;
-            } else if (type === 'max') {
-                slider.value = maxLimit;
-            } else if (type === 'half') {
-                slider.value = Math.max(15, Math.min(maxLimit, Math.floor(payoutBalance / 2)));
-            }
-            updateSliderDisplay(slider.value);
-        }
+    // Запускаем симуляцию рынка каждые 2 секунды (2000 миллисекунд)
+    setInterval(updateMarket, 2000);
+</script>
 
-        async function startSpin() {
-            const betInput = document.getElementById('bet');
-            const btn = document.getElementById('spin-btn');
-            const display = document.getElementById('status-display');
-            const gameBalanceEl = document.getElementById('game-balance');
-
-            let bet = parseInt(betInput.value);
-
-            // Фикс застревания пустого поля ставки
-            if (isNaN(bet) || bet <= 0) {
-                bet = 10;
-                betInput.value = 10;
-            }
-            if (bet > gameBalance) {
-                display.className = 'lose-text';
-                display.innerText = '⚠️ Недостаточно звёзд ⭐!';
-                return;
-            }
-
-            btn.disabled = true;
-            betInput.disabled = true;
-            display.className = 'info-text';
-            display.innerText = 'Система вращает барабаны...';
-
-            for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.remove('winner-glow');
-
-            gameBalance -= bet;
-            gameBalanceEl.innerText = `${gameBalance} ⭐`;
-
-            const finalResults = [getRandomSymbol(), getRandomSymbol(), getRandomSymbol()];
-
-            const p1 = animateReel(1, finalResults[0], 1.5);
-            const p2 = animateReel(2, finalResults[1], 2.0);
-            const p3 = animateReel(3, finalResults[2], 2.5);
-
-            await Promise.all([p1, p2, p3]);
-
-            btn.disabled = false;
-            betInput.disabled = false;
-
-            processResult(finalResults, bet);
-        }
-
-        function animateReel(reelNum, targetSymbol, duration) {
-            return new Promise(resolve => {
-                const reel = document.getElementById(`reel${reelNum}`);
-                const windowEl = document.getElementById(`w${reelNum}`);
-                const totalTiles = 40;
-
-                let html = `<div class="slot-tile">${targetSymbol}</div>`;
-                for (let j = 1; j < totalTiles; j++) {
-                    html += `<div class="slot-tile">${symbols[Math.floor(Math.random() * symbols.length)]}</div>`;
-                }
-                
-                reel.style.transition = 'none';
-                reel.innerHTML = html;
-                reel.style.transform = `translate3d(0, -${(totalTiles - 1) * TILE_HEIGHT}px, 0)`;
-
-                windowEl.classList.add('blur-effect');
-                reel.offsetHeight; 
-
-                reel.style.transition = `transform ${duration}s cubic-bezier(0.25, 1.28, 0.4, 0.96)`;
-                reel.style.transform = 'translate3d(0, 0, 0)';
-
-                setTimeout(() => {
-                    windowEl.classList.remove('blur-effect');
-                    resolve();
-                }, duration * 1000);
-            });
-        }
-
-        function triggerFloatingScore() {
-            const screen = document.getElementById('slot-screen');
-            const machine = document.getElementById('machine-body');
-            
-            // Внедрение сочного джекпот-эффекта (встряска автомата)
-            machine.classList.add('shake-machine');
-            
-            const badge = document.createElement('div');
-            badge.className = 'floating-badge';
-            badge.innerText = 'JACKPOT +0.1 🏆';
-            screen.appendChild(badge);
-            
-            setTimeout(() => { 
-                badge.remove(); 
-                machine.classList.remove('shake-machine');
-            }, 1500);
-        }
-
-        function processResult(results, bet) {
-            const display = document.getElementById('status-display');
-            const payoutBalanceEl = document.getElementById('payout-balance');
-            const gameBalanceEl = document.getElementById('game-balance');
-            
-            const [r1, r2, r3] = results;
-
-            if (r1 === r2 && r2 === r3) {
-                let gameBonus = bet * 2;
-                gameBalance += gameBonus;
-
-                // Безопасное сложение чисел с плавающей точкой в JS
-                payoutBalance = parseFloat((payoutBalance + 0.1).toFixed(1)); 
-
-                gameBalanceEl.innerText = `${gameBalance} ⭐`;
-                payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
-
-                display.className = 'win-text';
-                display.innerText = `🔥 ДЖЕКПОТ! Игра: +${gameBonus} ⭐ | На вывод: +0.1 🏆`;
-                
-                triggerFloatingScore();
-                for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.add('winner-glow');
-            } 
-            else if (r1 === r2 || r2 === r3 || r1 === r3) {
-                let cashback = Math.floor(bet * 0.4);
-                gameBalance += cashback;
-                gameBalanceEl.innerText = `${gameBalance} ⭐`;
-                
-                display.className = 'info-text';
-                display.innerText = `Частичное совпадение! Возврат: +${cashback} ⭐`;
-            } 
-            else {
-                display.className = 'lose-text';
-                display.innerText = 'Нет совпадений. Фортуна улыбнется в следующий раз!';
-            }
-            
-            checkWithdrawAvailability();
-        }
-
-        function redirectToTgDirect() {
-            window.location.href = "https://t.me/markplau";
-        }
-
-        function requestWithdraw() {
-            const display = document.getElementById('status-display');
-            const slider = document.getElementById('withdraw-slider');
-            const payoutBalanceEl = document.getElementById('payout-balance');
-            
-            let amount = parseInt(slider.value);
-
-            if (amount > payoutBalance || payoutBalance < 15) {
-                display.className = 'lose-text';
-                display.innerText = `⚠️ Ошибка верификации баланса!`;
-                return;
-            }
-
-            payoutBalance = parseFloat((payoutBalance - amount).toFixed(1));
-            payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
-
-            display.className = 'win-text';
-            display.innerText = `Заявка верифицирована. Перенаправление...`;
-
-            const textMessage = encodeURIComponent(`Привет! Я выиграл в казино и хочу обменять ${amount} кубков на ${amount} звёзд.`);
-            
-            setTimeout(() => {
-                window.location.href = `https://t.me/markplau?text=${textMessage}`;
-                checkWithdrawAvailability();
-            }, 800);
-        }
-
-        window.onload = initReels;
-    </script>
 </body>
 </html>
