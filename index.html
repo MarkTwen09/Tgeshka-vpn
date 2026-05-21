@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Cyber Stars Casino</title>
+    <title>Hardcore Cyber Stars Casino</title>
     <style>
         * {
             box-sizing: border-box;
@@ -31,7 +31,7 @@
             height: 300px;
             background: #ff0055;
             filter: blur(150px);
-            opacity: 0.15;
+            opacity: 0.12;
             top: 10%;
             left: 15%;
             z-index: -1;
@@ -44,7 +44,7 @@
             height: 300px;
             background: #00f2fe;
             filter: blur(150px);
-            opacity: 0.15;
+            opacity: 0.12;
             bottom: 10%;
             right: 15%;
             z-index: -1;
@@ -66,7 +66,7 @@
             margin-bottom: 5px;
         }
 
-        /* Двойная панель балансов */
+        /* Панель балансов */
         .balance-container {
             display: flex;
             flex-direction: column;
@@ -86,11 +86,6 @@
             justify-content: space-between;
             backdrop-filter: blur(20px);
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            transition: all 0.3s ease;
-        }
-
-        .balance-card:hover {
-            border-color: rgba(255, 255, 255, 0.2);
         }
 
         .balance-info {
@@ -124,7 +119,7 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Кнопки действий */
+        /* Кнопки */
         .btn-action {
             border: none;
             color: white;
@@ -136,32 +131,29 @@
             text-decoration: none;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.3s ease;
             text-align: center;
         }
 
         .btn-deposit {
             background: linear-gradient(90deg, #ff007f 0%, #7928ca 100%);
-            box-shadow: 0 4px 15px rgba(255, 0, 127, 0.2);
         }
 
         .btn-deposit:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 0, 127, 0.5);
+            box-shadow: 0 0 20px rgba(255, 0, 127, 0.4);
         }
 
         .btn-withdraw {
             background: linear-gradient(90deg, #00ff88 0%, #00eaec 100%);
-            box-shadow: 0 4px 15px rgba(0, 255, 136, 0.2);
             color: #07040d;
         }
 
         .btn-withdraw:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
         }
 
-        /* Поле ввода для вывода */
         .withdraw-box {
             display: flex;
             gap: 10px;
@@ -181,7 +173,7 @@
             outline: none;
         }
 
-        /* Корпус автомата */
+        /* Автомат */
         .slot-machine {
             background: linear-gradient(145deg, #18132b, #0f0b1e);
             border: 2px solid rgba(255, 0, 127, 0.2);
@@ -190,19 +182,15 @@
             width: 100%;
             max-width: 460px;
             text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 
-                        inset 0 0 20px rgba(255, 0, 127, 0.1),
-                        0 0 30px rgba(121, 40, 202, 0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
 
-        /* Экран со слотами */
         .screen {
             background: #05030a;
             border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 16px;
             padding: 20px;
             margin-bottom: 25px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
             overflow: hidden;
         }
 
@@ -220,7 +208,6 @@
             height: 110px;
             overflow: hidden;
             position: relative;
-            box-shadow: inset 0 0 15px rgba(0,0,0,0.7);
         }
 
         .slot-reel {
@@ -244,17 +231,15 @@
         }
 
         .blur-effect {
-            filter: blur(4px);
-            transform: scaleY(1.2);
+            filter: blur(5px);
+            transform: scaleY(1.25);
         }
 
         .winner-glow {
             border-color: #00ff88 !important;
-            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5), inset 0 0 15px rgba(0, 255, 136, 0.2);
-            animation: pulseGlow 0.4s infinite alternate;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
         }
 
-        /* Управление */
         .control-panel {
             display: flex;
             flex-direction: column;
@@ -273,7 +258,6 @@
             font-size: 0.85rem;
             font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .bet-input {
@@ -287,10 +271,6 @@
             font-weight: 700;
             text-align: center;
             outline: none;
-        }
-
-        .bet-input:focus {
-            border-color: #ff007f;
         }
 
         .btn-spin {
@@ -308,42 +288,30 @@
             transition: all 0.2s ease;
         }
 
-        .btn-spin:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 0, 127, 0.5);
-        }
-
         .btn-spin:disabled {
             background: #332d42;
             color: #665f7a;
             box-shadow: none;
             cursor: not-allowed;
-            transform: none;
         }
 
         #status-display {
             margin-top: 20px;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 600;
             min-height: 28px;
-            letter-spacing: 0.5px;
         }
 
-        .win-text { color: #00ff88; text-shadow: 0 0 15px rgba(0, 255, 136, 0.6); }
-        .lose-text { color: #ff3366; text-shadow: 0 0 10px rgba(255, 51, 102, 0.3); }
+        .win-text { color: #00ff88; text-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
+        .lose-text { color: #ff3366; }
         .info-text { color: #00f2fe; }
-
-        @keyframes pulseGlow {
-            from { transform: scale(1); }
-            to { transform: scale(1.02); }
-        }
     </style>
 </head>
 <body>
 
     <header>
         <h1>STARDUST SLOTS</h1>
-        <p style="color: #6c6382; font-weight: 500;">Играй на игровые, выводи реальные</p>
+        <p style="color: #6c6382; font-weight: 500;">Вывод только за Джекпот (3 в ряд) 💎</p>
     </header>
 
     <div class="balance-container">
@@ -378,30 +346,53 @@
 
         <div class="control-panel">
             <div class="input-group">
-                <span class="input-label">Ставка (Тратит ⭐)</span>
+                <span class="input-label">Ставка (⭐)</span>
                 <input type="number" id="bet" class="bet-input" value="10" min="1">
             </div>
             <button class="btn-spin" id="spin-btn" onclick="startSpin()">ЗАПУСК</button>
         </div>
 
-        <div id="status-display">Удачи! Твой выигрыш пойдет на выводной баланс!</div>
+        <div id="status-display">Попробуй выбить 3 в ряд, чтобы пополнить баланс вывода!</div>
     </div>
 
     <script>
-        let gameBalance = 100;   // Баланс для игры
-        let payoutBalance = 0;    // Баланс для вывода
+        let gameBalance = 100;   
+        let payoutBalance = 0;    
         
+        // Массив символов
         const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎', '7️⃣'];
         const TILE_HEIGHT = 110; 
         const REEL_SEQUENCE_COUNT = 30;
+
+        // Настройка жестких шансов для каждого символа (в сумме 100)
+        // Простые фрукты выпадают чаще, дорогие символы — крайне редко
+        const weights = [
+            { sym: '🍒', weight: 25 },
+            { sym: '🍋', weight: 25 },
+            { sym: '🍇', weight: 20 },
+            { sym: '🍉', weight: 15 },
+            { sym: '⭐', weight: 9 },
+            { sym: '💎', weight: 4 },
+            { sym: '7️⃣', weight: 2 }
+        ];
+
+        // Функция вытаскивания символа по весу (Шансам)
+        function getRandomSymbolWithWeight() {
+            let num = Math.floor(Math.random() * 100);
+            let sum = 0;
+            for (let i = 0; i < weights.length; i++) {
+                sum += weights[i].weight;
+                if (num < sum) return weights[i].sym;
+            }
+            return symbols[0];
+        }
 
         function initReels() {
             for (let i = 1; i <= 3; i++) {
                 const reel = document.getElementById(`reel${i}`);
                 let html = '';
                 for (let j = 0; j < REEL_SEQUENCE_COUNT; j++) {
-                    const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
-                    html += `<div class="slot-tile">${randomSymbol}</div>`;
+                    html += `<div class="slot-tile">${symbols[Math.floor(Math.random() * symbols.length)]}</div>`;
                 }
                 reel.innerHTML = html;
                 reel.style.top = `-${(REEL_SEQUENCE_COUNT - 1) * TILE_HEIGHT}px`;
@@ -430,23 +421,23 @@
             btn.disabled = true;
             betInput.disabled = true;
             display.className = 'info-text';
-            display.innerText = 'Барабаны запущены...';
+            display.innerText = 'Удача испытывается...';
 
             for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.remove('winner-glow');
 
-            // Списываем ставку с игрового баланса
             gameBalance -= bet;
             gameBalanceEl.innerText = `${gameBalance} ⭐`;
 
+            // Генерируем результаты на основе жестких весов
             const finalResults = [
-                symbols[Math.floor(Math.random() * symbols.length)],
-                symbols[Math.floor(Math.random() * symbols.length)],
-                symbols[Math.floor(Math.random() * symbols.length)]
+                getRandomSymbolWithWeight(),
+                getRandomSymbolWithWeight(),
+                getRandomSymbolWithWeight()
             ];
 
-            const p1 = animateReel(1, finalResults[0], 1.5);
-            const p2 = animateReel(2, finalResults[1], 2.0);
-            const p3 = animateReel(3, finalResults[2], 2.5);
+            const p1 = animateReel(1, finalResults[0], 1.4);
+            const p2 = animateReel(2, finalResults[1], 1.8);
+            const p3 = animateReel(3, finalResults[2], 2.2);
 
             await Promise.all([p1, p2, p3]);
 
@@ -465,12 +456,11 @@
                 tiles[0].innerText = targetSymbol; 
                 
                 windowEl.classList.add('blur-effect');
-                reel.style.transition = `top ${durationSeconds}s cubic-bezier(0.25, 0.1, 0.2, 1)`;
+                reel.style.transition = `top ${durationSeconds}s cubic-bezier(0.25, 0.1, 0.25, 1)`;
                 reel.style.top = '0px';
 
                 setTimeout(() => {
                     windowEl.classList.remove('blur-effect');
-                    
                     setTimeout(() => {
                         reel.style.transition = 'none';
                         let html = '';
@@ -482,7 +472,6 @@
                         reel.style.top = `-${(REEL_SEQUENCE_COUNT - 1) * TILE_HEIGHT}px`;
                         resolve();
                     }, 50);
-
                 }, durationSeconds * 1000);
             });
         }
@@ -490,35 +479,38 @@
         function processResult(results, bet) {
             const display = document.getElementById('status-display');
             const payoutBalanceEl = document.getElementById('payout-balance');
+            const gameBalanceEl = document.getElementById('game-balance');
             
             const [r1, r2, r3] = results;
 
-            // Выигрыш начисляется на выводной баланс (🏆)
+            // ТРИ В РЯД (Только за это даем вывод!)
             if (r1 === r2 && r2 === r3) {
-                let multiplier = 5;
-                if (r1 === '7️⃣') multiplier = 15;
+                let multiplier = 3; // Базовый для дешевых фруктов
+                if (r1 === '⭐') multiplier = 6;
                 if (r1 === '💎') multiplier = 10;
+                if (r1 === '7️⃣') multiplier = 15;
 
                 let win = bet * multiplier;
-                payoutBalance += win;
+                payoutBalance += win; // Падает строго на баланс вывода
+                
                 display.className = 'win-text';
-                display.innerText = `🔥 ДЖЕКПОТ x${multiplier}! На вывод зачислено +${win} 🏆!`;
+                display.innerText = `🔥 КРУПНЫЙ ДЖЕКПОТ x${multiplier}! На вывод: +${win} 🏆`;
                 
                 for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.add('winner-glow');
             } 
+            // ДВА СОВПАДЕНИЯ (Утешительный приз — на вывод НЕ идет)
             else if (r1 === r2 || r2 === r3 || r1 === r3) {
-                let win = Math.floor(bet * 1.5);
-                payoutBalance += win;
-                display.className = 'win-text';
-                display.innerText = `🎉 Совпадение! На вывод зачислено +${win} 🏆`;
+                let cashback = Math.floor(bet * 0.5); // Возвращаем половину ставки на игровой счет
+                gameBalance += cashback;
+                gameBalanceEl.innerText = `${gameBalance} ⭐`;
                 
-                if (r1 === r2) { document.getElementById('w1').classList.add('winner-glow'); document.getElementById('w2').classList.add('winner-glow'); }
-                else if (r2 === r3) { document.getElementById('w2').classList.add('winner-glow'); document.getElementById('w3').classList.add('winner-glow'); }
-                else if (r1 === r3) { document.getElementById('w1').classList.add('winner-glow'); document.getElementById('w3').classList.add('winner-glow'); }
+                display.className = 'info-text';
+                display.innerText = `Ничья (2 совпадения). Возврат половины ставки: +${cashback} ⭐ на игру.`;
             } 
+            // ПОЛНЫЙ ПРОИГРЫШ
             else {
                 display.className = 'lose-text';
-                display.innerText = 'Увы, пустая комбинация. Попробуй еще!';
+                display.innerText = 'Комбинация пуста. Попробуй еще раз!';
             }
 
             payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
@@ -539,18 +531,17 @@
 
             if (amount > payoutBalance) {
                 display.className = 'lose-text';
-                display.innerText = '⚠️ Недостаточно звёзд на балансе вывода!';
+                display.innerText = '⚠️ Недостаточно выбитых кубков для вывода!';
                 return;
             }
 
-            // Списываем звёзды с баланса вывода
             payoutBalance -= amount;
             payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
 
             display.className = 'win-text';
-            display.innerText = `Заявка одобрена! Перенаправление на @markplau...`;
+            display.innerText = `Заявка создана! Перенаправляю к @markplau...`;
 
-            const textMessage = encodeURIComponent(`Привет! Я хочу вывести ${amount} звёзд из казино.`);
+            const textMessage = encodeURIComponent(`Привет! Я смог выбить и хочу вывести ${amount} звёзд.`);
             const tgUrl = `https://t.me/markplau?text=${textMessage}`;
 
             setTimeout(() => {
