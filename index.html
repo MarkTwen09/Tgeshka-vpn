@@ -2,202 +2,300 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tgeshka VPN — Официальный сайт</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Stars Casino</title>
     <style>
-        /* Строгая минималистичная база */
-        body {
+        * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #0A0A0C; /* Глубокий премиальный графит */
-            color: #E4E4E7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: radial-gradient(circle, #1a1a2e 0%, #0f0f1b 100%);
+            color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
+            padding: 20px;
         }
 
-        a { 
-            text-decoration: none; 
-            color: inherit; 
-        }
-
-        /* Контейнер по центру */
-        .main-container {
-            width: 100%;
-            max-width: 400px;
-            padding: 60px 20px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Серьезная минималистичная шапка без иконок */
-        .brand-header {
+        header {
             text-align: center;
-            margin-bottom: 48px;
+            margin-bottom: 30px;
         }
 
-        .brand-name {
-            font-size: 32px;
-            font-weight: 700;
-            color: #FFFFFF;
-            margin: 0 0 8px 0;
-            letter-spacing: -0.5px;
+        h1 {
+            font-size: 2.5rem;
+            color: #00f2fe;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
+            margin-bottom: 10px;
         }
 
-        .brand-status {
-            font-size: 14px;
-            font-weight: 500;
-            color: #00E676; /* Аккуратный зеленый индикатор работы */
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: rgba(0, 230, 118, 0.1);
-            padding: 4px 12px;
-            border-radius: 100px;
-        }
-
-        .brand-status::before {
-            content: '';
-            width: 6px;
-            height: 6px;
-            background-color: #00E676;
-            border-radius: 50%;
-        }
-
-        /* Минималистичные строгие карточки тарифов */
-        .tariffs-wrapper {
+        /* Панель баланса */
+        .balance-container {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 254, 0.2);
+            padding: 15px 30px;
+            border-radius: 15px;
             display: flex;
-            flex-direction: column;
-            gap: 14px;
+            align-items: center;
+            gap: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             margin-bottom: 40px;
         }
 
-        .tariff-item {
-            background: #16161A; /* Однотонный плотный фон */
-            border: 1px solid #232329;
-            border-radius: 14px;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: border-color 0.2s ease, background 0.2s ease;
+        .balance-text {
+            font-size: 1.2rem;
         }
 
-        /* Аккуратное выделение без неона */
-        .tariff-item:hover {
-            border-color: #3F3F46;
-            background: #1C1C21;
+        #balance {
+            font-weight: bold;
+            color: #ffe600;
+            text-shadow: 0 0 8px rgba(255, 230, 0, 0.5);
         }
 
-        .tariff-left {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
+        .btn-deposit {
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .tariff-period {
-            font-size: 17px;
-            font-weight: 600;
-            color: #FFFFFF;
+        .btn-deposit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.6);
         }
 
-        .tariff-features {
-            font-size: 13px;
-            color: #A1A1AA;
+        /* Игровой автомат (Слот-машина) */
+        .casino-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            width: 100%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .tariff-price {
-            font-size: 18px;
-            font-weight: 700;
-            color: #FFFFFF;
-        }
-
-        /* Строгая, солидная кнопка действия */
-        .action-button {
+        .slots {
             display: flex;
             justify-content: center;
-            align-items: center;
-            width: 100%;
-            height: 54px;
-            background-color: #FFFFFF; /* Чисто белый, как у Apple */
-            color: #000000;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            transition: opacity 0.2s ease;
+            gap: 15px;
+            margin: 30px 0;
         }
 
-        .action-button:hover {
+        .slot {
+            background: #0a0a14;
+            border: 2px solid #333;
+            border-radius: 10px;
+            width: 80px;
+            height: 100px;
+            font-size: 3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.8);
+            transition: border-color 0.3s;
+        }
+
+        .slot.win-glow {
+            border-color: #00ff88;
+            animation: pulse 0.5s infinite alternate;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .bet-input {
+            background: #0a0a14;
+            border: 1px solid #444;
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+        }
+
+        .bet-input:focus {
+            border-color: #00f2fe;
+        }
+
+        .btn-spin {
+            background: linear-gradient(45deg, #ff007f, #7928ca);
+            border: none;
+            color: white;
+            padding: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s, transform 0.1s;
+        }
+
+        .btn-spin:hover {
             opacity: 0.9;
         }
 
-        /* Лаконичный футер */
-        .brand-footer {
-            margin-top: auto;
-            text-align: center;
-            font-size: 12px;
-            color: #52525B;
-            padding-top: 40px;
+        .btn-spin:active {
+            transform: scale(0.98);
+        }
+
+        #message {
+            margin-top: 20px;
+            font-size: 1.1rem;
+            min-height: 27px;
+            font-weight: 500;
+        }
+
+        .text-success { color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.4); }
+        .text-danger { color: #ff3366; }
+
+        @keyframes pulse {
+            from { box-shadow: 0 0 10px rgba(0,255,136,0.5); }
+            to { box-shadow: 0 0 20px rgba(0,255,136,0.8); }
         }
     </style>
 </head>
 <body>
 
-    <div class="main-container">
-        
-        <div class="brand-header">
-            <h1 class="brand-name">Tgeshka VPN</h1>
-            <span class="brand-status">Серверы работают стабильно</span>
-        </div>
+    <header>
+        <h1>⭐️ STAR CASINO ⭐️</h1>
+        <p style="color: #8a8a9e;">Испытай свою удачу прямо сейчас</p>
+    </header>
 
-        <div class="tariffs-wrapper">
-            
-            <a href="https://t.me/Tgeshkavpn" target="_blank">
-                <div class="tariff-item">
-                    <div class="tariff-left">
-                        <span class="tariff-period">План на 1 месяц</span>
-                        <span class="tariff-features">Высокая скорость, без лимитов</span>
-                    </div>
-                    <div class="tariff-price">99 ₽</div>
-                </div>
-            </a>
-
-            <a href="https://t.me/Tgeshkavpn" target="_blank">
-                <div class="tariff-item">
-                    <div class="tariff-left">
-                        <span class="tariff-period">План на 3 месяца</span>
-                        <span class="tariff-features">Оптимальный вариант подписки</span>
-                    </div>
-                    <div class="tariff-price">249 ₽</div>
-                </div>
-            </a>
-
-            <a href="https://t.me/Tgeshkavpn" target="_blank">
-                <div class="tariff-item">
-                    <div class="tariff-left">
-                        <span class="tariff-period">План на 6 месяцев</span>
-                        <span class="tariff-features">Максимальная выгода</span>
-                    </div>
-                    <div class="tariff-price">449 ₽</div>
-                </div>
-            </a>
-
-        </div>
-
-        <a href="https://t.me/Tgeshkavpn" target="_blank" class="action-button">
-            Оформить подписку
-        </a>
-
-        <div class="brand-footer">
-            © 2026 Tgeshka VPN. Безопасность и конфиденциальность.
-        </div>
-
+    <!-- Баланс и Пополнение -->
+    <div class="balance-container">
+        <div class="balance-text">Баланс: <span id="balance">100</span> ⭐</div>
+        <!-- Ссылка перенаправляет на аккаунт в Telegram -->
+        <a href="https://t.me/markplau" target="_blank" class="btn-deposit">Пополнить</a>
     </div>
 
+    <!-- Игровой автомат -->
+    <div class="casino-card">
+        <h3>МЕГА СЛОТЫ</h3>
+        
+        <div class="slots">
+            <div class="slot" id="slot1">🍒</div>
+            <div class="slot" id="slot2">🍒</div>
+            <div class="slot" id="slot3">🍒</div>
+        </div>
+
+        <div class="controls">
+            <label for="bet" style="color: #aaa; font-size: 0.9rem; text-align: left;">Ставка (⭐):</label>
+            <input type="number" id="bet" class="bet-input" value="10" min="1">
+            <button class="btn-spin" onclick="spin()">КРУТИТЬ</button>
+        </div>
+
+        <div id="message"></div>
+    </div>
+
+    <script>
+        // Изначальный баланс игрока
+        let balance = 100;
+        const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎'];
+
+        function spin() {
+            const balanceEl = document.getElementById('balance');
+            const betInput = document.getElementById('bet');
+            const messageEl = document.getElementById('message');
+            
+            const slot1 = document.getElementById('slot1');
+            const slot2 = document.getElementById('slot2');
+            const slot3 = document.getElementById('slot3');
+
+            // Очищаем предыдущие эффекты победы
+            slot1.classList.remove('win-glow');
+            slot2.classList.remove('win-glow');
+            slot3.classList.remove('win-glow');
+
+            let bet = parseInt(betInput.value);
+
+            // Проверки на корректность ставки
+            if (isNaN(bet) || bet <= 0) {
+                messageEl.className = 'text-danger';
+                messageEl.innerText = 'Введите корректную ставку!';
+                return;
+            }
+
+            if (bet > balance) {
+                messageEl.className = 'text-danger';
+                messageEl.innerText = 'Недостаточно звёзд на балансе!';
+                return;
+            }
+
+            // Списываем ставку
+            balance -= bet;
+            balanceEl.innerText = balance;
+            messageEl.innerText = 'Слоты крутятся...';
+
+            // Эффект кручения (рандомный выбор символов)
+            let counter = 0;
+            const interval = setInterval(() => {
+                slot1.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                slot2.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                slot3.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                counter++;
+
+                if (counter > 10) {
+                    clearInterval(interval);
+                    checkResult(bet);
+                }
+            }, 70);
+        }
+
+        function checkResult(bet) {
+            const balanceEl = document.getElementById('balance');
+            const messageEl = document.getElementById('message');
+            
+            const res1 = document.getElementById('slot1').innerText;
+            const res2 = document.getElementById('slot2').innerText;
+            const res3 = document.getElementById('slot3').innerText;
+
+            // Логика выигрыша
+            if (res1 === res2 && res2 === res3) {
+                let winAmount = bet * 5; // Х5 за три одинаковых символа
+                
+                // Дополнительный бонус за три джекпот-звезды или алмаза
+                if(res1 === '⭐' || res1 === '💎') {
+                    winAmount = bet * 10;
+                }
+
+                balance += winAmount;
+                balanceEl.innerText = balance;
+                
+                messageEl.className = 'text-success';
+                messageEl.innerText = `ВЫИГРЫШ: +${winAmount} ⭐!`;
+                
+                document.getElementById('slot1').classList.add('win-glow');
+                document.getElementById('slot2').classList.add('win-glow');
+                document.getElementById('slot3').classList.add('win-glow');
+
+            } else if (res1 === res2 || res2 === res3 || res1 === res3) {
+                // Х1.5 за два одинаковых символа
+                let winAmount = Math.floor(bet * 1.5);
+                balance += winAmount;
+                balanceEl.innerText = balance;
+                messageEl.className = 'text-success';
+                messageEl.innerText = `Частичный выигрыш: +${winAmount} ⭐`;
+            } else {
+                messageEl.className = 'text-danger';
+                messageEl.innerText = 'Увы, повезет в следующий раз!';
+            }
+        }
+    </script>
 </body>
 </html>
