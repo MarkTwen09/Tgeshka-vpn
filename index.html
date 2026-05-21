@@ -388,8 +388,8 @@
     </div>
 
     <script>
-        let gameBalance = 100;   // Баланс для игры (стартовые)
-        let payoutBalance = 0;    // Баланс выбитых звезд для вывода
+        let gameBalance = 100;   // Баланс для игры
+        let payoutBalance = 0;    // Баланс для вывода
         
         const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎', '7️⃣'];
         const TILE_HEIGHT = 110; 
@@ -434,7 +434,7 @@
 
             for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.remove('winner-glow');
 
-            // Списываем ставку ТОЛЬКО с игрового баланса
+            // Списываем ставку с игрового баланса
             gameBalance -= bet;
             gameBalanceEl.innerText = `${gameBalance} ⭐`;
 
@@ -493,7 +493,7 @@
             
             const [r1, r2, r3] = results;
 
-            // Выигрыш начисляется ТОЛЬКО на выводной баланс (🏆)
+            // Выигрыш начисляется на выводной баланс (🏆)
             if (r1 === r2 && r2 === r3) {
                 let multiplier = 5;
                 if (r1 === '7️⃣') multiplier = 15;
@@ -524,7 +524,6 @@
             payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
         }
 
-        // Функция обработки вывода средств
         function requestWithdraw() {
             const display = document.getElementById('status-display');
             const withdrawInput = document.getElementById('withdraw-amount');
@@ -540,7 +539,7 @@
 
             if (amount > payoutBalance) {
                 display.className = 'lose-text';
-                display.innerText = '⚠️ Недостаточно выбитых звёзд на балансе вывода!';
+                display.innerText = '⚠️ Недостаточно звёзд на балансе вывода!';
                 return;
             }
 
@@ -551,11 +550,9 @@
             display.className = 'win-text';
             display.innerText = `Заявка одобрена! Перенаправление на @markplau...`;
 
-            // Генерируем красивую ссылку в ТГ с готовым текстом сообщения
             const textMessage = encodeURIComponent(`Привет! Я хочу вывести ${amount} звёзд из казино.`);
             const tgUrl = `https://t.me/markplau?text=${textMessage}`;
 
-            // Перенаправляем пользователя через секунду
             setTimeout(() => {
                 window.open(tgUrl, '_blank');
             }, 1000);
