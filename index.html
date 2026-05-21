@@ -24,7 +24,6 @@
             overflow-x: hidden;
         }
 
-        /* Дорогая неоновая аура */
         body::before, body::after {
             content: '';
             position: absolute;
@@ -61,7 +60,6 @@
             margin-bottom: 25px;
         }
 
-        /* Элитный Glassmorphism для карточек */
         .balance-card {
             background: linear-gradient(135deg, rgba(22, 13, 44, 0.9) 0%, rgba(11, 6, 24, 0.95) 100%);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -85,7 +83,6 @@
         #game-balance { background: linear-gradient(to right, #ffd700, #ff8800); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         #payout-balance { background: linear-gradient(to right, #00ff88, #00d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* Кнопки */
         .btn-action {
             border: none;
             color: white;
@@ -113,8 +110,8 @@
             margin-top: 15px;
         }
         .btn-withdraw:hover { transform: translateY(-1px); box-shadow: 0 0 30px rgba(0, 255, 136, 0.6); }
+        .btn-withdraw:disabled { background: #221d2a; color: #524c61; box-shadow: none; cursor: not-allowed; transform: none; opacity: 0.4; }
 
-        /* Панель управления выводом */
         .withdraw-control-zone {
             margin-top: 18px;
             padding-top: 16px;
@@ -132,7 +129,6 @@
         .slider-label { font-size: 0.8rem; color: #767090; font-weight: 700; text-transform: uppercase; }
         .slider-current-value { font-size: 1.2rem; font-weight: 900; color: #00ff88; text-shadow: 0 0 12px rgba(0,255,136,0.4); }
 
-        /* Курс обмена */
         .rate-indicator {
             font-size: 0.75rem;
             color: #00ff88;
@@ -154,6 +150,7 @@
             outline: none;
             border: 1px solid rgba(255, 255, 255, 0.04);
         }
+        .modern-slider:disabled { opacity: 0.3; cursor: not-allowed; }
         .modern-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
@@ -184,7 +181,8 @@
             cursor: pointer;
             transition: all 0.2s;
         }
-        .btn-preset:hover { background: rgba(0, 242, 254, 0.08); color: #00f2fe; border-color: rgba(0, 242, 254, 0.25); }
+        .btn-preset:hover:not(:disabled) { background: rgba(0, 242, 254, 0.08); color: #00f2fe; border-color: rgba(0, 242, 254, 0.25); }
+        .btn-preset:disabled { opacity: 0.4; cursor: not-allowed; }
 
         /* Игровой Корпус */
         .slot-machine {
@@ -196,6 +194,12 @@
             max-width: 460px;
             text-align: center;
             box-shadow: 0 40px 90px rgba(0,0,0,0.9);
+            transition: transform 0.1s ease;
+        }
+
+        /* Эффект тряски при Джекпоте */
+        .shake-machine {
+            animation: machineShake 0.5s ease-in-out infinite alternate;
         }
 
         .screen {
@@ -216,7 +220,6 @@
             position: relative;
         }
 
-        /* Окна барабанов */
         .slot-window {
             background: linear-gradient(180deg, #020104 0%, #100b20 25%, #100b20 75%, #020104 100%);
             border: 1px solid rgba(255, 255, 255, 0.05);
@@ -229,7 +232,6 @@
                         inset 0 -16px 28px rgba(0,0,0,0.95);
         }
 
-        /* Реалистичное премиальное стекло */
         .slot-window::after {
             content: '';
             position: absolute;
@@ -262,25 +264,24 @@
             filter: drop-shadow(0 8px 12px rgba(0,0,0,0.6));
         }
 
-        /* Всплывающий кубок +0.1 */
         .floating-badge {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 255, 136, 0.12);
-            border: 1px solid #00ff88;
-            padding: 8px 18px;
+            background: rgba(0, 255, 136, 0.15);
+            border: 2px solid #00ff88;
+            padding: 10px 24px;
             border-radius: 30px;
             color: #00ff88;
             font-weight: 900;
-            font-size: 1.3rem;
-            text-shadow: 0 0 15px rgba(0,255,136,0.6);
-            box-shadow: 0 0 30px rgba(0,255,136,0.3);
+            font-size: 1.5rem;
+            text-shadow: 0 0 15px rgba(0,255,136,0.8);
+            box-shadow: 0 0 35px rgba(0,255,136,0.5);
             pointer-events: none;
             z-index: 10;
             opacity: 0;
-            animation: popUpAndFade 1.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+            animation: popUpAndFade 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
         .blur-effect { filter: blur(6px) saturate(1.3); will-change: filter; }
@@ -308,7 +309,6 @@
             outline: none;
         }
 
-        /* Анимированная кнопка старта */
         .btn-spin {
             background: linear-gradient(135deg, #ff007f 0%, #721cb8 100%);
             border: none;
@@ -350,11 +350,21 @@
             100% { box-shadow: 0 8px 25px rgba(255, 0, 127, 0.3); }
         }
 
+        @keyframes machineShake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            20% { transform: translate(-1px, -1px) rotate(-0.5deg); }
+            40% { transform: translate(-2px, 0px) rotate(0.5deg); }
+            60% { transform: translate(2px, 1px) rotate(0deg); }
+            80% { transform: translate(-1px, 2px) rotate(-0.5deg); }
+            100% { transform: translate(1px, -1px) rotate(0.5deg); }
+        }
+
         @keyframes popUpAndFade {
-            0% { opacity: 0; transform: translate(-50%, -10%) scale(0.7); }
-            15% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
-            35% { transform: translate(-50%, -60%) scale(1); }
-            100% { opacity: 0; transform: translate(-50%, -110%) scale(0.95); }
+            0% { opacity: 0; transform: translate(-50%, -10%) scale(0.6); }
+            15% { opacity: 1; transform: translate(-50%, -50%) scale(1.2); }
+            30% { transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; }
+            100% { opacity: 0; transform: translate(-50%, -130%) scale(0.8); }
         }
     </style>
 </head>
@@ -397,17 +407,17 @@
                 <input type="range" id="withdraw-slider" class="modern-slider" min="15" max="100" value="15" oninput="updateSliderDisplay(this.value)">
                 
                 <div class="preset-container">
-                    <button class="btn-preset" onclick="setPreset('min')">МИН (15)</button>
-                    <button class="btn-preset" onclick="setPreset('half')">50%</button>
-                    <button class="btn-preset" onclick="setPreset('max')">МАКС (100)</button>
+                    <button class="btn-preset" id="preset-min" onclick="setPreset('min')">МИН (15)</button>
+                    <button class="btn-preset" id="preset-half" onclick="setPreset('half')">50%</button>
+                    <button class="btn-preset" id="preset-max" onclick="setPreset('max')">МАКС (100)</button>
                 </div>
                 
-                <button class="btn-action btn-withdraw" onclick="requestWithdraw()">Подтвердить Вывод</button>
+                <button class="btn-action btn-withdraw" id="withdraw-btn" onclick="requestWithdraw()">Подтвердить Вывод</button>
             </div>
         </div>
     </div>
 
-    <div class="slot-machine">
+    <div class="slot-machine" id="machine-body">
         <div class="screen" id="slot-screen">
             <div class="slots-container">
                 <div class="slot-window" id="w1"><div class="slot-reel" id="reel1"></div></div>
@@ -429,7 +439,7 @@
 
     <script>
         let gameBalance = 100;   
-        let payoutBalance = 0;    
+        let payoutBalance = 0.0;    
         
         const symbols = ['🍒', '🍋', '🍇', '🍉', '⭐', '💎', '7️⃣'];
         const TILE_HEIGHT = 115; 
@@ -459,6 +469,7 @@
                 const reel = document.getElementById(`reel${i}`);
                 generateReelContent(reel, '🍒');
             }
+            checkWithdrawAvailability();
         }
 
         function generateReelContent(reelEl, targetSymbol, totalTiles = 40) {
@@ -470,18 +481,55 @@
             reelEl.style.transform = `translate3d(0, -${(totalTiles - 1) * TILE_HEIGHT}px, 0)`;
         }
 
+        // Исправление бага: Управление доступностью вывода
+        function checkWithdrawAvailability() {
+            const slider = document.getElementById('withdraw-slider');
+            const withdrawBtn = document.getElementById('withdraw-btn');
+            const pMin = document.getElementById('preset-min');
+            const pHalf = document.getElementById('preset-half');
+            const pMax = document.getElementById('preset-max');
+
+            if (payoutBalance < 15) {
+                slider.disabled = true;
+                withdrawBtn.disabled = true;
+                pMin.disabled = true;
+                pHalf.disabled = true;
+                pMax.disabled = true;
+                document.getElementById('slider-val-display').innerText = "Недостаточно 🏆";
+            } else {
+                slider.disabled = false;
+                withdrawBtn.disabled = false;
+                pMin.disabled = false;
+                pHalf.disabled = false;
+                pMax.disabled = false;
+                
+                // Корректируем максимальный предел слайдера под реальный баланс игрока
+                let maxLimit = Math.min(100, Math.floor(payoutBalance));
+                slider.max = maxLimit;
+                if(parseInt(slider.value) > maxLimit) {
+                    slider.value = maxLimit;
+                }
+                updateSliderDisplay(slider.value);
+            }
+        }
+
         function updateSliderDisplay(val) {
-            document.getElementById('slider-val-display').innerText = `${val} 🏆`;
+            if (payoutBalance >= 15) {
+                document.getElementById('slider-val-display').innerText = `${val} 🏆`;
+            }
         }
 
         function setPreset(type) {
+            if (payoutBalance < 15) return;
             const slider = document.getElementById('withdraw-slider');
+            let maxLimit = Math.min(100, Math.floor(payoutBalance));
+
             if (type === 'min') {
                 slider.value = 15;
             } else if (type === 'max') {
-                slider.value = 100;
+                slider.value = maxLimit;
             } else if (type === 'half') {
-                slider.value = Math.max(15, Math.min(100, Math.floor(payoutBalance / 2) || 15));
+                slider.value = Math.max(15, Math.min(maxLimit, Math.floor(payoutBalance / 2)));
             }
             updateSliderDisplay(slider.value);
         }
@@ -494,10 +542,10 @@
 
             let bet = parseInt(betInput.value);
 
+            // Фикс застревания пустого поля ставки
             if (isNaN(bet) || bet <= 0) {
-                display.className = 'lose-text';
-                display.innerText = '⚠️ Укажите корректную ставку!';
-                return;
+                bet = 10;
+                betInput.value = 10;
             }
             if (bet > gameBalance) {
                 display.className = 'lose-text';
@@ -559,11 +607,20 @@
 
         function triggerFloatingScore() {
             const screen = document.getElementById('slot-screen');
+            const machine = document.getElementById('machine-body');
+            
+            // Внедрение сочного джекпот-эффекта (встряска автомата)
+            machine.classList.add('shake-machine');
+            
             const badge = document.createElement('div');
             badge.className = 'floating-badge';
-            badge.innerText = '+0.1 🏆';
+            badge.innerText = 'JACKPOT +0.1 🏆';
             screen.appendChild(badge);
-            setTimeout(() => { badge.remove(); }, 1300);
+            
+            setTimeout(() => { 
+                badge.remove(); 
+                machine.classList.remove('shake-machine');
+            }, 1500);
         }
 
         function processResult(results, bet) {
@@ -577,14 +634,14 @@
                 let gameBonus = bet * 2;
                 gameBalance += gameBonus;
 
-                let payoutWin = 0.1;
-                payoutBalance = parseFloat((payoutBalance + payoutWin).toFixed(1)); 
+                // Безопасное сложение чисел с плавающей точкой в JS
+                payoutBalance = parseFloat((payoutBalance + 0.1).toFixed(1)); 
 
                 gameBalanceEl.innerText = `${gameBalance} ⭐`;
                 payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
 
                 display.className = 'win-text';
-                display.innerText = `🔥 КОМБИНАЦИЯ! На игру: +${gameBonus} ⭐ | На вывод: +0.1 🏆`;
+                display.innerText = `🔥 ДЖЕКПОТ! Игра: +${gameBonus} ⭐ | На вывод: +0.1 🏆`;
                 
                 triggerFloatingScore();
                 for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.add('winner-glow');
@@ -601,6 +658,8 @@
                 display.className = 'lose-text';
                 display.innerText = 'Нет совпадений. Фортуна улыбнется в следующий раз!';
             }
+            
+            checkWithdrawAvailability();
         }
 
         function redirectToTgDirect() {
@@ -614,9 +673,9 @@
             
             let amount = parseInt(slider.value);
 
-            if (amount > payoutBalance) {
+            if (amount > payoutBalance || payoutBalance < 15) {
                 display.className = 'lose-text';
-                display.innerText = `⚠️ Недостаточно кубков на балансе (необходимо минимум ${amount} 🏆)!`;
+                display.innerText = `⚠️ Ошибка верификации баланса!`;
                 return;
             }
 
@@ -630,6 +689,7 @@
             
             setTimeout(() => {
                 window.location.href = `https://t.me/markplau?text=${textMessage}`;
+                checkWithdrawAvailability();
             }, 800);
         }
 
