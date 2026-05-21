@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVT Premium Analytics Terminal</title>
+    <title>SVT Quantum Analytics Terminal</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0"></script>
@@ -200,7 +200,7 @@
             margin-bottom: 3px;
         }
 
-        /* Калькулятор без лишних вкладок */
+        /* Калькулятор */
         .calculator-box {
             background: var(--bg-field);
             border: 1px solid var(--border-color);
@@ -307,16 +307,16 @@
     </div>
 
     <div class="main-price-box" id="price-card">
-        <div class="price-label">Рыночный курс</div>
+        <div class="price-label" id="price-label-text">Рыночный курс</div>
         <div class="price-value" id="current-price">10.00 ₽</div>
         <div class="price-direction up" id="price-change">+0.00%</div>
     </div>
 
     <div class="timeframes-bar">
-        <button class="tf-btn active" onclick="changeTimeframe('1m', 7000)">1м</button>
-        <button class="tf-btn" onclick="changeTimeframe('5m', 14000)">5м</button>
-        <button class="tf-btn" onclick="changeTimeframe('1ч', 25000)">1ч</button>
-        <button class="tf-btn" onclick="changeTimeframe('1д', 60000)">1д</button>
+        <button class="tf-btn active" onclick="changeTimeframe('1m', 5000)">1м</button>
+        <button class="tf-btn" onclick="changeTimeframe('5m', 10000)">5м</button>
+        <button class="tf-btn" onclick="changeTimeframe('1ч', 20000)">1ч</button>
+        <button class="tf-btn" onclick="changeTimeframe('1д', 45000)">1д</button>
     </div>
 
     <div class="chart-box">
@@ -365,12 +365,18 @@
     let basePrice = 10.00;
     let currentPrice = basePrice;
     
-    // Продвинутые макро-тренды: направление (-1 до +1) и сила затяжного тренда
     let marketTrend = 0;
     let trendDuration = 0; 
 
+    // Заполнение тайм-меток для имитации истории (назад во времени от текущей секунды)
     const maxDataPoints = 25;
-    const labels = Array(maxDataPoints).fill('');
+    const labels = [];
+    let now = Date.now();
+    for (let i = maxDataPoints - 1; i >= 0; i--) {
+        let t = new Date(now - i * 5000);
+        labels.push(t.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+    }
+    
     const dataPoints = Array(maxDataPoints).fill(basePrice);
 
     const ctx = document.getElementById('analyticsChart').getContext('2d');
@@ -391,6 +397,10 @@
                 borderColor: '#0ECB81',
                 borderWidth: 2,
                 pointRadius: 0,
+                hoverRadius: 5,
+                pointHoverBackgroundColor: '#fff',
+                pointHoverBorderColor: '#0ECB81',
+                pointHoverBorderWidth: 2,
                 fill: true,
                 backgroundColor: gradGreen,
                 tension: 0.35
@@ -399,13 +409,43 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
             plugins: {
                 legend: { display: false },
+                // Отключаем дефолтные тултипы Chart.js, чтобы сделать кастомный вывод прямо в шапку плашки курса
+                tooltip: {
+                    enabled: false,
+                    external: function(context) {
+                        const labelText = document.getElementById('price-label-text');
+                        const priceDisplay = document.getElementById('current-price');
+                        const tooltipModel = context.tooltip;
+
+                        if (tooltipModel.opacity === 0) {
+                            // Если палец убрали — возвращаем текущую рыночную цену
+                            labelText.innerText = "Рыночный курс";
+                            labelText.style.color = "var(--text-muted)";
+                            priceDisplay.innerText = currentPrice.toFixed(2) + ' ₽';
+                            return;
+                        }
+
+                        // Если ведем пальцем — вытаскиваем данные точки
+                        const index = tooltipModel.dataPoints[0].dataIndex;
+                        const hoveredPrice = tooltipModel.dataPoints[0].raw;
+                        const hoveredTime = chart.data.labels[index];
+
+                        labelText.innerText = `Цена в ${hoveredTime}`;
+                        labelText.style.color = "var(--accent-green)";
+                        priceDisplay.innerText = hoveredPrice.toFixed(2) + ' ₽';
+                    }
+                },
                 annotation: {
                     annotations: {
                         line1: {
                             type: 'line', yMin: basePrice, yMax: basePrice,
-                            borderColor: 'rgba(14, 203, 129, 0.4)', borderWidth: 1, borderDash: [4, 4]
+                            borderColor: 'rgba(14, 203, 129, 0.3)', borderWidth: 1, borderDash: [4, 4]
                         }
                     }
                 }
@@ -425,7 +465,7 @@
     });
 
     let currentInterval = null;
-    let updateSpeed = 7000; // Ровно 7 секунд по умолчанию
+    let updateSpeed = 5000; // Ровно 5 секунд по запросу
 
     function changeTimeframe(tf, speed) {
         document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
@@ -470,38 +510,36 @@
         }
     }
 
-    // Ювелирное математическое ядро рынка
+    // Ювелирное математическое ядро рынка (Интервал: 5 сек. Лимиты: 5₽ - 55₽)
     function tickTerminalEngine() {
-        // Задаем затяжные тренды для выхода за пределы 10 рублей
         if (trendDuration <= 0) {
-            // Определяем длительность волны (от 5 до 12 шагов)
             trendDuration = Math.floor(Math.random() * 8) + 5;
-            // Куда идем: 65% шанс продолжить глобальные торги в рост, если упали слишком сильно
-            if (currentPrice <= 6) {
-                marketTrend = Math.random() * 0.6 + 0.4; // мощный бычий тренд вверх
-            } else if (currentPrice >= 45) {
-                marketTrend = -(Math.random() * 0.6 + 0.4); // отскок от хаев вниз
+            if (currentPrice <= 6.5) {
+                marketTrend = Math.random() * 0.6 + 0.4; 
+            } else if (currentPrice >= 48) {
+                marketTrend = -(Math.random() * 0.6 + 0.4); 
             } else {
-                marketTrend = (Math.random() * 2 - 1); // обычные колебания рынка
+                marketTrend = (Math.random() * 2 - 1); 
             }
         }
         trendDuration--;
 
-        // Базовый шаг изменения курса (в пределах 1.2% - 2.5% за шаг для ощутимого движения)
-        let volatility = (Math.random() * 1.5 + 0.5); 
+        let volatility = (Math.random() * 1.6 + 0.4); 
         let changePercent = (marketTrend * volatility);
 
         const priceDiff = currentPrice * (changePercent / 100);
         currentPrice += priceDiff;
 
-        // Жесткие рамки реалистичности
-        if (currentPrice < 5.00) currentPrice = 5.00 + (Math.random() * 0.3);
-        if (currentPrice > 55.00) currentPrice = 55.00 - (Math.random() * 0.5);
+        if (currentPrice < 5.00) currentPrice = 5.00 + (Math.random() * 0.2);
+        if (currentPrice > 55.00) currentPrice = 55.00 - (Math.random() * 0.4);
 
-        // Расчет процентов от стартовых 10 рублей
         const totalChange = ((currentPrice - basePrice) / basePrice) * 100;
 
-        document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
+        // Если пользователь сейчас не водит пальцем по графику, обновляем главный экран
+        if (document.getElementById('price-label-text').innerText === "Рыночный курс") {
+            document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
+        }
+        
         updateCalculations();
 
         document.getElementById('market-cap').innerText = Math.round(12050000 * currentPrice).toLocaleString('ru-RU') + ' ₽';
@@ -529,6 +567,11 @@
             chart.options.plugins.annotation.annotations.line1.borderColor = 'rgba(246, 70, 93, 0.3)';
         }
 
+        // Добавляем новое время в массив меток
+        let t = new Date();
+        chart.data.labels.shift();
+        chart.data.labels.push(t.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
+
         chart.data.datasets[0].data.shift();
         chart.data.datasets[0].data.push(currentPrice);
         chart.options.plugins.annotation.annotations.line1.yMin = currentPrice;
@@ -538,7 +581,6 @@
         refreshOrderBook();
     }
 
-    // Старт
     currentInterval = setInterval(tickTerminalEngine, updateSpeed);
     tickTerminalEngine();
 </script>
