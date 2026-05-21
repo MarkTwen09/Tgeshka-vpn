@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stardust Slots Luxury Edition</title>
+    <title>Stardust Slots Luxury Casino</title>
     <style>
         * {
             box-sizing: border-box;
@@ -13,7 +13,7 @@
         }
 
         body {
-            background: radial-gradient(circle at center, #0f0722 0%, #030106 100%);
+            background: radial-gradient(circle at center, #0c051c 0%, #020104 100%);
             color: #fff;
             display: flex;
             flex-direction: column;
@@ -24,18 +24,18 @@
             overflow-x: hidden;
         }
 
-        /* Атмосферный неоновый бэкграунд */
+        /* Дорогая неоновая аура */
         body::before, body::after {
             content: '';
             position: absolute;
-            width: 380px;
-            height: 380px;
-            filter: blur(180px);
-            opacity: 0.14;
+            width: 400px;
+            height: 400px;
+            filter: blur(200px);
+            opacity: 0.15;
             z-index: -1;
         }
-        body::before { background: #ff007f; top: 2%; left: 5%; }
-        body::after { background: #00f2fe; bottom: 2%; right: 5%; }
+        body::before { background: #ff007f; top: 0%; left: 5%; }
+        body::after { background: #00f2fe; bottom: 0%; right: 5%; }
 
         header {
             text-align: center;
@@ -45,14 +45,13 @@
         h1 {
             font-size: 2.8rem;
             font-weight: 900;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             background: linear-gradient(45deg, #00f2fe, #ff007f);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 40px rgba(0, 242, 254, 0.35);
+            text-shadow: 0 0 50px rgba(0, 242, 254, 0.4);
         }
 
-        /* Контейнер премиальных панелей */
         .balance-container {
             display: flex;
             flex-direction: column;
@@ -62,13 +61,14 @@
             margin-bottom: 25px;
         }
 
+        /* Элитный Glassmorphism для карточек */
         .balance-card {
-            background: rgba(18, 11, 36, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            padding: 18px 24px;
-            border-radius: 22px;
-            backdrop-filter: blur(25px);
-            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.65);
+            background: linear-gradient(135deg, rgba(22, 13, 44, 0.9) 0%, rgba(11, 6, 24, 0.95) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 20px 24px;
+            border-radius: 24px;
+            backdrop-filter: blur(30px);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
         }
 
         .card-row {
@@ -79,46 +79,46 @@
         }
 
         .balance-info { display: flex; flex-direction: column; }
-        .balance-text { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.2px; color: #8e87a9; margin-bottom: 4px; font-weight: 600; }
-        .balance-value { font-weight: 800; font-size: 1.5rem; color: #fff; }
+        .balance-text { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; color: #827a9e; margin-bottom: 4px; font-weight: 700; }
+        .balance-value { font-weight: 900; font-size: 1.6rem; color: #fff; }
 
-        #game-balance { background: linear-gradient(to right, #ffe600, #ffaa00); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        #payout-balance { background: linear-gradient(to right, #00ff88, #00e5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        #game-balance { background: linear-gradient(to right, #ffd700, #ff8800); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        #payout-balance { background: linear-gradient(to right, #00ff88, #00d5ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-        /* Кнопки действий */
+        /* Кнопки */
         .btn-action {
             border: none;
             color: white;
-            padding: 13px 26px;
+            padding: 13px 28px;
             font-weight: 800;
             font-size: 0.85rem;
             border-radius: 14px;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 0.8px;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            letter-spacing: 1px;
+            transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
         .btn-deposit { 
             background: linear-gradient(90deg, #ff007f 0%, #7928ca 100%); 
-            box-shadow: 0 4px 20px rgba(255, 0, 127, 0.25); 
+            box-shadow: 0 4px 20px rgba(255, 0, 127, 0.3); 
         }
-        .btn-deposit:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(255, 0, 127, 0.5); }
+        .btn-deposit:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255, 0, 127, 0.6); }
 
         .btn-withdraw { 
             background: linear-gradient(90deg, #00ff88 0%, #00c8ff 100%); 
-            color: #040207; 
-            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.25);
+            color: #020104; 
+            box-shadow: 0 4px 20px rgba(0, 255, 136, 0.3);
             width: 100%;
             margin-top: 15px;
         }
-        .btn-withdraw:hover { transform: translateY(-1px); box-shadow: 0 0 25px rgba(0, 255, 136, 0.45); }
+        .btn-withdraw:hover { transform: translateY(-1px); box-shadow: 0 0 30px rgba(0, 255, 136, 0.6); }
 
-        /* СТИЛЬНЫЙ ИНТЕРФЕЙС ВЫБОРА СУММЫ ВЫВОДА */
+        /* Панель управления выводом */
         .withdraw-control-zone {
             margin-top: 18px;
             padding-top: 16px;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -129,33 +129,44 @@
             justify-content: space-between;
             align-items: center;
         }
-        .slider-label { font-size: 0.8rem; color: #767090; font-weight: 600; text-transform: uppercase; }
-        .slider-current-value { font-size: 1.15rem; font-weight: 800; color: #00ff88; text-shadow: 0 0 10px rgba(0,255,136,0.3); }
+        .slider-label { font-size: 0.8rem; color: #767090; font-weight: 700; text-transform: uppercase; }
+        .slider-current-value { font-size: 1.2rem; font-weight: 900; color: #00ff88; text-shadow: 0 0 12px rgba(0,255,136,0.4); }
 
-        /* Кастомный премиальный слайдер */
+        /* Курс обмена */
+        .rate-indicator {
+            font-size: 0.75rem;
+            color: #00ff88;
+            background: rgba(0, 255, 136, 0.07);
+            border: 1px dashed rgba(0, 255, 136, 0.2);
+            padding: 6px 12px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
         .modern-slider {
             -webkit-appearance: none;
             width: 100%;
             height: 6px;
             border-radius: 10px;
-            background: #090614;
+            background: #05030a;
             outline: none;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.04);
         }
         .modern-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 22px;
+            height: 22px;
             border-radius: 50%;
             background: linear-gradient(135deg, #00ff88 0%, #00e5ff 100%);
             cursor: pointer;
-            box-shadow: 0 0 12px rgba(0, 255, 136, 0.6);
-            transition: transform 0.1s;
+            box-shadow: 0 0 14px rgba(0, 255, 136, 0.7);
+            transition: transform 0.15s;
         }
-        .modern-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+        .modern-slider::-webkit-slider-thumb:hover { transform: scale(1.25); }
 
-        /* Быстрые пресеты количества вывода */
         .preset-container {
             display: flex;
             justify-content: space-between;
@@ -163,37 +174,37 @@
         }
         .btn-preset {
             flex: 1;
-            background: #090614;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            color: #8e87a9;
-            padding: 8px;
+            background: #05030a;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #767090;
+            padding: 9px;
             font-size: 0.75rem;
             font-weight: 700;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.2s;
         }
-        .btn-preset:hover { background: rgba(0, 242, 254, 0.08); color: #00f2fe; border-color: rgba(0, 242, 254, 0.3); }
+        .btn-preset:hover { background: rgba(0, 242, 254, 0.08); color: #00f2fe; border-color: rgba(0, 242, 254, 0.25); }
 
-        /* Игровой автомат */
+        /* Игровой Корпус */
         .slot-machine {
-            background: linear-gradient(145deg, #160f2b, #070410);
-            border: 2px solid rgba(255, 0, 127, 0.18);
-            border-radius: 30px;
+            background: linear-gradient(145deg, #140d28, #05030b);
+            border: 2px solid rgba(255, 0, 127, 0.15);
+            border-radius: 32px;
             padding: 30px;
             width: 100%;
             max-width: 460px;
             text-align: center;
-            box-shadow: 0 35px 80px rgba(0,0,0,0.85);
+            box-shadow: 0 40px 90px rgba(0,0,0,0.9);
         }
 
         .screen {
-            background: radial-gradient(circle at center, #0a0618 0%, #020104 100%);
-            border: 2px solid rgba(0, 242, 254, 0.12);
-            border-radius: 24px;
-            padding: 25px 20px;
+            background: radial-gradient(circle at center, #070412 0%, #010003 100%);
+            border: 2px solid rgba(0, 242, 254, 0.1);
+            border-radius: 26px;
+            padding: 28px 20px;
             margin-bottom: 22px;
-            box-shadow: inset 0 0 35px rgba(0,0,0,0.95);
+            box-shadow: inset 0 0 40px rgba(0,0,0,0.98);
             position: relative;
             overflow: hidden;
         }
@@ -205,24 +216,25 @@
             position: relative;
         }
 
-        /* 3D Окно барабана */
+        /* Окна барабанов */
         .slot-window {
-            background: linear-gradient(180deg, #040207 0%, #130e25 25%, #130e25 75%, #040207 100%);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 18px;
+            background: linear-gradient(180deg, #020104 0%, #100b20 25%, #100b20 75%, #020104 100%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
             width: 105px;
             height: 115px;
             overflow: hidden;
             position: relative;
-            box-shadow: inset 0 14px 24px rgba(0,0,0,0.95), 
-                        inset 0 -14px 24px rgba(0,0,0,0.95);
+            box-shadow: inset 0 16px 28px rgba(0,0,0,0.95), 
+                        inset 0 -16px 28px rgba(0,0,0,0.95);
         }
 
+        /* Реалистичное премиальное стекло */
         .slot-window::after {
             content: '';
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 50%);
+            background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0) 40%, rgba(0,242,254,0.02) 100%);
             pointer-events: none;
             z-index: 3;
         }
@@ -242,82 +254,85 @@
         .slot-tile {
             width: 100%;
             height: 115px;
-            font-size: 3.4rem;
+            font-size: 3.5rem;
             display: flex;
             align-items: center;
             justify-content: center;
             user-select: none;
-            filter: drop-shadow(0 6px 8px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 8px 12px rgba(0,0,0,0.6));
         }
 
-        /* Летящая плашка бонуса вывода */
+        /* Всплывающий кубок +0.1 */
         .floating-badge {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0, 255, 136, 0.14);
+            background: rgba(0, 255, 136, 0.12);
             border: 1px solid #00ff88;
-            padding: 6px 16px;
+            padding: 8px 18px;
             border-radius: 30px;
             color: #00ff88;
-            font-weight: 800;
-            font-size: 1.25rem;
-            text-shadow: 0 0 10px rgba(0,255,136,0.5);
-            box-shadow: 0 0 25px rgba(0,255,136,0.25);
+            font-weight: 900;
+            font-size: 1.3rem;
+            text-shadow: 0 0 15px rgba(0,255,136,0.6);
+            box-shadow: 0 0 30px rgba(0,255,136,0.3);
             pointer-events: none;
             z-index: 10;
             opacity: 0;
             animation: popUpAndFade 1.3s cubic-bezier(0.25, 1, 0.5, 1) forwards;
         }
 
-        .blur-effect { filter: blur(5px) saturate(1.25); will-change: filter; }
+        .blur-effect { filter: blur(6px) saturate(1.3); will-change: filter; }
 
         .winner-glow {
             border-color: #00ff88 !important;
-            box-shadow: 0 0 25px rgba(0, 255, 136, 0.65), inset 0 0 15px rgba(0, 255, 136, 0.35);
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.7), inset 0 0 18px rgba(0, 255, 136, 0.4);
             animation: winPulse 0.3s infinite alternate;
         }
 
         .control-panel { display: flex; flex-direction: column; gap: 20px; }
         .input-group { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; }
-        .input-label { color: #767090; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .input-label { color: #6c6687; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
         .bet-input {
             width: 100%;
-            background: #050308;
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: #040206;
+            border: 1px solid rgba(255, 255, 255, 0.05);
             color: white;
             padding: 15px;
-            border-radius: 14px;
-            font-size: 1.25rem;
-            font-weight: 700;
+            border-radius: 16px;
+            font-size: 1.3rem;
+            font-weight: 800;
             text-align: center;
             outline: none;
         }
 
+        /* Анимированная кнопка старта */
         .btn-spin {
-            background: linear-gradient(135deg, #ff007f 0%, #7928ca 100%);
+            background: linear-gradient(135deg, #ff007f 0%, #721cb8 100%);
             border: none;
             color: white;
             padding: 18px;
-            font-size: 1.35rem;
-            font-weight: 800;
+            font-size: 1.4rem;
+            font-weight: 900;
             text-transform: uppercase;
             letter-spacing: 2px;
-            border-radius: 14px;
+            border-radius: 16px;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(255, 0, 127, 0.3);
+            box-shadow: 0 8px 25px rgba(255, 0, 127, 0.35);
+            animation: pulseGlow 2s infinite ease-in-out;
             transition: all 0.2s ease;
         }
-        .btn-spin:hover { transform: translateY(-1px); box-shadow: 0 10px 30px rgba(255, 0, 127, 0.45); }
-        .btn-spin:disabled { background: #1e192a; color: #494454; box-shadow: none; cursor: not-allowed; transform: none; }
+        .btn-spin:hover { transform: translateY(-1px); box-shadow: 0 12px 35px rgba(255, 0, 127, 0.55); }
+        .btn-spin:disabled { background: #191424; color: #413c4a; box-shadow: none; cursor: not-allowed; transform: none; animation: none; }
 
         #status-display {
             margin-top: 20px;
             font-size: 1rem;
-            font-weight: 600;
+            font-weight: 700;
             min-height: 24px;
+            letter-spacing: 0.3px;
         }
 
         .win-text { color: #00ff88; text-shadow: 0 0 15px rgba(0, 255, 136, 0.4); }
@@ -327,6 +342,12 @@
         @keyframes winPulse {
             from { transform: scale(1); }
             to { transform: scale(1.02); }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 8px 25px rgba(255, 0, 127, 0.3); }
+            50% { box-shadow: 0 8px 35px rgba(255, 0, 127, 0.6), 0 0 15px rgba(114, 28, 184, 0.4); }
+            100% { box-shadow: 0 8px 25px rgba(255, 0, 127, 0.3); }
         }
 
         @keyframes popUpAndFade {
@@ -340,8 +361,8 @@
 <body>
 
     <header>
-        <h1>STARDUST SLOTS</h1>
-        <p style="color: #5d5675; font-weight: 600; font-size: 0.9rem; letter-spacing: 0.5px;">PREMIUM CYBER EDITION</p>
+        <h1>STARDUST CASINO</h1>
+        <p style="color: #514a69; font-weight: 700; font-size: 0.85rem; letter-spacing: 1px;">EXCLUSIVE VERIFIED EDITION</p>
     </header>
 
     <div class="balance-container">
@@ -355,7 +376,7 @@
             </div>
         </div>
 
-        <div class="balance-card" style="border-color: rgba(0, 255, 136, 0.12);">
+        <div class="balance-card" style="border-color: rgba(0, 255, 136, 0.15);">
             <div class="card-row">
                 <div class="balance-info">
                     <span class="balance-text">Баланс вывода</span>
@@ -364,8 +385,12 @@
             </div>
             
             <div class="withdraw-control-zone">
+                <div class="rate-indicator">
+                    Курс конвертации: 1 Кубок 🏆 = 1 ⭐ Звезда на вывод
+                </div>
+
                 <div class="slider-header">
-                    <span class="slider-label">Сумма вывода:</span>
+                    <span class="slider-label">Сумма к отправке:</span>
                     <span class="slider-current-value" id="slider-val-display">15 🏆</span>
                 </div>
                 
@@ -399,7 +424,7 @@
             <button class="btn-spin" id="spin-btn" onclick="startSpin()">ЗАПУСК</button>
         </div>
 
-        <div id="status-display">Накопи кубки вывода! Минимальный объем выплаты: 15 🏆</div>
+        <div id="status-display">Добро пожаловать. Минимальная выплата: 15 🏆.</div>
     </div>
 
     <script>
@@ -445,7 +470,6 @@
             reelEl.style.transform = `translate3d(0, -${(totalTiles - 1) * TILE_HEIGHT}px, 0)`;
         }
 
-        // Логика кастомного интерактивного слайдера
         function updateSliderDisplay(val) {
             document.getElementById('slider-val-display').innerText = `${val} 🏆`;
         }
@@ -477,14 +501,14 @@
             }
             if (bet > gameBalance) {
                 display.className = 'lose-text';
-                display.innerText = '⚠️ Недостаточно звёзд ⭐ на балансе!';
+                display.innerText = '⚠️ Недостаточно звёзд ⭐!';
                 return;
             }
 
             btn.disabled = true;
             betInput.disabled = true;
             display.className = 'info-text';
-            display.innerText = 'Идет вращение барабанов...';
+            display.innerText = 'Система вращает барабаны...';
 
             for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.remove('winner-glow');
 
@@ -549,7 +573,6 @@
             
             const [r1, r2, r3] = results;
 
-            // ХАРДКОРНЫЕ 3 В РЯД
             if (r1 === r2 && r2 === r3) {
                 let gameBonus = bet * 2;
                 gameBalance += gameBonus;
@@ -561,24 +584,22 @@
                 payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
 
                 display.className = 'win-text';
-                display.innerText = `🔥 ДЖЕКПОТ! Игра: +${gameBonus} ⭐ | Вывод: +0.1 🏆`;
+                display.innerText = `🔥 КОМБИНАЦИЯ! На игру: +${gameBonus} ⭐ | На вывод: +0.1 🏆`;
                 
                 triggerFloatingScore();
                 for(let i=1; i<=3; i++) document.getElementById(`w${i}`).classList.add('winner-glow');
             } 
-            // 2 СОВПАДЕНИЯ (Кэшбек строго на игру)
             else if (r1 === r2 || r2 === r3 || r1 === r3) {
                 let cashback = Math.floor(bet * 0.4);
                 gameBalance += cashback;
                 gameBalanceEl.innerText = `${gameBalance} ⭐`;
                 
                 display.className = 'info-text';
-                display.innerText = `2 совпадения! На счет игры зачислено: +${cashback} ⭐`;
+                display.innerText = `Частичное совпадение! Возврат: +${cashback} ⭐`;
             } 
-            // ПРОИГРЫШ
             else {
                 display.className = 'lose-text';
-                display.innerText = 'Ничего не совпало. Попробуй еще раз!';
+                display.innerText = 'Нет совпадений. Фортуна улыбнется в следующий раз!';
             }
         }
 
@@ -595,7 +616,7 @@
 
             if (amount > payoutBalance) {
                 display.className = 'lose-text';
-                display.innerText = `⚠️ На балансе вывода недостаточно кубков (нужно ${amount} 🏆)!`;
+                display.innerText = `⚠️ Недостаточно кубков на балансе (необходимо минимум ${amount} 🏆)!`;
                 return;
             }
 
@@ -603,9 +624,9 @@
             payoutBalanceEl.innerText = `${payoutBalance} 🏆`;
 
             display.className = 'win-text';
-            display.innerText = `Заявка сформирована. Перенаправление...`;
+            display.innerText = `Заявка верифицирована. Перенаправление...`;
 
-            const textMessage = encodeURIComponent(`Привет! Я накопил выигрыш в слотах и хочу вывести ${amount} кубков.`);
+            const textMessage = encodeURIComponent(`Привет! Я выиграл в казино и хочу обменять ${amount} кубков на ${amount} звёзд.`);
             
             setTimeout(() => {
                 window.location.href = `https://t.me/markplau?text=${textMessage}`;
