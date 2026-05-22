@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Svetsky Terminal v2.0</title>
+    <title>Svetsky Terminal v2.1 - Ultra Live</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0"></script>
@@ -212,7 +212,6 @@
             gap: 14px;
         }
 
-        /* Вкладки переключения Купить/Продать */
         .trade-tabs {
             display: flex;
             background: #090d12;
@@ -390,7 +389,7 @@
     </div>
 
     <div class="main-price-box" id="price-card">
-        <div class="price-label" id="price-label-text">Текущая рыночная стоимость</div>
+        <div class="price-label">Текущая рыночная стоимость</div>
         <div class="price-value" id="current-price">10.00 ₽</div>
         <div class="price-direction up" id="price-change">+0.00%</div>
     </div>
@@ -505,29 +504,6 @@
 
     generateHistory(updateSpeed);
 
-    const crosshairPlugin = {
-        id: 'crosshair',
-        afterDraw: (chart) => {
-            if (chart.tooltip?._active?.length && chart.tooltip.opacity !== 0) {
-                const activePoint = chart.tooltip._active[0];
-                const ctx = chart.ctx;
-                const x = activePoint.element.x;
-                const topY = chart.scales.y.top;
-                const bottomY = chart.scales.y.bottom;
-
-                ctx.save();
-                ctx.beginPath();
-                ctx.moveTo(x, topY);
-                ctx.lineTo(x, bottomY);
-                ctx.lineWidth = 1;
-                ctx.strokeStyle = 'rgba(98, 112, 127, 0.5)';
-                ctx.setLineDash([3, 3]);
-                ctx.stroke();
-                ctx.restore();
-            }
-        }
-    };
-
     const ctx = document.getElementById('analyticsChart').getContext('2d');
     const gradGreen = ctx.createLinearGradient(0, 0, 0, 160);
     gradGreen.addColorStop(0, 'rgba(14, 203, 129, 0.12)');
@@ -546,48 +522,19 @@
                 borderColor: '#0ECB81',
                 borderWidth: 2,
                 pointRadius: 0,
-                hoverRadius: 6,
-                pointHoverBackgroundColor: '#fff',
-                pointHoverBorderColor: '#0ECB81',
-                pointHoverBorderWidth: 3,
                 fill: true,
                 backgroundColor: gradGreen,
                 tension: 0.35
             }]
         },
-        plugins: [crosshairPlugin],
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: {
-                mode: 'index',
-                intersect: false
-            },
+            // ПОЛНОСТЬЮ ОТКЛЮЧАЕМ ВСЕ СОБЫТИЯ И НАЖАТИЯ НА ГРАФИК
+            events: [], 
             plugins: {
                 legend: { display: false },
-                tooltip: {
-                    enabled: false,
-                    external: function(context) {
-                        const labelText = document.getElementById('price-label-text');
-                        const priceDisplay = document.getElementById('current-price');
-                        const tooltipModel = context.tooltip;
-
-                        if (tooltipModel.opacity === 0) {
-                            labelText.innerText = "Текущая рыночная стоимость";
-                            labelText.style.color = "var(--text-muted)";
-                            priceDisplay.innerText = currentPrice.toFixed(2) + ' ₽';
-                            return;
-                        }
-
-                        const index = tooltipModel.dataPoints[0].dataIndex;
-                        const hoveredPrice = tooltipModel.dataPoints[0].raw;
-                        const hoveredTime = chart.data.labels[index];
-
-                        labelText.innerText = `Цена в ${hoveredTime}`;
-                        labelText.style.color = "var(--accent-green)";
-                        priceDisplay.innerText = hoveredPrice.toFixed(2) + ' ₽';
-                    }
-                },
+                tooltip: { enabled: false },
                 annotation: {
                     annotations: {
                         line1: {
@@ -610,23 +557,6 @@
             }
         }
     });
-
-    // Очистка и мгновенный сброс точки (Фикс зависания для тач-скринов)
-    function resetActivePoint() {
-        chart.setActiveElements([]); 
-        chart.tooltip.setActiveElements([], {x: 0, y: 0}); 
-        chart.update('none'); 
-        
-        document.getElementById('price-label-text').innerText = "Текущая рыночная стоимость";
-        document.getElementById('price-label-text').style.color = "var(--text-muted)";
-        document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
-    }
-
-    const canvasEl = document.getElementById('analyticsChart');
-    ['touchend', 'touchcancel', 'mouseleave', 'pointerout'].forEach(evtType => {
-        canvasEl.addEventListener(evtType, resetActivePoint);
-    });
-    window.addEventListener('scroll', resetActivePoint);
 
     let currentInterval = null;
 
@@ -785,9 +715,7 @@
 
         const totalChange = ((currentPrice - basePrice) / basePrice) * 100;
 
-        if (document.getElementById('price-label-text').innerText === "Текущая рыночная стоимость") {
-            document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
-        }
+        document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
         
         updateTradingCalculations();
 
@@ -805,7 +733,6 @@
             changeEl.className = 'price-direction up';
             chart.data.datasets[0].borderColor = '#0ECB81';
             chart.data.datasets[0].backgroundColor = gradGreen;
-            chart.data.datasets[0].pointHoverBorderColor = '#0ECB81';
             chart.options.plugins.annotation.annotations.line1.borderColor = 'rgba(14, 203, 129, 0.3)';
         } else {
             void priceCard.offsetWidth;
@@ -814,7 +741,6 @@
             changeEl.className = 'price-direction down';
             chart.data.datasets[0].borderColor = '#F6465D';
             chart.data.datasets[0].backgroundColor = gradRed;
-            chart.data.datasets[0].pointHoverBorderColor = '#F6465D';
             chart.options.plugins.annotation.annotations.line1.borderColor = 'rgba(246, 70, 93, 0.3)';
         }
 
