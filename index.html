@@ -314,9 +314,9 @@
 
     <div class="timeframes-bar">
         <button class="tf-btn active" onclick="changeTimeframe('1m', 5000)">1м</button>
-        <button class="tf-btn" onclick="changeTimeframe('5m', 10000)">5м</button>
-        <button class="tf-btn" onclick="changeTimeframe('1ч', 20000)">1ч</button>
-        <button class="tf-btn" onclick="changeTimeframe('1д', 45000)">1д</button>
+        <button class="tf-btn" onclick="changeTimeframe('5m', 25000)">5м</button>
+        <button class="tf-btn" onclick="changeTimeframe('1ч', 300000)">1ч</button>
+        <button class="tf-btn" onclick="changeTimeframe('1д', 7200000)">1д</button>
     </div>
 
     <div class="chart-box">
@@ -367,18 +367,40 @@
     
     let marketTrend = 0;
     let trendDuration = 0; 
+    let updateSpeed = 5000; // По умолчанию 1м = 5 секунд
 
     const maxDataPoints = 25;
     const labels = [];
-    let now = Date.now();
-    for (let i = maxDataPoints - 1; i >= 0; i--) {
-        let t = new Date(now - i * 5000);
-        labels.push(t.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }));
-    }
-    
-    const dataPoints = Array(maxDataPoints).fill(basePrice);
+    const dataPoints = [];
 
-    // Кастомный плагин для рисования вертикальной линии Crosshair
+    // Функция генерации красивой истории под выбранный таймфрейм
+    function generateHistory(stepMs) {
+        labels.length = 0;
+        dataPoints.length = 0;
+        let now = Date.now();
+        let tempPrice = currentPrice;
+
+        // Генерируем сглаженный исторический тренд в обратную сторону
+        let historyTrend = (Math.random() * 2 - 1);
+        for (let i = maxDataPoints - 1; i >= 0; i--) {
+            let t = new Date(now - i * stepMs);
+            let timeStr = t.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            labels.push(timeStr);
+
+            if (i > 0) {
+                if (Math.random() < 0.2) historyTrend = (Math.random() * 2 - 1);
+                let change = tempPrice * ((historyTrend * (Math.random() * 1.5 + 0.2)) / 100);
+                tempPrice -= change;
+                if (tempPrice < 5.00) tempPrice = 5.00;
+                if (tempPrice > 55.00) tempPrice = 55.00;
+            }
+            dataPoints.push(i === 0 ? currentPrice : tempPrice);
+        }
+    }
+
+    // Инициализируем стартовую историю для "1м"
+    generateHistory(updateSpeed);
+
     const crosshairPlugin = {
         id: 'crosshair',
         afterDraw: (chart) => {
@@ -394,8 +416,8 @@
                 ctx.moveTo(x, topY);
                 ctx.lineTo(x, bottomY);
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = 'rgba(98, 112, 127, 0.5)'; // Цвет var(--text-muted) с прозрачностью
-                ctx.setLineDash([4, 4]); // Пунктир
+                ctx.strokeStyle = 'rgba(98, 112, 127, 0.5)';
+                ctx.setLineDash([4, 4]);
                 ctx.stroke();
                 ctx.restore();
             }
@@ -450,7 +472,7 @@
                             labelText.innerText = "Рыночный курс";
                             labelText.style.color = "var(--text-muted)";
                             priceDisplay.innerText = currentPrice.toFixed(2) + ' ₽';
-                            chart.draw(); // Перерисовываем для скрытия линии
+                            chart.draw();
                             return;
                         }
 
@@ -487,18 +509,20 @@
     });
 
     let currentInterval = null;
-    let updateSpeed = 5000; 
 
     function changeTimeframe(tf, speed) {
         document.querySelectorAll('.tf-btn').forEach(b => b.classList.remove('active'));
         event.target.classList.add('active');
         
-        for(let i=0; i<maxDataPoints; i++) {
-            chart.data.datasets[0].data[i] = currentPrice * (1 + (Math.random()*0.04 - 0.02));
-        }
+        updateSpeed = speed;
+        
+        // Генерируем красивую плавную историю под новый масштаб
+        generateHistory(updateSpeed);
+        
+        chart.data.labels = [...labels];
+        chart.data.datasets[0].data = [...dataPoints];
         chart.update();
         
-        updateSpeed = speed;
         clearInterval(currentInterval);
         currentInterval = setInterval(tickTerminalEngine, updateSpeed);
     }
