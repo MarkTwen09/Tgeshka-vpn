@@ -201,7 +201,7 @@
             margin-bottom: 3px;
         }
 
-        /* Калькулятор */
+        /* Калькулятор Трейдинга */
         .calculator-box {
             background: var(--bg-field);
             border: 1px solid var(--border-color);
@@ -212,15 +212,61 @@
             gap: 12px;
         }
 
-        .calc-title {
-            font-size: 11px;
+        /* Вкладки торговой панели */
+        .trade-tabs {
+            display: flex;
+            background: rgba(0,0,0,0.2);
+            padding: 3px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
             color: var(--text-muted);
+            font-size: 12px;
+            font-weight: 700;
+            padding: 8px 0;
+            border-radius: 6px;
+            cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
-            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .tab-btn.buy-active {
+            background: rgba(14, 203, 129, 0.15);
+            color: var(--accent-green);
+        }
+
+        .tab-btn.sell-active {
+            background: rgba(246, 70, 93, 0.15);
+            color: var(--accent-red);
+        }
+
+        /* Кошелек игрока */
+        .user-wallet-info {
+            display: flex;
+            justify-content: space-between;
+            background: var(--bg-input);
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            font-size: 12px;
+        }
+        .wallet-slot { display: flex; flex-direction: column; gap: 2px; }
+        .wallet-slot span { color: var(--text-muted); font-size: 10px; text-transform: uppercase; }
+        .wallet-slot strong { font-family: 'JetBrains Mono', monospace; color: #fff; }
+
+        .input-container-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
         }
 
         .input-wrapper {
+            flex: 1;
             display: flex;
             background: var(--bg-input);
             border: 1px solid var(--border-color);
@@ -237,11 +283,24 @@
             font-family: 'JetBrains Mono', monospace;
             font-size: 16px;
             font-weight: 600;
-            width: 75%;
+            width: 70%;
             outline: none;
         }
 
         .input-currency { font-size: 11px; color: var(--text-muted); font-weight: 700; }
+
+        .btn-max {
+            background: var(--border-color);
+            border: 1px solid #2d3846;
+            color: var(--text-main);
+            font-size: 11px;
+            font-weight: 700;
+            padding: 14px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-max:hover { background: #2d3846; }
 
         .calc-result {
             display: flex;
@@ -251,24 +310,28 @@
             padding: 0 2px;
         }
 
-        .btn-trade-action {
-            background: var(--accent-green);
+        .btn-trade-submit {
+            border: none;
             color: #050709;
-            text-decoration: none;
             font-weight: 700;
             font-size: 14px;
             padding: 14px;
             border-radius: 8px;
             text-align: center;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            width: 100%;
+            cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.3px;
             transition: opacity 0.15s;
         }
-
-        .btn-trade-action:hover { opacity: 0.9; }
+        .btn-trade-submit.btn-buy { background: var(--accent-green); }
+        .btn-trade-submit.btn-sell { background: var(--accent-red); }
+        .btn-trade-submit:disabled {
+            background: #1e252d !important;
+            color: var(--text-muted) !important;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
 
         /* Метрики сети */
         .market-info-block {
@@ -336,18 +399,38 @@
     </div>
 
     <div class="calculator-box">
-        <div class="calc-title">Создать ордер на покупку</div>
-        <div class="input-wrapper">
-            <input type="number" id="rub-input" value="1000" placeholder="Сумма инвестиций">
-            <span class="input-currency">RUB</span>
+        <div class="trade-tabs">
+            <button class="tab-btn buy-active" id="tab-buy" onclick="setTradeMode('buy')">Купить</button>
+            <button class="tab-btn" id="tab-sell" onclick="setTradeMode('sell')">Продать</button>
         </div>
+
+        <div class="user-wallet-info">
+            <div class="wallet-slot">
+                <span>Баланс RUB</span>
+                <strong id="user-rub">100.00 ₽</strong>
+            </div>
+            <div class="wallet-slot" style="text-align: right;">
+                <span>Баланс SVT</span>
+                <strong id="user-svt" style="color: var(--accent-green);">0.00 SVT</strong>
+            </div>
+        </div>
+
+        <div class="input-container-row">
+            <div class="input-wrapper">
+                <input type="number" id="trade-input" value="50" placeholder="0.00">
+                <span class="input-currency" id="input-unit">RUB</span>
+            </div>
+            <button class="btn-max" onclick="handleMaxAction()">MAX</button>
+        </div>
+
         <div class="calc-result">
-            <span>К зачислению на баланс:</span>
-            <span><strong id="svt-output" style="color: var(--accent-green);">100.00</strong> <strong style="color:#fff">SVT</strong></span>
+            <span id="calc-result-label">Итого к зачислению:</span>
+            <span><strong id="calc-result-value" style="color: var(--accent-green);">5.00</strong> <strong id="calc-result-unit" style="color:#fff">SVT</strong></span>
         </div>
-        <a href="https://t.me/markplau" target="_blank" class="btn-trade-action" id="buy-btn">
-            Купить 100.00 SVT
-        </a>
+
+        <button class="btn-trade-submit btn-buy" id="submit-trade-btn" onclick="executeTrade()">
+            Купить SVT
+        </button>
     </div>
 
     <div class="market-info-block">
@@ -363,6 +446,11 @@
 </div>
 
 <script>
+    // Виртуальный кошелек игрока
+    let userBalanceRUB = 100.00;
+    let userBalanceSVT = 0.00;
+    let tradeMode = 'buy'; // 'buy' или 'sell'
+
     let basePrice = 10.00;
     let currentPrice = basePrice;
     
@@ -399,7 +487,6 @@
 
     generateHistory(updateSpeed);
 
-    // Умный плагин рисования Crosshair с мгновенным исчезновением
     const crosshairPlugin = {
         id: 'crosshair',
         afterDraw: (chart) => {
@@ -441,7 +528,6 @@
                 borderColor: '#0ECB81',
                 borderWidth: 2,
                 pointRadius: 0,
-                // Кастомизация активной точки
                 hoverRadius: 6,
                 pointHoverBackgroundColor: '#fff',
                 pointHoverBorderColor: '#0ECB81',
@@ -455,7 +541,6 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            // Магнитный режим захвата для удобства на смартфонах
             interaction: {
                 mode: 'index',
                 intersect: false
@@ -469,7 +554,6 @@
                         const priceDisplay = document.getElementById('current-price');
                         const tooltipModel = context.tooltip;
 
-                        // Если палец убрали — мгновенно сбрасываем плашку в дефолт
                         if (tooltipModel.opacity === 0) {
                             labelText.innerText = "Рыночный курс";
                             labelText.style.color = "var(--text-muted)";
@@ -509,13 +593,12 @@
         }
     });
 
-    // Жесткий обработчик сброса точки для мобильных устройств
     const canvasEl = document.getElementById('analyticsChart');
     ['touchend', 'touchcancel', 'mouseleave'].forEach(evtType => {
         canvasEl.addEventListener(evtType, () => {
-            chart.setActiveElements([]); // Гасим активную ховер-точку
-            chart.tooltip.setActiveElements([], {x: 0, y: 0}); // Гасим тултип
-            chart.update('none'); // Мгновенно перерисовываем
+            chart.setActiveElements([]);
+            chart.tooltip.setActiveElements([], {x: 0, y: 0});
+            chart.update('none');
             
             document.getElementById('price-label-text').innerText = "Рыночный курс";
             document.getElementById('price-label-text').style.color = "var(--text-muted)";
@@ -540,17 +623,106 @@
         currentInterval = setInterval(tickTerminalEngine, updateSpeed);
     }
 
-    const rubInput = document.getElementById('rub-input');
-    const svtOutput = document.getElementById('svt-output');
-    const buyBtn = document.getElementById('buy-btn');
+    // Игровая логика трейдинга и переключения вкладок
+    const tradeInput = document.getElementById('trade-input');
+    const calcResultLabel = document.getElementById('calc-result-label');
+    const calcResultValue = document.getElementById('calc-result-value');
+    const calcResultUnit = document.getElementById('calc-result-unit');
+    const submitTradeBtn = document.getElementById('submit-trade-btn');
 
-    function updateCalculations() {
-        const rub = parseFloat(rubInput.value) || 0;
-        const out = rub / currentPrice;
-        svtOutput.innerText = out.toFixed(2);
-        buyBtn.innerText = `Купить ${out.toFixed(2)} SVT`;
+    function setTradeMode(mode) {
+        tradeMode = mode;
+        const tabBuy = document.getElementById('tab-buy');
+        const tabSell = document.getElementById('tab-sell');
+        const inputUnit = document.getElementById('input-unit');
+
+        if (mode === 'buy') {
+            tabBuy.classList.add('buy-active');
+            tabSell.classList.remove('sell-active');
+            inputUnit.innerText = 'RUB';
+            submitTradeBtn.className = 'btn-trade-submit btn-buy';
+            submitTradeBtn.innerText = 'Купить SVT';
+            tradeInput.value = "50";
+        } else {
+            tabBuy.classList.remove('buy-active');
+            tabSell.classList.add('sell-active');
+            inputUnit.innerText = 'SVT';
+            submitTradeBtn.className = 'btn-trade-submit btn-sell';
+            submitTradeBtn.innerText = 'Продать SVT';
+            tradeInput.value = userBalanceSVT > 0 ? userBalanceSVT.toFixed(2) : "0";
+        }
+        updateTradingCalculations();
     }
-    rubInput.addEventListener('input', updateCalculations);
+
+    function handleMaxAction() {
+        if (tradeMode === 'buy') {
+            tradeInput.value = userBalanceRUB.toFixed(2);
+        } else {
+            tradeInput.value = userBalanceSVT.toFixed(2);
+        }
+        updateTradingCalculations();
+    }
+
+    function updateTradingCalculations() {
+        const value = parseFloat(tradeInput.value) || 0;
+
+        if (tradeMode === 'buy') {
+            calcResultLabel.innerText = 'Итого к зачислению:';
+            const outSVT = value / currentPrice;
+            calcResultValue.innerText = outSVT.toFixed(2);
+            calcResultValue.style.color = 'var(--accent-green)';
+            calcResultUnit.innerText = 'SVT';
+
+            // Проверка баланса рублей
+            if (value > userBalanceRUB || value <= 0) {
+                submitTradeBtn.disabled = true;
+            } else {
+                submitTradeBtn.disabled = false;
+            }
+        } else {
+            calcResultLabel.innerText = 'Итого к получению:';
+            const outRUB = value * currentPrice;
+            calcResultValue.innerText = outRUB.toFixed(2);
+            calcResultValue.style.color = 'var(--accent-red)';
+            calcResultUnit.innerText = 'RUB';
+
+            // Проверка баланса монет SVT
+            if (value > userBalanceSVT || value <= 0) {
+                submitTradeBtn.disabled = true;
+            } else {
+                submitTradeBtn.disabled = false;
+            }
+        }
+    }
+    tradeInput.addEventListener('input', updateTradingCalculations);
+
+    // Выполнение сделки по клику на кнопку
+    function executeTrade() {
+        const inputValue = parseFloat(tradeInput.value) || 0;
+        if (inputValue <= 0) return;
+
+        if (tradeMode === 'buy') {
+            if (inputValue <= userBalanceRUB) {
+                const acquiredSVT = inputValue / currentPrice;
+                userBalanceRUB -= inputValue;
+                userBalanceSVT += acquiredSVT;
+            }
+        } else {
+            if (inputValue <= userBalanceSVT) {
+                const acquiredRUB = inputValue * currentPrice;
+                userBalanceSVT -= inputValue;
+                userBalanceRUB += acquiredRUB;
+            }
+        }
+
+        // Обновляем кошелек на экране
+        document.getElementById('user-rub').innerText = userBalanceRUB.toFixed(2) + ' ₽';
+        document.getElementById('user-svt').innerText = userBalanceSVT.toFixed(2) + ' SVT';
+
+        // Сбрасываем инпут на ноль или обновляем расчеты
+        tradeInput.value = tradeMode === 'buy' ? "0" : userBalanceSVT.toFixed(2);
+        updateTradingCalculations();
+    }
 
     function refreshOrderBook() {
         const bidsTable = document.getElementById('bids-table');
@@ -597,7 +769,8 @@
             document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
         }
         
-        updateCalculations();
+        // Постоянно обновляем расчеты прибыли/зачисления по актуальному курсу
+        updateTradingCalculations();
 
         document.getElementById('market-cap').innerText = Math.round(12050000 * currentPrice).toLocaleString('ru-RU') + ' ₽';
         document.getElementById('volume-24h').innerText = Math.round(4812400 + (Math.random()*40000 - 20000)).toLocaleString('ru-RU') + ' ₽';
@@ -606,7 +779,6 @@
         const changeEl = document.getElementById('price-change');
         priceCard.classList.remove('flash-green', 'flash-red');
 
-        // Подстраиваем цвет ховер-точки под тренд динамически
         if (priceDiff >= 0) {
             void priceCard.offsetWidth;
             priceCard.classList.add('flash-green');
