@@ -107,6 +107,7 @@
             text-transform: uppercase;
             letter-spacing: 0.8px;
             margin-bottom: 2px;
+            transition: color 0.15s ease;
         }
 
         .price-value {
@@ -367,20 +368,18 @@
     
     let marketTrend = 0;
     let trendDuration = 0; 
-    let updateSpeed = 5000; // По умолчанию 1м = 5 секунд
+    let updateSpeed = 5000; 
 
     const maxDataPoints = 25;
     const labels = [];
     const dataPoints = [];
 
-    // Функция генерации красивой истории под выбранный таймфрейм
     function generateHistory(stepMs) {
         labels.length = 0;
         dataPoints.length = 0;
         let now = Date.now();
         let tempPrice = currentPrice;
 
-        // Генерируем сглаженный исторический тренд в обратную сторону
         let historyTrend = (Math.random() * 2 - 1);
         for (let i = maxDataPoints - 1; i >= 0; i--) {
             let t = new Date(now - i * stepMs);
@@ -398,13 +397,13 @@
         }
     }
 
-    // Инициализируем стартовую историю для "1м"
     generateHistory(updateSpeed);
 
+    // Умный плагин рисования Crosshair с мгновенным исчезновением
     const crosshairPlugin = {
         id: 'crosshair',
         afterDraw: (chart) => {
-            if (chart.tooltip?._active?.length) {
+            if (chart.tooltip?._active?.length && chart.tooltip.opacity !== 0) {
                 const activePoint = chart.tooltip._active[0];
                 const ctx = chart.ctx;
                 const x = activePoint.element.x;
@@ -416,7 +415,7 @@
                 ctx.moveTo(x, topY);
                 ctx.lineTo(x, bottomY);
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = 'rgba(98, 112, 127, 0.5)';
+                ctx.strokeStyle = 'rgba(98, 112, 127, 0.6)';
                 ctx.setLineDash([4, 4]);
                 ctx.stroke();
                 ctx.restore();
@@ -442,10 +441,11 @@
                 borderColor: '#0ECB81',
                 borderWidth: 2,
                 pointRadius: 0,
-                hoverRadius: 5,
+                // Кастомизация активной точки
+                hoverRadius: 6,
                 pointHoverBackgroundColor: '#fff',
                 pointHoverBorderColor: '#0ECB81',
-                pointHoverBorderWidth: 2,
+                pointHoverBorderWidth: 3,
                 fill: true,
                 backgroundColor: gradGreen,
                 tension: 0.35
@@ -455,6 +455,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            // Магнитный режим захвата для удобства на смартфонах
             interaction: {
                 mode: 'index',
                 intersect: false
@@ -468,11 +469,11 @@
                         const priceDisplay = document.getElementById('current-price');
                         const tooltipModel = context.tooltip;
 
+                        // Если палец убрали — мгновенно сбрасываем плашку в дефолт
                         if (tooltipModel.opacity === 0) {
                             labelText.innerText = "Рыночный курс";
                             labelText.style.color = "var(--text-muted)";
                             priceDisplay.innerText = currentPrice.toFixed(2) + ' ₽';
-                            chart.draw();
                             return;
                         }
 
@@ -508,6 +509,20 @@
         }
     });
 
+    // Жесткий обработчик сброса точки для мобильных устройств
+    const canvasEl = document.getElementById('analyticsChart');
+    ['touchend', 'touchcancel', 'mouseleave'].forEach(evtType => {
+        canvasEl.addEventListener(evtType, () => {
+            chart.setActiveElements([]); // Гасим активную ховер-точку
+            chart.tooltip.setActiveElements([], {x: 0, y: 0}); // Гасим тултип
+            chart.update('none'); // Мгновенно перерисовываем
+            
+            document.getElementById('price-label-text').innerText = "Рыночный курс";
+            document.getElementById('price-label-text').style.color = "var(--text-muted)";
+            document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
+        });
+    });
+
     let currentInterval = null;
 
     function changeTimeframe(tf, speed) {
@@ -515,8 +530,6 @@
         event.target.classList.add('active');
         
         updateSpeed = speed;
-        
-        // Генерируем красивую плавную историю под новый масштаб
         generateHistory(updateSpeed);
         
         chart.data.labels = [...labels];
@@ -593,6 +606,7 @@
         const changeEl = document.getElementById('price-change');
         priceCard.classList.remove('flash-green', 'flash-red');
 
+        // Подстраиваем цвет ховер-точки под тренд динамически
         if (priceDiff >= 0) {
             void priceCard.offsetWidth;
             priceCard.classList.add('flash-green');
@@ -600,6 +614,7 @@
             changeEl.className = 'price-direction up';
             chart.data.datasets[0].borderColor = '#0ECB81';
             chart.data.datasets[0].backgroundColor = gradGreen;
+            chart.data.datasets[0].pointHoverBorderColor = '#0ECB81';
             chart.options.plugins.annotation.annotations.line1.borderColor = 'rgba(14, 203, 129, 0.3)';
         } else {
             void priceCard.offsetWidth;
@@ -608,6 +623,7 @@
             changeEl.className = 'price-direction down';
             chart.data.datasets[0].borderColor = '#F6465D';
             chart.data.datasets[0].backgroundColor = gradRed;
+            chart.data.datasets[0].pointHoverBorderColor = '#F6465D';
             chart.options.plugins.annotation.annotations.line1.borderColor = 'rgba(246, 70, 93, 0.3)';
         }
 
