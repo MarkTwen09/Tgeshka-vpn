@@ -2,86 +2,128 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Telegram - тестовый макет (не рабочий)</title>
+    <title>Панель управления уведомлениями</title>
     <style>
         body {
-            background: #0f0f0f;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .login-box {
-            background: #1f1f1f;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #eef2f3;
             padding: 40px;
-            border-radius: 20px;
-            width: 320px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            display: flex;
+            gap: 20px;
+            justify-content: center;
         }
-        .login-box h2 {
-            color: #fff;
-            margin-bottom: 10px;
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            width: 350px;
         }
-        .login-box img {
-            width: 60px;
-            margin-bottom: 20px;
+        h3 { margin-top: 0; color: #333; }
+        .input-group {
+            margin-bottom: 15px;
         }
-        input {
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #666;
+        }
+        input, textarea {
             width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            background: #2b2b2b;
-            border: 1px solid #3e3e3e;
-            border-radius: 10px;
-            color: white;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
             box-sizing: border-box;
         }
         button {
             width: 100%;
             padding: 12px;
-            background: #2a9d8f;
-            border: none;
-            border-radius: 10px;
+            background-color: #2ecc71;
             color: white;
-            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
             cursor: pointer;
-            margin-top: 10px;
+            font-weight: bold;
         }
-        .warning {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #e76f51;
+        button:hover { background-color: #27ae60; }
+        .console {
+            background: #2c3e50;
+            color: #2ecc71;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 15px;
+            border-radius: 12px;
+            width: 400px;
+            height: 320px;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
-<div class="login-box">
-    <img src="https://telegram.org/img/t_logo.svg" alt="Telegram">
-    <h2>Вход в Telegram</h2>
-    <p style="color:#aaa; font-size:14px;">Это тестовый макет — данные никуда не отправляются</p>
-    <form id="testForm">
-        <input type="text" placeholder="Номер телефона" id="phone" value="">
-        <input type="password" placeholder="Пароль (если есть)" id="password">
-        <button type="button" onclick="showTest()">Войти (тест)</button>
-    </form>
-    <div class="warning">⚠️ Это не настоящий фишинг. Данные никуда не уходят.</div>
-</div>
+
+    <!-- Форма ввода (Интерфейс) -->
+    <div class="card">
+        <h3>Отправка оповещения</h3>
+        <div class="input-group">
+            <label>Номер телефона:</label>
+            <input type="tel" id="phone" placeholder="+7 (999) 123-45-67">
+        </div>
+        <div class="input-group">
+            <label>Текст уведомления:</label>
+            <textarea id="message" rows="3" placeholder="Введите текст..."></textarea>
+        </div>
+        <button id="sendBtn">Запустить отправку</button>
+    </div>
+
+    <!-- Консоль для вывода "работы" скрипта -->
+    <div class="console" id="consoleLogs">
+        <div>[Система] Ожидание ввода данных...</div>
+    </div>
+
 <script>
-    function showTest() {
-        let phone = document.getElementById('phone').value;
-        let pwd = document.getElementById('password').value;
-        if(phone.trim() === "" && pwd.trim() === "") {
-            alert("Тестовый режим: поля пусты, ничего не произошло.");
-        } else {
-            alert("ТЕСТОВЫЙ РЕЖИМ: Вы ввели номер '" + phone + "' и пароль. Это сообщение появляется только локально. Данные никуда не отправлены.");
-        }
-        // Очищаем поля для демонстрации безопасности (опционально)
-        // document.getElementById('phone').value = "";
-        // document.getElementById('password').value = "";
+    const phoneInput = document.getElementById('phone');
+    const messageInput = document.getElementById('message');
+    const sendBtn = document.getElementById('sendBtn');
+    const consoleLogs = document.getElementById('consoleLogs');
+
+    // Функция для добавления строчки в нашу мини-консоль
+    function log(text, type = 'info') {
+        const time = new Date().toLocaleTimeString();
+        const color = type === 'error' ? '#e74c3c' : type === 'success' ? '#2ecc71' : '#f1c40f';
+        consoleLogs.innerHTML += `<div style="color: ${color}">[${time}] ${text}</div>`;
+        consoleLogs.scrollTop = consoleLogs.scrollHeight; // Прокрутка вниз
     }
+
+    sendBtn.addEventListener('click', () => {
+        const phone = phoneInput.value.trim();
+        const message = messageInput.value.trim();
+
+        // Простейшая валидация данных
+        if (!phone || !message) {
+            log('Ошибка: Заполните все поля!', 'error');
+            return;
+        }
+
+        log(`Инициализация отправки на номер: ${phone}...`);
+        sendBtn.disabled = true;
+
+        // Имитируем пошаговый процесс, как если бы код общался с сервером
+        setTimeout(() => {
+            log('Проверка формата номера... Успешно.', 'info');
+        }, 1000);
+
+        setTimeout(() => {
+            log('Подключение к виртуальному шлюзу Gateway-API...', 'info');
+        }, 2500);
+
+        setTimeout(() => {
+            log(`Сообщение "${message}" успешно передано в очередь.`, 'success');
+            log('Код ответа сервера: 200 OK', 'success');
+            sendBtn.disabled = false;
+        }, 4000);
+    });
 </script>
+
 </body>
 </html>
