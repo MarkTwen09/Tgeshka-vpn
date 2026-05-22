@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SVT Quantum Analytics Terminal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Svetsky Terminal v2.0</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0"></script>
@@ -102,12 +102,12 @@
         }
 
         .price-label {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.8px;
-            margin-bottom: 2px;
-            transition: color 0.15s ease;
+            margin-bottom: 4px;
+            font-weight: 600;
         }
 
         .price-value {
@@ -201,23 +201,23 @@
             margin-bottom: 3px;
         }
 
-        /* Калькулятор Трейдинга */
+        /* ТОРГОВАЯ ПАНЕЛЬ С БИРЖЕВЫМ ДИЗАЙНОМ */
         .calculator-box {
             background: var(--bg-field);
             border: 1px solid var(--border-color);
-            border-radius: 14px;
-            padding: 14px;
+            border-radius: 16px;
+            padding: 16px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
 
-        /* Вкладки торговой панели */
+        /* Вкладки переключения Купить/Продать */
         .trade-tabs {
             display: flex;
-            background: rgba(0,0,0,0.2);
-            padding: 3px;
-            border-radius: 8px;
+            background: #090d12;
+            padding: 4px;
+            border-radius: 10px;
             border: 1px solid var(--border-color);
         }
 
@@ -226,39 +226,46 @@
             background: transparent;
             border: none;
             color: var(--text-muted);
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 700;
-            padding: 8px 0;
-            border-radius: 6px;
+            padding: 10px 0;
+            border-radius: 8px;
             cursor: pointer;
             text-transform: uppercase;
-            transition: all 0.15s ease;
+            letter-spacing: 0.5px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .tab-btn.buy-active {
-            background: rgba(14, 203, 129, 0.15);
+            background: #0ecb8124;
             color: var(--accent-green);
         }
 
         .tab-btn.sell-active {
-            background: rgba(246, 70, 93, 0.15);
+            background: #f6465d24;
             color: var(--accent-red);
         }
 
-        /* Кошелек игрока */
+        /* Карточки кошелька */
         .user-wallet-info {
-            display: flex;
-            justify-content: space-between;
-            background: var(--bg-input);
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid var(--border-color);
-            font-size: 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
         }
-        .wallet-slot { display: flex; flex-direction: column; gap: 2px; }
-        .wallet-slot span { color: var(--text-muted); font-size: 10px; text-transform: uppercase; }
-        .wallet-slot strong { font-family: 'JetBrains Mono', monospace; color: #fff; }
+        
+        .wallet-card {
+            background: rgba(26, 34, 44, 0.4);
+            border: 1px solid var(--border-color);
+            padding: 10px 12px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .wallet-card span { color: var(--text-muted); font-size: 10px; text-transform: uppercase; font-weight: 500; }
+        .wallet-card strong { font-family: 'JetBrains Mono', monospace; color: #fff; font-size: 14px; }
 
+        /* Поле ввода */
         .input-container-row {
             display: flex;
             gap: 8px;
@@ -270,10 +277,14 @@
             display: flex;
             background: var(--bg-input);
             border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 12px;
             align-items: center;
             justify-content: space-between;
+            transition: border-color 0.15s;
+        }
+        .input-wrapper:focus-within {
+            border-color: #3b4e63;
         }
 
         .input-wrapper input {
@@ -287,50 +298,58 @@
             outline: none;
         }
 
-        .input-currency { font-size: 11px; color: var(--text-muted); font-weight: 700; }
+        .input-currency { font-size: 12px; color: var(--text-muted); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 
         .btn-max {
-            background: var(--border-color);
-            border: 1px solid #2d3846;
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
             color: var(--text-main);
             font-size: 11px;
             font-weight: 700;
-            padding: 14px 10px;
-            border-radius: 8px;
+            padding: 14px 12px;
+            border-radius: 10px;
             cursor: pointer;
             transition: all 0.15s;
         }
-        .btn-max:hover { background: #2d3846; }
+        .btn-max:hover { background: #232e3c; border-color: #3b4e63; }
 
+        /* Итоговые расчеты */
         .calc-result {
             display: flex;
             justify-content: space-between;
             font-size: 12px;
             color: var(--text-muted);
-            padding: 0 2px;
+            padding: 4px 2px;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 10px;
         }
 
+        /* Главная кнопка ордера */
         .btn-trade-submit {
             border: none;
             color: #050709;
             font-weight: 700;
             font-size: 14px;
-            padding: 14px;
-            border-radius: 8px;
+            padding: 15px;
+            border-radius: 10px;
             text-align: center;
             width: 100%;
             cursor: pointer;
             text-transform: uppercase;
-            letter-spacing: 0.3px;
-            transition: opacity 0.15s;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
         }
         .btn-trade-submit.btn-buy { background: var(--accent-green); }
+        .btn-trade-submit.btn-buy:not(:disabled):hover { background: #0bba75; }
+        
         .btn-trade-submit.btn-sell { background: var(--accent-red); }
+        .btn-trade-submit.btn-sell:not(:disabled):hover { background: #e13d53; }
+
         .btn-trade-submit:disabled {
-            background: #1e252d !important;
-            color: var(--text-muted) !important;
+            background: #182029 !important;
+            color: #435365 !important;
             cursor: not-allowed;
-            opacity: 0.6;
+            opacity: 0.8;
         }
 
         /* Метрики сети */
@@ -371,14 +390,14 @@
     </div>
 
     <div class="main-price-box" id="price-card">
-        <div class="price-label" id="price-label-text">Рыночный курс</div>
+        <div class="price-label" id="price-label-text">Текущая рыночная стоимость</div>
         <div class="price-value" id="current-price">10.00 ₽</div>
         <div class="price-direction up" id="price-change">+0.00%</div>
     </div>
 
     <div class="timeframes-bar">
         <button class="tf-btn active" onclick="changeTimeframe('1m', 5000)">1м</button>
-        <button class="tf-btn" onclick="changeTimeframe('5m', 25000)">5м</button>
+        <button class="tf-btn" onclick="changeTimeframe('5m', 25000)">5m</button>
         <button class="tf-btn" onclick="changeTimeframe('1ч', 300000)">1ч</button>
         <button class="tf-btn" onclick="changeTimeframe('1д', 7200000)">1д</button>
     </div>
@@ -405,11 +424,11 @@
         </div>
 
         <div class="user-wallet-info">
-            <div class="wallet-slot">
+            <div class="wallet-card">
                 <span>Баланс RUB</span>
                 <strong id="user-rub">100.00 ₽</strong>
             </div>
-            <div class="wallet-slot" style="text-align: right;">
+            <div class="wallet-card">
                 <span>Баланс SVT</span>
                 <strong id="user-svt" style="color: var(--accent-green);">0.00 SVT</strong>
             </div>
@@ -417,7 +436,7 @@
 
         <div class="input-container-row">
             <div class="input-wrapper">
-                <input type="number" id="trade-input" value="50" placeholder="0.00">
+                <input type="number" id="trade-input" value="10" placeholder="0.00">
                 <span class="input-currency" id="input-unit">RUB</span>
             </div>
             <button class="btn-max" onclick="handleMaxAction()">MAX</button>
@@ -425,7 +444,7 @@
 
         <div class="calc-result">
             <span id="calc-result-label">Итого к зачислению:</span>
-            <span><strong id="calc-result-value" style="color: var(--accent-green);">5.00</strong> <strong id="calc-result-unit" style="color:#fff">SVT</strong></span>
+            <span><strong id="calc-result-value" style="color: var(--accent-green);">1.00</strong> <strong id="calc-result-unit" style="color:#fff">SVT</strong></span>
         </div>
 
         <button class="btn-trade-submit btn-buy" id="submit-trade-btn" onclick="executeTrade()">
@@ -446,10 +465,9 @@
 </div>
 
 <script>
-    // Виртуальный кошелек игрока
     let userBalanceRUB = 100.00;
     let userBalanceSVT = 0.00;
-    let tradeMode = 'buy'; // 'buy' или 'sell'
+    let tradeMode = 'buy'; 
 
     let basePrice = 10.00;
     let currentPrice = basePrice;
@@ -502,8 +520,8 @@
                 ctx.moveTo(x, topY);
                 ctx.lineTo(x, bottomY);
                 ctx.lineWidth = 1;
-                ctx.strokeStyle = 'rgba(98, 112, 127, 0.6)';
-                ctx.setLineDash([4, 4]);
+                ctx.strokeStyle = 'rgba(98, 112, 127, 0.5)';
+                ctx.setLineDash([3, 3]);
                 ctx.stroke();
                 ctx.restore();
             }
@@ -555,7 +573,7 @@
                         const tooltipModel = context.tooltip;
 
                         if (tooltipModel.opacity === 0) {
-                            labelText.innerText = "Рыночный курс";
+                            labelText.innerText = "Текущая рыночная стоимость";
                             labelText.style.color = "var(--text-muted)";
                             priceDisplay.innerText = currentPrice.toFixed(2) + ' ₽';
                             return;
@@ -593,18 +611,22 @@
         }
     });
 
+    // Очистка и мгновенный сброс точки (Фикс зависания для тач-скринов)
+    function resetActivePoint() {
+        chart.setActiveElements([]); 
+        chart.tooltip.setActiveElements([], {x: 0, y: 0}); 
+        chart.update('none'); 
+        
+        document.getElementById('price-label-text').innerText = "Текущая рыночная стоимость";
+        document.getElementById('price-label-text').style.color = "var(--text-muted)";
+        document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
+    }
+
     const canvasEl = document.getElementById('analyticsChart');
-    ['touchend', 'touchcancel', 'mouseleave'].forEach(evtType => {
-        canvasEl.addEventListener(evtType, () => {
-            chart.setActiveElements([]);
-            chart.tooltip.setActiveElements([], {x: 0, y: 0});
-            chart.update('none');
-            
-            document.getElementById('price-label-text').innerText = "Рыночный курс";
-            document.getElementById('price-label-text').style.color = "var(--text-muted)";
-            document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
-        });
+    ['touchend', 'touchcancel', 'mouseleave', 'pointerout'].forEach(evtType => {
+        canvasEl.addEventListener(evtType, resetActivePoint);
     });
+    window.addEventListener('scroll', resetActivePoint);
 
     let currentInterval = null;
 
@@ -623,7 +645,6 @@
         currentInterval = setInterval(tickTerminalEngine, updateSpeed);
     }
 
-    // Игровая логика трейдинга и переключения вкладок
     const tradeInput = document.getElementById('trade-input');
     const calcResultLabel = document.getElementById('calc-result-label');
     const calcResultValue = document.getElementById('calc-result-value');
@@ -642,7 +663,7 @@
             inputUnit.innerText = 'RUB';
             submitTradeBtn.className = 'btn-trade-submit btn-buy';
             submitTradeBtn.innerText = 'Купить SVT';
-            tradeInput.value = "50";
+            tradeInput.value = "10";
         } else {
             tabBuy.classList.remove('buy-active');
             tabSell.classList.add('sell-active');
@@ -673,11 +694,12 @@
             calcResultValue.style.color = 'var(--accent-green)';
             calcResultUnit.innerText = 'SVT';
 
-            // Проверка баланса рублей
             if (value > userBalanceRUB || value <= 0) {
                 submitTradeBtn.disabled = true;
+                submitTradeBtn.innerText = value > userBalanceRUB ? 'Недостаточно средств' : 'Укажите сумму';
             } else {
                 submitTradeBtn.disabled = false;
+                submitTradeBtn.innerText = 'Купить SVT';
             }
         } else {
             calcResultLabel.innerText = 'Итого к получению:';
@@ -686,17 +708,17 @@
             calcResultValue.style.color = 'var(--accent-red)';
             calcResultUnit.innerText = 'RUB';
 
-            // Проверка баланса монет SVT
             if (value > userBalanceSVT || value <= 0) {
                 submitTradeBtn.disabled = true;
+                submitTradeBtn.innerText = value > userBalanceSVT ? 'Недостаточно SVT' : 'Укажите сумму';
             } else {
                 submitTradeBtn.disabled = false;
+                submitTradeBtn.innerText = 'Продать SVT';
             }
         }
     }
     tradeInput.addEventListener('input', updateTradingCalculations);
 
-    // Выполнение сделки по клику на кнопку
     function executeTrade() {
         const inputValue = parseFloat(tradeInput.value) || 0;
         if (inputValue <= 0) return;
@@ -715,11 +737,9 @@
             }
         }
 
-        // Обновляем кошелек на экране
         document.getElementById('user-rub').innerText = userBalanceRUB.toFixed(2) + ' ₽';
         document.getElementById('user-svt').innerText = userBalanceSVT.toFixed(2) + ' SVT';
 
-        // Сбрасываем инпут на ноль или обновляем расчеты
         tradeInput.value = tradeMode === 'buy' ? "0" : userBalanceSVT.toFixed(2);
         updateTradingCalculations();
     }
@@ -765,11 +785,10 @@
 
         const totalChange = ((currentPrice - basePrice) / basePrice) * 100;
 
-        if (document.getElementById('price-label-text').innerText === "Рыночный курс") {
+        if (document.getElementById('price-label-text').innerText === "Текущая рыночная стоимость") {
             document.getElementById('current-price').innerText = currentPrice.toFixed(2) + ' ₽';
         }
         
-        // Постоянно обновляем расчеты прибыли/зачисления по актуальному курсу
         updateTradingCalculations();
 
         document.getElementById('market-cap').innerText = Math.round(12050000 * currentPrice).toLocaleString('ru-RU') + ' ₽';
