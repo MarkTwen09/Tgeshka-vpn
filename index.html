@@ -3,269 +3,289 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель Мониторинга (Симулятор)</title>
+    <title>Glassmorphism Notification Panel</title>
     <style>
-        /* Основные стили в пастельных тонах из скриншота */
+        /* Стильный футуристичный фон с градиентными сферами */
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #fcf6f4;
-            color: #4a3530;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            color: #f1f5f9;
             margin: 0;
             padding: 20px;
             display: flex;
-            flex-direction: column;
+            justify-content: center;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
         }
 
-        .app-container {
-            background: #ffffff;
+        /* Декоративные жидкие сферы на фоне для создания глубины стекла */
+        body::before, body::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: 0;
+            opacity: 0.4;
+        }
+        body::before {
+            width: 300px;
+            height: 300px;
+            background: #db2777;
+            top: 15%;
+            left: 20%;
+        }
+        body::after {
+            width: 250px;
+            height: 250px;
+            background: #6366f1;
+            bottom: 15%;
+            right: 20%;
+        }
+
+        /* Эффект жидкого/матового стекла (Glassmorphism) */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(16px) saturate(120%);
+            -webkit-backdrop-filter: blur(16px) saturate(120%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
             width: 100%;
-            max-width: 380px;
-            border-radius: 28px;
-            padding: 24px;
-            box-shadow: 0 10px 30px rgba(163, 122, 112, 0.1);
+            max-width: 400px;
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
             box-sizing: border-box;
+            z-index: 1;
+            position: relative;
         }
 
         .title {
             text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            color: #4a3530;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            background: linear-gradient(90deg, #f472b6, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
         }
 
-        /* Поле ввода номера */
-        .input-wrapper {
+        .section-title {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Элементы ввода в стеклянном стиле */
+        .input-group {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 16px;
             display: flex;
-            align-items: center;
-            background: #fdfaf9;
-            border: 1.5px solid #e8dedb;
-            border-radius: 16px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
+            flex-direction: column;
+            transition: all 0.3s ease;
         }
-
-        .country-badge {
-            background: #f0e4e1;
-            padding: 6px 10px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: bold;
-            margin-right: 10px;
+        .input-group:focus-within {
+            border-color: rgba(192, 132, 252, 0.5);
+            box-shadow: 0 0 12px rgba(192, 132, 252, 0.2);
+            background: rgba(255, 255, 255, 0.08);
         }
-
-        .phone-input {
+        .input-group label {
+            font-size: 11px;
+            color: #a78bfa;
+            margin-bottom: 4px;
+        }
+        .input-group input, .input-group textarea {
             border: none;
             outline: none;
             background: transparent;
-            font-size: 16px;
-            color: #4a3530;
+            color: #fff;
+            font-size: 15px;
             width: 100%;
+            font-family: inherit;
+        }
+        .input-group input::placeholder, .input-group textarea::placeholder {
+            color: #64748b;
         }
 
-        /* Настройки скорости (Кнопки) */
-        .section-title {
-            font-size: 13px;
-            color: #8a7570;
-            margin-bottom: 8px;
-        }
-
-        .speed-selector {
-            display: flex;
-            background: #f5eae7;
-            border-radius: 14px;
-            padding: 4px;
-            margin-bottom: 20px;
-        }
-
-        .speed-btn {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 8px 0;
-            font-size: 13px;
-            border-radius: 10px;
-            cursor: pointer;
-            color: #4a3530;
-            transition: all 0.2s;
-        }
-
-        .speed-btn.active {
-            background: #3a221d;
-            color: #ffffff;
-            font-weight: bold;
-        }
-
-        /* Переключатели (Toggle switches) */
-        .switch-group {
+        /* Переключатели */
+        .switch-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 14px;
+            background: rgba(255, 255, 255, 0.02);
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
-
-        .switch-label {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .switch {
+        .switch-label { font-size: 13px; color: #cbd5e1; }
+        
+        .toggle {
             position: relative;
             display: inline-block;
-            width: 44px;
-            height: 24px;
+            width: 40px;
+            height: 22px;
         }
-
-        .switch input { opacity: 0; width: 0; height: 0; }
-
+        .toggle input { opacity: 0; width: 0; height: 0; }
         .slider {
             position: absolute;
             cursor: pointer;
             top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #e8dedb;
+            background-color: rgba(255,255,255,0.1);
             transition: .3s;
-            border-radius: 24px;
+            border-radius: 22px;
         }
-
         .slider:before {
             position: absolute;
             content: "";
-            height: 18px; width: 18px;
+            height: 16px; width: 16px;
             left: 3px; bottom: 3px;
-            background-color: white;
+            background-color: #fff;
             transition: .3s;
             border-radius: 50%;
         }
+        input:checked + .slider { background-color: #c084fc; }
+        input:checked + .slider:before { transform: translateX(18px); }
 
-        input:checked + .slider { background-color: #ca8a7c; }
-        input:checked + .slider:before { transform: translateX(20px); }
-
-        /* Главная кнопка действия */
-        .main-btn {
+        /* Жидкая неоновая кнопка */
+        .action-btn {
             width: 100%;
-            background: #a64b39;
+            background: linear-gradient(90deg, #ec4899, #8b5cf6);
             color: white;
             border: none;
-            padding: 16px;
-            border-radius: 20px;
-            font-size: 16px;
-            font-weight: bold;
+            padding: 15px;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
             margin-top: 10px;
         }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+        }
+        .action-btn:active { transform: translateY(0); }
+        .action-btn:disabled {
+            background: #334155;
+            box-shadow: none;
+            color: #64748b;
+            cursor: not-allowed;
+        }
 
-        .main-btn:hover { background: #8f3e2e; }
-        .main-btn:disabled { background: #d0c0bc; cursor: not-allowed; }
-
-        /* Имитация логов / терминала */
-        .console-box {
+        /* Стеклянный терминал логов */
+        .log-box {
             margin-top: 20px;
-            background: #261714;
-            color: #ffbcae;
-            font-family: monospace;
-            font-size: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
             padding: 12px;
-            border-radius: 16px;
-            height: 120px;
+            height: 100px;
             overflow-y: auto;
-            border: 1px solid #4a3530;
+            font-family: monospace;
+            font-size: 11px;
+            color: #a7f3d0;
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
-    <div class="title">Панель Тестирования</div>
+<div class="glass-container">
+    <div class="title">Live API Gateway</div>
 
-    <div class="input-wrapper">
-        <span class="country-badge">🇷🇺 +7</span>
-        <input type="tel" class="phone-input" id="phone" placeholder="999 123-45-67">
+    <div class="section-title">Авторизация шлюза</div>
+    <div class="input-group">
+        <label>Telegram Bot Token</label>
+        <input type="password" id="botToken" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u1">
+    </div>
+    <div class="input-group">
+        <label>Your Chat ID</label>
+        <input type="text" id="chatId" placeholder="987654321">
     </div>
 
-    <div class="section-title">Регулировка скорости симуляции:</div>
-    <div class="speed-selector">
-        <button class="speed-btn" onclick="setSpeed(this, 'Медленно')">Медленно</button>
-        <button class="speed-btn active" onclick="setSpeed(this, 'Нормально')">По умолчанию</button>
-        <button class="speed-btn" onclick="setSpeed(this, 'Быстро')">Быстро</button>
+    <div class="section-title">Параметры отправки</div>
+    <div class="input-group">
+        <label>Текст сообщения</label>
+        <textarea id="msgText" rows="2" placeholder="Введите текст уведомления..."></textarea>
     </div>
 
-    <div class="switch-group">
-        <span class="switch-label">Включить логирование API</span>
-        <label class="switch">
-            <input type="checkbox" id="opt1" checked>
-            <span class="slider"></span>
-        </label>
-    </div>
-    
-    <div class="switch-group">
-        <span class="switch-label">Проверка прокси-серверов</span>
-        <label class="switch">
-            <input type="checkbox" id="opt2">
+    <div class="switch-row">
+        <span class="switch-label">Звуковое оповещение</span>
+        <label class="toggle">
+            <input type="checkbox" id="soundOpt" checked>
             <span class="slider"></span>
         </label>
     </div>
 
-    <div class="switch-group">
-        <span class="switch-label">Эмуляция браузерных запросов</span>
-        <label class="switch">
-            <input type="checkbox" id="opt3" checked>
-            <span class="slider"></span>
-        </label>
-    </div>
+    <button class="action-btn" id="sendBtn">Отправить сообщение</button>
 
-    <button class="main-btn" id="actionBtn">Запустить отладку</button>
-
-    <div class="console-box" id="console">
-        <div>[Система] Готов к запуску симуляции...</div>
+    <div class="log-box" id="terminal">
+        <div style="color: #94a3b8;">[Система] Шлюз готов. Введите токены для отправки.</div>
     </div>
 </div>
 
 <script>
-    let currentSpeed = 'Нормально';
-    const actionBtn = document.getElementById('actionBtn');
-    const consoleBox = document.getElementById('console');
-    const phoneInput = document.getElementById('phone');
+    const sendBtn = document.getElementById('sendBtn');
+    const terminal = document.getElementById('terminal');
 
-    function setSpeed(element, speed) {
-        document.querySelectorAll('.speed-btn').forEach(btn => btn.classList.remove('active'));
-        element.classList.add('active');
-        currentSpeed = speed;
-        addLog(`Установлена скорость: ${speed}`);
-    }
-
-    function addLog(text) {
+    function writeLog(text, color = '#a7f3d0') {
         const time = new Date().toLocaleTimeString();
-        consoleBox.innerHTML += `<div>[${time}] ${text}</div>`;
-        consoleBox.scrollTop = consoleBox.scrollHeight;
+        terminal.innerHTML += `<div style="color: ${color}">[${time}] ${text}</div>`;
+        terminal.scrollTop = terminal.scrollHeight;
     }
 
-    actionBtn.addEventListener('click', () => {
-        const number = phoneInput.value.trim();
-        if(!number) {
-            addLog('Ошибка: Введите номер телефона');
+    sendBtn.addEventListener('click', async () => {
+        const token = document.getElementById('botToken').value.trim();
+        const chat = document.getElementById('chatId').value.trim();
+        const text = document.getElementById('msgText').value.trim();
+        const sound = document.getElementById('soundOpt').checked;
+
+        if (!token || !chat || !text) {
+            writeLog('Ошибка: Заполните Токен, Chat ID и Текст!', '#f43f5e');
             return;
         }
 
-        actionBtn.disabled = true;
-        addLog(`Старт симуляции для номера +7 ${number}...`);
+        sendBtn.disabled = true;
+        writeLog('Установление SSL-соединения с api.telegram.org...', '#cbd5e1');
 
-        // Пошаговая цепочка имитации работы
-        setTimeout(() => {
-            addLog(`[Тест] Режим скорости: ${currentSpeed}`);
-        }, 800);
+        // Формируем URL для официального запроса к Telegram Bot API
+        const url = `https://api.telegram.org/bot${token}/sendMessage`;
+        
+        // Объект данных для отправки
+        const payload = {
+            chat_id: chat,
+            text: text,
+            disable_notification: !sound
+        };
 
-        setTimeout(() => {
-            const checkProxy = document.getElementById('opt2').checked;
-            addLog(checkProxy ? '[Прокси] Соединение установлено.' : '[Сеть] Прямое подключение.');
-        }, 1600);
+        try {
+            // Асинхронный HTTP-запрос (AJAX/Fetch) прямо из браузера
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
 
-        setTimeout(() => {
-            addLog('[Успешно] Все локальные тесты интерфейса завершены.', 'color: #2ecc71');
-            actionBtn.disabled = false;
-        }, 3000);
+            const result = await response.json();
+
+            if (result.ok) {
+                writeLog('Запрос доставлен успешно! Сервер вернул код 200.', '#34d399');
+                writeLog(`ID сообщения в сети: ${result.result.message_id}`, '#34d399');
+            } else {
+                writeLog(`Ошибка Telegram API: ${result.description}`, '#f43f5e');
+            }
+        } catch (error) {
+            writeLog('Сетевая ошибка. Проверьте подключение.', '#f43f5e');
+        } finally {
+            sendBtn.disabled = false;
+        }
     });
 </script>
 
