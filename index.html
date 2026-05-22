@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Glassmorphism Notification Panel</title>
     <style>
-        /* Стильный футуристичный фон с градиентными сферами */
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
@@ -16,11 +15,10 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden;
             position: relative;
         }
 
-        /* Декоративные жидкие сферы на фоне для создания глубины стекла */
         body::before, body::after {
             content: "";
             position: absolute;
@@ -29,22 +27,9 @@
             z-index: 0;
             opacity: 0.4;
         }
-        body::before {
-            width: 300px;
-            height: 300px;
-            background: #db2777;
-            top: 15%;
-            left: 20%;
-        }
-        body::after {
-            width: 250px;
-            height: 250px;
-            background: #6366f1;
-            bottom: 15%;
-            right: 20%;
-        }
+        body::before { width: 300px; height: 300px; background: #db2777; top: 15%; left: 20%; }
+        body::after { width: 250px; height: 250px; background: #6366f1; bottom: 15%; right: 20%; }
 
-        /* Эффект жидкого/матового стекла (Glassmorphism) */
         .glass-container {
             background: rgba(255, 255, 255, 0.04);
             backdrop-filter: blur(16px) saturate(120%);
@@ -55,236 +40,117 @@
             border-radius: 24px;
             padding: 28px;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            box-sizing: border-box;
             z-index: 1;
             position: relative;
         }
 
         .title {
             text-align: center;
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 700;
             margin-bottom: 24px;
             background: linear-gradient(90deg, #f472b6, #c084fc);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            letter-spacing: 0.5px;
         }
 
-        .section-title {
-            font-size: 12px;
-            color: #94a3b8;
-            margin-bottom: 8px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        /* Элементы ввода в стеклянном стиле */
         .input-group {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
             padding: 10px 14px;
-            margin-bottom: 16px;
+            margin-bottom: 20px;
             display: flex;
             flex-direction: column;
-            transition: all 0.3s ease;
         }
-        .input-group:focus-within {
-            border-color: rgba(192, 132, 252, 0.5);
-            box-shadow: 0 0 12px rgba(192, 132, 252, 0.2);
-            background: rgba(255, 255, 255, 0.08);
-        }
-        .input-group label {
-            font-size: 11px;
-            color: #a78bfa;
-            margin-bottom: 4px;
-        }
-        .input-group input, .input-group textarea {
-            border: none;
-            outline: none;
-            background: transparent;
-            color: #fff;
-            font-size: 15px;
-            width: 100%;
-            font-family: inherit;
-        }
-        .input-group input::placeholder, .input-group textarea::placeholder {
-            color: #64748b;
+        .input-group label { font-size: 11px; color: #a78bfa; margin-bottom: 4px; text-transform: uppercase;}
+        .input-group input {
+            border: none; outline: none; background: transparent;
+            color: #fff; font-size: 16px; width: 100%;
         }
 
-        /* Переключатели */
-        .switch-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 14px;
-            background: rgba(255, 255, 255, 0.02);
-            padding: 10px 14px;
-            border-radius: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .switch-label { font-size: 13px; color: #cbd5e1; }
-        
-        .toggle {
-            position: relative;
-            display: inline-block;
-            width: 40px;
-            height: 22px;
-        }
-        .toggle input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(255,255,255,0.1);
-            transition: .3s;
-            border-radius: 22px;
-        }
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 16px; width: 16px;
-            left: 3px; bottom: 3px;
-            background-color: #fff;
-            transition: .3s;
-            border-radius: 50%;
-        }
-        input:checked + .slider { background-color: #c084fc; }
-        input:checked + .slider:before { transform: translateX(18px); }
-
-        /* Жидкая неоновая кнопка */
         .action-btn {
             width: 100%;
             background: linear-gradient(90deg, #ec4899, #8b5cf6);
-            color: white;
-            border: none;
-            padding: 15px;
-            border-radius: 16px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
+            color: white; border: none; padding: 16px;
+            border-radius: 16px; font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
-            margin-top: 10px;
         }
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
-        }
-        .action-btn:active { transform: translateY(0); }
-        .action-btn:disabled {
-            background: #334155;
-            box-shadow: none;
-            color: #64748b;
-            cursor: not-allowed;
-        }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5); }
 
-        /* Стеклянный терминал логов */
         .log-box {
             margin-top: 20px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.3);
             border-radius: 14px;
             padding: 12px;
-            height: 100px;
+            height: 90px;
             overflow-y: auto;
             font-family: monospace;
-            font-size: 11px;
-            color: #a7f3d0;
+            font-size: 12px;
+            color: #34d399;
         }
     </style>
 </head>
 <body>
 
 <div class="glass-container">
-    <div class="title">Live API Gateway</div>
+    <div class="title">Push Notification</div>
 
-    <div class="section-title">Авторизация шлюза</div>
     <div class="input-group">
-        <label>Telegram Bot Token</label>
-        <input type="password" id="botToken" placeholder="123456:ABC-DEF1234ghIkl-zyx57W2v1u1">
-    </div>
-    <div class="input-group">
-        <label>Your Chat ID</label>
-        <input type="text" id="chatId" placeholder="987654321">
+        <label>Текст пуш-уведомления</label>
+        <input type="text" id="alertText" value="Внимание! Система работает исправно.">
     </div>
 
-    <div class="section-title">Параметры отправки</div>
-    <div class="input-group">
-        <label>Текст сообщения</label>
-        <textarea id="msgText" rows="2" placeholder="Введите текст уведомления..."></textarea>
-    </div>
+    <button class="action-btn" id="pushBtn">Запустить уведомление</button>
 
-    <div class="switch-row">
-        <span class="switch-label">Звуковое оповещение</span>
-        <label class="toggle">
-            <input type="checkbox" id="soundOpt" checked>
-            <span class="slider"></span>
-        </label>
-    </div>
-
-    <button class="action-btn" id="sendBtn">Отправить сообщение</button>
-
-    <div class="log-box" id="terminal">
-        <div style="color: #94a3b8;">[Система] Шлюз готов. Введите токены для отправки.</div>
+    <div class="log-box" id="logger">
+        <div style="color: #94a3b8;">[Система] Готов к работе.</div>
     </div>
 </div>
 
 <script>
-    const sendBtn = document.getElementById('sendBtn');
-    const terminal = document.getElementById('terminal');
+    const pushBtn = document.getElementById('pushBtn');
+    const logger = document.getElementById('logger');
 
-    function writeLog(text, color = '#a7f3d0') {
-        const time = new Date().toLocaleTimeString();
-        terminal.innerHTML += `<div style="color: ${color}">[${time}] ${text}</div>`;
-        terminal.scrollTop = terminal.scrollHeight;
+    function log(text, color = '#34d399') {
+        logger.innerHTML += `<div style="color: ${color}">[${new Date().toLocaleTimeString()}] ${text}</div>`;
+        logger.scrollTop = logger.scrollHeight;
     }
 
-    sendBtn.addEventListener('click', async () => {
-        const token = document.getElementById('botToken').value.trim();
-        const chat = document.getElementById('chatId').value.trim();
-        const text = document.getElementById('msgText').value.trim();
-        const sound = document.getElementById('soundOpt').checked;
+    // Автоматический запрос прав при клике на страницу
+    window.addEventListener('DOMContentLoaded', () => {
+        if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+            Notification.requestPermission();
+        }
+    });
 
-        if (!token || !chat || !text) {
-            writeLog('Ошибка: Заполните Токен, Chat ID и Текст!', '#f43f5e');
+    pushBtn.addEventListener('click', () => {
+        const text = document.getElementById('alertText').value.trim();
+
+        if (Notification.permission === 'default') {
+            Notification.requestPermission().then(perm => {
+                if(perm === 'granted') log('Доступ получен! Нажмите еще раз.');
+            });
             return;
         }
 
-        sendBtn.disabled = true;
-        writeLog('Установление SSL-соединения с api.telegram.org...', '#cbd5e1');
+        if (Notification.permission === 'denied') {
+            log('Ошибка: Вы заблокировали уведомления в браузере!', '#f43f5e');
+            alert('Пожалуйста, разрешите уведомления в строке адреса браузера (иконка замочка).');
+            return;
+        }
 
-        // Формируем URL для официального запроса к Telegram Bot API
-        const url = `https://api.telegram.org/bot${token}/sendMessage`;
-        
-        // Объект данных для отправки
-        const payload = {
-            chat_id: chat,
-            text: text,
-            disable_notification: !sound
-        };
-
-        try {
-            // Асинхронный HTTP-запрос (AJAX/Fetch) прямо из браузера
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
+        if (Notification.permission === 'granted') {
+            log('Отправка push-запроса...');
+            
+            // Запуск настоящего уведомления операционной системы
+            new Notification('Новое оповещение', {
+                body: text,
+                icon: 'https://cdn-icons-png.flaticon.com/512/1827/1827349.png'
             });
 
-            const result = await response.json();
-
-            if (result.ok) {
-                writeLog('Запрос доставлен успешно! Сервер вернул код 200.', '#34d399');
-                writeLog(`ID сообщения в сети: ${result.result.message_id}`, '#34d399');
-            } else {
-                writeLog(`Ошибка Telegram API: ${result.description}`, '#f43f5e');
-            }
-        } catch (error) {
-            writeLog('Сетевая ошибка. Проверьте подключение.', '#f43f5e');
-        } finally {
-            sendBtn.disabled = false;
+            log('Уведомление успешно выведено на экран!', '#a7f3d0');
         }
     });
 </script>
