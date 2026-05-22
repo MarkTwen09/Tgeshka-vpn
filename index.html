@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Svetskiy Coin - Web3 Terminal</title>
+    <title>Svetskiy Coin - Web3 Terminal & Lootbox</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0"></script>
@@ -17,9 +17,11 @@
             --text-muted: #627A95;
             --accent-green: #00E676;
             --accent-red: #FF3D00;
+            --accent-gold: #FFD700;
             --border-color: #1B283A;
             --glow-green: rgba(0, 230, 118, 0.15);
             --glow-red: rgba(255, 61, 0, 0.15);
+            --glow-gold: rgba(255, 215, 0, 0.2);
         }
 
         * {
@@ -183,7 +185,7 @@
         /* Коробка Графика */
         .chart-box {
             position: relative;
-            height: 200px;
+            height: 180px;
             background: linear-gradient(180deg, var(--bg-field) 0%, #0A0F17 100%);
             border: 1px solid var(--border-color);
             border-radius: 18px;
@@ -266,13 +268,11 @@
         .tab-btn.buy-active {
             background: rgba(0, 230, 118, 0.12);
             color: var(--accent-green);
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
         }
 
         .tab-btn.sell-active {
             background: rgba(255, 61, 0, 0.12);
             color: var(--accent-red);
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1);
         }
 
         /* Кошелек */
@@ -310,14 +310,8 @@
             padding: 14px;
             align-items: center;
             justify-content: space-between;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
             transition: all 0.2s;
         }
-        .input-wrapper:focus-within {
-            border-color: #384D6B;
-            box-shadow: 0 0 10px rgba(56, 77, 107, 0.3);
-        }
-
         .input-wrapper input {
             background: transparent;
             border: none;
@@ -340,11 +334,8 @@
             padding: 16px 14px;
             border-radius: 12px;
             cursor: pointer;
-            transition: all 0.15s;
         }
-        .btn-max:hover { background: #1E2B3E; border-color: #384D6B; }
 
-        /* Расчёты */
         .calc-result {
             display: flex;
             justify-content: space-between;
@@ -355,7 +346,6 @@
             padding-bottom: 12px;
         }
 
-        /* Кнопка */
         .btn-trade-submit {
             border: none;
             color: #030508;
@@ -368,23 +358,122 @@
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s;
         }
         .btn-trade-submit.btn-buy { background: linear-gradient(135deg, #00E676, #00B359); }
-        .btn-trade-submit.btn-buy:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(0, 230, 118, 0.3); }
-        
         .btn-trade-submit.btn-sell { background: linear-gradient(135deg, #FF3D00, #D53400); }
-        .btn-trade-submit.btn-sell:not(:disabled):hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(255, 61, 0, 0.3); }
 
         .btn-trade-submit:disabled {
             background: #121922 !important;
             color: #3E4E61 !important;
             cursor: not-allowed;
-            transform: none !important;
-            box-shadow: none !important;
             opacity: 0.7;
         }
+
+        /* 📦 НОВЫЙ БЛОК: СТИЛЬНЫЙ КРИПТО-КЕЙС */
+        .lootbox-box {
+            background: linear-gradient(145deg, #0D1622, #070B12);
+            border: 1px dashed rgba(255, 215, 0, 0.3);
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .lootbox-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .lootbox-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+        }
+
+        .lootbox-cost {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            background: rgba(255, 215, 0, 0.1);
+            color: var(--accent-gold);
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        /* Рулетка/Анимация */
+        .case-roulette-screen {
+            background: #05080C;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-muted);
+            overflow: hidden;
+        }
+
+        .case-roulette-screen.spinning {
+            animation: roulettePulse 0.15s infinite alternate;
+            color: var(--accent-gold);
+        }
+
+        @keyframes roulettePulse {
+            0% { border-color: var(--border-color); background: #05080C; }
+            100% { border-color: var(--accent-gold); background: #111822; }
+        }
+
+        .btn-open-case {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #030508;
+            border: none;
+            font-weight: 700;
+            font-size: 13px;
+            padding: 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.2);
+        }
+        .btn-open-case:not(:disabled):hover {
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.4);
+            transform: translateY(-1px);
+        }
+        .btn-open-case:disabled {
+            background: #121922;
+            color: #4A5B6D;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Уведомление о выигрыше */
+        .win-banner {
+            display: none;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 600;
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Метрики сети */
         .market-info-block {
@@ -397,9 +486,8 @@
 
         .info-row { display: flex; justify-content: space-between; font-size: 12px; }
         .info-row .lbl { color: var(--text-muted); }
-        .info-row .val { font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+        .info-row .val { font-family: 'JetBrains Mono', monospace; }
 
-        /* Хелперы */
         .up { color: var(--accent-green); }
         .down { color: var(--accent-red); }
     </style>
@@ -481,6 +569,23 @@
         </button>
     </div>
 
+    <div class="lootbox-box">
+        <div class="lootbox-header">
+            <div class="lootbox-title">📦 Premium Сrypto Lootbox</div>
+            <div class="lootbox-cost">Цена: 5 SVC</div>
+        </div>
+        
+        <div class="case-roulette-screen" id="case-screen">
+            READY TO DROP
+        </div>
+
+        <div class="win-banner" id="win-banner"></div>
+
+        <button class="btn-open-case" id="open-case-btn" onclick="openCryptoCase()">
+            Открыть Кейс
+        </button>
+    </div>
+
     <div class="market-info-block">
         <div class="info-row">
             <span class="lbl">Рыночная капитализация</span>
@@ -495,7 +600,7 @@
 
 <script>
     let userBalanceRUB = 100.00;
-    let userBalanceSVT = 0.00;
+    let userBalanceSVT = 0.00; // Это баланс SVC
     let tradeMode = 'buy'; 
 
     let basePrice = 10.00;
@@ -523,7 +628,6 @@
 
             if (i > 0) {
                 if (Math.random() < 0.3) historyTrend = (Math.random() * 2 - 1);
-                // Аккуратные плавные движения в истории
                 let change = tempPrice * ((historyTrend * (Math.random() * 1.8 + 0.2)) / 100);
                 tempPrice -= change;
                 if (tempPrice < 2.00) tempPrice = 2.00;
@@ -536,11 +640,11 @@
     generateHistory(updateSpeed);
 
     const ctx = document.getElementById('analyticsChart').getContext('2d');
-    const gradGreen = ctx.createLinearGradient(0, 0, 0, 180);
+    const gradGreen = ctx.createLinearGradient(0, 0, 0, 160);
     gradGreen.addColorStop(0, 'rgba(0, 230, 118, 0.15)');
     gradGreen.addColorStop(1, 'rgba(0, 230, 118, 0.0)');
 
-    const gradRed = ctx.createLinearGradient(0, 0, 0, 180);
+    const gradRed = ctx.createLinearGradient(0, 0, 0, 160);
     gradRed.addColorStop(0, 'rgba(255, 61, 0, 0.15)');
     gradRed.addColorStop(1, 'rgba(255, 61, 0, 0.0)');
 
@@ -555,7 +659,7 @@
                 pointRadius: 0,
                 fill: true,
                 backgroundColor: gradGreen,
-                tension: 0.4 // Плавные изгибы волн
+                tension: 0.4
             }]
         },
         options: {
@@ -676,6 +780,9 @@
                 submitTradeBtn.innerText = 'Продать SVC';
             }
         }
+        
+        // Дополнительная мягкая проверка кнопки кейса при изменении баланса
+        updateCaseButtonState();
     }
     tradeInput.addEventListener('input', updateTradingCalculations);
 
@@ -697,11 +804,103 @@
             }
         }
 
-        document.getElementById('user-rub').innerText = userBalanceRUB.toFixed(2) + ' ₽';
-        document.getElementById('user-svt').innerText = userBalanceSVT.toFixed(2) + ' SVC';
-
+        updateUIBalances();
         tradeInput.value = tradeMode === 'buy' ? "0" : userBalanceSVT.toFixed(2);
         updateTradingCalculations();
+    }
+
+    function updateUIBalances() {
+        document.getElementById('user-rub').innerText = userBalanceRUB.toFixed(2) + ' ₽';
+        document.getElementById('user-svt').innerText = userBalanceSVT.toFixed(2) + ' SVC';
+        updateCaseButtonState();
+    }
+
+    function updateCaseButtonState() {
+        const btn = document.getElementById('open-case-btn');
+        if (userBalanceSVT < 5) {
+            btn.disabled = true;
+            btn.innerText = 'Не хватает SVC';
+        } else {
+            if (!btn.classList.contains('active-spinning')) {
+                btn.disabled = false;
+                btn.innerText = 'Открыть Кейс';
+            }
+        }
+    }
+
+    /* 📦 ЛОГИКА И СИМУЛЯЦИЯ ОТКРЫТИЯ КЕЙСА */
+    function openCryptoCase() {
+        if (userBalanceSVT < 5) return;
+
+        // Списываем плату за кейс
+        userBalanceSVT -= 5;
+        updateUIBalances();
+
+        const screen = document.getElementById('case-screen');
+        const btn = document.getElementById('open-case-btn');
+        const banner = document.getElementById('win-banner');
+
+        btn.disabled = true;
+        btn.classList.add('active-spinning');
+        btn.innerText = 'ОТКРЫВАЕМ...';
+        banner.style.display = 'none';
+        screen.classList.add('spinning');
+
+        // Варианты дропа (типы наград)
+        const possibleDrops = ['RUB', 'SVC'];
+        let ticks = 0;
+        
+        // Эффект крутящегося лохотрона/рулетки
+        const interval = setInterval(() => {
+            const randomCurrency = possibleDrops[Math.floor(Math.random() * possibleDrops.length)];
+            const randomFakeVal = (Math.random() * 50).toFixed(2);
+            screen.innerText = `⚡ ${randomFakeVal} ${randomCurrency}`;
+            ticks++;
+
+            if (ticks > 12) {
+                clearInterval(interval);
+                screen.classList.remove('spinning');
+                
+                // Финальный расчет выигрыша (Шансы)
+                const roll = Math.random();
+                let prizeType = 'SVC';
+                let prizeAmount = 0;
+
+                if (roll < 0.55) {
+                    // 55% шанс выиграть SVC (от мелкого минуса до джекпота)
+                    prizeType = 'SVC';
+                    if (roll < 0.35) prizeAmount = Math.random() * 2 + 0.5; // Минус (0.5 - 2.5 SVC)
+                    else if (roll < 0.50) prizeAmount = Math.random() * 4 + 5; // Около нуля / небольшой плюс (5 - 9 SVC)
+                    else prizeAmount = 25.00; // 5% Шанс на ДЖЕКПОТ (25 SVC!)
+                } else {
+                    // 45% шанс выиграть чистые рубли RUB
+                    prizeType = 'RUB';
+                    if (roll < 0.85) prizeAmount = Math.random() * 40 + 10; // Нормальный дроп (10 - 50 ₽)
+                    else prizeAmount = 500.00; // Ультра-редкий джекпот (500 ₽!)
+                }
+
+                // Начисление выигрыша
+                if (prizeType === 'SVC') {
+                    userBalanceSVT += prizeAmount;
+                    screen.innerText = `🎉 ${prizeAmount.toFixed(2)} SVC`;
+                    banner.innerText = prizeAmount >= 10 ? `🔥 Окупился! Мега дроп: +${prizeAmount.toFixed(2)} SVC` : `Ничего, повезет в следующий раз! Выпало: ${prizeAmount.toFixed(2)} SVC`;
+                    banner.style.background = prizeAmount >= 5 ? 'rgba(0, 230, 118, 0.12)' : 'rgba(255,255,255,0.05)';
+                    banner.style.color = prizeAmount >= 5 ? 'var(--accent-green)' : 'var(--text-muted)';
+                } else {
+                    userBalanceRUB += prizeAmount;
+                    screen.innerText = `🎉 ${prizeAmount.toFixed(2)} ₽`;
+                    banner.innerText = prizeAmount >= 100 ? `👑 ЖЕСТКИЙ ОКУП! Получено: +${prizeAmount.toFixed(2)} ₽` : `Выбили кэш! Получено: +${prizeAmount.toFixed(2)} ₽`;
+                    banner.style.background = 'rgba(255, 215, 0, 0.12)';
+                    banner.style.color = 'var(--accent-gold)';
+                }
+
+                banner.style.display = 'block';
+                btn.classList.remove('active-spinning');
+                
+                updateUIBalances();
+                updateTradingCalculations();
+            }
+        }, 150);
     }
 
     function refreshOrderBook() {
@@ -721,30 +920,26 @@
         }
     }
 
-    // НОВЫЙ СБАЛАНСИРОВАННЫЙ ДВИЖОК КУРСА
     function tickTerminalEngine() {
         if (trendDuration <= 0) {
-            // Тренды аккуратные, но меняются относительно часто (каждые 4-8 тиков)
             trendDuration = Math.floor(Math.random() * 5) + 4; 
             
             if (currentPrice <= 4.00) {
-                marketTrend = Math.random() * 0.4 + 0.3; // Аккуратный разворот вверх
+                marketTrend = Math.random() * 0.4 + 0.3; 
             } else if (currentPrice >= 75.00) {
-                marketTrend = -(Math.random() * 0.4 + 0.3); // Аккуратный разворот вниз
+                marketTrend = -(Math.random() * 0.4 + 0.3); 
             } else {
                 marketTrend = (Math.random() * 1.6 - 0.8); 
             }
         }
         trendDuration--;
 
-        // Волатильность сглажена: монета ходит плавно, без диких скачков
         let volatility = (Math.random() * 2.2 + 0.5); 
         let changePercent = (marketTrend * volatility);
 
         const priceDiff = currentPrice * (changePercent / 100);
         currentPrice += priceDiff;
 
-        // Лимиты для стабильности
         if (currentPrice < 2.00) currentPrice = 2.00 + (Math.random() * 0.2);
         if (currentPrice > 80.00) currentPrice = 80.00 - (Math.random() * 1.5);
 
@@ -760,7 +955,6 @@
         const priceCard = document.getElementById('price-card');
         const changeEl = document.getElementById('price-change');
         
-        // Сброс и запуск мягкого премиального свечения при изменении цены
         priceCard.className = 'main-price-box';
 
         if (priceDiff >= 0) {
@@ -770,7 +964,6 @@
             changeEl.className = 'price-direction up';
             chart.data.datasets[0].borderColor = '#00E676';
             chart.data.datasets[0].backgroundColor = gradGreen;
-            chart.options.plugins.annotation.annotations.line1.borderColor = 'rgba(0, 230, 118, 0.2)';
         } else {
             void priceCard.offsetWidth;
             priceCard.classList.add('glow-down');
@@ -778,7 +971,6 @@
             changeEl.className = 'price-direction down';
             chart.data.datasets[0].borderColor = '#FF3D00';
             chart.data.datasets[0].backgroundColor = gradRed;
-            chart.options.plugins.annotation.annotations.line1.borderColor = 'rgba(255, 61, 0, 0.2)';
         }
 
         let t = new Date();
@@ -796,6 +988,7 @@
 
     currentInterval = setInterval(tickTerminalEngine, updateSpeed);
     tickTerminalEngine();
+    updateCaseButtonState();
 </script>
 
 </body>
