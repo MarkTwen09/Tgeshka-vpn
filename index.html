@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Svetsky Terminal v2.1 - Ultra Live</title>
+    <title>Svetsky Terminal v2.2 - High Volatility</title>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@2.1.0"></script>
@@ -395,10 +395,10 @@
     </div>
 
     <div class="timeframes-bar">
-        <button class="tf-btn active" onclick="changeTimeframe('1m', 5000)">1м</button>
-        <button class="tf-btn" onclick="changeTimeframe('5m', 25000)">5m</button>
-        <button class="tf-btn" onclick="changeTimeframe('1ч', 300000)">1ч</button>
-        <button class="tf-btn" onclick="changeTimeframe('1д', 7200000)">1д</button>
+        <button class="tf-btn active" onclick="changeTimeframe('1m', 3000)">1м</button>
+        <button class="tf-btn" onclick="changeTimeframe('5m', 15000)">5m</button>
+        <button class="tf-btn" onclick="changeTimeframe('1ч', 120000)">1ч</button>
+        <button class="tf-btn" onclick="changeTimeframe('1д', 600000)">1д</button>
     </div>
 
     <div class="chart-box">
@@ -473,7 +473,7 @@
     
     let marketTrend = 0;
     let trendDuration = 0; 
-    let updateSpeed = 5000; 
+    let updateSpeed = 3000; // Сделали тики чуть быстрее (3 секунды) для динамики
 
     const maxDataPoints = 25;
     const labels = [];
@@ -492,11 +492,12 @@
             labels.push(timeStr);
 
             if (i > 0) {
-                if (Math.random() < 0.2) historyTrend = (Math.random() * 2 - 1);
-                let change = tempPrice * ((historyTrend * (Math.random() * 1.5 + 0.2)) / 100);
+                if (Math.random() < 0.25) historyTrend = (Math.random() * 2 - 1);
+                // Повышенная волатильность для истории
+                let change = tempPrice * ((historyTrend * (Math.random() * 4.5 + 0.5)) / 100);
                 tempPrice -= change;
-                if (tempPrice < 5.00) tempPrice = 5.00;
-                if (tempPrice > 55.00) tempPrice = 55.00;
+                if (tempPrice < 1.00) tempPrice = 1.00;
+                if (tempPrice > 150.00) tempPrice = 150.00;
             }
             dataPoints.push(i === 0 ? currentPrice : tempPrice);
         }
@@ -530,8 +531,7 @@
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            // ПОЛНОСТЬЮ ОТКЛЮЧАЕМ ВСЕ СОБЫТИЯ И НАЖАТИЯ НА ГРАФИК
-            events: [], 
+            events: [], // Никаких нажатий и залипающих точек
             plugins: {
                 legend: { display: false },
                 tooltip: { enabled: false },
@@ -681,37 +681,50 @@
         asksTable.innerHTML = '';
 
         for(let i=0; i<4; i++) {
-            const bidPrice = currentPrice - (Math.random() * 0.15 + 0.02);
-            const bidVol = (Math.random() * 900 + 40).toFixed(1);
-            bidsTable.innerHTML += `<div class="ob-row"><span class="up">${Math.max(0.1, bidPrice).toFixed(2)}</span><span style="color:var(--text-muted)">${bidVol}</span></div>`;
+            const bidPrice = currentPrice - (Math.random() * (currentPrice * 0.03) + 0.05);
+            const bidVol = (Math.random() * 1500 + 100).toFixed(1);
+            bidsTable.innerHTML += `<div class="ob-row"><span class="up">${Math.max(0.01, bidPrice).toFixed(2)}</span><span style="color:var(--text-muted)">${bidVol}</span></div>`;
 
-            const askPrice = currentPrice + (Math.random() * 0.15 + 0.02);
-            const askVol = (Math.random() * 900 + 40).toFixed(1);
+            const askPrice = currentPrice + (Math.random() * (currentPrice * 0.03) + 0.05);
+            const askVol = (Math.random() * 1500 + 100).toFixed(1);
             asksTable.innerHTML += `<div class="ob-row"><span class="down">${askPrice.toFixed(2)}</span><span style="color:var(--text-muted)">${askVol}</span></div>`;
         }
     }
 
+    // НОВЫЙ ДВИЖОК СВЕРХВЫСОКОЙ ВОЛАТИЛЬНОСТИ
     function tickTerminalEngine() {
         if (trendDuration <= 0) {
-            trendDuration = Math.floor(Math.random() * 8) + 5;
-            if (currentPrice <= 6.5) {
-                marketTrend = Math.random() * 0.6 + 0.4; 
-            } else if (currentPrice >= 48) {
-                marketTrend = -(Math.random() * 0.6 + 0.4); 
+            trendDuration = Math.floor(Math.random() * 5) + 3; // Направление меняется чаще
+            
+            // Жесткие рамки, чтобы курс не улетел в бесконечность или абсолютный 0
+            if (currentPrice <= 3.00) {
+                marketTrend = Math.random() * 0.8 + 0.6; // Сильный импульс вверх
+            } else if (currentPrice >= 120.00) {
+                marketTrend = -(Math.random() * 0.8 + 0.6); // Сильный слив вниз
             } else {
                 marketTrend = (Math.random() * 2 - 1); 
             }
         }
         trendDuration--;
 
-        let volatility = (Math.random() * 1.6 + 0.4); 
+        // Базовая волатильность увеличена в разы
+        let volatility = (Math.random() * 8.0 + 1.5); 
         let changePercent = (marketTrend * volatility);
+
+        // СЛУЧАЙНЫЕ СОБЫТИЯ: Пампы и Дампы (шанс 15% на каждом тике)
+        if (Math.random() < 0.15) {
+            const isPump = Math.random() > 0.45; // Чуть больше шансов на памп
+            const shockMultiplier = Math.random() * 20 + 10; // Скачок на 10-30%
+            changePercent = isPump ? shockMultiplier : -shockMultiplier;
+            trendDuration = 0; // Сбрасываем тренд после шока
+        }
 
         const priceDiff = currentPrice * (changePercent / 100);
         currentPrice += priceDiff;
 
-        if (currentPrice < 5.00) currentPrice = 5.00 + (Math.random() * 0.2);
-        if (currentPrice > 55.00) currentPrice = 55.00 - (Math.random() * 0.4);
+        // Финальные ограничители
+        if (currentPrice < 1.00) currentPrice = 1.00 + (Math.random() * 0.5);
+        if (currentPrice > 150.00) currentPrice = 150.00 - (Math.random() * 5.0);
 
         const totalChange = ((currentPrice - basePrice) / basePrice) * 100;
 
@@ -719,8 +732,8 @@
         
         updateTradingCalculations();
 
-        document.getElementById('market-cap').innerText = Math.round(12050000 * currentPrice).toLocaleString('ru-RU') + ' ₽';
-        document.getElementById('volume-24h').innerText = Math.round(4812400 + (Math.random()*40000 - 20000)).toLocaleString('ru-RU') + ' ₽';
+        document.getElementById('market-cap').innerText = Math.round(1205000 * currentPrice).toLocaleString('ru-RU') + ' ₽';
+        document.getElementById('volume-24h').innerText = Math.round(1812400 + (Math.random()*900000 - 450000)).toLocaleString('ru-RU') + ' ₽';
 
         const priceCard = document.getElementById('price-card');
         const changeEl = document.getElementById('price-change');
