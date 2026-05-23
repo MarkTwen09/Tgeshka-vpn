@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tgeshka VPN — Премиум Анонимность</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         /* Базовые настройки и обнуление */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            transition: all 0.3s ease; /* Плавность для ВСЕХ анимаций */
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); /* Плавная анимация */
         }
 
         body {
-            background-color: #07070a;
+            background-color: #050508; /* Более глубокий, элитный черный */
             color: #ffffff;
             display: flex;
             justify-content: center;
@@ -26,14 +29,14 @@
             position: relative;
         }
 
-        /* Красивый неоновый фоновый кругляшок на фоне для атмосферы */
+        /* Мягкое неоновое свечение на фоне */
         body::before {
             content: "";
             position: absolute;
-            width: 300px;
-            height: 300px;
-            background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, rgba(0,0,0,0) 70%);
-            top: 10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, rgba(0,0,0,0) 70%);
+            top: 5%;
             left: 50%;
             transform: translateX(-50%);
             z-index: 0;
@@ -50,27 +53,29 @@
         /* Шапка с анимацией появления */
         .header {
             text-align: center;
-            margin-bottom: 40px;
-            animation: fadeInDown 0.8s ease-out;
+            margin-bottom: 35px;
+            animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .logo {
-            font-size: 34px;
+            font-size: 32px;
             font-weight: 900;
-            letter-spacing: 6px;
+            letter-spacing: 7px;
             text-transform: uppercase;
-            background: linear-gradient(135deg, #ffffff 30%, #a78bfa 100%);
+            /* Градиент от чисто-белого к серебру */
+            background: linear-gradient(135deg, #ffffff 40%, #a1a1aa 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(167, 139, 250, 0.2);
+            margin-bottom: 12px;
         }
 
         .tagline {
-            font-size: 14px;
-            color: #8e8e93;
+            font-size: 13.5px;
+            color: #71717a;
             font-weight: 400;
             line-height: 1.5;
+            max-width: 340px;
+            margin: 0 auto;
         }
 
         /* Сетка преимуществ */
@@ -78,89 +83,90 @@
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 12px;
-            margin: 30px 0;
+            margin: 25px 0 35px 0;
             animation: fadeIn 1s ease-out 0.2s both;
         }
 
         .feature-badge {
-            background: rgba(255, 255, 255, 0.02);
-            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.01);
+            /* Тонкий стеклянный контур */
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 14px;
             padding: 12px;
             font-size: 12px;
-            color: #e5e5ea;
+            color: #d4d4d8;
             text-align: center;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
         }
 
         .feature-badge:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(167, 139, 250, 0.3);
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.15);
             transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(124, 58, 237, 0.05);
         }
 
         .section-title {
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            color: #f2f2f7;
-            letter-spacing: -0.3px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #a1a1aa;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
             animation: fadeIn 1s ease-out 0.4s both;
         }
 
-        /* Общие стили карточек */
+        /* Стили карточек в строгом стиле */
         .card {
-            background: rgba(20, 20, 27, 0.7);
-            border: 1px solid #22222c;
+            background: rgba(18, 18, 24, 0.65);
+            /* Полупрозрачный стеклянный контур */
+            border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 24px;
-            padding: 26px;
-            margin-bottom: 24px;
+            padding: 28px;
+            margin-bottom: 20px;
             position: relative;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            animation: fadeInUp 0.8s ease-out both;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
 
-        /* Задержки появления карточек для эффекта "очереди" */
+        /* Очередь анимации */
         .card:nth-child(5) { animation-delay: 0.5s; }
         .card:nth-child(6) { animation-delay: 0.6s; }
         .card:nth-child(7) { animation-delay: 0.7s; }
 
-        /* Ховер эффект обычной карточки */
         .card:hover {
-            border-color: #3e3e56;
+            border-color: rgba(255, 255, 255, 0.15);
             transform: translateY(-4px);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
         }
 
-        /* Карточка ХИТ (6 месяцев) */
+        /* Премиум-стиль для центральной карточки (Space Gray) */
         .card-popular {
-            background: linear-gradient(145deg, rgba(20, 20, 27, 0.9) 0%, rgba(29, 17, 51, 0.9) 100%);
-            border: 1px solid #6d28d9;
-            box-shadow: 0 10px 30px rgba(109, 40, 217, 0.1);
+            background: linear-gradient(145deg, rgba(24, 24, 32, 0.8) 0%, rgba(14, 14, 18, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
         }
 
         .card-popular:hover {
-            border-color: #9333ea;
-            box-shadow: 0 15px 35px rgba(109, 40, 217, 0.25);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
             transform: translateY(-5px);
         }
 
-        /* Светящийся бейдж скидки */
+        /* Строгий минималистичный бейдж популярного тарифа */
         .badge-popular {
             position: absolute;
-            top: -12px;
-            left: 26px;
-            background: linear-gradient(90deg, #7c3aed, #9333ea);
-            color: #ffffff;
-            font-size: 11px;
+            top: -11px;
+            left: 28px;
+            background: #ffffff;
+            color: #050508;
+            font-size: 10px;
             font-weight: 700;
-            padding: 5px 14px;
-            border-radius: 20px;
+            padding: 4px 12px;
+            border-radius: 8px;
+            text-transform: uppercase;
             letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
         }
 
         /* Хедер внутри карт */
@@ -172,38 +178,39 @@
         }
 
         .plan-duration {
-            font-size: 22px;
+            font-size: 21px;
             font-weight: 700;
             color: #ffffff;
+            letter-spacing: -0.3px;
         }
 
         .plan-price {
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 800;
             color: #ffffff;
             letter-spacing: -0.5px;
         }
 
         .plan-desc {
-            font-size: 13.5px;
-            color: #a1a1aa;
-            margin-bottom: 22px;
+            font-size: 13px;
+            color: #71717a;
+            margin-bottom: 24px;
         }
 
         .card-popular .plan-desc {
-            color: #c084fc;
+            color: #a1a1aa;
         }
 
         .divider {
             height: 1px;
-            background: rgba(255, 255, 255, 0.06);
-            margin-bottom: 22px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 24px;
         }
 
-        /* Список фич внутри карт */
+        /* Список фич */
         .perks-list {
             list-style: none;
-            margin-bottom: 26px;
+            margin-bottom: 28px;
         }
 
         .perks-list li {
@@ -214,80 +221,88 @@
             align-items: center;
         }
 
+        /* Кастомный строгий маркер точки */
         .perks-list li::before {
-            content: "✓";
-            color: #10b981;
-            font-weight: 800;
+            content: "";
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            background-color: #ffffff;
+            border-radius: 50%;
             margin-right: 12px;
-            font-size: 15px;
+            opacity: 0.5;
         }
 
         .card-popular .perks-list li::before {
-            color: #c084fc;
+            opacity: 0.9;
+            box-shadow: 0 0 8px #ffffff;
         }
 
-        /* Ссылки-кнопки */
+        /* Ссылки-кнопки в стиле Old Money */
         .btn {
             display: block;
             width: 100%;
             background: #ffffff;
-            color: #07070a;
+            color: #050508;
             text-align: center;
             padding: 15px;
-            border-radius: 16px;
-            font-size: 15px;
-            font-weight: 700;
+            border-radius: 14px;
+            font-size: 14.5px;
+            font-weight: 600;
             text-decoration: none;
-            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
         }
 
         .btn:hover {
-            background: #f4f4f5;
-            box-shadow: 0 6px 20px rgba(255, 255, 255, 0.2);
+            background: #e4e4e7;
+            transform: translateY(-1px);
         }
 
-        /* Кнопка для ХИТА */
+        /* Матовая кнопка для ХИТА */
         .btn-premium {
-            background: linear-gradient(90deg, #7c3aed, #8b5cf6);
-            color: #ffffff;
-            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+            background: #ffffff;
+            color: #050508;
+            border: 1px solid #ffffff;
         }
 
         .btn-premium:hover {
-            background: linear-gradient(90deg, #8b5cf6, #a78bfa);
-            box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5);
+            background: transparent;
+            color: #ffffff;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
         }
 
-        /* Эффект нажатия (микро-клик как на iOS) */
+        /* Эффект нажатия */
         .btn:active, .feature-badge:active {
-            transform: scale(0.96) !important;
+            transform: scale(0.97) !important;
         }
 
         /* Подвал */
         .footer {
             text-align: center;
-            margin-top: 40px;
+            margin-top: 35px;
             font-size: 13px;
-            color: #52525b;
+            color: #414147;
             animation: fadeIn 1s ease-out 0.9s both;
         }
 
         .footer a {
-            color: #a78bfa;
+            color: #ffffff;
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 500;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+            padding-bottom: 1px;
         }
 
         .footer a:hover {
-            color: #c084fc;
-            text-shadow: 0 0 10px rgba(192, 132, 252, 0.4);
+            color: #a1a1aa;
+            border-color: #a1a1aa;
         }
 
-        /* Ключевые кадры для плавной анимации загрузки страницы */
+        /* Анимации */
         @keyframes fadeInDown {
             from {
                 opacity: 0;
-                transform: translateY(-20px);
+                transform: translateY(-15px);
             }
             to {
                 opacity: 1;
@@ -298,7 +313,7 @@
         @keyframes fadeInUp {
             from {
                 opacity: 0;
-                transform: translateY(30px);
+                transform: translateY(25px);
             }
             to {
                 opacity: 1;
