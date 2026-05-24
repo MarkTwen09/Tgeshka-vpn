@@ -3,25 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STARMINER PRO — Web3 Dashboard</title>
+    <title>STARMINER PRO — Заработок Telegram Stars</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
-            --bg-gradient: radial-gradient(circle at 50% 50%, #1a153a 0%, #0d0b18 100%);
-            --card-bg: rgba(30, 27, 58, 0.45);
-            --card-border: rgba(255, 255, 255, 0.08);
+            --bg-gradient: radial-gradient(circle at 50% 50%, #151130 0%, #07060e 100%);
+            --card-bg: rgba(26, 22, 50, 0.55);
+            --card-border: rgba(255, 255, 255, 0.07);
             --accent-green: #00ffa3;
             --accent-gold: #ffd700;
             --accent-blue: #00d1ff;
+            --accent-purple: #9d4edd;
             --text-main: #ffffff;
-            --text-muted: #8c88b3;
+            --text-muted: #8580a8;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -36,16 +37,14 @@
             overflow-x: hidden;
         }
 
-        /* Основной контейнер */
         .app-container {
             width: 100%;
             max-width: 480px;
-            background: rgba(13, 11, 24, 0.2);
+            background: rgba(7, 6, 14, 0.3);
             border-radius: 24px;
             padding: 5px;
         }
 
-        /* Шапка */
         header {
             display: flex;
             justify-content: space-between;
@@ -71,23 +70,16 @@
         }
 
         .wallet-btn {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--card-border);
             padding: 8px 14px;
             border-radius: 12px;
-            font-size: 0.75rem;
-            text-align: right;
-            backdrop-filter: blur(5px);
-        }
-
-        .wallet-btn span {
-            display: block;
+            font-size: 0.7rem;
             color: var(--text-muted);
-            font-size: 0.65rem;
-            margin-top: 2px;
+            font-weight: 600;
         }
 
-        /* Сетка карточек */
+        /* Сетка */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -100,9 +92,9 @@
             border: 1px solid var(--card-border);
             border-radius: 20px;
             padding: 16px;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
             position: relative;
             overflow: hidden;
         }
@@ -112,7 +104,7 @@
         }
 
         .card-label {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             text-transform: uppercase;
             color: var(--text-muted);
             letter-spacing: 1px;
@@ -122,727 +114,624 @@
             align-items: center;
         }
 
-        /* Карточка статуса */
-        .status-container-box {
-            color: var(--text-muted);
+        /* Статус */
+        .status-box {
             font-weight: 800;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 10px;
-            transition: color 0.3s;
+            margin-top: 5px;
+            color: #ff5e62;
         }
 
         .status-pulse {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             background: #ff5e62;
             border-radius: 50%;
-            box-shadow: 0 0 12px #ff5e62;
+            box-shadow: 0 0 10px #ff5e62;
         }
 
         .mining-active .status-pulse {
             background: var(--accent-green);
-            box-shadow: 0 0 12px var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
             animation: pulse 1.5s infinite;
         }
 
-        .mining-animation {
-            margin-top: 20px;
+        .pickaxe-zone {
+            margin-top: 15px;
             text-align: center;
-            font-size: 3rem;
-            color: var(--text-muted);
-            position: relative;
+            font-size: 2.8rem;
+            color: rgba(255, 255, 255, 0.1);
         }
 
-        .mining-animation i {
-            display: inline-block;
-        }
-
-        .mining-active .mining-animation i {
+        .mining-active .pickaxe-zone i {
             animation: swing 2s ease-in-out infinite;
-            color: #6c63ff !important;
+            color: var(--accent-purple);
         }
 
-        .sys-info {
-            margin-top: 25px;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* Карточка баланса */
+        /* Баланс */
         .balance-value {
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 800;
             margin-top: 5px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
         }
 
         .balance-value i {
             color: var(--accent-gold);
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
 
         .mining-active .balance-value i {
             animation: spin-slow 6s linear infinite;
         }
 
-        /* Простой график (SVG) */
         .mini-chart {
             width: 100%;
-            height: 50px;
-            margin-top: 15px;
-            opacity: 0.3;
-            transition: opacity 0.5s;
-        }
-        .mining-active .mini-chart {
-            opacity: 1;
-        }
-
-        /* Карточка скорости */
-        .rate-value {
-            font-size: 1.4rem;
-            font-weight: 700;
-        }
-        .booster-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            background: linear-gradient(135deg, #ff5e62, #ff9966);
-            padding: 4px 8px;
-            border-radius: 8px;
-            font-size: 0.7rem;
-            font-weight: 700;
+            height: 40px;
             margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(255, 94, 98, 0.3);
+            opacity: 0.1;
         }
+        .mining-active .mini-chart { opacity: 0.8; }
 
-        /* Карточка Таймера / Бустера */
-        .timer-container {
+        /* Скорость */
+        .rate-value { font-size: 1.3rem; font-weight: 700; }
+        
+        .active-boosters-container {
             display: flex;
             flex-direction: column;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .badge-info {
+            font-size: 0.6rem;
+            font-weight: 700;
+            padding: 3px 6px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            width: max-content;
+        }
+        .badge-info.active {
+            background: linear-gradient(135deg, #ff5e62, #ff9966);
+            color: #fff;
+        }
+
+        /* Таймер энергии */
+        .timer-circle-box {
+            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 5px 0;
-        }
-
-        .circle-progress {
             position: relative;
-            width: 75px;
-            height: 75px;
+            width: 65px;
+            height: 65px;
+            margin: 5px auto 0;
         }
 
-        .circle-progress svg {
-            width: 75px;
-            height: 75px;
+        .timer-circle-box svg {
+            width: 65px;
+            height: 65px;
             transform: rotate(-90deg);
         }
 
-        .circle-progress circle {
-            fill: none;
-            stroke-width: 6;
-        }
-
-        .circle-progress .bg-circle {
-            stroke: rgba(255, 255, 255, 0.05);
-        }
-
-        .circle-progress .progress-bar {
+        .timer-circle-box circle { fill: none; stroke-width: 5; }
+        .timer-circle-box .bg-c { stroke: rgba(255,255,255,0.03); }
+        .timer-circle-box .bar-c {
             stroke: var(--accent-blue);
             stroke-linecap: round;
             transition: stroke-dashoffset 1s linear;
         }
 
-        .timer-text {
+        .t-text {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             font-weight: 700;
-            text-align: center;
         }
 
-        .timer-subtext {
-            font-size: 0.65rem;
+        /* Кнопка 3-часового бонуса */
+        .btn-claim-x2 {
+            width: 100%;
+            background: linear-gradient(135deg, #00b4db, #0083b0);
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 10px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 180, 219, 0.2);
+            transition: all 0.3s;
+        }
+        .btn-claim-x2:disabled {
+            background: rgba(255,255,255,0.05);
             color: var(--text-muted);
-            text-align: center;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Магазин Бустов */
+        .shop-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
             margin-top: 8px;
         }
 
-        /* Реферальная панель */
-        .ref-title {
-            text-align: center;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 15px;
-            color: #b5b0e3;
-        }
-
-        .ref-content {
+        .shop-item {
             display: flex;
-            gap: 12px;
+            justify-content: space-between;
             align-items: center;
-        }
-
-        .ref-stat-box {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.03);
+            padding: 10px 14px;
             border-radius: 14px;
-            padding: 10px;
-            text-align: center;
-            min-width: 85px;
         }
 
-        .ref-stat-num {
-            font-size: 1.5rem;
-            font-weight: 800;
-            color: var(--text-main);
-        }
-
-        .ref-link-section {
-            flex-grow: 1;
-        }
-
-        .ref-input-wrapper {
+        .item-details { display: flex; align-items: center; gap: 12px; }
+        .item-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(157, 78, 221, 0.15);
+            border-radius: 10px;
             display: flex;
-            background: rgba(0, 0, 0, 0.25);
-            border: 1px solid var(--card-border);
-            border-radius: 12px;
-            padding: 4px;
             align-items: center;
-            position: relative;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--accent-purple);
         }
 
-        .ref-input {
-            background: transparent;
-            border: none;
-            color: var(--text-main);
-            padding: 8px;
-            font-size: 0.75rem;
-            width: 100%;
-            outline: none;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .copy-btn {
-            background: rgba(142, 102, 242, 0.3);
-            border: 1px solid rgba(142, 102, 242, 0.5);
-            color: #cbb4ff;
+        .item-name { font-size: 0.8rem; font-weight: 700; margin-bottom: 2px;}
+        .item-effect { font-size: 0.65rem; color: var(--text-muted); }
+        
+        .buy-btn {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            color: var(--accent-gold);
             padding: 8px 12px;
             border-radius: 10px;
             font-size: 0.7rem;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s;
-            white-space: nowrap;
+        }
+        .buy-btn:hover { background: rgba(255, 215, 0, 0.2); }
+        .buy-btn.owned {
+            background: rgba(0, 255, 163, 0.1);
+            border: 1px solid rgba(0, 255, 163, 0.3);
+            color: var(--accent-green);
+            cursor: default;
         }
 
-        .copy-btn:hover {
-            background: rgba(142, 102, 242, 0.5);
-        }
-
-        .toast-copied {
-            position: absolute;
-            bottom: -30px;
-            right: 10px;
-            background: var(--accent-green);
-            color: #000;
-            font-size: 0.65rem;
-            font-weight: 700;
-            padding: 3px 8px;
-            border-radius: 6px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-        .ref-note {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-top: 12px;
-            line-height: 1.3;
-        }
-
-        /* Кнопки управления */
-        .actions-container {
-            display: flex;
-            gap: 12px;
-            margin-top: 15px;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 15px;
-            border-radius: 16px;
-            font-size: 0.85rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            border: none;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #1e1b3a 0%, #2a2554 100%);
-            color: var(--text-muted);
-            border: 1px solid var(--card-border);
-            cursor: not-allowed;
-        }
-
-        .btn-primary.active {
-            background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
-            color: #fff;
-            box-shadow: 0 4px 20px rgba(0, 114, 255, 0.4);
-            cursor: pointer;
-        }
-
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid rgba(0, 209, 255, 0.4);
-            color: var(--accent-blue);
-            box-shadow: inset 0 0 10px rgba(0, 209, 255, 0.1);
-        }
-
-        /* Окно Туториала (Modal) */
-        .tutorial-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(5, 4, 10, 0.85);
-            backdrop-filter: blur(8px);
-            z-index: 1000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .tutorial-overlay.show {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .tutorial-card {
-            background: #15122c;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            width: 100%;
-            max-width: 400px;
-            padding: 25px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+        /* Панель вывода */
+        .withdraw-box {
             text-align: center;
+            padding: 5px 0;
         }
-
-        .tutor-icon {
-            font-size: 2.5rem;
-            color: var(--accent-gold);
-            margin-bottom: 15px;
-        }
-
-        .tutorial-card h3 {
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-            letter-spacing: 0.5px;
-        }
-
-        .tutorial-card p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-
-        .tutor-steps {
-            text-align: left;
-            margin-bottom: 25px;
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 14px;
-        }
-
-        .tutor-step {
-            display: flex;
-            gap: 12px;
-            font-size: 0.8rem;
+        .withdraw-warn {
+            font-size: 0.65rem;
+            color: #ff5e62;
+            background: rgba(255, 94, 98, 0.08);
+            padding: 8px;
+            border-radius: 10px;
             margin-bottom: 12px;
             line-height: 1.4;
+            border: 1px dashed rgba(255, 94, 98, 0.2);
+        }
+        .withdraw-warn.unlocked {
+            color: var(--accent-green);
+            background: rgba(0, 255, 163, 0.08);
+            border-color: rgba(0, 255, 163, 0.2);
         }
 
-        .tutor-step:last-child { margin-bottom: 0; }
-
-        .tutor-step i {
-            margin-top: 3px;
+        /* Нижние Кнопки */
+        .actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn {
+            flex: 1; padding: 14px; border-radius: 14px;
+            font-size: 0.8rem; font-weight: 700; text-transform: uppercase;
+            border: none; cursor: pointer; transition: all 0.3s;
+            display: flex; justify-content: center; align-items: center; gap: 6px;
+        }
+        .btn-main {
+            background: rgba(255,255,255,0.04); color: var(--text-muted);
+            border: 1px solid var(--card-border); cursor: not-allowed;
+        }
+        .btn-main.ready {
+            background: linear-gradient(135deg, #00ffa3 0%, #00b4db 100%);
+            color: #000; font-weight: 800; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 255, 163, 0.3);
+        }
+        .btn-withdraw {
+            background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.2);
+            border: 1px solid var(--card-border); cursor: not-allowed;
+        }
+        .btn-withdraw.ready {
+            background: linear-gradient(135deg, #ffd700, #ffa500);
+            color: #000; font-weight: 800; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
         }
 
-        .btn-tutor-close {
-            background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
-            color: #fff;
-            padding: 12px 30px;
-            font-size: 0.85rem;
-            font-weight: bold;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            width: 100%;
-            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+        /* Окно Инструкции */
+        .modal {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(5,4,10,0.9); backdrop-filter: blur(6px);
+            z-index:1000; display:flex; justify-content:center; align-items:center;
+            padding:20px; opacity:0; pointer-events:none; transition: opacity 0.3s;
+        }
+        .modal.show { opacity:1; pointer-events:auto; }
+        .modal-body {
+            background: #120f26; border: 1px solid var(--card-border);
+            border-radius: 20px; padding: 22px; width: 100%; max-width: 380px; text-align: center;
+        }
+        .modal-body h3 { font-size: 1.2rem; margin-bottom: 12px; }
+        .modal-body p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; margin-bottom: 15px;}
+        .steps { text-align: left; background: rgba(0,0,0,0.2); padding: 12px; border-radius:12px; margin-bottom:15px; font-size: 0.75rem;}
+        .step { margin-bottom: 8px; display: flex; gap: 8px; line-height: 1.3;}
+        .step:last-child { margin-bottom: 0; }
+        .close-m {
+            background: linear-gradient(135deg, #9d4edd, #6c63ff); color: white;
+            width: 100%; padding: 12px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer;
         }
 
-        .btn-help-tutor {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.08);
-            color: var(--text-muted);
-            font-size: 0.65rem;
-            padding: 6px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 15px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        /* Анимации */
         @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 163, 0.5); }
-            70% { transform: scale(1); box-shadow: 0 0 0 8px rgba(0, 255, 163, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 255, 163, 0); }
+            0% { transform: scale(0.97); box-shadow: 0 0 0 0 rgba(0, 255, 163, 0.4); }
+            70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 255, 163, 0); }
+            100% { transform: scale(0.97); box-shadow: 0 0 0 0 rgba(0, 255, 163, 0); }
         }
-
         @keyframes swing {
-            0% { transform: rotate(0deg); }
-            20% { transform: rotate(-15deg); }
-            40% { transform: rotate(10deg); }
-            60% { transform: rotate(-5deg); }
-            80% { transform: rotate(5deg); }
-            100% { transform: rotate(0deg); }
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-20deg); }
         }
-
         @keyframes rocket-float {
-            0% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-4px) rotate(5deg); }
-            100% { transform: translateY(0px) rotate(0deg); }
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
         }
-
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-<div class="app-container" id="main-app">
-    
+<div class="app-container" id="app">
     <header>
-        <div class="logo">
-            <i class="fas fa-rocket"></i>
-            <span>STARMINER PRO</span>
-        </div>
-        <div class="wallet-btn">
-            WALLET CONNECTED
-            <span>Address: (S:8...9745)</span>
-        </div>
+        <div class="logo"><i class="fas fa-rocket"></i><span>STARMINER PRO</span></div>
+        <div class="wallet-btn">ADMIN: @markplau</div>
     </header>
 
     <div class="dashboard-grid">
-        
         <div class="card">
             <div class="card-label">MINING STATUS</div>
-            <div class="status-container-box" id="status-box">
-                <div class="status-pulse"></div>
-                <span id="status-text">STOPPED</span>
+            <div class="status-box" id="status-box">
+                <div class="status-pulse"></div><span id="status-text">STOPPED</span>
             </div>
-            
-            <div class="mining-animation">
-                <i class="fas fa-pickaxe" id="pickaxe-icon" style="color: rgba(255,255,255,0.15);"></i>
-            </div>
-            
-            <div class="sys-info">
-                <span id="sys-msg">Energy depleted. Restart mining process.</span>
+            <div class="pickaxe-zone"><i class="fas fa-pickaxe" id="px"></i></div>
+            <div class="sys-info" style="font-size:0.65rem; color:var(--text-muted); margin-top:15px;">
+                <span id="sys-msg">Energy depleted. Click START.</span>
             </div>
         </div>
 
         <div class="card">
             <div class="card-label">CURRENT BALANCE</div>
-            <div class="balance-value">
-                <span id="balance">0.00000</span>
-                <i class="fas fa-star"></i>
-            </div>
-            
+            <div class="balance-value"><span id="balance">0.00000</span> <i class="fas fa-star"></i></div>
             <svg class="mini-chart" viewBox="0 0 100 30">
-                <defs>
-                    <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stop-color="var(--accent-gold)" stop-opacity="0.2"/>
-                        <stop offset="100%" stop-color="var(--accent-gold)" stop-opacity="0"/>
-                    </linearGradient>
-                </defs>
-                <path d="M0,25 Q15,18 30,22 T60,12 T100,5" fill="none" stroke="var(--accent-gold)" stroke-width="2" stroke-linecap="round"/>
-                <path d="M0,25 Q15,18 30,22 T60,12 T100,5 L100,30 L0,30 Z" fill="url(#chart-grad)"/>
-                <circle cx="100" cy="5" r="2" fill="var(--accent-gold)"/>
+                <path d="M0,25 Q15,18 30,22 T60,12 T100,5" fill="none" stroke="var(--accent-gold)" stroke-width="2"/>
             </svg>
         </div>
 
         <div class="card">
             <div class="card-label">MINING RATE</div>
-            <div class="rate-value"><span id="mining-rate">2.0</span> <span style="font-size: 0.75rem; color: var(--text-muted);">STAR/hour</span></div>
-            
-            <div class="booster-badge">
-                <i class="fas fa-bolt"></i> x2 BOOSTER
-            </div>
-            <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 8px;">
-                +0.1 /hour per active referral.
+            <div class="rate-value"><span id="rate">2.0</span> <span style="font-size:0.7rem; color:var(--text-muted);">STAR/h</span></div>
+            <div class="active-boosters-container">
+                <div class="badge-info active" id="b-x2" style="display:none;"><i class="fas fa-bolt"></i> X2 active</div>
+                <div class="badge-info" id="active-item-badge"><i class="fas fa-hammer"></i> No item boost</div>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-label">TIME BOOSTER</div>
-            <div class="timer-container">
-                <div class="circle-progress">
-                    <svg>
-                        <circle class="bg-circle" cx="37.5" cy="37.5" r="32"></circle>
-                        <circle class="progress-bar" id="progress-circle" cx="37.5" cy="37.5" r="32"></circle>
-                    </svg>
-                    <div class="timer-text" id="countdown-text">56:00</div>
-                </div>
+            <div class="card-label">ENERGY TIMER</div>
+            <div class="timer-circle-box">
+                <svg><circle class="bg-c" cx="32.5" cy="32.5" r="28"></circle><circle class="bar-c" id="p-bar" cx="32.5" cy="32.5" r="28"></circle></svg>
+                <div class="t-text" id="t-clock">56:00</div>
             </div>
-            <div class="timer-subtext" id="timer-status">No energy left. Click START.</div>
+            <button class="btn-claim-x2" id="x2-btn" onclick="claimX2Bonus()">БОНУС X2 (3ч)</button>
         </div>
 
         <div class="card card-full">
-            <div class="ref-title">REFERRAL PANEL</div>
-            
-            <div class="ref-content">
-                <div class="ref-stat-box">
-                    <div class="card-label" style="margin-bottom:4px; font-size:0.6rem;">ACTIVE REFS</div>
-                    <div class="ref-stat-num" id="ref-count">0</div>
-                </div>
-                
-                <div class="ref-link-section">
-                    <div class="card-label" style="margin-bottom:4px; font-size:0.6rem;">REFERRAL LINK</div>
-                    <div class="ref-input-wrapper">
-                        <input type="text" class="ref-input" id="ref-url" value="https://t.me/hourly_stars_bot?start=user_8099745284" readonly>
-                        <button class="copy-btn" onclick="copyRefLink()">COPY LINK</button>
-                        <div class="toast-copied" id="toast">Copied!</div>
+            <div class="card-label">МАГАЗИН БУСТОВ (ПОКУПКА ЧЕРЕЗ АДМИНА)</div>
+            <div class="shop-grid">
+                <div class="shop-item">
+                    <div class="item-details">
+                        <div class="item-icon"><i class="fas fa-gavel"></i></div>
+                        <div>
+                            <div class="item-name">Бронзовая кирка</div>
+                            <div class="item-effect">Скорость добычи: х1.5</div>
+                        </div>
                     </div>
+                    <button class="buy-btn" id="btn-boost-1" onclick="buyBoost('Bronze Pickaxe', 150, 1.5, 1)">150 STAR</button>
                 </div>
-            </div>
-            
-            <div class="ref-note">
-                <strong>+0.1 /час</strong> за каждого активного реферала.<br>
-                Приглашайте друзей для увеличения базовой скорости майнинга.
+                <div class="shop-item">
+                    <div class="item-details">
+                        <div class="item-icon" style="color:var(--accent-blue)"><i class="fas fa-tools"></i></div>
+                        <div>
+                            <div class="item-name">Серебряный Бустер</div>
+                            <div class="item-effect">Скорость добычи: х3.0</div>
+                        </div>
+                    </div>
+                    <button class="buy-btn" id="btn-boost-2" onclick="buyBoost('Silver Booster', 350, 3.0, 2)">350 STAR</button>
+                </div>
+                <div class="shop-item">
+                    <div class="item-details">
+                        <div class="item-icon" style="color:var(--accent-gold)"><i class="fas fa-crown"></i></div>
+                        <div>
+                            <div class="item-name">Золотая Ракета</div>
+                            <div class="item-effect">Скорость добычи: х5.0</div>
+                        </div>
+                    </div>
+                    <button class="buy-btn" id="btn-boost-3" onclick="buyBoost('Gold Rocket', 600, 5.0, 3)">600 STAR</button>
+                </div>
             </div>
         </div>
 
+        <div class="card card-full">
+            <div class="card-label">ВЫВОД СРЕДСТВ</div>
+            <div class="withdraw-box">
+                <div class="withdraw-warn" id="w-warn">
+                    Вывод заблокирован. Условия разблокировки:<br>
+                    1. Баланс ≥ 100.00000 STAR (У тебя: <span id="warn-bal">0.000</span>)<br>
+                    2. Куплен минимум один буст в магазине (Статус: Не куплен)
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="actions-container">
-        <button class="btn btn-primary active" id="start-btn" onclick="startMining()">START MINING</button>
-        <button class="btn btn-secondary" onclick="shareProject()"><i class="fas fa-share-alt"></i> SHARE</button>
+    <div class="actions">
+        <button class="btn btn-main ready" id="action-btn" onclick="toggleMining()">START MINING</button>
+        <button class="btn btn-withdraw" id="w-btn" onclick="requestWithdraw()">WITHDRAW</button>
     </div>
 
-    <div style="text-align: center;">
-        <button class="btn-help-tutor" onclick="toggleTutorial(true)"><i class="far fa-question-circle"></i> Как это работает? (Инструкция)</button>
+    <div style="text-align:center; margin-top:12px;">
+        <span style="font-size:0.65rem; color:var(--text-muted); cursor:pointer;" onclick="showModal(true)"><i class="far fa-question-circle"></i> Инструкция по заработку</span>
     </div>
-
 </div>
 
-<div class="tutorial-overlay" id="tutorialModal">
-    <div class="tutorial-card">
-        <div class="tutor-icon"><i class="fas fa-star-shooting"></i></div>
-        <h3>Добро пожаловать в StarMiner!</h3>
-        <p>Это симулятор автономного Web3 майнинга звёзд. Всё готово к первому запуску!</p>
-        
-        <div class="tutor-steps">
-            <div class="tutor-step">
-                <i class="fas fa-play-circle" style="color: var(--accent-blue);"></i>
-                <div><strong>Шаг 1:</strong> Нажми кнопку <strong>START MINING</strong> на главном экране, чтобы активировать процесс добычи.</div>
-            </div>
-            <div class="tutor-step">
-                <i class="fas fa-hourglass-half" style="color: var(--accent-gold);"></i>
-                <div><strong>Шаг 2:</strong> Таймер бустера запустится на 56 минут. Пока он активен — баланс плавно увеличивается в реальном времени.</div>
-            </div>
-            <div class="tutor-step">
-                <i class="fas fa-users" style="color: var(--accent-green);"></i>
-                <div><strong>Шаг 3:</strong> Копируй свою реферальную ссылку. Каждый друг навсегда увеличивает твою скорость на <strong>+0.1 STAR/час</strong>!</div>
-            </div>
+<div class="modal" id="modal">
+    <div class="modal-body">
+        <h3>Как тут реально заработать? 💸</h3>
+        <p>StarMiner PRO — симулятор Web3 майнера с ручными выплатами через создателя проекта.</p>
+        <div class="steps">
+            <div class="step"><strong>1.</strong> Нажми START и добывай звёзды. Раз в 3 часа жми кнопку X2 для ускорения.</div>
+            <div class="step"><strong>2.</strong> Копи на бусты. Бусты увеличивают скорость навсегда и открывают функцию вывода.</div>
+            <div class="step"><strong>3.</strong> Как только наберёшь 100+ звёзд и купишь буст, кнопка WITHDRAW активируется и перенаправит тебя в личку к админу для ручной выплаты!</div>
         </div>
-
-        <button class="btn-tutor-close" onclick="toggleTutorial(false)">ПОНЯТНО, ПОЕХАЛИ!</button>
+        <button class="close-m" onclick="showModal(false)">ПОНЯЛ</button>
     </div>
 </div>
 
 <script>
-    // Проверяем первый запуск, если данных в памяти нет — жестко обнуляем
-    if (localStorage.getItem('sm_has_played') === null) {
+    // Первоначальное обнуление для старта с чистых нулей
+    if (localStorage.getItem('sm_v3_user') === null) {
         localStorage.clear();
-        localStorage.setItem('sm_has_played', 'true');
-        localStorage.setItem('sm_balance', '0.00000');
-        localStorage.setItem('sm_time_left', '0'); // Начинаем с остановленного таймера
-        localStorage.setItem('sm_refs', '0');
+        localStorage.setItem('sm_v3_user', 'true');
+        localStorage.setItem('sm_bal', '0.00000');
+        localStorage.setItem('sm_time', '0');
+        localStorage.setItem('sm_has_boost', 'false');
+        localStorage.setItem('sm_boost_multiplier', '1.0');
+        localStorage.setItem('sm_boost_id', '0');
+        localStorage.setItem('sm_cooldown', '0'); // Время окончания кулдауна x2 бонуса
     }
 
-    // Загрузка сохранённого состояния
-    let baseRate = 2.0; 
-    let refs = parseInt(localStorage.getItem('sm_refs')) || 0;
-    let balance = parseFloat(localStorage.getItem('sm_balance')) || 0.0;
-    let timeLeft = parseInt(localStorage.getItem('sm_time_left')) || 0;
-    let maxDuration = 3360; // 56 минут по умолчанию
+    let baseRate = 2.0;
+    let balance = parseFloat(localStorage.getItem('sm_bal')) || 0.0;
+    let timeLeft = parseInt(localStorage.getItem('sm_time')) || 0;
+    let hasBoost = localStorage.getItem('sm_has_boost') === 'true';
+    let itemMultiplier = parseFloat(localStorage.getItem('sm_boost_multiplier')) || 1.0;
+    let ownedBoostId = parseInt(localStorage.getItem('sm_boost_id')) || 0;
+    let x2CooldownEnd = parseInt(localStorage.getItem('sm_cooldown')) || 0; // timestamp
 
-    // Если при перезагрузке страницы время еще оставалось — майнинг продолжается
     let isMining = timeLeft > 0;
+    let isX2Active = false; // x2 активен, пока идет таймер после нажатия кнопки бонуса
+    let maxDuration = 3360; // 56 минут
 
-    // Элементы DOM
-    const appContainer = document.getElementById('main-app');
+    // DOM элементы
     const balanceEl = document.getElementById('balance');
-    const rateEl = document.getElementById('mining-rate');
-    const refCountEl = document.getElementById('ref-count');
-    const countdownText = document.getElementById('countdown-text');
-    const progressCircle = document.getElementById('progress-circle');
-    const startBtn = document.getElementById('start-btn');
+    const rateEl = document.getElementById('rate');
+    const tClock = document.getElementById('t-clock');
+    const pBar = document.getElementById('p-bar');
+    const actionBtn = document.getElementById('action-btn');
+    const wBtn = document.getElementById('w-btn');
+    const x2Btn = document.getElementById('x2-btn');
     const statusText = document.getElementById('status-text');
-    const statusBox = document.getElementById('status-box');
+    const appContainer = document.getElementById('app');
     const sysMsg = document.getElementById('sys-msg');
-    const timerStatus = document.getElementById('timer-status');
-    const pickaxeIcon = document.getElementById('pickaxe-icon');
-    const tutorialModal = document.getElementById('tutorialModal');
+    const wWarn = document.getElementById('w-warn');
+    const warnBal = document.getElementById('warn-bal');
+    const badgeItem = document.getElementById('active-item-badge');
+    const badgeX2 = document.getElementById('b-x2');
 
-    // Настройка SVG круга времени
-    const radius = 32;
+    const radius = 28;
     const circumference = 2 * Math.PI * radius;
-    progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
+    pBar.style.strokeDasharray = `${circumference} ${circumference}`;
 
-    // Переключение туториала
-    function toggleTutorial(show) {
-        if (show) {
-            tutorialModal.classList.add('show');
-        } else {
-            tutorialModal.classList.remove('show');
-        }
+    function showModal(show) {
+        document.getElementById('modal').classList.toggle('show', show);
     }
 
-    // Показываем туториал автоматически при самом первом входе на сайт
-    if (!localStorage.getItem('sm_tutor_shown')) {
-        setTimeout(() => toggleTutorial(true), 600);
-        localStorage.setItem('sm_tutor_shown', 'true');
+    // Показ при самом первом входе
+    if(!localStorage.getItem('sm_v3_tutor')) {
+        setTimeout(() => showModal(true), 500);
+        localStorage.setItem('sm_v3_tutor', 'true');
     }
 
-    // Функция обновления UI
     function updateUI() {
-        let currentRate = baseRate + (refs * 0.1);
+        // Проверяем активность X2
+        isX2Active = (isMining && timeLeft > 0 && localStorage.getItem('sm_x2_running') === 'true');
+        
+        let finalMultiplier = itemMultiplier * (isX2Active ? 2.0 : 1.0);
+        let currentRate = baseRate * finalMultiplier;
+        
         rateEl.innerText = currentRate.toFixed(1);
-        refCountEl.innerText = refs;
         balanceEl.innerText = balance.toFixed(5);
+        warnBal.innerText = balance.toFixed(3);
 
+        // Рендер кнопок магазина
+        for(let i=1; i<=3; i++) {
+            let b = document.getElementById(`btn-boost-${i}`);
+            if(ownedBoostId === i) {
+                b.innerText = "КУПЛЕНО";
+                b.classList.add('owned');
+                b.disabled = true;
+            } else {
+                b.classList.remove('owned');
+                b.disabled = false;
+            }
+        }
+
+        // Рендер плашек бустов
+        if(hasBoost) {
+            badgeItem.innerText = `Item Boost x${itemMultiplier}`;
+            badgeItem.style.background = "rgba(157, 78, 221, 0.2)";
+            badgeItem.style.color = "#cbb4ff";
+        } else {
+            badgeItem.innerText = "No item boost";
+            badgeItem.style.background = "rgba(255,255,255,0.05)";
+            badgeItem.style.color = "var(--text-muted)";
+        }
+        badgeX2.style.display = isX2Active ? "inline-flex" : "none";
+
+        // Логика таймера майнинга
         if (isMining && timeLeft > 0) {
             appContainer.classList.add('mining-active');
-            
-            let minutes = Math.floor(timeLeft / 60);
-            let seconds = timeLeft % 60;
-            countdownText.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            
-            let offset = circumference - (timeLeft / maxDuration) * circumference;
-            progressCircle.style.strokeDashoffset = offset;
+            let mins = Math.floor(timeLeft / 60);
+            let secs = timeLeft % 60;
+            tClock.innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
+            pBar.style.strokeDashoffset = circumference - (timeLeft / maxDuration) * circumference;
             
             statusText.innerText = "ACTIVE";
             statusText.style.color = "var(--accent-green)";
-            sysMsg.innerText = "System optimized. Mining full capacity.";
-            timerStatus.innerText = "Expires soon. Refer to extend.";
-            startBtn.classList.remove('active');
+            sysMsg.innerText = "Mining stars at optimal performance.";
+            actionBtn.innerText = "STOP MINING";
+            actionBtn.classList.add('ready');
         } else {
             appContainer.classList.remove('mining-active');
-            countdownText.innerText = "56:00";
-            progressCircle.style.strokeDashoffset = circumference;
-            
+            tClock.innerText = "56:00";
+            pBar.style.strokeDashoffset = circumference;
             statusText.innerText = "STOPPED";
             statusText.style.color = "#ff5e62";
-            sysMsg.innerText = "Energy depleted. Restart mining process.";
-            timerStatus.innerText = "No energy left. Click START.";
-            startBtn.classList.add('active');
+            sysMsg.innerText = "Energy depleted. Click START.";
+            actionBtn.innerText = "START MINING";
+            actionBtn.classList.add('ready');
             isMining = false;
+            localStorage.setItem('sm_x2_running', 'false');
+        }
+
+        // Логика кулдауна кнопки бонуса X2
+        let now = Date.now();
+        if (now < x2CooldownEnd) {
+            let diff = Math.floor((x2CooldownEnd - now) / 1000);
+            let h = Math.floor(diff / 3600);
+            let m = Math.floor((diff % 3600) / 60);
+            let s = diff % 60;
+            x2Btn.innerText = `${h}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            x2Btn.disabled = true;
+        } else {
+            x2Btn.innerText = "БОНУС X2 (3ч)";
+            // Можно нажать кнопку бонуса только во время активного майнинга
+            x2Btn.disabled = !isMining; 
+        }
+
+        // Условия вывода: Баланс >= 100 И куплен буст
+        let canWithdraw = (balance >= 100.0) && hasBoost;
+        if(canWithdraw) {
+            wWarn.classList.add('unlocked');
+            wWarn.innerHTML = "✅ Условия выполнены! Доступ к выводу средств разблокирован.";
+            wBtn.classList.add('ready');
+        } else {
+            wWarn.classList.remove('unlocked');
+            let boostStatusText = hasBoost ? "Куплен" : "Не куплен";
+            wWarn.innerHTML = `Вывод заблокирован. Условия разблокировки:<br>
+            1. Баланс ≥ 100 STAR (У тебя: <strong>${balance.toFixed(3)}</strong>)<br>
+            2. Куплен буст в магазине (Статус: <strong>${boostStatusText}</strong>)`;
+            wBtn.classList.remove('ready');
         }
     }
 
-    // Запуск майнинга по кнопке
-    function startMining() {
+    // Включение / выключение майнинга
+    function toggleMining() {
         if (!isMining) {
-            timeLeft = 3360; // Ровно 56 минут
+            timeLeft = 3360; // 56 минут
             maxDuration = 3360;
             isMining = true;
-            localStorage.setItem('sm_time_left', timeLeft);
+        } else {
+            timeLeft = 0;
+            isMining = false;
+            localStorage.setItem('sm_x2_running', 'false');
+        }
+        localStorage.setItem('sm_time', timeLeft);
+        updateUI();
+    }
+
+    // Активация X2 бонуса
+    function claimX2Bonus() {
+        if(isMining && Date.now() >= x2CooldownEnd) {
+            localStorage.setItem('sm_x2_running', 'true');
+            // Ставим Кулдаун на 3 часа от текущего момента
+            x2CooldownEnd = Date.now() + (3 * 3600 * 1000); 
+            localStorage.setItem('sm_cooldown', x2CooldownEnd);
             updateUI();
         }
     }
 
-    // Логика каждую секунду
+    // Переброс в чат для покупки буста
+    function buyBoost(name, price, mult, id) {
+        let text = encodeURIComponent(`Привет! Я хочу приобрести буст "${name}" (x${mult}) за ${price} звёзд в игре StarMiner. Мой текущий баланс: ${balance.toFixed(2)} STAR.`);
+        window.open(`https://t.me/markplau?text=${text}`, '_blank');
+        
+        // --- ДЛЯ ТЕСТА (СИМУЛЯЦИЯ): ---
+        // Раскомментируй код ниже, если хочешь протестировать покупку прямо в браузере без отправки сообщений:
+        /*
+        hasBoost = true;
+        itemMultiplier = mult;
+        ownedBoostId = id;
+        localStorage.setItem('sm_has_boost', 'true');
+        localStorage.setItem('sm_boost_multiplier', itemMultiplier);
+        localStorage.setItem('sm_boost_id', ownedBoostId);
+        updateUI();
+        */
+    }
+
+    // Переброс в чат для вывода средств
+    function requestWithdraw() {
+        let canWithdraw = (balance >= 100.0) && hasBoost;
+        if(canWithdraw) {
+            let text = encodeURIComponent(`Привет, Марк! Я выполнил все условия, накопил баланс ${balance.toFixed(5)} STAR и хочу оформить вывод звёзд!`);
+            window.open(`https://t.me/markplau?text=${text}`, '_blank');
+        }
+    }
+
+    // Главный цикл (раз в секунду)
     setInterval(() => {
         if (isMining && timeLeft > 0) {
             timeLeft--;
             
-            let currentRate = baseRate + (refs * 0.1);
-            let minedPerSecond = currentRate / 3600;
-            balance += minedPerSecond;
+            isX2Active = (localStorage.getItem('sm_x2_running') === 'true');
+            let finalMultiplier = itemMultiplier * (isX2Active ? 2.0 : 1.0);
+            let currentRate = baseRate * finalMultiplier;
+            
+            let minedPerSec = currentRate / 3600;
+            balance += minedPerSec;
 
-            localStorage.setItem('sm_balance', balance);
-            localStorage.setItem('sm_time_left', timeLeft);
+            localStorage.setItem('sm_bal', balance);
+            localStorage.setItem('sm_time', timeLeft);
         }
         updateUI();
     }, 1000);
 
-    // Копирование ссылки
-    function copyRefLink() {
-        const copyText = document.getElementById("ref-url");
-        copyText.select();
-        copyText.setSelectionRange(0, 99999);
-        navigator.clipboard.writeText(copyText.value);
-
-        // Симулируем добавление реферала в фоновом режиме для наглядности (тест)
-        if(refs < 5) {
-            refs++;
-            localStorage.setItem('sm_refs', refs);
-        }
-
-        const toast = document.getElementById("toast");
-        toast.style.opacity = "1";
-        setTimeout(() => {
-            toast.style.opacity = "0";
-        }, 2000);
-    }
-
-    // Кнопка Share
-    function shareProject() {
-        if (navigator.share) {
-            navigator.share({
-                title: 'STARMINER PRO',
-                text: 'Запускай автоматический майнер звёзд прямо с нуля!',
-                url: window.location.href
-            });
-        } else {
-            alert("Ссылка скопирована: " + window.location.href);
-        }
-    }
-
-    // Первичный рендер интерфейса
     updateUI();
 </script>
 
