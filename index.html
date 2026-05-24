@@ -36,7 +36,7 @@
             overflow-x: hidden;
         }
 
-        /* Основной контейнер (имитация приложения) */
+        /* Основной контейнер */
         .app-container {
             width: 100%;
             max-width: 480px;
@@ -77,7 +77,6 @@
             border-radius: 12px;
             font-size: 0.75rem;
             text-align: right;
-            cursor: pointer;
             backdrop-filter: blur(5px);
         }
 
@@ -124,21 +123,27 @@
         }
 
         /* Карточка статуса */
-        .status-active {
-            color: var(--accent-green);
+        .status-container-box {
+            color: var(--text-muted);
             font-weight: 800;
             font-size: 1.5rem;
             display: flex;
             align-items: center;
             gap: 10px;
             margin-top: 10px;
+            transition: color 0.3s;
         }
 
         .status-pulse {
             width: 12px;
             height: 12px;
-            background: var(--accent-green);
+            background: #ff5e62;
             border-radius: 50%;
+            box-shadow: 0 0 12px #ff5e62;
+        }
+
+        .mining-active .status-pulse {
+            background: var(--accent-green);
             box-shadow: 0 0 12px var(--accent-green);
             animation: pulse 1.5s infinite;
         }
@@ -152,8 +157,12 @@
         }
 
         .mining-animation i {
-            animation: swing 2s ease-in-out infinite;
             display: inline-block;
+        }
+
+        .mining-active .mining-animation i {
+            animation: swing 2s ease-in-out infinite;
+            color: #6c63ff !important;
         }
 
         .sys-info {
@@ -178,6 +187,9 @@
         .balance-value i {
             color: var(--accent-gold);
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+
+        .mining-active .balance-value i {
             animation: spin-slow 6s linear infinite;
         }
 
@@ -186,6 +198,11 @@
             width: 100%;
             height: 50px;
             margin-top: 15px;
+            opacity: 0.3;
+            transition: opacity 0.5s;
+        }
+        .mining-active .mini-chart {
+            opacity: 1;
         }
 
         /* Карточка скорости */
@@ -357,7 +374,7 @@
             line-height: 1.3;
         }
 
-        /* Кнопки управления внизу */
+        /* Кнопки управления */
         .actions-container {
             display: flex;
             gap: 12px;
@@ -402,23 +419,107 @@
             box-shadow: inset 0 0 10px rgba(0, 209, 255, 0.1);
         }
 
-        .btn-secondary:hover {
-            background: rgba(0, 209, 255, 0.1);
+        /* Окно Туториала (Modal) */
+        .tutorial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 4, 10, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
         }
 
-        /* Кнопка для теста */
-        .test-panel {
-            margin-top: 15px;
+        .tutorial-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .tutorial-card {
+            background: #15122c;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
+            padding: 25px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
             text-align: center;
         }
-        .btn-test {
+
+        .tutor-icon {
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 15px;
+        }
+
+        .tutorial-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .tutorial-card p {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .tutor-steps {
+            text-align: left;
+            margin-bottom: 25px;
+            background: rgba(0,0,0,0.2);
+            padding: 15px;
+            border-radius: 14px;
+        }
+
+        .tutor-step {
+            display: flex;
+            gap: 12px;
+            font-size: 0.8rem;
+            margin-bottom: 12px;
+            line-height: 1.4;
+        }
+
+        .tutor-step:last-child { margin-bottom: 0; }
+
+        .tutor-step i {
+            margin-top: 3px;
+        }
+
+        .btn-tutor-close {
+            background: linear-gradient(135deg, #00f0ff 0%, #0072ff 100%);
+            color: #fff;
+            padding: 12px 30px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            width: 100%;
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+        }
+
+        .btn-help-tutor {
             background: rgba(255,255,255,0.03);
-            border: 1px dashed rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.08);
             color: var(--text-muted);
             font-size: 0.65rem;
             padding: 6px 12px;
             border-radius: 8px;
             cursor: pointer;
+            margin-top: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
         }
 
         /* Анимации */
@@ -451,7 +552,7 @@
 </head>
 <body>
 
-<div class="app-container">
+<div class="app-container" id="main-app">
     
     <header>
         <div class="logo">
@@ -460,33 +561,32 @@
         </div>
         <div class="wallet-btn">
             WALLET CONNECTED
-            <span id="wallet-addr">Address: (S:8...9745)</span>
+            <span>Address: (S:8...9745)</span>
         </div>
     </header>
 
     <div class="dashboard-grid">
         
         <div class="card">
-            <div class="card-label">MINING STATUS <i class="fas fa-heartbeat" style="color: var(--accent-green)"></i></div>
-            <div class="status-active" id="status-container">
-                <div class="status-pulse" id="status-dot"></div>
-                <span id="status-text">ACTIVE</span>
+            <div class="card-label">MINING STATUS</div>
+            <div class="status-container-box" id="status-box">
+                <div class="status-pulse"></div>
+                <span id="status-text">STOPPED</span>
             </div>
             
             <div class="mining-animation">
-                <i class="fas fa-pickaxe" id="pickaxe-icon" style="color: #6c63ff;"></i>
+                <i class="fas fa-pickaxe" id="pickaxe-icon" style="color: rgba(255,255,255,0.15);"></i>
             </div>
             
             <div class="sys-info">
-                <div class="status-pulse" style="width:6px; height:6px; animation-duration: 0.8s;"></div>
-                <span id="sys-msg">System optimized. Mining full capacity.</span>
+                <span id="sys-msg">Energy depleted. Restart mining process.</span>
             </div>
         </div>
 
         <div class="card">
             <div class="card-label">CURRENT BALANCE</div>
             <div class="balance-value">
-                <span id="balance">0.1575</span>
+                <span id="balance">0.00000</span>
                 <i class="fas fa-star"></i>
             </div>
             
@@ -526,7 +626,7 @@
                     <div class="timer-text" id="countdown-text">56:00</div>
                 </div>
             </div>
-            <div class="timer-subtext" id="timer-status">Expires soon. Refer to extend.</div>
+            <div class="timer-subtext" id="timer-status">No energy left. Click START.</div>
         </div>
 
         <div class="card card-full">
@@ -550,39 +650,70 @@
             
             <div class="ref-note">
                 <strong>+0.1 /час</strong> за каждого активного реферала.<br>
-                Приглашайте друзей, чтобы увеличить скорость и продлить время авто-майнинга!
+                Приглашайте друзей для увеличения базовой скорости майнинга.
             </div>
         </div>
 
     </div>
 
     <div class="actions-container">
-        <button class="btn btn-primary" id="start-btn" onclick="startMining()">START MINING</button>
-        <button class="btn btn-secondary" onclick="shareProject()">SHARE PROJECT</button>
+        <button class="btn btn-primary active" id="start-btn" onclick="startMining()">START MINING</button>
+        <button class="btn btn-secondary" onclick="shareProject()"><i class="fas fa-share-alt"></i> SHARE</button>
     </div>
 
-    <div class="test-panel">
-        <button class="btn-test" onclick="simulateReferral()"><i class="fas fa-flask"></i> Сэмулировать реферала (+1 друг и +30 мин буста)</button>
+    <div style="text-align: center;">
+        <button class="btn-help-tutor" onclick="toggleTutorial(true)"><i class="far fa-question-circle"></i> Как это работает? (Инструкция)</button>
     </div>
 
 </div>
 
+<div class="tutorial-overlay" id="tutorialModal">
+    <div class="tutorial-card">
+        <div class="tutor-icon"><i class="fas fa-star-shooting"></i></div>
+        <h3>Добро пожаловать в StarMiner!</h3>
+        <p>Это симулятор автономного Web3 майнинга звёзд. Всё готово к первому запуску!</p>
+        
+        <div class="tutor-steps">
+            <div class="tutor-step">
+                <i class="fas fa-play-circle" style="color: var(--accent-blue);"></i>
+                <div><strong>Шаг 1:</strong> Нажми кнопку <strong>START MINING</strong> на главном экране, чтобы активировать процесс добычи.</div>
+            </div>
+            <div class="tutor-step">
+                <i class="fas fa-hourglass-half" style="color: var(--accent-gold);"></i>
+                <div><strong>Шаг 2:</strong> Таймер бустера запустится на 56 минут. Пока он активен — баланс плавно увеличивается в реальном времени.</div>
+            </div>
+            <div class="tutor-step">
+                <i class="fas fa-users" style="color: var(--accent-green);"></i>
+                <div><strong>Шаг 3:</strong> Копируй свою реферальную ссылку. Каждый друг навсегда увеличивает твою скорость на <strong>+0.1 STAR/час</strong>!</div>
+            </div>
+        </div>
+
+        <button class="btn-tutor-close" onclick="toggleTutorial(false)">ПОНЯТНО, ПОЕХАЛИ!</button>
+    </div>
+</div>
+
 <script>
-    // Инициализация базовых значений игры
-    let baseRate = 2.0; 
-    let refs = parseInt(localStorage.getItem('sm_refs')) || 0;
-    let balance = parseFloat(localStorage.getItem('sm_balance')) || 0.1575;
-    
-    // Время буста майнинга в секундах (по умолчанию 56 минут = 3360 сек)
-    let maxDuration = 3360; 
-    let timeLeft = parseInt(localStorage.getItem('sm_time_left'));
-    if (isNaN(timeLeft)) {
-        timeLeft = 3360; 
+    // Проверяем первый запуск, если данных в памяти нет — жестко обнуляем
+    if (localStorage.getItem('sm_has_played') === null) {
+        localStorage.clear();
+        localStorage.setItem('sm_has_played', 'true');
+        localStorage.setItem('sm_balance', '0.00000');
+        localStorage.setItem('sm_time_left', '0'); // Начинаем с остановленного таймера
+        localStorage.setItem('sm_refs', '0');
     }
 
+    // Загрузка сохранённого состояния
+    let baseRate = 2.0; 
+    let refs = parseInt(localStorage.getItem('sm_refs')) || 0;
+    let balance = parseFloat(localStorage.getItem('sm_balance')) || 0.0;
+    let timeLeft = parseInt(localStorage.getItem('sm_time_left')) || 0;
+    let maxDuration = 3360; // 56 минут по умолчанию
+
+    // Если при перезагрузке страницы время еще оставалось — майнинг продолжается
     let isMining = timeLeft > 0;
 
     // Элементы DOM
+    const appContainer = document.getElementById('main-app');
     const balanceEl = document.getElementById('balance');
     const rateEl = document.getElementById('mining-rate');
     const refCountEl = document.getElementById('ref-count');
@@ -590,26 +721,42 @@
     const progressCircle = document.getElementById('progress-circle');
     const startBtn = document.getElementById('start-btn');
     const statusText = document.getElementById('status-text');
-    const statusDot = document.getElementById('status-dot');
+    const statusBox = document.getElementById('status-box');
     const sysMsg = document.getElementById('sys-msg');
     const timerStatus = document.getElementById('timer-status');
     const pickaxeIcon = document.getElementById('pickaxe-icon');
+    const tutorialModal = document.getElementById('tutorialModal');
 
     // Настройка SVG круга времени
     const radius = 32;
     const circumference = 2 * Math.PI * radius;
     progressCircle.style.strokeDasharray = `${circumference} ${circumference}`;
 
-    // Обновление интерфейса
+    // Переключение туториала
+    function toggleTutorial(show) {
+        if (show) {
+            tutorialModal.classList.add('show');
+        } else {
+            tutorialModal.classList.remove('show');
+        }
+    }
+
+    // Показываем туториал автоматически при самом первом входе на сайт
+    if (!localStorage.getItem('sm_tutor_shown')) {
+        setTimeout(() => toggleTutorial(true), 600);
+        localStorage.setItem('sm_tutor_shown', 'true');
+    }
+
+    // Функция обновления UI
     function updateUI() {
-        // Рассчитываем итоговую скорость (+0.1 за реферала)
         let currentRate = baseRate + (refs * 0.1);
         rateEl.innerText = currentRate.toFixed(1);
         refCountEl.innerText = refs;
         balanceEl.innerText = balance.toFixed(5);
 
-        // Таймер и прогресс-бар
-        if (timeLeft > 0) {
+        if (isMining && timeLeft > 0) {
+            appContainer.classList.add('mining-active');
+            
             let minutes = Math.floor(timeLeft / 60);
             let seconds = timeLeft % 60;
             countdownText.innerText = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
@@ -617,65 +764,63 @@
             let offset = circumference - (timeLeft / maxDuration) * circumference;
             progressCircle.style.strokeDashoffset = offset;
             
-            // Если майнинг активен
             statusText.innerText = "ACTIVE";
             statusText.style.color = "var(--accent-green)";
-            statusDot.style.backgroundColor = "var(--accent-green)";
-            statusDot.style.boxShadow = "0 0 12px var(--accent-green)";
             sysMsg.innerText = "System optimized. Mining full capacity.";
             timerStatus.innerText = "Expires soon. Refer to extend.";
-            pickaxeIcon.style.animation = "swing 2s ease-in-out infinite";
             startBtn.classList.remove('active');
         } else {
-            countdownText.innerText = "00:00";
+            appContainer.classList.remove('mining-active');
+            countdownText.innerText = "56:00";
             progressCircle.style.strokeDashoffset = circumference;
             
-            // Если майнинг остановлен (время вышло)
             statusText.innerText = "STOPPED";
             statusText.style.color = "#ff5e62";
-            statusDot.style.backgroundColor = "#ff5e62";
-            statusDot.style.boxShadow = "0 0 12px #ff5e62";
             sysMsg.innerText = "Energy depleted. Restart mining process.";
             timerStatus.innerText = "No energy left. Click START.";
-            pickaxeIcon.style.animation = "none";
             startBtn.classList.add('active');
             isMining = false;
         }
     }
 
-    // Основной цикл игры (срабатывает раз в секунду)
-    setInterval(() => {
-        if (isMining && timeLeft > 0) {
-            timeLeft--;
-            
-            // Сколько капает в секунду: скорость / 3600
-            let currentRate = baseRate + (refs * 0.1);
-            let minedPerSecond = currentRate / 3600;
-            balance += minedPerSecond;
-
-            // Сохраняем данные
-            localStorage.setItem('sm_balance', balance);
-            localStorage.setItem('sm_time_left', timeLeft);
-        }
-        updateUI();
-    }, 1000);
-
-    // Функция ручного перезапуска майнинга
+    // Запуск майнинга по кнопке
     function startMining() {
-        if (!isMining && timeLeft === 0) {
-            timeLeft = 3360; // Перезапускаем на 56 минут
+        if (!isMining) {
+            timeLeft = 3360; // Ровно 56 минут
+            maxDuration = 3360;
             isMining = true;
             localStorage.setItem('sm_time_left', timeLeft);
             updateUI();
         }
     }
 
-    // Копирование реферальной ссылки
+    // Логика каждую секунду
+    setInterval(() => {
+        if (isMining && timeLeft > 0) {
+            timeLeft--;
+            
+            let currentRate = baseRate + (refs * 0.1);
+            let minedPerSecond = currentRate / 3600;
+            balance += minedPerSecond;
+
+            localStorage.setItem('sm_balance', balance);
+            localStorage.setItem('sm_time_left', timeLeft);
+        }
+        updateUI();
+    }, 1000);
+
+    // Копирование ссылки
     function copyRefLink() {
         const copyText = document.getElementById("ref-url");
         copyText.select();
-        copyText.setSelectionRange(0, 99999); // Для мобильных
+        copyText.setSelectionRange(0, 99999);
         navigator.clipboard.writeText(copyText.value);
+
+        // Симулируем добавление реферала в фоновом режиме для наглядности (тест)
+        if(refs < 5) {
+            refs++;
+            localStorage.setItem('sm_refs', refs);
+        }
 
         const toast = document.getElementById("toast");
         toast.style.opacity = "1";
@@ -684,33 +829,20 @@
         }, 2000);
     }
 
-    // Поделиться проектом (Web Share API)
+    // Кнопка Share
     function shareProject() {
         if (navigator.share) {
             navigator.share({
                 title: 'STARMINER PRO',
-                text: 'Запускай автоматический майнер звёзд прямо сейчас!',
+                text: 'Запускай автоматический майнер звёзд прямо с нуля!',
                 url: window.location.href
             });
         } else {
-            alert("Ссылка на этот дашборд: " + window.location.href);
+            alert("Ссылка скопирована: " + window.location.href);
         }
     }
 
-    // Функция симуляции для разработчика (добавление реферала кликом)
-    function simulateReferral() {
-        refs++;
-        timeLeft += 1800; // Добавляем 30 минут буста к таймеру
-        if (timeLeft > maxDuration) {
-            maxDuration = timeLeft; // Расширяем лимит шкалы
-        }
-        isMining = true;
-        localStorage.setItem('sm_refs', refs);
-        localStorage.setItem('sm_time_left', timeLeft);
-        updateUI();
-    }
-
-    // Первая инициализация при загрузке
+    // Первичный рендер интерфейса
     updateUI();
 </script>
 
