@@ -231,7 +231,7 @@
         .btn:disabled { background: #1e1b24; color: #4e485d; box-shadow: none; cursor: not-allowed; }
         .btn .sub-timeout { display: block; font-size: 0.7rem; color: #ff3366; margin-top: 2px; }
 
-        /* 👑 АККУРАТНЫЙ ОБНОВЛЕННЫЙ HUD (РАЗДЕЛЕННЫЕ ВОЗДУШНЫЕ ВИДЖЕТЫ) */
+        /* АККУРАТНЫЙ ПАРЯЩИЙ HUD */
         .hud {
             display: flex;
             width: 100%;
@@ -250,8 +250,9 @@
             border-radius: 16px;
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
-            min-width: 110px;
+            min-width: 115px;
             box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            position: relative;
         }
 
         .hud-box {
@@ -272,6 +273,26 @@
         }
         #score { color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.2); }
         #timer { color: #ff3366; text-shadow: 0 0 10px rgba(255,51,102,0.2); }
+
+        /* ИНДИКАТОР КОМБО (АККУРАТНЫЙ БЭЙДЖ) */
+        .combo-badge {
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%) scale(0.8);
+            background: linear-gradient(135deg, #ff9900, #ff5500);
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.65rem;
+            font-weight: 900;
+            padding: 2px 8px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(255, 85, 0, 0.4);
+            opacity: 0;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            white-space: nowrap;
+        }
+        .combo-badge.active { opacity: 1; transform: translateX(-50%) scale(1); }
 
         canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: block; }
 
@@ -423,6 +444,7 @@
         <div class="hud">
             <div class="hud-card">
                 <div class="hud-box">Токены<div><span id="score">0</span></div></div>
+                <div class="combo-badge" id="combo-badge">COMBO x1</div>
             </div>
             <div class="hud-card">
                 <div class="hud-box">Время<div><span id="timer">30</span>с</div></div>
@@ -438,6 +460,7 @@
         const gameScreen = document.getElementById('game-screen');
         const scoreDisplay = document.getElementById('score');
         const timerDisplay = document.getElementById('timer');
+        const comboBadge = document.getElementById('combo-badge');
         const totalBalanceDisplay = document.getElementById('total-balance');
         const lastScoreDisplay = document.getElementById('last-score');
         const glow1 = document.getElementById('glow1');
@@ -620,12 +643,18 @@
         // ИГРОВОЙ ДВИЖОК
         let score = 0, timeLeft = 30, gameActive = false, isFrozen = false, freezeAlpha = 0, snowParticles = [], isStunned = false, lastTime = 0, spawnTimer = 0, secondTimer = 0;
         let isEndingStage = false, endStageAlpha = 0, timeScale = 1.0; 
-        let items = [], particles = [], stars = [], floatingTexts = [], shockwaves = [], visualTapWaves = [];
+        let items = [], particles = [], stars = [], floatingTexts = [], visualTapWaves = [];
+        
+        // Переменные комбо-системы
+        let comboStreak = 0;
+        let comboMultiplier = 1;
 
-        const SPAWN_RATE = 340;
+        const SPAWN_RATE = 330;
         const TYPES = {
-            CRYSTAL: { id: 'crystal', color: '#00ffcc', points: 10, chance: 0.84 },
-            BOMB: { id: 'bomb', color: '#ff3366', points: -50, chance: 0.13 },
+            CRYSTAL: { id: 'crystal', color: '#00ffcc', points: 10, chance: 0.70 },
+            GOLD: { id: 'gold', color: '#ffcc00', points: 30, chance: 0.08 }, // Золотой Jackpot
+            TIME: { id: 'time', color: '#ff33cc', points: 0, chance: 0.05 },    // +3 секунды
+            BOMB: { id: 'bomb', color: '#ff3366', points: -50, chance: 0.14 },
             FREEZE: { id: 'freeze', color: '#00b3ff', points: 5, chance: 0.03 } 
         };
 
@@ -654,8 +683,13 @@
 
         function startGame() {
             score = 0; timeLeft = 30; isFrozen = false; freezeAlpha = 0; isStunned = false; isEndingStage = false; endStageAlpha = 0; timeScale = 1.0;
-            items = []; particles = []; floatingTexts = []; shockwaves = []; snowParticles = []; visualTapWaves = [];
+            comboStreak = 0; comboMultiplier = 1;
+            items = []; particles = []; floatingTexts = []; snowParticles = []; visualTapWaves = [];
             scoreDisplay.textContent = score; timerDisplay.textContent = timeLeft;
+            
+            comboBadge.textContent = "COMBO x1";
+            comboBadge.classList.remove('active');
+
             menuScreen.style.display = 'none'; glow1.style.display = 'none'; glow2.style.display = 'none';
             gameScreen.style.display = 'flex';
             gameActive = true; lastTime = performance.now();
@@ -665,6 +699,16 @@
         function drawCrystal(ctx, x, y, size, angle) {
             ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.shadowBlur = 12; ctx.shadowColor = '#00ffcc'; ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2.5; ctx.fillStyle = 'rgba(0, 255, 204, 0.15)';
             ctx.beginPath(); ctx.moveTo(0, -size); ctx.lineTo(size * 0.7, -size * 0.2); ctx.lineTo(size * 0.5, size * 0.8); ctx.lineTo(0, size); ctx.lineTo(-size * 0.5, size * 0.8); ctx.lineTo(-size * 0.7, -size * 0.2); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+        }
+
+        function drawGoldCrystal(ctx, x, y, size, angle) {
+            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.shadowBlur = 18; ctx.shadowColor = '#ffcc00'; ctx.strokeStyle = '#ffcc00'; ctx.lineWidth = 3; ctx.fillStyle = 'rgba(255, 204, 0, 0.25)';
+            ctx.beginPath(); ctx.moveTo(0, -size * 1.1); ctx.lineTo(size * 0.8, -size * 0.2); ctx.lineTo(size * 0.5, size * 0.9); ctx.lineTo(0, size * 1.1); ctx.lineTo(-size * 0.5, size * 0.9); ctx.lineTo(-size * 0.8, -size * 0.2); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+        }
+
+        function drawTimeCrystal(ctx, x, y, size, angle) {
+            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.shadowBlur = 14; ctx.shadowColor = '#ff33cc'; ctx.strokeStyle = '#ff33cc'; ctx.lineWidth = 2.5; ctx.fillStyle = 'rgba(255, 51, 204, 0.2)';
+            ctx.beginPath(); ctx.moveTo(0, -size); ctx.lineTo(size * 0.6, -size * 0.6); ctx.lineTo(size, 0); ctx.lineTo(size * 0.6, size * 0.6); ctx.lineTo(0, size); ctx.lineTo(-size * 0.6, size * 0.6); ctx.lineTo(-size, 0); ctx.lineTo(-size * 0.6, -size * 0.6); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
         }
 
         function drawBomb(ctx, x, y, size, pulse) {
@@ -707,9 +751,12 @@
                 let item = items[i];
                 if (!isFrozen) { item.y += item.speed * timeScale; item.angle += item.rotSpeed * timeScale; }
                 if (item.y > window.innerHeight + 50) { items.splice(i, 1); continue; }
+                
                 if (item.type === 'crystal') drawCrystal(ctx, item.x, item.y, item.size, item.angle);
-                if (item.type === 'bomb') drawBomb(ctx, item.x, item.y, item.size, pulseValue);
-                if (item.type === 'freeze') drawFreeze(ctx, item.x, item.y, item.size, item.angle);
+                else if (item.type === 'gold') drawGoldCrystal(ctx, item.x, item.y, item.size, item.angle);
+                else if (item.type === 'time') drawTimeCrystal(ctx, item.x, item.y, item.size, item.angle);
+                else if (item.type === 'bomb') drawBomb(ctx, item.x, item.y, item.size, pulseValue);
+                else if (item.type === 'freeze') drawFreeze(ctx, item.x, item.y, item.size, item.angle);
             }
 
             for (let i = particles.length - 1; i >= 0; i--) {
@@ -722,6 +769,14 @@
                 let w = visualTapWaves[i]; w.r += 3; w.alpha -= 0.04;
                 if (w.alpha <= 0) { visualTapWaves.splice(i, 1); continue; }
                 ctx.save(); ctx.globalAlpha = w.alpha; ctx.strokeStyle = w.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, Math.PI*2); ctx.stroke(); ctx.restore();
+            }
+
+            // Рендеринг всплывающего текста комбо (+3с или Множители)
+            for (let i = floatingTexts.length - 1; i >= 0; i--) {
+                let t = floatingTexts[i]; t.y -= 1; t.alpha -= 0.02;
+                if (t.alpha <= 0) { floatingTexts.splice(i, 1); continue; }
+                ctx.save(); ctx.globalAlpha = t.alpha; ctx.fillStyle = t.color; ctx.font = "900 1.1rem 'Orbitron', sans-serif"; ctx.textAlign = 'center';
+                ctx.fillText(t.text, t.x, t.y); ctx.restore();
             }
 
             if (isFrozen && freezeAlpha < 1) freezeAlpha += 0.05;
@@ -739,18 +794,41 @@
         function spawnItem() {
             let rand = Math.random();
             let type = 'crystal';
+
             if (rand < TYPES.FREEZE.chance) type = 'freeze';
-            else if (rand < TYPES.FREEZE.chance + TYPES.BOMB.chance) type = 'bomb';
+            else if (rand < TYPES.FREEZE.chance + TYPES.TIME.chance) type = 'time';
+            else if (rand < TYPES.FREEZE.chance + TYPES.TIME.chance + TYPES.GOLD.chance) type = 'gold';
+            else if (rand < TYPES.FREEZE.chance + TYPES.TIME.chance + TYPES.GOLD.chance + TYPES.BOMB.chance) type = 'bomb';
 
             items.push({
                 x: Math.random() * (window.innerWidth - 60) + 30,
                 y: -30, 
                 size: 24,
-                speed: Math.random() * 2 + 2.5,
+                speed: (type === 'gold' ? Math.random() * 2 + 3.5 : Math.random() * 2 + 2.5), // Золотые летят резвее
                 angle: Math.random() * Math.PI,
                 rotSpeed: Math.random() * 0.04 - 0.02,
                 type: type
             });
+        }
+
+        function updateCombo(isHit) {
+            if (isHit) {
+                comboStreak++;
+                if (comboStreak >= 15) comboMultiplier = 5;
+                else if (comboStreak >= 10) comboMultiplier = 3;
+                else if (comboStreak >= 5) comboMultiplier = 2;
+                else comboMultiplier = 1;
+
+                if (comboMultiplier > 1) {
+                    comboBadge.textContent = `COMBO x${comboMultiplier}`;
+                    comboBadge.classList.add('active');
+                }
+            } else {
+                // Сброс комбо при промахе или взрыве
+                comboStreak = 0;
+                comboMultiplier = 1;
+                comboBadge.classList.remove('active');
+            }
         }
 
         function checkHit(clientX, clientY) {
@@ -766,18 +844,37 @@
                     createParticles(item.x, item.y, TYPES[item.type.toUpperCase()].color);
                     visualTapWaves.push({ x: clientX, y: clientY, r: 10, alpha: 1, color: TYPES[item.type.toUpperCase()].color });
 
-                    if (item.type === 'bomb') { triggerBomb(item.x, item.y); } 
-                    else {
+                    if (item.type === 'bomb') { 
+                        triggerBomb(item.x, item.y); 
+                    } else if (item.type === 'time') {
+                        timeLeft += 3;
+                        timerDisplay.textContent = timeLeft;
+                        floatingTexts.push({ x: item.x, y: item.y - 15, text: "+3 сек", color: '#ff33cc', alpha: 1 });
+                        updateCombo(true);
+                    } else {
                         if (item.type === 'freeze') triggerFreeze();
+                        
                         let basePoints = TYPES[item.type.toUpperCase()].points;
-                        let multiplier = 1 + (clickLevel - 1) * 0.2; 
-                        let finalPoints = Math.round(basePoints * multiplier);
-                        score += finalPoints; scoreDisplay.textContent = score;
+                        let shopMultiplier = 1 + (clickLevel - 1) * 0.2; 
+                        
+                        // Итоговые очки = База * Магазин * Комбо-множитель
+                        let finalPoints = Math.round(basePoints * shopMultiplier * comboMultiplier);
+                        
+                        score += finalPoints; 
+                        scoreDisplay.textContent = score;
+
+                        let textShow = comboMultiplier > 1 ? `+${finalPoints} (x${comboMultiplier})` : `+${finalPoints}`;
+                        floatingTexts.push({ x: item.x, y: item.y - 15, text: textShow, color: TYPES[item.type.toUpperCase()].color, alpha: 1 });
+                        
+                        updateCombo(true);
                     }
                     items.splice(i, 1); break; 
                 }
             }
-            if (!hitSomething) { visualTapWaves.push({ x: clientX, y: clientY, r: 5, alpha: 0.5, color: 'rgba(255,255,255,0.3)' }); }
+            if (!hitSomething) { 
+                visualTapWaves.push({ x: clientX, y: clientY, r: 5, alpha: 0.5, color: 'rgba(255,255,255,0.3)' }); 
+                updateCombo(false); // Мисс-клик обнуляет стрик
+            }
         }
 
         window.addEventListener('mousedown', (e) => checkHit(e.clientX, e.clientY));
@@ -791,7 +888,11 @@
         }
 
         function triggerBomb(x, y) {
-            isStunned = true; body.classList.add('shake'); score -= 50; if (score < 0) score = 0; scoreDisplay.textContent = score;
+            isStunned = true; 
+            body.classList.add('shake'); 
+            score -= 50; if (score < 0) score = 0; 
+            scoreDisplay.textContent = score;
+            updateCombo(false); // Взрыв обнуляет комбо
             setTimeout(() => { body.classList.remove('shake'); isStunned = false; }, 400);
         }
 
