@@ -24,7 +24,7 @@
             height: 100vh;
         }
 
-        /* КИБЕР-ГРАДИЕНТЫ НА ФОНЕ МЕНЮ */
+        /* КИБЕР-ГРАДИЕНТЫ НА ФОНЕ */
         .bg-glow-1, .bg-glow-2 {
             position: absolute;
             width: 300px;
@@ -36,17 +36,8 @@
             pointer-events: none;
             animation: pulseGlow 8s ease-in-out infinite alternate;
         }
-        .bg-glow-1 {
-            background: #00ffcc;
-            top: -50px;
-            left: -50px;
-        }
-        .bg-glow-2 {
-            background: #9900ff;
-            bottom: 50px;
-            right: -50px;
-            animation-delay: -4s;
-        }
+        .bg-glow-1 { background: #00ffcc; top: -50px; left: -50px; }
+        .bg-glow-2 { background: #9900ff; bottom: 50px; right: -50px; animation-delay: -4s; }
 
         @keyframes pulseGlow {
             0% { transform: scale(1) translate(0, 0); opacity: 0.2; }
@@ -62,7 +53,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 50px 24px 40px 24px;
+            padding: 40px 24px 30px 24px;
             z-index: 10;
             overflow-y: auto;
         }
@@ -75,7 +66,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding: 40px 24px;
+            padding: 20px 24px;
             z-index: 10;
             pointer-events: none;
         }
@@ -88,12 +79,12 @@
 
         h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 4.8rem;
+            font-size: 4.2rem;
             font-weight: 900;
             color: #00ffcc;
-            text-shadow: 0 0 25px rgba(0, 255, 204, 0.5), 0 0 50px rgba(0, 255, 204, 0.2);
+            text-shadow: 0 0 25px rgba(0, 255, 204, 0.5);
             letter-spacing: 12px;
-            margin-bottom: 25px;
+            margin-bottom: 15px;
             text-indent: 12px;
         }
 
@@ -101,32 +92,30 @@
         .crypto-balance {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
             border: 1px solid rgba(0, 255, 204, 0.25);
-            padding: 26px 20px;
-            border-radius: 28px;
+            padding: 20px 20px;
+            border-radius: 24px;
             text-align: center;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.15);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
             width: 100%;
             max-width: 350px;
             margin: 0 auto;
         }
 
         .crypto-balance p {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #7b70a2;
             text-transform: uppercase;
             letter-spacing: 3px;
-            margin-bottom: 6px;
-            font-weight: 700;
+            margin-bottom: 4px;
         }
 
         .crypto-balance .amount {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.4rem;
+            font-size: 2.2rem;
             font-weight: 900;
             color: #fff;
-            letter-spacing: -1px;
         }
 
         .crypto-balance .amount span {
@@ -138,17 +127,15 @@
         .farming-container {
             width: 100%;
             max-width: 350px;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.005));
+            background: rgba(255, 255, 255, 0.02);
             border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 24px;
-            padding: 16px 20px;
+            border-radius: 20px;
+            padding: 14px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-top: 16px;
+            margin-top: 12px;
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
         }
 
         .farming-info p {
@@ -156,15 +143,13 @@
             color: #6c5f93;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            font-weight: 700;
         }
 
         .farming-info .farm-amount {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             font-weight: 800;
             color: #00b3ff;
-            margin-top: 2px;
         }
 
         .claim-btn {
@@ -173,76 +158,69 @@
             border: 1px solid rgba(0, 255, 204, 0.3);
             color: #00ffcc;
             padding: 8px 16px;
-            border-radius: 14px;
+            border-radius: 12px;
             font-size: 0.8rem;
             font-weight: 800;
             cursor: pointer;
-            transition: all 0.2s;
         }
 
-        .claim-btn:active {
-            background: rgba(0, 255, 204, 0.3);
-            transform: scale(0.95);
-        }
-
-        /* БЛОК СТАТИСТИКИ */
+        /* БЛОК СТАТИСТИКИ И КНОПОК */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
             width: 100%;
             max-width: 350px;
-            margin-top: 16px;
+            margin-top: 12px;
         }
 
         .stat-card {
-            background: rgba(255,255,255,0.01);
-            border: 1px solid rgba(255,255,255,0.04);
-            border-radius: 20px;
-            padding: 14px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 18px;
+            padding: 12px 14px;
             text-align: left;
-            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .stat-card:active {
+            background: rgba(255,255,255,0.07);
         }
 
         .stat-card .label {
             font-size: 0.75rem;
             color: #6c5f93;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         .stat-card .val {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: #fff;
-            margin-top: 4px;
+            margin-top: 2px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
 
-        /* СТИЛЬ ДЛЯ МИНИ ТАЙМЕРА БИЛЕТОВ */
         .ticket-timer {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: #ff3366;
             font-weight: 500;
-            letter-spacing: 0px;
-            opacity: 0.85;
         }
 
         .game-status-text {
             color: #ff3366;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
-            min-height: 50px;
+            min-height: 45px;
             text-align: center;
-            letter-spacing: 1px;
-            margin-top: 25px;
+            margin-top: 15px;
             line-height: 1.4;
         }
 
-        /* КНОПКА С НЕОНОВЫМ БЛИКОМ */
+        /* ГЛАВНАЯ КНОПКА */
         .btn-wrapper {
             width: 100%;
             display: flex;
@@ -256,118 +234,151 @@
             background: linear-gradient(135deg, #00ffcc, #00b3ff);
             color: #040209;
             border: none;
-            padding: 22px;
-            font-size: 1.4rem;
+            padding: 18px;
+            font-size: 1.3rem;
             font-weight: 900;
-            border-radius: 26px;
+            border-radius: 22px;
             cursor: pointer;
-            box-shadow: 0 15px 40px rgba(0, 255, 204, 0.35), inset 0 -4px 0 rgba(0,0,0,0.15);
-            transition: all 0.3s ease;
+            box-shadow: 0 12px 35px rgba(0, 255, 204, 0.3);
+            transition: all 0.2s ease;
             width: 100%;
             max-width: 350px;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             position: relative;
             overflow: hidden;
         }
 
-        .btn::after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -60%;
-            width: 30%;
-            height: 200%;
-            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
-            transform: rotate(25deg);
-            animation: shimmer 3.5s infinite linear;
-        }
+        .btn:disabled { background: #1e1b24; color: #4e485d; box-shadow: none; cursor: not-allowed; }
+        .btn .sub-timeout { display: block; font-size: 0.7rem; color: #ff3366; margin-top: 2px; }
 
-        @keyframes shimmer {
-            0% { left: -60%; }
-            100% { left: 140%; }
-        }
-
-        .btn:active:not(:disabled) {
-            transform: scale(0.96);
-            box-shadow: 0 8px 20px rgba(0, 255, 204, 0.2);
-        }
-
-        .btn:disabled {
-            background: linear-gradient(135deg, #2a2635, #15131c);
-            color: #554e68;
-            border: 1px solid rgba(255,255,255,0.05);
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        .btn:disabled::after {
-            display: none;
-        }
-
-        .btn .sub-timeout {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            margin-top: 4px;
-            color: #ff3366;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        /* ИНТЕРФЕЙС ИГРЫ */
+        /* ОПТИМИЗИРОВАННЫЙ ИНТЕРФЕЙС ИГРЫ (НЕ МЕШАЕТ КРИСТАЛЛАМ) */
         .hud {
             display: flex;
             width: 100%;
-            max-width: 500px;
+            max-width: 350px;
             justify-content: space-between;
             align-items: center;
-            background: rgba(4, 2, 9, 0.7);
-            border: 1px solid rgba(255,255,255,0.08);
-            padding: 16px 24px;
-            border-radius: 22px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(4, 2, 9, 0.4); /* Еще более прозрачный */
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 10px 20px;
+            border-radius: 16px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
             z-index: 12;
             pointer-events: auto;
+            margin-top: 10px;
         }
 
         .hud-box {
-            font-size: 0.9rem;
+            font-size: 0.75rem;
             color: #6c5f93;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 700;
+            letter-spacing: 1px;
         }
 
         .hud-box div {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
+            font-size: 1.4rem;
             font-weight: 800;
             color: #fff;
-            margin-top: 4px;
         }
+        #score { color: #00ffcc; }
+        #timer { color: #ff3366; }
 
-        #score { color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.3); }
-        #timer { color: #ff3366; text-shadow: 0 0 10px rgba(255,51,102,0.3); }
+        canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: block; }
 
-        canvas {
+        /* ОВЕРЛЕИ / ОКНА МОДАЛОК (КВЕСТЫ И МАГАЗИН) */
+        .overlay-modal {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(4, 2, 9, 0.95);
+            z-index: 100;
+            display: none;
+            flex-direction: column;
+            padding: 40px 24px;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             width: 100%;
-            height: 100%;
-            z-index: 1;
-            display: block;
+            max-width: 350px;
+            margin: 0 auto 24px auto;
         }
 
-        .shake {
-            animation: shakeScreen 0.4s cubic-bezier(.36,.07,.19,.97) both;
+        .modal-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.8rem;
+            color: #00ffcc;
+            font-weight: 900;
         }
 
+        .close-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .modal-content-list {
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .item-row {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-info .item-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .item-info .item-sub {
+            font-size: 0.75rem;
+            color: #6c5f93;
+            margin-top: 2px;
+        }
+
+        .action-btn {
+            font-family: 'Orbitron', sans-serif;
+            background: #00ffcc;
+            color: #040209;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .action-btn:disabled {
+            background: rgba(255,255,255,0.05);
+            color: #554e68;
+            cursor: not-allowed;
+        }
+
+        .shake { animation: shakeScreen 0.4s both; }
         @keyframes shakeScreen {
-            10%, 90% { transform: translate3d(-2px, 1px, 0); }
-            20%, 80% { transform: translate3d(4px, -3px, 0); }
-            30%, 50%, 70% { transform: translate3d(-6px, 5px, 0); }
-            40%, 60% { transform: translate3d(6px, -4px, 0); }
+            10%, 90% { transform: translate3d(-2px, 0, 0); }
+            30%, 70% { transform: translate3d(-4px, 0, 0); }
+            40%, 60% { transform: translate3d(4px, 0, 0); }
         }
     </style>
 </head>
@@ -403,9 +414,16 @@
                         <span id="tickets-timer-container" class="ticket-timer"></span>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card" onclick="openModal('quests-modal')">
                     <div class="label">Квесты</div>
-                    <div class="val" style="color: #00ffcc;">✓ 4 готово</div>
+                    <div class="val" style="color: #00ffcc;" id="quests-stat-label">Квесты →</div>
+                </div>
+            </div>
+
+            <div class="stats-grid" style="margin-top: 8px;">
+                <div class="stat-card" onclick="openModal('shop-modal')" style="grid-column: span 2; text-align: center;">
+                    <div class="label">Магазин улучшений</div>
+                    <div class="val" style="color: #00b3ff; justify-content: center; gap: 6px;">🛒 ПРОКАЧКА ХАБА</div>
                 </div>
             </div>
 
@@ -414,6 +432,38 @@
 
         <div class="btn-wrapper">
             <button class="btn" id="play-btn" onclick="tryStartGame()">ИГРАТЬ</button>
+        </div>
+    </div>
+
+    <div id="quests-modal" class="overlay-modal">
+        <div class="modal-header">
+            <div class="modal-title">КВЕСТЫ</div>
+            <button class="close-btn" onclick="closeModal('quests-modal')">✕</button>
+        </div>
+        <div class="modal-content-list" id="quests-list">
+            </div>
+    </div>
+
+    <div id="shop-modal" class="overlay-modal">
+        <div class="modal-header">
+            <div class="modal-title">МАГАЗИН</div>
+            <button class="close-btn" onclick="closeModal('shop-modal')">✕</button>
+        </div>
+        <div class="modal-content-list">
+            <div class="item-row">
+                <div class="item-info">
+                    <div class="item-name">Множитель клика</div>
+                    <div class="item-sub" id="upgrade-click-desc">Ур. 1 (+0% к сбору кристаллов)</div>
+                </div>
+                <button class="action-btn" id="buy-click-btn" onclick="buyUpgrade('click')">0 $LUM</button>
+            </div>
+            <div class="item-row">
+                <div class="item-info">
+                    <div class="item-name">Скорость фарминга</div>
+                    <div class="item-sub" id="upgrade-farm-desc">Ур. 1 (Базовая скорость)</div>
+                </div>
+                <button class="action-btn" id="buy-farm-btn" onclick="buyUpgrade('farm')">0 $LUM</button>
+            </div>
         </div>
     </div>
 
@@ -441,15 +491,25 @@
         const ticketsTimerContainer = document.getElementById('tickets-timer-container');
         const playBtn = document.getElementById('play-btn');
 
-        // Логика кошелька
+        // Основное состояние экономики
         let cryptoBalance = parseFloat(localStorage.getItem('lum_balance')) || 0;
-        totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
+        
+        // Переменные улучшений магазина
+        let clickLevel = parseInt(localStorage.getItem('lum_shop_click_lvl')) || 1;
+        let farmLevel = parseInt(localStorage.getItem('lum_shop_farm_lvl')) || 1;
 
-        // Пассивный фарминг
+        function updateBalanceDisplay() {
+            totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
+        }
+        updateBalanceDisplay();
+
+        // Пассивный фарминг с учетом прокачки магазина
         let activeFarmAccum = parseFloat(localStorage.getItem('lum_farm_accum')) || 0;
         setInterval(() => {
             if (!gameActive) {
-                activeFarmAccum += 0.0003;
+                // Базовый доход 0.0003 увеличивается на 50% за каждый уровень магазина
+                let farmMultiplier = 1 + (farmLevel - 1) * 0.5;
+                activeFarmAccum += 0.0003 * farmMultiplier;
                 farmDisplay.textContent = activeFarmAccum.toFixed(4);
                 localStorage.setItem('lum_farm_accum', activeFarmAccum);
             }
@@ -459,43 +519,157 @@
         function claimFarming() {
             if (activeFarmAccum <= 0) return;
             cryptoBalance += activeFarmAccum;
+            
+            // Проверка квеста на фарминг
+            checkQuestProgress('farm_goal', cryptoBalance);
+
             activeFarmAccum = 0;
             localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
             localStorage.setItem('lum_farm_accum', activeFarmAccum);
-            totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
+            updateBalanceDisplay();
             farmDisplay.textContent = "0.0000";
         }
 
-        // ТАКТИЛЬНАЯ ВИБРАЦИЯ (HAPTIC) С ЗАЩИТОЙ
-        function triggerHaptic(type) {
-            if (typeof navigator !== 'undefined' && navigator.vibrate) {
-                if (type === 'tap') {
-                    navigator.vibrate(20); // Короткий элитный клик на алмазы
-                } else if (type === 'bomb') {
-                    navigator.vibrate([150, 80, 100]); // Двойной тяжелый взрыв бомбы
+        // ДИНАМИЧЕСКАЯ СИСТЕМА КВЕСТОВ
+        let questsData = JSON.parse(localStorage.getItem('lum_quests_state')) || [
+            { id: 'tg_join', type: 'click', name: 'Вступить в Telegram-канал', reward: 15, done: false, claimed: false, link: 'https://t.me/#' },
+            { id: 'x_follow', type: 'click', name: 'Подписаться на Twitter / X', reward: 10, done: false, claimed: false, link: 'https://x.com/#' },
+            { id: 'farm_goal', type: 'progress', name: 'Накопить баланс 100 $LUM', reward: 50, target: 100, done: false, claimed: false }
+        ];
+
+        function renderQuests() {
+            const list = document.getElementById('quests-list');
+            list.innerHTML = '';
+            let completedCount = 0;
+
+            questsData.forEach((q, idx) => {
+                if (q.claimed) completedCount++;
+                
+                let row = document.createElement('div');
+                row.className = 'item-row';
+                
+                let subtext = q.type === 'click' ? `Награда: +${q.reward} $LUM` : `Прогресс: ${cryptoBalance.toFixed(1)} / ${q.target} $LUM`;
+                
+                let btnHtml = '';
+                if (!q.done) {
+                    if (q.type === 'click') {
+                        btnHtml = `<button class="action-btn" style="background:#00b3ff;" onclick="doQuestClick(${idx})">ВЫПОЛНИТЬ</button>`;
+                    } else {
+                        btnHtml = `<button class="action-btn" disabled>В ПРОЦЕССЕ</button>`;
+                    }
+                } else if (q.done && !q.claimed) {
+                    btnHtml = `<button class="action-btn" style="background:#00ffcc;" onclick="claimQuestReward(${idx})">CLAIM</button>`;
+                } else {
+                    btnHtml = `<button class="action-btn" disabled style="background:rgba(255,255,255,0.05); color:#554e68;">ГОТОВО</button>`;
+                }
+
+                row.innerHTML = `
+                    <div class="item-info">
+                        <div class="item-name">${q.name}</div>
+                        <div class="item-sub">${subtext}</div>
+                    </div>
+                    ${btnHtml}
+                `;
+                list.appendChild(row);
+            });
+
+            document.getElementById('quests-stat-label').textContent = `Выполнено: ${completedCount}/${questsData.length}`;
+        }
+
+        function doQuestClick(idx) {
+            let q = questsData[idx];
+            if (q.link) window.open(q.link, '_blank');
+            q.done = true;
+            localStorage.setItem('lum_quests_state', JSON.stringify(questsData));
+            renderQuests();
+        }
+
+        function claimQuestReward(idx) {
+            let q = questsData[idx];
+            if (q.done && !q.claimed) {
+                q.claimed = true;
+                cryptoBalance += q.reward;
+                localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
+                localStorage.setItem('lum_quests_state', JSON.stringify(questsData));
+                updateBalanceDisplay();
+                renderQuests();
+            }
+        }
+
+        function checkQuestProgress(id, currentVal) {
+            let q = questsData.find(quest => quest.id === id);
+            if (q && !q.done) {
+                if (currentVal >= q.target) {
+                    q.done = true;
+                    localStorage.setItem('lum_quests_state', JSON.stringify(questsData));
                 }
             }
         }
 
-        // СИСТЕМА БИЛЕТОВ (3 МИНУТЫ РЕГЕНЕРАЦИЯ + ТАЙМЕР РЯДОМ)
+        // МОДАЛЬНЫЕ ОКНА И МАГАЗИН
+        function openModal(id) {
+            if (id === 'quests-modal') renderQuests();
+            if (id === 'shop-modal') updateShopUI();
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        function updateShopUI() {
+            let clickCost = clickLevel * 25;
+            let farmCost = farmLevel * 30;
+
+            document.getElementById('upgrade-click-desc').textContent = `Ур. ${clickLevel} (+${(clickLevel-1)*20}% к ценности кристаллов)`;
+            let clickBtn = document.getElementById('buy-click-btn');
+            clickBtn.textContent = `${clickCost} $LUM`;
+            clickBtn.disabled = cryptoBalance < clickCost;
+
+            document.getElementById('upgrade-farm-desc').textContent = `Ур. ${farmLevel} (+${(farmLevel-1)*50}% к скорости фарминга)`;
+            let farmBtn = document.getElementById('buy-farm-btn');
+            farmBtn.textContent = `${farmCost} $LUM`;
+            farmBtn.disabled = cryptoBalance < farmCost;
+        }
+
+        function buyUpgrade(type) {
+            if (type === 'click') {
+                let cost = clickLevel * 25;
+                if (cryptoBalance >= cost) {
+                    cryptoBalance -= cost;
+                    clickLevel++;
+                    localStorage.setItem('lum_shop_click_lvl', clickLevel);
+                }
+            } else if (type === 'farm') {
+                let cost = farmLevel * 30;
+                if (cryptoBalance >= cost) {
+                    cryptoBalance -= cost;
+                    farmLevel++;
+                    localStorage.setItem('lum_shop_farm_lvl', farmLevel);
+                }
+            }
+            localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
+            updateBalanceDisplay();
+            updateShopUI();
+        }
+
+
+        // СИСТЕМА БИЛЕТОВ (3 МИНУТЫ)
         const MAX_TICKETS = 7;
         const REGEN_TIME = 3 * 60 * 1000; 
 
         let tickets = parseInt(localStorage.getItem('lum_tickets'));
         if (isNaN(tickets)) tickets = MAX_TICKETS;
-        
         let lastRegenTime = parseInt(localStorage.getItem('lum_last_regen_time')) || Date.now();
 
         function updateTicketsSystem() {
             let now = Date.now();
-            
             if (tickets < MAX_TICKETS) {
                 let elapsed = now - lastRegenTime;
                 if (elapsed >= REGEN_TIME) {
                     let generated = Math.floor(elapsed / REGEN_TIME);
                     tickets = Math.min(MAX_TICKETS, tickets + generated);
                     lastRegenTime = lastRegenTime + (generated * REGEN_TIME);
-                    
                     localStorage.setItem('lum_tickets', tickets);
                     localStorage.setItem('lum_last_regen_time', lastRegenTime);
                 }
@@ -504,25 +678,20 @@
                 localStorage.setItem('lum_last_regen_time', lastRegenTime);
             }
 
-            // Рендер количества тикетов
             ticketsCount.textContent = `⚡ ${tickets}/${MAX_TICKETS}`;
-
-            // Рассчитываем время до следующего тикета
             let nextTicketIn = REGEN_TIME - (now - lastRegenTime);
             let mins = Math.floor(nextTicketIn / 60000);
             let secs = Math.floor((nextTicketIn % 60000) / 1000);
             let formatSecs = secs < 10 ? '0' + secs : secs;
 
-            // Выводим таймер РЯДОМ с билетами, если их меньше максимума
             if (tickets < MAX_TICKETS) {
                 ticketsTimerContainer.textContent = `(${mins}:${formatSecs})`;
             } else {
-                ticketsTimerContainer.textContent = ""; // Если фулл, таймер исчезает
+                ticketsTimerContainer.textContent = "";
             }
 
             if (gameActive) return;
 
-            // Состояние кнопки ИГРАТЬ
             if (tickets > 0) {
                 playBtn.disabled = false;
                 playBtn.innerHTML = "ИГРАТЬ";
@@ -531,7 +700,6 @@
                 playBtn.innerHTML = `НЕТ БИЛЕТОВ <span class="sub-timeout">+1 ТИКЕТ ЧЕРЕЗ ${mins}:${formatSecs}</span>`;
             }
         }
-
         setInterval(updateTicketsSystem, 500);
 
         function tryStartGame() {
@@ -547,7 +715,7 @@
             }
         }
 
-        // Игровой движок
+        // ИГРОВОЙ ДВИЖОК И КОМПЕНСАЦИОННЫЕ ТАП-ЭФФЕКТЫ
         let score = 0;
         let timeLeft = 30;
         let gameActive = false;
@@ -568,11 +736,12 @@
         let stars = [];
         let floatingTexts = [];
         let shockwaves = [];
+        let visualTapWaves = []; // Специальные волны для компенсации отсутствия вибрации на iOS
 
-        const SPAWN_RATE = 350;
+        const SPAWN_RATE = 340;
         const TYPES = {
-            CRYSTAL: { id: 'crystal', color: '#00ffcc', points: 10, chance: 0.85 },
-            BOMB: { id: 'bomb', color: '#ff3366', points: -50, chance: 0.12 },
+            CRYSTAL: { id: 'crystal', color: '#00ffcc', points: 10, chance: 0.84 },
+            BOMB: { id: 'bomb', color: '#ff3366', points: -50, chance: 0.13 },
             FREEZE: { id: 'freeze', color: '#00b3ff', points: 5, chance: 0.03 } 
         };
 
@@ -586,12 +755,12 @@
 
         function initStars() {
             stars = [];
-            for(let i=0; i<60; i++) {
+            for(let i=0; i<50; i++) {
                 stars.push({
                     x: Math.random() * window.innerWidth,
                     y: Math.random() * window.innerHeight,
-                    size: Math.random() * 1.5 + 0.5,
-                    speed: Math.random() * 0.3 + 0.1
+                    size: Math.random() * 1.2 + 0.5,
+                    speed: Math.random() * 0.2 + 0.1
                 });
             }
         }
@@ -599,7 +768,7 @@
 
         function initSnow() {
             snowParticles = [];
-            for(let i=0; i<35; i++) {
+            for(let i=0; i<25; i++) {
                 snowParticles.push({
                     x: Math.random() * window.innerWidth,
                     y: Math.random() * window.innerHeight - window.innerHeight,
@@ -612,28 +781,15 @@
         }
 
         function startGame() {
-            score = 0;
-            timeLeft = 30;
-            isFrozen = false;
-            freezeAlpha = 0;
-            isStunned = false;
-            isEndingStage = false;
-            endStageAlpha = 0;
-            timeScale = 1.0;
-            
-            items = [];
-            particles = [];
-            floatingTexts = [];
-            shockwaves = [];
-            snowParticles = [];
+            score = 0; timeLeft = 30;
+            isFrozen = false; freezeAlpha = 0; isStunned = false; isEndingStage = false; endStageAlpha = 0; timeScale = 1.0;
+            items = []; particles = []; floatingTexts = []; shockwaves = []; snowParticles = []; visualTapWaves = [];
             
             scoreDisplay.textContent = score;
             timerDisplay.textContent = timeLeft;
             
             menuScreen.style.display = 'none';
-            glow1.style.display = 'none';
-            glow2.style.display = 'none';
-            
+            glow1.style.display = 'none'; glow2.style.display = 'none';
             gameScreen.style.display = 'flex';
             gameActive = true;
             lastTime = performance.now();
@@ -645,11 +801,11 @@
             ctx.save();
             ctx.translate(x, y);
             ctx.rotate(angle);
-            ctx.shadowBlur = 15;
+            ctx.shadowBlur = 12;
             ctx.shadowColor = '#00ffcc';
             ctx.strokeStyle = '#00ffcc';
-            ctx.lineWidth = 3;
-            ctx.fillStyle = 'rgba(0, 255, 204, 0.2)';
+            ctx.lineWidth = 2.5;
+            ctx.fillStyle = 'rgba(0, 255, 204, 0.15)';
             ctx.beginPath();
             ctx.moveTo(0, -size);
             ctx.lineTo(size * 0.7, -size * 0.2);
@@ -658,42 +814,25 @@
             ctx.lineTo(-size * 0.5, size * 0.8);
             ctx.lineTo(-size * 0.7, -size * 0.2);
             ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(0, -size);
-            ctx.lineTo(0, size);
-            ctx.moveTo(-size * 0.7, -size * 0.2);
-            ctx.lineTo(size * 0.7, -size * 0.2);
-            ctx.stroke();
+            ctx.fill(); ctx.stroke();
             ctx.restore();
         }
 
         function drawBomb(ctx, x, y, size, pulse) {
             ctx.save();
             ctx.translate(x, y);
-            ctx.shadowBlur = 15 + pulse * 10;
+            ctx.shadowBlur = 12 + pulse * 8;
             ctx.shadowColor = '#ff3366';
             ctx.fillStyle = '#1a0510';
             ctx.strokeStyle = '#ff3366';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2.5;
             ctx.beginPath();
             ctx.arc(0, 0, size * 0.8, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.stroke();
+            ctx.fill(); ctx.stroke();
             ctx.fillStyle = `rgba(255, 51, 102, ${0.4 + pulse * 0.6})`;
             ctx.beginPath();
-            ctx.arc(0, 0, size * 0.4, 0, Math.PI * 2);
+            ctx.arc(0, 0, size * 0.35, 0, Math.PI * 2);
             ctx.fill();
-            ctx.lineWidth = 2;
-            for(let i=0; i<8; i++) {
-                ctx.rotate(Math.PI / 4);
-                ctx.beginPath();
-                ctx.moveTo(0, -size * 0.8);
-                ctx.lineTo(0, -size * 1.1);
-                ctx.stroke();
-            }
             ctx.restore();
         }
 
@@ -701,25 +840,17 @@
             ctx.save();
             ctx.translate(x, y);
             ctx.rotate(angle);
-            ctx.shadowBlur = 15;
+            ctx.shadowBlur = 12;
             ctx.shadowColor = '#00b3ff';
             ctx.strokeStyle = '#00b3ff';
-            ctx.lineWidth = 2.5;
+            ctx.lineWidth = 2;
             ctx.fillStyle = 'rgba(0, 179, 255, 0.15)';
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
                 ctx.lineTo(size * Math.cos(i * Math.PI / 3), size * Math.sin(i * Math.PI / 3));
             }
             ctx.closePath();
-            ctx.fill();
-            ctx.stroke();
-            ctx.beginPath();
-            for(let i=0; i<3; i++) {
-                ctx.rotate(Math.PI / 3);
-                ctx.moveTo(0, -size);
-                ctx.lineTo(0, size);
-            }
-            ctx.stroke();
+            ctx.fill(); ctx.stroke();
             ctx.restore();
         }
 
@@ -732,39 +863,15 @@
             ctx.fillStyle = '#030108';
             ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            // Звезды
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
             stars.forEach(star => {
                 if (!isFrozen) star.y += star.speed * timeScale;
                 if (star.y > window.innerHeight) star.y = -5;
                 ctx.fillRect(star.x, star.y, star.size, star.size);
             });
 
-            if (isFrozen && freezeAlpha < 1) {
-                freezeAlpha += 0.05;
-            } else if (!isFrozen && freezeAlpha > 0) {
-                freezeAlpha -= 0.05;
-            }
-
-            if (freezeAlpha > 0.01) {
-                ctx.save();
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = 'rgba(0, 179, 255, 0.6)';
-                ctx.fillStyle = `rgba(135, 220, 255, ${freezeAlpha * 0.7})`;
-                snowParticles.forEach(p => {
-                    p.y += p.speedY * timeScale;
-                    p.x += (p.speedX + Math.sin(time * p.drift) * 0.2) * timeScale;
-                    if (p.y > window.innerHeight) {
-                        p.y = -10;
-                        p.x = Math.random() * window.innerWidth;
-                    }
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-                ctx.restore();
-            }
-
+            // Таймеры
             if (!isFrozen && !isEndingStage) {
                 spawnTimer += dt;
                 if (spawnTimer >= SPAWN_RATE) {
@@ -777,21 +884,17 @@
                     timeLeft--;
                     timerDisplay.textContent = timeLeft;
                     secondTimer = 0;
-                    if (timeLeft <= 0) { 
-                        triggerEndStage(); 
-                    }
+                    if (timeLeft <= 0) triggerEndStage();
                 }
             }
 
             if (isEndingStage) {
                 if (timeScale > 0.05) timeScale -= 0.02; 
                 if (endStageAlpha < 1) endStageAlpha += 0.02; 
-                if (endStageAlpha >= 1) {
-                    executeEndGame(); 
-                    return;
-                }
+                if (endStageAlpha >= 1) { executeEndGame(); return; }
             }
 
+            // Отрендерить предметы
             let pulseValue = Math.sin(time * 0.01);
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
@@ -799,111 +902,59 @@
                     item.y += item.speed * timeScale;
                     item.angle += item.rotSpeed * timeScale;
                 }
-                if (item.y > window.innerHeight + 50) {
-                    items.splice(i, 1);
-                    continue;
-                }
+                if (item.y > window.innerHeight + 50) { items.splice(i, 1); continue; }
                 if (item.type === 'crystal') drawCrystal(ctx, item.x, item.y, item.size, item.angle);
                 if (item.type === 'bomb') drawBomb(ctx, item.x, item.y, item.size, pulseValue);
                 if (item.type === 'freeze') drawFreeze(ctx, item.x, item.y, item.size, item.angle);
             }
 
+            // Отрендерить искры/частицы
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
-                p.x += p.vx * timeScale;
-                p.y += p.vy * timeScale;
-                p.vy += 0.1 * timeScale;
-                p.alpha -= 0.02;
-                if (p.alpha <= 0) {
-                    particles.splice(i, 1);
-                    continue;
-                }
+                p.x += p.vx * timeScale; p.y += p.vy * timeScale;
+                p.vy += 0.1 * timeScale; p.alpha -= 0.02;
+                if (p.alpha <= 0) { particles.splice(i, 1); continue; }
                 ctx.save();
                 ctx.globalAlpha = p.alpha;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = p.color;
                 ctx.fillStyle = p.color;
                 ctx.fillRect(p.x, p.y, p.size, p.size);
                 ctx.restore();
             }
 
-            for(let i = shockwaves.length - 1; i >= 0; i--) {
-                let sw = shockwaves[i];
-                sw.radius += 8 * timeScale;
-                sw.alpha -= 0.03;
-                if(sw.alpha <= 0) {
-                    shockwaves.splice(i, 1);
-                    continue;
-                }
+            // Компенсационные волны кликов (Жидкий визуальный отклик под пальцем)
+            for (let i = visualTapWaves.length - 1; i >= 0; i--) {
+                let w = visualTapWaves[i];
+                w.r += 3;
+                w.alpha -= 0.04;
+                if (w.alpha <= 0) { visualTapWaves.splice(i, 1); continue; }
                 ctx.save();
-                ctx.globalAlpha = sw.alpha;
-                ctx.lineWidth = 4;
-                ctx.strokeStyle = '#ff3366';
-                ctx.shadowBlur = 20;
-                ctx.shadowColor = '#ff3366';
+                ctx.globalAlpha = w.alpha;
+                ctx.strokeStyle = w.color;
+                ctx.lineWidth = 2;
                 ctx.beginPath();
-                ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+                ctx.arc(w.x, w.y, w.r, 0, Math.PI*2);
                 ctx.stroke();
                 ctx.restore();
             }
 
-            for(let i = floatingTexts.length - 1; i >= 0; i--) {
-                let ft = floatingTexts[i];
-                ft.y -= 1.5 * timeScale;
-                ft.alpha -= 0.02;
-                if(ft.alpha <= 0) {
-                    floatingTexts.splice(i, 1);
-                    continue;
-                }
-                ctx.save();
-                ctx.globalAlpha = ft.alpha;
-                ctx.font = "bold 1.6rem 'Orbitron', sans-serif";
-                ctx.fillStyle = ft.color;
-                ctx.shadowBlur = 10;
-                ctx.shadowColor = ft.color;
-                ctx.textAlign = 'center';
-                ctx.fillText(ft.text, ft.x, ft.y);
-                ctx.restore();
-            }
-
+            // Оверлей заморозки
+            if (isFrozen && freezeAlpha < 1) freezeAlpha += 0.05;
+            else if (!isFrozen && freezeAlpha > 0) freezeAlpha -= 0.05;
             if (freezeAlpha > 0.01) {
-                ctx.save();
-                ctx.fillStyle = `rgba(0, 140, 255, ${freezeAlpha * 0.08})`;
+                ctx.fillStyle = `rgba(0, 140, 255, ${freezeAlpha * 0.06})`;
                 ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-
-                let width = window.innerWidth;
-                let height = window.innerHeight;
-                let radialGrad = ctx.createRadialGradient(
-                    width / 2, height / 2, Math.min(width, height) * 0.2, 
-                    width / 2, height / 2, Math.max(width, height) * 0.75
-                );
-                
-                radialGrad.addColorStop(0, 'rgba(0, 179, 255, 0)');
-                radialGrad.addColorStop(0.5, `rgba(0, 179, 255, ${freezeAlpha * 0.15})`);
-                radialGrad.addColorStop(0.85, `rgba(135, 225, 255, ${freezeAlpha * 0.45})`);
-                radialGrad.addColorStop(1, `rgba(200, 245, 255, ${freezeAlpha * 0.75})`);
-
-                ctx.fillStyle = radialGrad;
-                ctx.fillRect(0, 0, width, height);
-                ctx.restore();
             }
 
+            // Элитный финал "TIME OVER"
             if (endStageAlpha > 0.01) {
                 ctx.save();
-                let endGrad = ctx.createLinearGradient(0, 0, 0, window.innerHeight);
-                endGrad.addColorStop(0, `rgba(4, 2, 9, ${endStageAlpha * 0.85})`);
-                endGrad.addColorStop(1, `rgba(15, 5, 28, ${endStageAlpha * 0.95})`);
-                ctx.fillStyle = endGrad;
+                ctx.fillStyle = `rgba(4, 2, 9, ${endStageAlpha * 0.95})`;
                 ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-
-                ctx.font = "900 2.8rem 'Orbitron', sans-serif";
+                ctx.font = "900 2.5rem 'Orbitron', sans-serif";
                 ctx.fillStyle = '#ff3366';
-                ctx.shadowBlur = 25;
-                ctx.shadowColor = '#ff3366';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.letterSpacing = '6px';
-                ctx.fillText("TIME OVER", window.innerWidth / 2, window.innerHeight / 2 - 20);
+                ctx.fillText("TIME OVER", window.innerWidth / 2, window.innerHeight / 2);
                 ctx.restore();
             }
 
@@ -913,18 +964,14 @@
         function spawnItem() {
             let rand = Math.random();
             let type = 'crystal';
-
-            if (rand < TYPES.FREEZE.chance) {
-                type = 'freeze';
-            } else if (rand < TYPES.FREEZE.chance + TYPES.BOMB.chance) {
-                type = 'bomb';
-            }
+            if (rand < TYPES.FREEZE.chance) type = 'freeze';
+            else if (rand < TYPES.FREEZE.chance + TYPES.BOMB.chance) type = 'bomb';
 
             items.push({
                 x: Math.random() * (window.innerWidth - 60) + 30,
-                y: -40,
-                size: 26,
-                speed: Math.random() * 2 + 3,
+                y: -30, // Спрятано чуть выше, вылетает аккуратно из-за прозрачной панели
+                size: 24,
+                speed: Math.random() * 2 + 2.5,
                 angle: Math.random() * Math.PI,
                 rotSpeed: Math.random() * 0.04 - 0.02,
                 type: type
@@ -934,105 +981,94 @@
         function checkHit(clientX, clientY) {
             if (!gameActive || isStunned || isEndingStage) return;
 
+            let hitSomething = false;
+
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
                 let dist = Math.hypot(clientX - item.x, clientY - item.y);
 
-                if (dist < item.size + 15) {
+                if (dist < item.size + 20) {
+                    hitSomething = true;
                     createParticles(item.x, item.y, TYPES[item.type.toUpperCase()].color);
                     
+                    // Добавляем красивую круговую визуальную волну под палец
+                    visualTapWaves.push({ x: clientX, y: clientY, r: 10, alpha: 1, color: TYPES[item.type.toUpperCase()].color });
+
                     if (item.type === 'bomb') {
-                        triggerHaptic('bomb'); // Сильная вибрация на взрыв
                         triggerBomb(item.x, item.y);
                     } else {
-                        triggerHaptic('tap'); // Легкий приятный клик на сбор предмета
                         if (item.type === 'freeze') triggerFreeze();
                         
-                        let points = TYPES[item.type.toUpperCase()].points;
-                        score += points;
-                        if(score < 0) score = 0;
+                        // Рассчитываем очки с учетом множителя клика из Магазина
+                        let basePoints = TYPES[item.type.toUpperCase()].points;
+                        let multiplier = 1 + (clickLevel - 1) * 0.2; // +20% за уровень
+                        let finalPoints = Math.round(basePoints * multiplier);
+                        
+                        score += finalPoints;
                         scoreDisplay.textContent = score;
 
-                        floatingTexts.push({
-                            x: item.x, y: item.y,
-                            text: `+${points}`,
-                            color: TYPES[item.type.toUpperCase()].color,
-                            alpha: 1
-                        });
+                        floatingTexts.push({ x: item.x, y: item.y, text: `+${finalPoints}`, color: TYPES[item.type.toUpperCase()].color, alpha: 1 });
                     }
                     items.splice(i, 1);
                     break; 
                 }
             }
+
+            // Если тапнули просто по экрану (не попали) — всё равно пускаем лёгкую серую волну для отклика
+            if (!hitSomething) {
+                visualTapWaves.push({ x: clientX, y: clientY, r: 5, alpha: 0.5, color: 'rgba(255,255,255,0.3)' });
+            }
         }
 
         window.addEventListener('mousedown', (e) => checkHit(e.clientX, e.clientY));
-        window.addEventListener('touchstart', (e) => {
-            checkHit(e.touches[0].clientX, e.touches[0].clientY);
-        });
+        window.addEventListener('touchstart', (e) => { checkHit(e.touches[0].clientX, e.touches[0].clientY); });
 
         function createParticles(x, y, color) {
-            let amount = color === '#ff3366' ? 35 : 12;
-            for(let i=0; i<amount; i++) {
+            for(let i=0; i<10; i++) {
                 let angle = Math.random() * Math.PI * 2;
-                let speed = Math.random() * 4 + 1;
-                particles.push({
-                    x: x, y: y,
-                    vx: Math.cos(angle) * speed,
-                    vy: Math.sin(angle) * speed,
-                    size: Math.random() * 3 + 2,
-                    color: color,
-                    alpha: 1
-                });
+                let speed = Math.random() * 3 + 1;
+                particles.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, size: Math.random() * 2 + 2, color: color, alpha: 1 });
             }
         }
 
         function triggerBomb(x, y) {
             isStunned = true;
-            shockwaves.push({ x: x, y: y, radius: 10, alpha: 1 });
             body.classList.add('shake');
-
-            score -= 50;
-            if (score < 0) score = 0;
+            score -= 50; if (score < 0) score = 0;
             scoreDisplay.textContent = score;
-
-            floatingTexts.push({ x: x, y: y - 20, text: '-50 $LUM', color: '#ff3366', alpha: 1 });
-
-            setTimeout(() => {
-                body.classList.remove('shake');
-                isStunned = false;
-            }, 400);
+            setTimeout(() => { body.classList.remove('shake'); isStunned = false; }, 400);
         }
 
         function triggerFreeze() {
             if (isFrozen) return;
-            isFrozen = true;
-            initSnow();
+            isFrozen = true; initSnow();
             setTimeout(() => { isFrozen = false; }, 3000);
         }
 
-        function triggerEndStage() {
-            isEndingStage = true;
-        }
+        function triggerEndStage() { isEndingStage = true; }
 
         function executeEndGame() {
             gameActive = false;
             let earnedCrypto = score * 0.01;
             cryptoBalance += earnedCrypto;
 
-            localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
-            totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
+            // Проверяем прогресс квеста на баланс
+            checkQuestProgress('farm_goal', cryptoBalance);
 
-            lastScoreDisplay.innerHTML = `РАУНД ЗАВЕРШЕН!<br><span style="color:#00ffcc; font-family:'Orbitron'; font-size:1.4rem;">+${earnedCrypto.toFixed(2)} $LUM</span>`;
+            localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
+            updateBalanceDisplay();
+
+            lastScoreDisplay.innerHTML = `РАУНД ЗАВЕРШЕН!<br><span style="color:#00ffcc; font-family:'Orbitron'; font-size:1.3rem;">+${earnedCrypto.toFixed(2)} $LUM</span>`;
 
             gameScreen.style.display = 'none';
-            
             menuScreen.style.display = 'flex';
-            glow1.style.display = 'block';
-            glow2.style.display = 'block';
+            glow1.style.display = 'block'; glow2.style.display = 'block';
             
             updateTicketsSystem(); 
         }
+
+        // Инициализируем стартовый вид квестов при запуске хаба
+        renderQuests();
     </script>
 </body>
 </html>
