@@ -201,6 +201,7 @@
             border-radius: 20px;
             padding: 14px;
             text-align: left;
+            position: relative;
         }
 
         .stat-card .label {
@@ -216,6 +217,18 @@
             font-weight: 700;
             color: #fff;
             margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* СТИЛЬ ДЛЯ МИНИ ТАЙМЕРА БИЛЕТОВ */
+        .ticket-timer {
+            font-size: 0.7rem;
+            color: #ff3366;
+            font-weight: 500;
+            letter-spacing: 0px;
+            opacity: 0.85;
         }
 
         .game-status-text {
@@ -279,7 +292,6 @@
             box-shadow: 0 8px 20px rgba(0, 255, 204, 0.2);
         }
 
-        /* Состояние отсутствия билетов */
         .btn:disabled {
             background: linear-gradient(135deg, #2a2635, #15131c);
             color: #554e68;
@@ -386,7 +398,10 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="label">Билеты</div>
-                    <div class="val" id="tickets-display">⚡ 7/7</div>
+                    <div class="val">
+                        <span id="tickets-count">⚡ 7/7</span>
+                        <span id="tickets-timer-container" class="ticket-timer"></span>
+                    </div>
                 </div>
                 <div class="stat-card">
                     <div class="label">Квесты</div>
@@ -422,7 +437,8 @@
         const glow1 = document.getElementById('glow1');
         const glow2 = document.getElementById('glow2');
         const farmDisplay = document.getElementById('farm-display');
-        const ticketsDisplay = document.getElementById('tickets-display');
+        const ticketsCount = document.getElementById('tickets-count');
+        const ticketsTimerContainer = document.getElementById('tickets-timer-container');
         const playBtn = document.getElementById('play-btn');
 
         // Логика кошелька
@@ -450,11 +466,20 @@
             farmDisplay.textContent = "0.0000";
         }
 
-        // ==========================================
-        // ЭЛИТНАЯ СИСТЕМА БИЛЕТОВ (3 МИНУТЫ РЕГЕНЕРАЦИЯ)
-        // ==========================================
+        // ТАКТИЛЬНАЯ ВИБРАЦИЯ (HAPTIC) С ЗАЩИТОЙ
+        function triggerHaptic(type) {
+            if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                if (type === 'tap') {
+                    navigator.vibrate(20); // Короткий элитный клик на алмазы
+                } else if (type === 'bomb') {
+                    navigator.vibrate([150, 80, 100]); // Двойной тяжелый взрыв бомбы
+                }
+            }
+        }
+
+        // СИСТЕМА БИЛЕТОВ (3 МИНУТЫ РЕГЕНЕРАЦИЯ + ТАЙМЕР РЯДОМ)
         const MAX_TICKETS = 7;
-        const REGEN_TIME = 3 * 60 * 1000; // 3 минуты в миллисекундах
+        const REGEN_TIME = 3 * 60 * 1000; 
 
         let tickets = parseInt(localStorage.getItem('lum_tickets'));
         if (isNaN(tickets)) tickets = MAX_TICKETS;
@@ -479,33 +504,41 @@
                 localStorage.setItem('lum_last_regen_time', lastRegenTime);
             }
 
-            // Рендер виджета билетов в меню
-            ticketsDisplay.textContent = `⚡ ${tickets}/${MAX_TICKETS}`;
+            // Рендер количества тикетов
+            ticketsCount.textContent = `⚡ ${tickets}/${MAX_TICKETS}`;
 
-            // Управление состоянием главной кнопки
+            // Рассчитываем время до следующего тикета
+            let nextTicketIn = REGEN_TIME - (now - lastRegenTime);
+            let mins = Math.floor(nextTicketIn / 60000);
+            let secs = Math.floor((nextTicketIn % 60000) / 1000);
+            let formatSecs = secs < 10 ? '0' + secs : secs;
+
+            // Выводим таймер РЯДОМ с билетами, если их меньше максимума
+            if (tickets < MAX_TICKETS) {
+                ticketsTimerContainer.textContent = `(${mins}:${formatSecs})`;
+            } else {
+                ticketsTimerContainer.textContent = ""; // Если фулл, таймер исчезает
+            }
+
             if (gameActive) return;
 
+            // Состояние кнопки ИГРАТЬ
             if (tickets > 0) {
                 playBtn.disabled = false;
                 playBtn.innerHTML = "ИГРАТЬ";
             } else {
                 playBtn.disabled = true;
-                let nextTicketIn = REGEN_TIME - (now - lastRegenTime);
-                let mins = Math.floor(nextTicketIn / 60000);
-                let secs = Math.floor((nextTicketIn % 60000) / 1000);
-                let formatSecs = secs < 10 ? '0' + secs : secs;
                 playBtn.innerHTML = `НЕТ БИЛЕТОВ <span class="sub-timeout">+1 ТИКЕТ ЧЕРЕЗ ${mins}:${formatSecs}</span>`;
             }
         }
 
-        // Запуск тика системы тикетов (каждые 500 мс для плавных часов на кнопке)
         setInterval(updateTicketsSystem, 500);
 
         function tryStartGame() {
             if (tickets > 0) {
                 tickets--;
                 if (tickets < MAX_TICKETS && tickets === MAX_TICKETS - 1) {
-                    lastRegenTime = Date.now(); // Стартуем таймер регена с момента траты первого тикета
+                    lastRegenTime = Date.now(); 
                 }
                 localStorage.setItem('lum_tickets', tickets);
                 localStorage.setItem('lum_last_regen_time', lastRegenTime);
@@ -514,7 +547,7 @@
             }
         }
 
-        // Игровые переменные движка
+        // Игровой движок
         let score = 0;
         let timeLeft = 30;
         let gameActive = false;
@@ -526,10 +559,9 @@
         let spawnTimer = 0;
         let secondTimer = 0;
 
-        // Переменные для кинематографичного финала
         let isEndingStage = false;
         let endStageAlpha = 0;
-        let timeScale = 1.0; // Коэффициент скорости слоу-мо
+        let timeScale = 1.0; 
 
         let items = [];
         let particles = [];
@@ -700,7 +732,6 @@
             ctx.fillStyle = '#030108';
             ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-            // Движение звезд с учетом слоу-мо масштаба
             ctx.shadowBlur = 0;
             ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
             stars.forEach(star => {
@@ -734,7 +765,6 @@
                 ctx.restore();
             }
 
-            // Обычная логика таймеров (только если не стадия финала)
             if (!isFrozen && !isEndingStage) {
                 spawnTimer += dt;
                 if (spawnTimer >= SPAWN_RATE) {
@@ -748,17 +778,16 @@
                     timerDisplay.textContent = timeLeft;
                     secondTimer = 0;
                     if (timeLeft <= 0) { 
-                        triggerEndStage(); // Переходим к красивой концовке
+                        triggerEndStage(); 
                     }
                 }
             }
 
-            // Плавное замедление времени и нарастание оверлея при завершении раунда
             if (isEndingStage) {
-                if (timeScale > 0.05) timeScale -= 0.02; // Тормозим мир
-                if (endStageAlpha < 1) endStageAlpha += 0.02; // Проявляем финал оверлей
+                if (timeScale > 0.05) timeScale -= 0.02; 
+                if (endStageAlpha < 1) endStageAlpha += 0.02; 
                 if (endStageAlpha >= 1) {
-                    executeEndGame(); // Окончательный выход
+                    executeEndGame(); 
                     return;
                 }
             }
@@ -859,17 +888,14 @@
                 ctx.restore();
             }
 
-            // ЭЛИТНЫЙ КИНЕМАТОГРАФИЧНЫЙ ФИНАЛЬНЫЙ ОВЕРЛЕЙ
             if (endStageAlpha > 0.01) {
                 ctx.save();
-                // Насыщенный сине-пурпурный градиент размытия
                 let endGrad = ctx.createLinearGradient(0, 0, 0, window.innerHeight);
                 endGrad.addColorStop(0, `rgba(4, 2, 9, ${endStageAlpha * 0.85})`);
                 endGrad.addColorStop(1, `rgba(15, 5, 28, ${endStageAlpha * 0.95})`);
                 ctx.fillStyle = endGrad;
                 ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-                // Всплывающий неоновый текст "TIME OVER" прямо на холсте
                 ctx.font = "900 2.8rem 'Orbitron', sans-serif";
                 ctx.fillStyle = '#ff3366';
                 ctx.shadowBlur = 25;
@@ -906,7 +932,6 @@
         }
 
         function checkHit(clientX, clientY) {
-            // Во время финальной заставки тапы блокируются
             if (!gameActive || isStunned || isEndingStage) return;
 
             for (let i = items.length - 1; i >= 0; i--) {
@@ -917,8 +942,10 @@
                     createParticles(item.x, item.y, TYPES[item.type.toUpperCase()].color);
                     
                     if (item.type === 'bomb') {
+                        triggerHaptic('bomb'); // Сильная вибрация на взрыв
                         triggerBomb(item.x, item.y);
                     } else {
+                        triggerHaptic('tap'); // Легкий приятный клик на сбор предмета
                         if (item.type === 'freeze') triggerFreeze();
                         
                         let points = TYPES[item.type.toUpperCase()].points;
@@ -984,12 +1011,10 @@
             setTimeout(() => { isFrozen = false; }, 3000);
         }
 
-        // Включение первой фазы финала
         function triggerEndStage() {
             isEndingStage = true;
         }
 
-        // Окончательный подсчет и выход в лобби
         function executeEndGame() {
             gameActive = false;
             let earnedCrypto = score * 0.01;
@@ -1006,7 +1031,7 @@
             glow1.style.display = 'block';
             glow2.style.display = 'block';
             
-            updateTicketsSystem(); // Обновляем кнопку сразу после выхода
+            updateTicketsSystem(); 
         }
     </script>
 </body>
