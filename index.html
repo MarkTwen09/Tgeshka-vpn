@@ -66,7 +66,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding: 20px 24px;
+            padding: 16px 20px;
             z-index: 10;
             pointer-events: none;
         }
@@ -183,15 +183,8 @@
             cursor: pointer;
             transition: background 0.2s;
         }
-        .stat-card:active {
-            background: rgba(255,255,255,0.07);
-        }
-
-        .stat-card .label {
-            font-size: 0.75rem;
-            color: #6c5f93;
-            text-transform: uppercase;
-        }
+        .stat-card:active { background: rgba(255,255,255,0.07); }
+        .stat-card .label { font-size: 0.75rem; color: #6c5f93; text-transform: uppercase; }
 
         .stat-card .val {
             font-family: 'Orbitron', sans-serif;
@@ -204,21 +197,8 @@
             justify-content: space-between;
         }
 
-        .ticket-timer {
-            font-size: 0.65rem;
-            color: #ff3366;
-            font-weight: 500;
-        }
-
-        .game-status-text {
-            color: #ff3366;
-            font-size: 1rem;
-            font-weight: 700;
-            min-height: 45px;
-            text-align: center;
-            margin-top: 15px;
-            line-height: 1.4;
-        }
+        .ticket-timer { font-size: 0.65rem; color: #ff3366; font-weight: 500; }
+        .game-status-text { color: #ff3366; font-size: 1rem; font-weight: 700; min-height: 45px; text-align: center; margin-top: 15px; line-height: 1.4; }
 
         /* ГЛАВНАЯ КНОПКА */
         .btn-wrapper {
@@ -251,43 +231,51 @@
         .btn:disabled { background: #1e1b24; color: #4e485d; box-shadow: none; cursor: not-allowed; }
         .btn .sub-timeout { display: block; font-size: 0.7rem; color: #ff3366; margin-top: 2px; }
 
-        /* ОПТИМИЗИРОВАННЫЙ ИНТЕРФЕЙС ИГРЫ (НЕ МЕШАЕТ КРИСТАЛЛАМ) */
+        /* 👑 АККУРАТНЫЙ ОБНОВЛЕННЫЙ HUD (РАЗДЕЛЕННЫЕ ВОЗДУШНЫЕ ВИДЖЕТЫ) */
         .hud {
             display: flex;
             width: 100%;
-            max-width: 350px;
+            max-width: 450px;
             justify-content: space-between;
             align-items: center;
-            background: rgba(4, 2, 9, 0.4); /* Еще более прозрачный */
-            border: 1px solid rgba(255,255,255,0.05);
-            padding: 10px 20px;
-            border-radius: 16px;
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
             z-index: 12;
             pointer-events: auto;
-            margin-top: 10px;
+            background: transparent;
+        }
+
+        .hud-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 8px 16px;
+            border-radius: 16px;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            min-width: 110px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
 
         .hud-box {
-            font-size: 0.75rem;
-            color: #6c5f93;
+            font-size: 0.7rem;
+            color: #7b70a2;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+            text-align: center;
         }
 
         .hud-box div {
             font-family: 'Orbitron', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 800;
+            font-size: 1.3rem;
+            font-weight: 900;
             color: #fff;
+            margin-top: 1px;
         }
-        #score { color: #00ffcc; }
-        #timer { color: #ff3366; }
+        #score { color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.2); }
+        #timer { color: #ff3366; text-shadow: 0 0 10px rgba(255,51,102,0.2); }
 
         canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; display: block; }
 
-        /* ОВЕРЛЕИ / ОКНА МОДАЛОК (КВЕСТЫ И МАГАЗИН) */
+        /* ОВЕРЛЕИ / ОКНА МОДАЛОК */
         .overlay-modal {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -308,12 +296,7 @@
             margin: 0 auto 24px auto;
         }
 
-        .modal-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.8rem;
-            color: #00ffcc;
-            font-weight: 900;
-        }
+        .modal-title { font-family: 'Orbitron', sans-serif; font-size: 1.8rem; color: #00ffcc; font-weight: 900; }
 
         .close-btn {
             background: rgba(255,255,255,0.05);
@@ -326,36 +309,10 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        .modal-content-list {
-            width: 100%;
-            max-width: 350px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .item-row {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 16px;
-            padding: 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .item-info .item-name {
-            font-weight: 700;
-            font-size: 1rem;
-            color: #fff;
-        }
-
-        .item-info .item-sub {
-            font-size: 0.75rem;
-            color: #6c5f93;
-            margin-top: 2px;
-        }
+        .modal-content-list { width: 100%; max-width: 350px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+        .item-row { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 16px; padding: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .item-info .item-name { font-weight: 700; font-size: 1rem; color: #fff; }
+        .item-info .item-sub { font-size: 0.75rem; color: #6c5f93; margin-top: 2px; }
 
         .action-btn {
             font-family: 'Orbitron', sans-serif;
@@ -368,11 +325,7 @@
             font-weight: 800;
             cursor: pointer;
         }
-        .action-btn:disabled {
-            background: rgba(255,255,255,0.05);
-            color: #554e68;
-            cursor: not-allowed;
-        }
+        .action-btn:disabled { background: rgba(255,255,255,0.05); color: #554e68; cursor: not-allowed; }
 
         .shake { animation: shakeScreen 0.4s both; }
         @keyframes shakeScreen {
@@ -440,8 +393,7 @@
             <div class="modal-title">КВЕСТЫ</div>
             <button class="close-btn" onclick="closeModal('quests-modal')">✕</button>
         </div>
-        <div class="modal-content-list" id="quests-list">
-            </div>
+        <div class="modal-content-list" id="quests-list"></div>
     </div>
 
     <div id="shop-modal" class="overlay-modal">
@@ -469,8 +421,12 @@
 
     <div id="game-screen">
         <div class="hud">
-            <div class="hud-box">Токены<div><span id="score">0</span></div></div>
-            <div class="hud-box" style="text-align: right;">Время<div><span id="timer">30</span>с</div></div>
+            <div class="hud-card">
+                <div class="hud-box">Токены<div><span id="score">0</span></div></div>
+            </div>
+            <div class="hud-card">
+                <div class="hud-box">Время<div><span id="timer">30</span>с</div></div>
+            </div>
         </div>
     </div>
 
@@ -491,38 +447,27 @@
         const ticketsTimerContainer = document.getElementById('tickets-timer-container');
         const playBtn = document.getElementById('play-btn');
 
-        // Основное состояние экономики
         let cryptoBalance = parseFloat(localStorage.getItem('lum_balance')) || 0;
-        
-        // Переменные улучшений магазина
         let clickLevel = parseInt(localStorage.getItem('lum_shop_click_lvl')) || 1;
         let farmLevel = parseInt(localStorage.getItem('lum_shop_farm_lvl')) || 1;
 
-        function updateBalanceDisplay() {
-            totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
-        }
+        function updateBalanceDisplay() { totalBalanceDisplay.textContent = cryptoBalance.toFixed(2); }
         updateBalanceDisplay();
 
-        // Пассивный фарминг с учетом прокачки магазина
         let activeFarmAccum = parseFloat(localStorage.getItem('lum_farm_accum')) || 0;
         setInterval(() => {
             if (!gameActive) {
-                // Базовый доход 0.0003 увеличивается на 50% за каждый уровень магазина
                 let farmMultiplier = 1 + (farmLevel - 1) * 0.5;
                 activeFarmAccum += 0.0003 * farmMultiplier;
                 farmDisplay.textContent = activeFarmAccum.toFixed(4);
                 localStorage.setItem('lum_farm_accum', activeFarmAccum);
             }
         }, 1000);
-        farmDisplay.textContent = activeFarmAccum.toFixed(4);
 
         function claimFarming() {
             if (activeFarmAccum <= 0) return;
             cryptoBalance += activeFarmAccum;
-            
-            // Проверка квеста на фарминг
             checkQuestProgress('farm_goal', cryptoBalance);
-
             activeFarmAccum = 0;
             localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
             localStorage.setItem('lum_farm_accum', activeFarmAccum);
@@ -530,7 +475,6 @@
             farmDisplay.textContent = "0.0000";
         }
 
-        // ДИНАМИЧЕСКАЯ СИСТЕМА КВЕСТОВ
         let questsData = JSON.parse(localStorage.getItem('lum_quests_state')) || [
             { id: 'tg_join', type: 'click', name: 'Вступить в Telegram-канал', reward: 15, done: false, claimed: false, link: 'https://t.me/#' },
             { id: 'x_follow', type: 'click', name: 'Подписаться на Twitter / X', reward: 10, done: false, claimed: false, link: 'https://x.com/#' },
@@ -544,35 +488,22 @@
 
             questsData.forEach((q, idx) => {
                 if (q.claimed) completedCount++;
-                
                 let row = document.createElement('div');
                 row.className = 'item-row';
-                
                 let subtext = q.type === 'click' ? `Награда: +${q.reward} $LUM` : `Прогресс: ${cryptoBalance.toFixed(1)} / ${q.target} $LUM`;
                 
                 let btnHtml = '';
                 if (!q.done) {
-                    if (q.type === 'click') {
-                        btnHtml = `<button class="action-btn" style="background:#00b3ff;" onclick="doQuestClick(${idx})">ВЫПОЛНИТЬ</button>`;
-                    } else {
-                        btnHtml = `<button class="action-btn" disabled>В ПРОЦЕССЕ</button>`;
-                    }
+                    btnHtml = q.type === 'click' ? `<button class="action-btn" style="background:#00b3ff;" onclick="doQuestClick(${idx})">ВЫПОЛНИТЬ</button>` : `<button class="action-btn" disabled>В ПРОЦЕССЕ</button>`;
                 } else if (q.done && !q.claimed) {
                     btnHtml = `<button class="action-btn" style="background:#00ffcc;" onclick="claimQuestReward(${idx})">CLAIM</button>`;
                 } else {
                     btnHtml = `<button class="action-btn" disabled style="background:rgba(255,255,255,0.05); color:#554e68;">ГОТОВО</button>`;
                 }
 
-                row.innerHTML = `
-                    <div class="item-info">
-                        <div class="item-name">${q.name}</div>
-                        <div class="item-sub">${subtext}</div>
-                    </div>
-                    ${btnHtml}
-                `;
+                row.innerHTML = `<div class="item-info"><div class="item-name">${q.name}</div><div class="item-sub">${subtext}</div></div>${btnHtml}`;
                 list.appendChild(row);
             });
-
             document.getElementById('quests-stat-label').textContent = `Выполнено: ${completedCount}/${questsData.length}`;
         }
 
@@ -598,24 +529,18 @@
 
         function checkQuestProgress(id, currentVal) {
             let q = questsData.find(quest => quest.id === id);
-            if (q && !q.done) {
-                if (currentVal >= q.target) {
-                    q.done = true;
-                    localStorage.setItem('lum_quests_state', JSON.stringify(questsData));
-                }
+            if (q && !q.done && currentVal >= q.target) {
+                q.done = true;
+                localStorage.setItem('lum_quests_state', JSON.stringify(questsData));
             }
         }
 
-        // МОДАЛЬНЫЕ ОКНА И МАГАЗИН
         function openModal(id) {
             if (id === 'quests-modal') renderQuests();
             if (id === 'shop-modal') updateShopUI();
             document.getElementById(id).style.display = 'flex';
         }
-
-        function closeModal(id) {
-            document.getElementById(id).style.display = 'none';
-        }
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
         function updateShopUI() {
             let clickCost = clickLevel * 25;
@@ -635,29 +560,18 @@
         function buyUpgrade(type) {
             if (type === 'click') {
                 let cost = clickLevel * 25;
-                if (cryptoBalance >= cost) {
-                    cryptoBalance -= cost;
-                    clickLevel++;
-                    localStorage.setItem('lum_shop_click_lvl', clickLevel);
-                }
+                if (cryptoBalance >= cost) { cryptoBalance -= cost; clickLevel++; localStorage.setItem('lum_shop_click_lvl', clickLevel); }
             } else if (type === 'farm') {
                 let cost = farmLevel * 30;
-                if (cryptoBalance >= cost) {
-                    cryptoBalance -= cost;
-                    farmLevel++;
-                    localStorage.setItem('lum_shop_farm_lvl', farmLevel);
-                }
+                if (cryptoBalance >= cost) { cryptoBalance -= cost; farmLevel++; localStorage.setItem('lum_shop_farm_lvl', farmLevel); }
             }
             localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
             updateBalanceDisplay();
             updateShopUI();
         }
 
-
-        // СИСТЕМА БИЛЕТОВ (3 МИНУТЫ)
         const MAX_TICKETS = 7;
         const REGEN_TIME = 3 * 60 * 1000; 
-
         let tickets = parseInt(localStorage.getItem('lum_tickets'));
         if (isNaN(tickets)) tickets = MAX_TICKETS;
         let lastRegenTime = parseInt(localStorage.getItem('lum_last_regen_time')) || Date.now();
@@ -673,10 +587,7 @@
                     localStorage.setItem('lum_tickets', tickets);
                     localStorage.setItem('lum_last_regen_time', lastRegenTime);
                 }
-            } else {
-                lastRegenTime = now;
-                localStorage.setItem('lum_last_regen_time', lastRegenTime);
-            }
+            } else { lastRegenTime = now; localStorage.setItem('lum_last_regen_time', lastRegenTime); }
 
             ticketsCount.textContent = `⚡ ${tickets}/${MAX_TICKETS}`;
             let nextTicketIn = REGEN_TIME - (now - lastRegenTime);
@@ -684,20 +595,13 @@
             let secs = Math.floor((nextTicketIn % 60000) / 1000);
             let formatSecs = secs < 10 ? '0' + secs : secs;
 
-            if (tickets < MAX_TICKETS) {
-                ticketsTimerContainer.textContent = `(${mins}:${formatSecs})`;
-            } else {
-                ticketsTimerContainer.textContent = "";
-            }
+            ticketsTimerContainer.textContent = tickets < MAX_TICKETS ? `(${mins}:${formatSecs})` : "";
 
             if (gameActive) return;
-
             if (tickets > 0) {
-                playBtn.disabled = false;
-                playBtn.innerHTML = "ИГРАТЬ";
+                playBtn.disabled = false; playBtn.innerHTML = "ИГРАТЬ";
             } else {
-                playBtn.disabled = true;
-                playBtn.innerHTML = `НЕТ БИЛЕТОВ <span class="sub-timeout">+1 ТИКЕТ ЧЕРЕЗ ${mins}:${formatSecs}</span>`;
+                playBtn.disabled = true; playBtn.innerHTML = `НЕТ БИЛЕТОВ <span class="sub-timeout">+1 ТИКЕТ ЧЕРЕЗ ${mins}:${formatSecs}</span>`;
             }
         }
         setInterval(updateTicketsSystem, 500);
@@ -705,9 +609,7 @@
         function tryStartGame() {
             if (tickets > 0) {
                 tickets--;
-                if (tickets < MAX_TICKETS && tickets === MAX_TICKETS - 1) {
-                    lastRegenTime = Date.now(); 
-                }
+                if (tickets < MAX_TICKETS && tickets === MAX_TICKETS - 1) lastRegenTime = Date.now(); 
                 localStorage.setItem('lum_tickets', tickets);
                 localStorage.setItem('lum_last_regen_time', lastRegenTime);
                 updateTicketsSystem();
@@ -715,28 +617,10 @@
             }
         }
 
-        // ИГРОВОЙ ДВИЖОК И КОМПЕНСАЦИОННЫЕ ТАП-ЭФФЕКТЫ
-        let score = 0;
-        let timeLeft = 30;
-        let gameActive = false;
-        let isFrozen = false;
-        let freezeAlpha = 0; 
-        let snowParticles = []; 
-        let isStunned = false;
-        let lastTime = 0;
-        let spawnTimer = 0;
-        let secondTimer = 0;
-
-        let isEndingStage = false;
-        let endStageAlpha = 0;
-        let timeScale = 1.0; 
-
-        let items = [];
-        let particles = [];
-        let stars = [];
-        let floatingTexts = [];
-        let shockwaves = [];
-        let visualTapWaves = []; // Специальные волны для компенсации отсутствия вибрации на iOS
+        // ИГРОВОЙ ДВИЖОК
+        let score = 0, timeLeft = 30, gameActive = false, isFrozen = false, freezeAlpha = 0, snowParticles = [], isStunned = false, lastTime = 0, spawnTimer = 0, secondTimer = 0;
+        let isEndingStage = false, endStageAlpha = 0, timeScale = 1.0; 
+        let items = [], particles = [], stars = [], floatingTexts = [], shockwaves = [], visualTapWaves = [];
 
         const SPAWN_RATE = 340;
         const TYPES = {
@@ -756,12 +640,7 @@
         function initStars() {
             stars = [];
             for(let i=0; i<50; i++) {
-                stars.push({
-                    x: Math.random() * window.innerWidth,
-                    y: Math.random() * window.innerHeight,
-                    size: Math.random() * 1.2 + 0.5,
-                    speed: Math.random() * 0.2 + 0.1
-                });
+                stars.push({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, size: Math.random() * 1.2 + 0.5, speed: Math.random() * 0.2 + 0.1 });
             }
         }
         initStars();
@@ -769,101 +648,40 @@
         function initSnow() {
             snowParticles = [];
             for(let i=0; i<25; i++) {
-                snowParticles.push({
-                    x: Math.random() * window.innerWidth,
-                    y: Math.random() * window.innerHeight - window.innerHeight,
-                    size: Math.random() * 2 + 1,
-                    speedY: Math.random() * 1 + 0.5,
-                    speedX: Math.random() * 0.4 - 0.2,
-                    drift: Math.random() * 0.02
-                });
+                snowParticles.push({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight - window.innerHeight, size: Math.random() * 2 + 1, speedY: Math.random() * 1 + 0.5, speedX: Math.random() * 0.4 - 0.2, drift: Math.random() * 0.02 });
             }
         }
 
         function startGame() {
-            score = 0; timeLeft = 30;
-            isFrozen = false; freezeAlpha = 0; isStunned = false; isEndingStage = false; endStageAlpha = 0; timeScale = 1.0;
+            score = 0; timeLeft = 30; isFrozen = false; freezeAlpha = 0; isStunned = false; isEndingStage = false; endStageAlpha = 0; timeScale = 1.0;
             items = []; particles = []; floatingTexts = []; shockwaves = []; snowParticles = []; visualTapWaves = [];
-            
-            scoreDisplay.textContent = score;
-            timerDisplay.textContent = timeLeft;
-            
-            menuScreen.style.display = 'none';
-            glow1.style.display = 'none'; glow2.style.display = 'none';
+            scoreDisplay.textContent = score; timerDisplay.textContent = timeLeft;
+            menuScreen.style.display = 'none'; glow1.style.display = 'none'; glow2.style.display = 'none';
             gameScreen.style.display = 'flex';
-            gameActive = true;
-            lastTime = performance.now();
-            
+            gameActive = true; lastTime = performance.now();
             requestAnimationFrame(gameLoop);
         }
 
         function drawCrystal(ctx, x, y, size, angle) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(angle);
-            ctx.shadowBlur = 12;
-            ctx.shadowColor = '#00ffcc';
-            ctx.strokeStyle = '#00ffcc';
-            ctx.lineWidth = 2.5;
-            ctx.fillStyle = 'rgba(0, 255, 204, 0.15)';
-            ctx.beginPath();
-            ctx.moveTo(0, -size);
-            ctx.lineTo(size * 0.7, -size * 0.2);
-            ctx.lineTo(size * 0.5, size * 0.8);
-            ctx.lineTo(0, size);
-            ctx.lineTo(-size * 0.5, size * 0.8);
-            ctx.lineTo(-size * 0.7, -size * 0.2);
-            ctx.closePath();
-            ctx.fill(); ctx.stroke();
-            ctx.restore();
+            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.shadowBlur = 12; ctx.shadowColor = '#00ffcc'; ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2.5; ctx.fillStyle = 'rgba(0, 255, 204, 0.15)';
+            ctx.beginPath(); ctx.moveTo(0, -size); ctx.lineTo(size * 0.7, -size * 0.2); ctx.lineTo(size * 0.5, size * 0.8); ctx.lineTo(0, size); ctx.lineTo(-size * 0.5, size * 0.8); ctx.lineTo(-size * 0.7, -size * 0.2); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
         }
 
         function drawBomb(ctx, x, y, size, pulse) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.shadowBlur = 12 + pulse * 8;
-            ctx.shadowColor = '#ff3366';
-            ctx.fillStyle = '#1a0510';
-            ctx.strokeStyle = '#ff3366';
-            ctx.lineWidth = 2.5;
-            ctx.beginPath();
-            ctx.arc(0, 0, size * 0.8, 0, Math.PI * 2);
-            ctx.fill(); ctx.stroke();
-            ctx.fillStyle = `rgba(255, 51, 102, ${0.4 + pulse * 0.6})`;
-            ctx.beginPath();
-            ctx.arc(0, 0, size * 0.35, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.restore();
+            ctx.save(); ctx.translate(x, y); ctx.shadowBlur = 12 + pulse * 8; ctx.shadowColor = '#ff3366'; ctx.fillStyle = '#1a0510'; ctx.strokeStyle = '#ff3366'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.arc(0, 0, size * 0.8, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.fillStyle = `rgba(255, 51, 102, ${0.4 + pulse * 0.6})`; ctx.beginPath(); ctx.arc(0, 0, size * 0.35, 0, Math.PI * 2); ctx.fill(); ctx.restore();
         }
 
         function drawFreeze(ctx, x, y, size, angle) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(angle);
-            ctx.shadowBlur = 12;
-            ctx.shadowColor = '#00b3ff';
-            ctx.strokeStyle = '#00b3ff';
-            ctx.lineWidth = 2;
-            ctx.fillStyle = 'rgba(0, 179, 255, 0.15)';
-            ctx.beginPath();
-            for (let i = 0; i < 6; i++) {
-                ctx.lineTo(size * Math.cos(i * Math.PI / 3), size * Math.sin(i * Math.PI / 3));
-            }
-            ctx.closePath();
-            ctx.fill(); ctx.stroke();
-            ctx.restore();
+            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.shadowBlur = 12; ctx.shadowColor = '#00b3ff'; ctx.strokeStyle = '#00b3ff'; ctx.lineWidth = 2; ctx.fillStyle = 'rgba(0, 179, 255, 0.15)';
+            ctx.beginPath(); for (let i = 0; i < 6; i++) { ctx.lineTo(size * Math.cos(i * Math.PI / 3), size * Math.sin(i * Math.PI / 3)); } ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
         }
 
         function gameLoop(time) {
             if (!gameActive) return;
+            let dt = time - lastTime; lastTime = time;
+            ctx.fillStyle = '#030108'; ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-            let dt = time - lastTime;
-            lastTime = time;
-
-            ctx.fillStyle = '#030108';
-            ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-
-            // Звезды
             ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
             stars.forEach(star => {
                 if (!isFrozen) star.y += star.speed * timeScale;
@@ -871,21 +689,11 @@
                 ctx.fillRect(star.x, star.y, star.size, star.size);
             });
 
-            // Таймеры
             if (!isFrozen && !isEndingStage) {
                 spawnTimer += dt;
-                if (spawnTimer >= SPAWN_RATE) {
-                    spawnItem();
-                    spawnTimer = 0;
-                }
-
+                if (spawnTimer >= SPAWN_RATE) { spawnItem(); spawnTimer = 0; }
                 secondTimer += dt;
-                if (secondTimer >= 1000) {
-                    timeLeft--;
-                    timerDisplay.textContent = timeLeft;
-                    secondTimer = 0;
-                    if (timeLeft <= 0) triggerEndStage();
-                }
+                if (secondTimer >= 1000) { timeLeft--; timerDisplay.textContent = timeLeft; secondTimer = 0; if (timeLeft <= 0) triggerEndStage(); }
             }
 
             if (isEndingStage) {
@@ -894,68 +702,35 @@
                 if (endStageAlpha >= 1) { executeEndGame(); return; }
             }
 
-            // Отрендерить предметы
             let pulseValue = Math.sin(time * 0.01);
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
-                if (!isFrozen) {
-                    item.y += item.speed * timeScale;
-                    item.angle += item.rotSpeed * timeScale;
-                }
+                if (!isFrozen) { item.y += item.speed * timeScale; item.angle += item.rotSpeed * timeScale; }
                 if (item.y > window.innerHeight + 50) { items.splice(i, 1); continue; }
                 if (item.type === 'crystal') drawCrystal(ctx, item.x, item.y, item.size, item.angle);
                 if (item.type === 'bomb') drawBomb(ctx, item.x, item.y, item.size, pulseValue);
                 if (item.type === 'freeze') drawFreeze(ctx, item.x, item.y, item.size, item.angle);
             }
 
-            // Отрендерить искры/частицы
             for (let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i];
-                p.x += p.vx * timeScale; p.y += p.vy * timeScale;
-                p.vy += 0.1 * timeScale; p.alpha -= 0.02;
+                let p = particles[i]; p.x += p.vx * timeScale; p.y += p.vy * timeScale; p.vy += 0.1 * timeScale; p.alpha -= 0.02;
                 if (p.alpha <= 0) { particles.splice(i, 1); continue; }
-                ctx.save();
-                ctx.globalAlpha = p.alpha;
-                ctx.fillStyle = p.color;
-                ctx.fillRect(p.x, p.y, p.size, p.size);
-                ctx.restore();
+                ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size); ctx.restore();
             }
 
-            // Компенсационные волны кликов (Жидкий визуальный отклик под пальцем)
             for (let i = visualTapWaves.length - 1; i >= 0; i--) {
-                let w = visualTapWaves[i];
-                w.r += 3;
-                w.alpha -= 0.04;
+                let w = visualTapWaves[i]; w.r += 3; w.alpha -= 0.04;
                 if (w.alpha <= 0) { visualTapWaves.splice(i, 1); continue; }
-                ctx.save();
-                ctx.globalAlpha = w.alpha;
-                ctx.strokeStyle = w.color;
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.arc(w.x, w.y, w.r, 0, Math.PI*2);
-                ctx.stroke();
-                ctx.restore();
+                ctx.save(); ctx.globalAlpha = w.alpha; ctx.strokeStyle = w.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, Math.PI*2); ctx.stroke(); ctx.restore();
             }
 
-            // Оверлей заморозки
             if (isFrozen && freezeAlpha < 1) freezeAlpha += 0.05;
             else if (!isFrozen && freezeAlpha > 0) freezeAlpha -= 0.05;
-            if (freezeAlpha > 0.01) {
-                ctx.fillStyle = `rgba(0, 140, 255, ${freezeAlpha * 0.06})`;
-                ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-            }
+            if (freezeAlpha > 0.01) { ctx.fillStyle = `rgba(0, 140, 255, ${freezeAlpha * 0.06})`; ctx.fillRect(0, 0, window.innerWidth, window.innerHeight); }
 
-            // Элитный финал "TIME OVER"
             if (endStageAlpha > 0.01) {
-                ctx.save();
-                ctx.fillStyle = `rgba(4, 2, 9, ${endStageAlpha * 0.95})`;
-                ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
-                ctx.font = "900 2.5rem 'Orbitron', sans-serif";
-                ctx.fillStyle = '#ff3366';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText("TIME OVER", window.innerWidth / 2, window.innerHeight / 2);
-                ctx.restore();
+                ctx.save(); ctx.fillStyle = `rgba(4, 2, 9, ${endStageAlpha * 0.95})`; ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+                ctx.font = "900 2.5rem 'Orbitron', sans-serif"; ctx.fillStyle = '#ff3366'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText("TIME OVER", window.innerWidth / 2, window.innerHeight / 2); ctx.restore();
             }
 
             requestAnimationFrame(gameLoop);
@@ -969,7 +744,7 @@
 
             items.push({
                 x: Math.random() * (window.innerWidth - 60) + 30,
-                y: -30, // Спрятано чуть выше, вылетает аккуратно из-за прозрачной панели
+                y: -30, 
                 size: 24,
                 speed: Math.random() * 2 + 2.5,
                 angle: Math.random() * Math.PI,
@@ -980,7 +755,6 @@
 
         function checkHit(clientX, clientY) {
             if (!gameActive || isStunned || isEndingStage) return;
-
             let hitSomething = false;
 
             for (let i = items.length - 1; i >= 0; i--) {
@@ -990,34 +764,20 @@
                 if (dist < item.size + 20) {
                     hitSomething = true;
                     createParticles(item.x, item.y, TYPES[item.type.toUpperCase()].color);
-                    
-                    // Добавляем красивую круговую визуальную волну под палец
                     visualTapWaves.push({ x: clientX, y: clientY, r: 10, alpha: 1, color: TYPES[item.type.toUpperCase()].color });
 
-                    if (item.type === 'bomb') {
-                        triggerBomb(item.x, item.y);
-                    } else {
+                    if (item.type === 'bomb') { triggerBomb(item.x, item.y); } 
+                    else {
                         if (item.type === 'freeze') triggerFreeze();
-                        
-                        // Рассчитываем очки с учетом множителя клика из Магазина
                         let basePoints = TYPES[item.type.toUpperCase()].points;
-                        let multiplier = 1 + (clickLevel - 1) * 0.2; // +20% за уровень
+                        let multiplier = 1 + (clickLevel - 1) * 0.2; 
                         let finalPoints = Math.round(basePoints * multiplier);
-                        
-                        score += finalPoints;
-                        scoreDisplay.textContent = score;
-
-                        floatingTexts.push({ x: item.x, y: item.y, text: `+${finalPoints}`, color: TYPES[item.type.toUpperCase()].color, alpha: 1 });
+                        score += finalPoints; scoreDisplay.textContent = score;
                     }
-                    items.splice(i, 1);
-                    break; 
+                    items.splice(i, 1); break; 
                 }
             }
-
-            // Если тапнули просто по экрану (не попали) — всё равно пускаем лёгкую серую волну для отклика
-            if (!hitSomething) {
-                visualTapWaves.push({ x: clientX, y: clientY, r: 5, alpha: 0.5, color: 'rgba(255,255,255,0.3)' });
-            }
+            if (!hitSomething) { visualTapWaves.push({ x: clientX, y: clientY, r: 5, alpha: 0.5, color: 'rgba(255,255,255,0.3)' }); }
         }
 
         window.addEventListener('mousedown', (e) => checkHit(e.clientX, e.clientY));
@@ -1025,49 +785,31 @@
 
         function createParticles(x, y, color) {
             for(let i=0; i<10; i++) {
-                let angle = Math.random() * Math.PI * 2;
-                let speed = Math.random() * 3 + 1;
+                let angle = Math.random() * Math.PI * 2; let speed = Math.random() * 3 + 1;
                 particles.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, size: Math.random() * 2 + 2, color: color, alpha: 1 });
             }
         }
 
         function triggerBomb(x, y) {
-            isStunned = true;
-            body.classList.add('shake');
-            score -= 50; if (score < 0) score = 0;
-            scoreDisplay.textContent = score;
+            isStunned = true; body.classList.add('shake'); score -= 50; if (score < 0) score = 0; scoreDisplay.textContent = score;
             setTimeout(() => { body.classList.remove('shake'); isStunned = false; }, 400);
         }
 
-        function triggerFreeze() {
-            if (isFrozen) return;
-            isFrozen = true; initSnow();
-            setTimeout(() => { isFrozen = false; }, 3000);
-        }
-
+        function triggerFreeze() { if (!isFrozen) { isFrozen = true; initSnow(); setTimeout(() => { isFrozen = false; }, 3000); } }
         function triggerEndStage() { isEndingStage = true; }
 
         function executeEndGame() {
             gameActive = false;
-            let earnedCrypto = score * 0.01;
-            cryptoBalance += earnedCrypto;
-
-            // Проверяем прогресс квеста на баланс
+            let earnedCrypto = score * 0.01; cryptoBalance += earnedCrypto;
             checkQuestProgress('farm_goal', cryptoBalance);
-
             localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
             updateBalanceDisplay();
 
             lastScoreDisplay.innerHTML = `РАУНД ЗАВЕРШЕН!<br><span style="color:#00ffcc; font-family:'Orbitron'; font-size:1.3rem;">+${earnedCrypto.toFixed(2)} $LUM</span>`;
-
-            gameScreen.style.display = 'none';
-            menuScreen.style.display = 'flex';
-            glow1.style.display = 'block'; glow2.style.display = 'block';
-            
+            gameScreen.style.display = 'none'; menuScreen.style.display = 'flex'; glow1.style.display = 'block'; glow2.style.display = 'block';
             updateTicketsSystem(); 
         }
 
-        // Инициализируем стартовый вид квестов при запуске хаба
         renderQuests();
     </script>
 </body>
