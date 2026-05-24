@@ -2,510 +2,300 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>STARMINER CORE — Quantum Mining</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Lum Game</title>
     <style>
-        :root {
-            --bg-dark: #0a0914;
-            --panel-bg: rgba(20, 18, 38, 0.75);
-            --border-glow: rgba(0, 197, 255, 0.15);
-            --accent-green: #00ff88;
-            --accent-gold: #ffaa00;
-            --accent-blue: #00bfff;
-            --text-main: #ffffff;
-            --text-muted: #6e6a8a;
-        }
-
         * {
             box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-            user-select: none;
         }
 
         body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(circle at 50% 10%, rgba(0, 191, 255, 0.08) 0%, transparent 50%),
-                radial-gradient(circle at 50% 90%, rgba(157, 78, 221, 0.05) 0%, transparent 50%);
-            color: var(--text-main);
-            display: flex;
-            justify-content: center;
-            padding: 12px;
-            min-height: 100vh;
+            background: radial-gradient(circle at center, #1a0b2e, #05010d);
+            color: #fff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
         }
 
-        .app {
+        /* Экран меню */
+        #menu-screen, #game-screen {
+            position: absolute;
             width: 100%;
-            max-width: 420px;
+            height: 100%;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
-        header {
+        #game-screen {
+            display: none;
+            justify-content: flex-start;
+        }
+
+        h1 {
+            font-size: 4rem;
+            color: #00ffcc;
+            text-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .subtitle {
+            color: #8a7fa4;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #00ffcc, #0099ff);
+            color: #05010d;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 255, 204, 0.4);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 5px rgba(0, 255, 204, 0.2);
+        }
+
+        /* Игровой интерфейс */
+        .hud {
             display: flex;
+            width: 100%;
             justify-content: space-between;
             align-items: center;
-            padding: 4px;
+            margin-top: 20px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
         }
 
-        .brand {
-            font-size: 1rem;
-            font-weight: 900;
-            letter-spacing: 1px;
-            background: linear-gradient(135deg, #fff 30%, var(--accent-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .admin-tag {
-            font-size: 0.65rem;
-            color: var(--accent-blue);
-            background: rgba(0, 191, 255, 0.1);
-            padding: 4px 10px;
-            border-radius: 20px;
-            border: 1px solid rgba(0, 191, 255, 0.2);
+        .score-box, .timer-box {
+            font-size: 1.2rem;
             font-weight: bold;
         }
 
-        /* Основная панель */
-        .main-card {
-            background: var(--panel-bg);
-            border-radius: 20px;
-            padding: 18px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+        .score-box span {
+            color: #00ffcc;
+            font-size: 1.5rem;
+        }
+
+        .timer-box span {
+            color: #ff3366;
+            font-size: 1.5rem;
+        }
+
+        /* Игровое поле для ловли элементов */
+        #game-area {
             position: relative;
+            width: 100%;
+            flex-grow: 1;
+            margin-top: 20px;
             overflow: hidden;
         }
 
-        .panel-header {
-            font-size: 0.75rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 14px;
+        /* Падающие элементы */
+        .item {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
-            gap: 6px;
-            color: var(--accent-blue);
-        }
-
-        /* Список статов */
-        .stats-group {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            padding-bottom: 14px;
-            margin-bottom: 14px;
-            position: relative;
-        }
-
-        .stat-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-size: 0.95rem;
-        }
-        .stat-lbl { color: #a09cb0; display: flex; align-items: center; gap: 8px; }
-        .stat-val { font-weight: 800; font-variant-numeric: tabular-nums; }
-        .stat-val.gold { color: var(--accent-gold); text-shadow: 0 0 10px rgba(255,170,0,0.3); }
-
-        /* 🔥 Живой анимированный неоновый лазер майнинга */
-        .laser-line {
-            height: 2px;
-            background: #2a2640;
-            border-radius: 2px;
-            margin: 4px 0 14px 0;
-            position: relative;
-            transition: all 0.5s ease;
-        }
-        .mining-active .laser-line {
-            background: linear-gradient(90deg, transparent, var(--accent-green), var(--accent-blue), transparent);
-            box-shadow: 0 0 12px 2px var(--accent-green);
-            animation: laser-burn 1.5s linear infinite;
-        }
-
-        /* Блок таймера */
-        .control-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.2);
-            padding: 10px 14px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.02);
-        }
-        .time-display { display: flex; flex-direction: column; }
-        .time-display .lbl { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .time-display .val { font-size: 1.2rem; font-weight: 800; letter-spacing: 0.5px; color: #fff; }
-
-        .btn-boost-x2 {
-            background: linear-gradient(135deg, #0072ff, #00c6ff);
-            border: none;
-            color: white;
-            padding: 8px 14px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: 800;
+            justify-content: center;
+            font-size: 1.8rem;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0, 114, 255, 0.3);
-            transition: all 0.2s;
-        }
-        .btn-boost-x2:disabled {
-            background: #221f36;
-            color: var(--text-muted);
-            box-shadow: none;
-            cursor: not-allowed;
+            transform: translate(-50%, -50%);
+            animation: fall linear forwards;
+            touch-action: none;
         }
 
-        /* Промокод */
-        .input-box {
-            display: flex;
-            background: var(--panel-bg);
-            border: 1px solid rgba(255,255,255,0.04);
-            padding: 6px;
-            border-radius: 14px;
-        }
-        .input-box input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            padding: 8px 10px;
-            font-size: 0.8rem;
-            outline: none;
-        }
-        .input-box input::placeholder { color: var(--text-muted); }
-        .input-box button {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.04);
-            color: white;
-            padding: 0 16px;
-            border-radius: 10px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            cursor: pointer;
+        @keyframes fall {
+            0% { top: -50px; }
+            100% { top: calc(100% + 50px); }
         }
 
-        /* Магазин */
-        .shop-panel {
-            background: var(--panel-bg);
-            border-radius: 20px;
-            padding: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.04);
-        }
-        .shop-head { font-size: 0.7rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; padding-left: 4px; letter-spacing: 0.5px; }
-        .shop-items-container { display: flex; flex-direction: column; gap: 8px; }
-        
-        .shop-card {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0,0,0,0.2);
-            padding: 10px 14px;
-            border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.01);
-        }
-        .item-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 2px; }
-        .item-calc { font-size: 0.65rem; color: var(--accent-green); font-weight: 500; }
-
-        .btn-purchase {
-            background: rgba(255, 170, 0, 0.1);
-            border: 1px solid rgba(255, 170, 0, 0.25);
-            color: var(--accent-gold);
-            padding: 8px 12px;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            font-weight: 800;
-            text-decoration: none;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-        .btn-purchase.active-now {
-            background: rgba(0, 255, 136, 0.1);
-            border-color: var(--accent-green);
-            color: var(--accent-green);
+        /* Спецэффект при клике */
+        .pop {
+            position: absolute;
+            color: #00ffcc;
+            font-weight: bold;
+            font-size: 1.5rem;
+            animation: floatUp 0.4s ease-out forwards;
+            pointer-events: none;
+            z-index: 5;
         }
 
-        /* Индикатор вывода */
-        .w-info-bar {
-            font-size: 0.7rem;
-            text-align: center;
-            color: var(--text-muted);
-            padding: 2px;
-            line-height: 1.4;
-        }
-        .w-info-bar span { color: #ff5555; font-weight: bold; }
-        .w-info-bar.unlocked span { color: var(--accent-green); }
-
-        /* Нижние Кнопки */
-        .bottom-actions { display: flex; gap: 12px; }
-        .action-btn {
-            flex: 1;
-            padding: 15px;
-            border-radius: 16px;
-            border: none;
-            font-size: 0.85rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-        }
-        .btn-trigger { background: linear-gradient(135deg, #00ff88, #00bfff); color: #000; box-shadow: 0 4px 15px rgba(0,255,136,0.2); }
-        .btn-trigger.stop-mode { background: #1f1a3a; color: #ff5555; border: 1px solid rgba(255,85,85,0.15); box-shadow: none; }
-        
-        .btn-payout { background: #221f33; color: rgba(255,255,255,0.15); cursor: not-allowed; }
-        .btn-payout.ready-to-go { background: linear-gradient(135deg, #ffaa00, #ff7700); color: #000; cursor: pointer; box-shadow: 0 4px 15px rgba(255,170,0,0.25); }
-
-        @keyframes laser-burn {
-            0% { background-position: 0% 50%; opacity: 0.6; }
-            50% { opacity: 1; }
-            100% { background-position: 100% 50%; opacity: 0.6; }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-30px); }
         }
     </style>
 </head>
 <body>
 
-<div class="app" id="main-scope">
-    <header>
-        <div class="brand"><i class="fas fa-atom"></i> STARMINER CORE</div>
-        <div class="admin-tag">ADMIN: @markplau</div>
-    </header>
+    <div id="menu-screen">
+        <h1>LUM</h1>
+        <div class="subtitle">Поймай как можно больше кристаллов! Избегай бомб.</div>
+        <div id="last-score" style="margin-bottom: 20px; font-size: 1.2rem; color: #00ffcc; display: none;"></div>
+        <button class="btn" onclick="startGame()">Играть</button>
+    </div>
 
-    <div class="main-card">
-        <div class="panel-header"><i class="fas fa-satellite-dish"></i> Мониторинг ядра майнера</div>
-        
-        <div class="stats-group">
-            <div class="stat-row">
-                <span class="stat-lbl"><i class="fas fa-wallet" style="color:var(--accent-blue)"></i> Баланс счета</span>
-                <span class="stat-val gold"><span id="bal">0.00000</span> STAR</span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-lbl"><i class="fas fa-tachometer-alt" style="color:var(--accent-green)"></i> Скорость хэшрейта</span>
-                <span class="stat-val"><span id="rate">2.0</span> <span style="font-size:0.7rem; font-weight:normal; color:var(--text-muted)">STAR/ч</span></span>
-            </div>
-            <div class="stat-row">
-                <span class="stat-lbl"><i class="fas fa-layer-group" style="color:var(--accent-gold)"></i> Конфигурация буста</span>
-                <span class="stat-val" id="boost-lbl" style="color:var(--text-muted); font-size:0.85rem;">Отсутствует</span>
-            </div>
+    <div id="game-screen">
+        <div class="hud">
+            <div class="score-box">Очки: <span id="score">0</span></div>
+            <div class="timer-box">Время: <span id="timer">30</span>с</div>
         </div>
-
-        <div class="laser-line"></div>
-
-        <div class="control-row">
-            <div class="time-display">
-                <span class="lbl">Автономная энергия</span>
-                <span class="val" id="clock">56:00</span>
-            </div>
-            <button class="btn-boost-x2" id="x2-btn" onclick="triggerX2()">УСКОРЕНИЕ X2</button>
-        </div>
+        <div id="game-area"></div>
     </div>
 
-    <div class="input-box">
-        <input type="text" id="promo-field" placeholder="Активировать аппаратуру (введи ключ админа)">
-        <button onclick="unlockHardware()">ВВОД</button>
-    </div>
+    <script>
+        const menuScreen = document.getElementById('menu-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const gameArea = document.getElementById('game-area');
+        const scoreDisplay = document.getElementById('score');
+        const timerDisplay = document.getElementById('timer');
+        const lastScoreDisplay = document.getElementById('last-score');
 
-    <div class="shop-panel">
-        <div class="shop-head">Аппаратные улучшения (Покупка у @markplau):</div>
-        <div class="shop-items-container">
-            <div class="shop-card">
-                <div>
-                    <div class="item-title">🥉 Бронзовая кирка (х1.5)</div>
-                    <div class="item-calc"><i class="fas fa-chart-line"></i> Доходность: ~72 STAR / 24 часа</div>
-                </div>
-                <a href="https://t.me/markplau?text=%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82!%20%D0%AF%20%D1%85%D0%BE%D1%87%D1%83%20%D0%BA%D1%83%D0%BF%D0%B8%D1%82%D1%8C%20%D0%91%D1%80%D0%BE%D0%BD%D0%B7%D0%BE%D0%B2%D1%83%D1%8E%20%D0%BA%D0%B8%D1%80%D0%BA%D1%83%20%D0%B7%D0%B0%2019%20%D0%B7%D0%B2%D0%B5%D0%B7%D0%B4." target="_blank" class="btn-purchase" id="b1">19 STAR</a>
-            </div>
-            <div class="shop-card">
-                <div>
-                    <div class="item-title">🥈 Серебряный Бустер (х3.0)</div>
-                    <div class="item-calc"><i class="fas fa-chart-line"></i> Доходность: ~144 STAR / 24 часа</div>
-                </div>
-                <a href="https://t.me/markplau?text=%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82!%20%D0%AF%20%D1%85%D0%BE%D1%87%D1%83%20%D0%BA%D1%83%D0%BF%D0%B8%D1%82%D1%8C%20%D0%A1%D0%B5%D1%80%D0%B5%D0%B1%D1%80%D1%8F%D0%BD%D1%8B%D0%B9%20%D0%91%D1%83%D1%81%D1%82%20%D0%B7%D0%B0%2049%20%D0%B7%D0%B2%D0%B5%D0%B7%D0%B4." target="_blank" class="btn-purchase" id="b2">49 STAR</a>
-            </div>
-            <div class="shop-card">
-                <div>
-                    <div class="item-title">🥇 Золотая Ракета (х5.0)</div>
-                    <div class="item-calc"><i class="fas fa-chart-line"></i> Доходность: ~240 STAR / 24 часа</div>
-                </div>
-                <a href="https://t.me/markplau?text=%D0%9F%D1%80%D0%B8%D0%B2%D0%B5%D1%82!%20%D0%AF%20%D1%85%D0%BE%D1%87%D1%83%20%D0%BA%D1%83%D0%BF%D0%B8%D1%82%D1%8C%20%D0%97%D0%BE%D0%BB%D0%BE%D1%82%D1%83%D1%8E%20%D0%A0%D0%B0%D0%BA%D0%B5%D1%82%D1%83%20%D0%B7%D0%B0%2099%20%D0%B7%D0%B2%D0%B5%D0%B7%D0%B4." target="_blank" class="btn-purchase" id="b3">99 STAR</a>
-            </div>
-        </div>
-    </div>
+        let score = 0;
+        let timeLeft = 30;
+        let gameInterval;
+        let spawnInterval;
+        let gameActive = false;
 
-    <div class="w-info-bar" id="w-indicator">
-        Шлюз вывода заблокирован. Баланс: <span><span>0.00</span>/100 STAR</span> | Оборудование: <span>Не верифицировано</span>
-    </div>
+        // Конфигурация предметов
+        // В оригинале Blum это зеленые снежинки, здесь это кристаллы 💎 и бомбы 💣
+        const TYPES = [
+            { id: 'crystal', icon: '💎', points: 10, chance: 0.85 },
+            { id: 'bomb', icon: '💣', points: -50, chance: 0.15 }
+        ];
 
-    <div class="bottom-actions">
-        <button class="action-btn btn-trigger" id="master-btn" onclick="toggleEngine()">START</button>
-        <button class="action-btn btn-payout" id="payout-btn" onclick="requestPayout()">WITHDRAW</button>
-    </div>
-</div>
+        function startGame() {
+            // Сброс состояния
+            score = 0;
+            timeLeft = 30;
+            scoreDisplay.textContent = score;
+            timerDisplay.textContent = timeLeft;
+            gameArea.innerHTML = '';
+            
+            // Переключение экранов
+            menuScreen.style.display = 'none';
+            gameScreen.style.display = 'flex';
+            gameActive = true;
 
-<script>
-    // Инициализация структуры данных
-    if (localStorage.getItem('sm_v5_core') === null) {
-        localStorage.clear();
-        localStorage.setItem('sm_v5_core', 'true');
-        localStorage.setItem('sm_b', '0.00000');
-        localStorage.setItem('sm_tl', '0');
-        localStorage.setItem('sm_hb', 'false');
-        localStorage.setItem('sm_m', '1.0');
-        localStorage.setItem('sm_id', '0');
-        localStorage.setItem('sm_cd', '0');
-    }
+            // Таймер игры
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
 
-    let baseRate = 2.0;
-    let balance = parseFloat(localStorage.getItem('sm_b')) || 0.0;
-    let timeLeft = parseInt(localStorage.getItem('sm_tl')) || 0;
-    let hasBoost = localStorage.getItem('sm_hb') === 'true';
-    let multiplier = parseFloat(localStorage.getItem('sm_m')) || 1.0;
-    let ownedId = parseInt(localStorage.getItem('sm_id')) || 0;
-    let cooldownEnd = parseInt(localStorage.getItem('sm_cd')) || 0;
-
-    let isMining = timeLeft > 0;
-    let isX2 = false;
-
-    const keyХэш = {
-        "MARK_BRONZE_START": { id: 1, mult: 1.5, name: "🥉 Бронзовая кирка (х1.5)" },
-        "MARK_SILVER_BOOST": { id: 2, mult: 3.0, name: "🥈 Серебряный Буст (х3.0)" },
-        "MARK_GOLD_ROCKET": { id: 3, mult: 5.0, name: "🥇 Золотая Ракета (х5.0)" }
-    };
-
-    function updateView() {
-        isX2 = (isMining && timeLeft > 0 && localStorage.getItem('sm_x2') === 'true');
-        let totalMult = multiplier * (isX2 ? 2.0 : 1.0);
-        let curRate = baseRate * totalMult;
-
-        document.getElementById('rate').innerText = curRate.toFixed(1);
-        document.getElementById('bal').innerText = balance.toFixed(5);
-
-        // Статус Буста
-        let lbl = document.getElementById('boost-lbl');
-        if(hasBoost) {
-            let names = ["", "Бронзовая кирка х1.5", "Серебряный Буст х3.0", "Золотая Ракета х5.0"];
-            lbl.innerText = names[ownedId];
-            lbl.style.color = "var(--accent-green)";
+            // Спавн предметов (каждые 400мс)
+            spawnInterval = setInterval(createItem, 400);
         }
 
-        // Рендер кнопок магазина
-        for(let i=1; i<=3; i++) {
-            let el = document.getElementById(`b${i}`);
-            if(ownedId === i) { 
-                el.innerText = "АКТИВЕН"; 
-                el.className = "btn-purchase active-now"; 
-                el.removeAttribute('href'); 
+        function createItem() {
+            if (!gameActive) return;
+
+            const item = document.createElement('div');
+            item.classList.add('item');
+
+            // Выбираем тип (кристалл или бомба) на основе шанса
+            const rand = Math.random();
+            let type = TYPES[0]; // по умолчанию кристалл
+            if (rand > TYPES[0].chance) {
+                type = TYPES[1]; // бомба
             }
+
+            item.textContent = type.icon;
+            item.dataset.type = type.id;
+            item.dataset.points = type.points;
+
+            // Рандомная позиция по горизонтали (от 10% до 90% ширины экрана)
+            const randomX = Math.floor(Math.random() * 80) + 10;
+            item.style.left = randomX + '%';
+
+            // Рандомная скорость падения (от 2 до 4 секунд)
+            const speed = (Math.random() * 2 + 2).toFixed(2);
+            item.style.animationDuration = speed + 's';
+
+            // Обработка клика / тапа
+            item.addEventListener('touchstart', (e) => {
+                e.preventDefault(); // Предотвращает двойной тап на смартфонах
+                catchItem(item);
+            });
+            item.addEventListener('mousedown', () => catchItem(item));
+
+            // Удаляем элемент после того, как он упал за экран
+            item.addEventListener('animationend', () => {
+                item.remove();
+            });
+
+            gameArea.appendChild(item);
         }
 
-        // Работа ядра майнинга
-        let scope = document.getElementById('main-scope');
-        if(isMining && timeLeft > 0) {
-            scope.classList.add('mining-active');
-            let m = Math.floor(timeLeft / 60); let s = timeLeft % 60;
-            document.getElementById('clock').innerText = `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-            document.getElementById('master-btn').innerText = "STOP";
-            document.getElementById('master-btn').className = "action-btn btn-trigger stop-mode";
-        } else {
-            scope.classList.remove('mining-active');
-            document.getElementById('clock').innerText = "56:00";
-            document.getElementById('master-btn').innerText = "START";
-            document.getElementById('master-btn').className = "action-btn btn-trigger";
-            isMining = false;
-            localStorage.setItem('sm_x2', 'false');
+        function catchItem(item) {
+            if (!gameActive) return;
+
+            const points = parseInt(item.dataset.points);
+            score += points;
+            if (score < 0) score = 0; // Очки не падают ниже нуля
+            scoreDisplay.textContent = score;
+
+            // Создаем красивый текст с эффектом на месте клика
+            createPopEffect(item.offsetLeft, item.offsetTop, points > 0 ? `+${points}` : points);
+
+            // Удаляем пойманный элемент
+            item.remove();
         }
 
-        // Таймер x2 бонуса
-        let now = Date.now();
-        if(now < cooldownEnd) {
-            let diff = Math.floor((cooldownEnd - now) / 1000);
-            let min = Math.floor(diff / 60); let sec = diff % 60;
-            document.getElementById('x2-btn').innerText = `${min}:${sec.toString().padStart(2,'0')}`;
-            document.getElementById('x2-btn').disabled = true;
-        } else {
-            document.getElementById('x2-btn').innerText = "БОНУС X2 (3ч)";
-            document.getElementById('x2-btn').disabled = !isMining;
+        function createPopEffect(x, y, text) {
+            const pop = document.createElement('div');
+            pop.classList.add('pop');
+            pop.style.left = x + 'px';
+            pop.style.top = y + 'px';
+            pop.textContent = text;
+            
+            if (text.startsWith('-')) {
+                pop.style.color = '#ff3366'; // Красный цвет для бомбы
+            }
+
+            gameArea.appendChild(pop);
+            setTimeout(() => pop.remove(), 400);
         }
 
-        // Системный статус вывода
-        let canW = (balance >= 100.0) && hasBoost;
-        let wIndicator = document.getElementById('w-indicator');
-        let payoutBtn = document.getElementById('payout-btn');
+        function endGame() {
+            gameActive = false;
+            clearInterval(gameInterval);
+            clearInterval(spawnInterval);
 
-        if(canW) {
-            wIndicator.className = "w-info-bar unlocked";
-            wIndicator.innerHTML = "<span style='color:var(--accent-green)'>✅ Проверка безопасности пройдена. Шлюз вывода открыт.</span>";
-            payoutBtn.className = "action-btn btn-payout ready-to-go";
-        } else {
-            wIndicator.className = "w-info-bar";
-            let eqStatus = hasBoost ? "<span style='color:var(--accent-green)'>ОК</span>" : "<span>Не верифицировано</span>";
-            wIndicator.innerHTML = `Шлюз вывода заблокирован. Баланс: <span>${balance.toFixed(2)}/100 STAR</span> | Лицензия: ${eqStatus}`;
-            payoutBtn.className = "action-btn btn-payout";
+            // Показываем счет в меню
+            lastScoreDisplay.textContent = `Ваш результат в Lum: ${score} очков!`;
+            lastScoreDisplay.style.display = 'block';
+
+            // Возврат на экран меню
+            gameScreen.style.display = 'none';
+            menuScreen.style.style.display = 'flex'; // небольшая страховка для сброса стилей flex
+            menuScreen.setAttribute("style", "display: flex;");
         }
-    }
-
-    function toggleEngine() {
-        if(!isMining) { timeLeft = 3360; isMining = true; } 
-        else { timeLeft = 0; isMining = false; localStorage.setItem('sm_x2', 'false'); }
-        localStorage.setItem('sm_tl', timeLeft);
-        updateView();
-    }
-
-    function triggerX2() {
-        if(isMining && Date.now() >= cooldownEnd) {
-            localStorage.setItem('sm_x2', 'true');
-            cooldownEnd = Date.now() + (3 * 3600 * 1000);
-            localStorage.setItem('sm_cd', cooldownEnd);
-            updateView();
-        }
-    }
-
-    function unlockHardware() {
-        let input = document.getElementById('promo-field').value.trim();
-        if(keyХэш[input]) {
-            let data = keyХэш[input];
-            hasBoost = true; multiplier = data.mult; ownedId = data.id;
-            localStorage.setItem('sm_hb', 'true');
-            localStorage.setItem('sm_m', multiplier);
-            localStorage.setItem('sm_id', ownedId);
-            alert(`💾 Аппаратура успешно обновлена до: ${data.name}`);
-            document.getElementById('promo-field').value = "";
-            updateView();
-        } else {
-            alert("❌ Ошибка хэш-ключа. Запросите актуальный ключ у администратора.");
-        }
-    }
-
-    function requestPayout() {
-        if((balance >= 100.0) && hasBoost) {
-            let text = encodeURIComponent(`Привет, Марк! Я верифицировал устройство, мой баланс составляет ${balance.toFixed(2)} STAR. Готов получить выплату!`);
-            window.open(`https://t.me/markplau?text=${text}`, '_blank');
-        }
-    }
-
-    // Главный вычислительный цикл
-    setInterval(() => {
-        if(isMining && timeLeft > 0) {
-            timeLeft--;
-            isX2 = (localStorage.getItem('sm_x2') === 'true');
-            balance += (baseRate * multiplier * (isX2 ? 2.0 : 1.0)) / 3600;
-            localStorage.setItem('sm_b', balance);
-            localStorage.setItem('sm_tl', timeLeft);
-        }
-        updateView();
-    }, 1000);
-
-    updateView();
-</script>
+    </script>
 </body>
 </html>
