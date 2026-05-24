@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Lum Game</title>
+    <title>Lum Crypto Game</title>
     <style>
         * {
             box-sizing: border-box;
@@ -14,15 +14,15 @@
         }
 
         body {
-            background: radial-gradient(circle at center, #1a0b2e, #05010d);
+            background: radial-gradient(circle at center, #17072b, #04010a);
             color: #fff;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             overflow: hidden;
             width: 100vw;
             height: 100vh;
         }
 
-        /* Экран меню */
+        /* ЭКРАН МЕНЮ / ХАБ */
         #menu-screen, #game-screen {
             position: absolute;
             width: 100%;
@@ -30,8 +30,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 20px;
+            justify-content: space-between;
+            padding: 30px 20px;
+            transition: opacity 0.3s ease;
         }
 
         #game-screen {
@@ -39,18 +40,58 @@
             justify-content: flex-start;
         }
 
-        h1 {
-            font-size: 4rem;
-            color: #00ffcc;
-            text-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
-            margin-bottom: 10px;
-            letter-spacing: 2px;
+        .brand-section {
+            text-align: center;
+            margin-top: 40px;
         }
 
-        .subtitle {
+        h1 {
+            font-size: 4.5rem;
+            color: #00ffcc;
+            text-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
+            letter-spacing: 4px;
+            font-weight: 900;
+        }
+
+        /* Виджет баланса крипты как в Blum */
+        .crypto-balance {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(0, 255, 204, 0.15);
+            padding: 20px 40px;
+            border-radius: 20px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin: 20px 0;
+        }
+
+        .crypto-balance p {
+            font-size: 0.9rem;
             color: #8a7fa4;
-            font-size: 1.2rem;
-            margin-bottom: 40px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+        }
+
+        .crypto-balance .amount {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .crypto-balance .amount span {
+            color: #00ffcc;
+            text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+        }
+
+        .game-status-text {
+            color: #ff3366;
+            font-size: 1.1rem;
+            min-height: 24px;
             text-align: center;
         }
 
@@ -58,50 +99,50 @@
             background: linear-gradient(135deg, #00ffcc, #0099ff);
             color: #05010d;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.3rem;
+            padding: 18px 60px;
+            font-size: 1.4rem;
             font-weight: bold;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0, 255, 204, 0.4);
+            box-shadow: 0 8px 25px rgba(0, 255, 204, 0.3);
             transition: transform 0.1s, box-shadow 0.1s;
+            width: 85%;
+            max-width: 320px;
+            margin-bottom: 30px;
         }
 
         .btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 5px rgba(0, 255, 204, 0.2);
+            transform: scale(0.96);
         }
 
-        /* Игровой интерфейс */
+        /* ИГРОВОЙ ИНТЕРФЕЙС */
         .hud {
             display: flex;
             width: 100%;
             justify-content: space-between;
             align-items: center;
-            margin-top: 20px;
+            background: rgba(255, 255, 255, 0.04);
+            padding: 15px 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.05);
             z-index: 10;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px 20px;
-            border-radius: 15px;
-            backdrop-filter: blur(5px);
         }
 
-        .score-box, .timer-box {
-            font-size: 1.2rem;
+        .hud-box {
+            font-size: 1rem;
+            color: #8a7fa4;
+        }
+
+        .hud-box div {
+            font-size: 1.6rem;
             font-weight: bold;
+            color: #fff;
         }
 
-        .score-box span {
-            color: #00ffcc;
-            font-size: 1.5rem;
-        }
+        #score { color: #00ffcc; }
+        #timer { color: #ff3366; }
 
-        .timer-box span {
-            color: #ff3366;
-            font-size: 1.5rem;
-        }
-
-        /* Игровое поле для ловли элементов */
         #game-area {
             position: relative;
             width: 100%;
@@ -110,191 +151,310 @@
             overflow: hidden;
         }
 
-        /* Падающие элементы */
+        /* ПАДАЮЩИЕ ОБЪЕКТЫ */
         .item {
             position: absolute;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
+            width: 55px;
+            height: 55px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.8rem;
+            font-size: 2.2rem;
             cursor: pointer;
-            transform: translate(-50%, -50%);
-            animation: fall linear forwards;
+            transform-origin: center;
+            animation: fall linear forwards, spin 4s linear infinite;
             touch-action: none;
+            z-index: 2;
+            transition: transform 0.1s ease-out;
         }
 
         @keyframes fall {
-            0% { top: -50px; }
-            100% { top: calc(100% + 50px); }
+            0% { top: -60px; }
+            100% { top: calc(100% + 60px); }
         }
 
-        /* Спецэффект при клике */
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* ЭФФЕКТЫ */
         .pop {
             position: absolute;
-            color: #00ffcc;
-            font-weight: bold;
-            font-size: 1.5rem;
-            animation: floatUp 0.4s ease-out forwards;
+            font-weight: 900;
+            font-size: 1.8rem;
+            animation: floatUp 0.5s ease-out forwards;
             pointer-events: none;
             z-index: 5;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
         }
 
         @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0); }
-            100% { opacity: 0; transform: translateY(-30px); }
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-40px) scale(0.8); }
+        }
+
+        /* ЭКРАННЫЕ ВСПЫШКИ (Взрыв / Заморозка) */
+        #flash-overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 8;
+            opacity: 0;
+            transition: opacity 0.1s ease;
+        }
+
+        /* Состояние заморозки сцены */
+        .frozen-bg {
+            background: rgba(0, 153, 255, 0.15);
+            box-shadow: inset 0 0 100px rgba(0, 191, 255, 0.4);
+            backdrop-filter: blur(2px);
+        }
+
+        /* Анимация тряски экрана при взрыве бомбы */
+        .shake {
+            animation: shakeScreen 0.4s ease-in-out;
+        }
+
+        @keyframes shakeScreen {
+            0%, 100% { transform: translate(0, 0); }
+            10%, 30%, 50%, 70%, 90% { transform: translate(-5px, 4px); }
+            20%, 40%, 60%, 80% { transform: translate(6px, -3px); }
         }
     </style>
 </head>
-<body>
+<body id="body">
+
+    <div id="flash-overlay"></div>
 
     <div id="menu-screen">
-        <h1>LUM</h1>
-        <div class="subtitle">Поймай как можно больше кристаллов! Избегай бомб.</div>
-        <div id="last-score" style="margin-bottom: 20px; font-size: 1.2rem; color: #00ffcc; display: none;"></div>
-        <button class="btn" onclick="startGame()">Играть</button>
+        <div class="brand-section">
+            <h1>LUM</h1>
+            <div class="crypto-balance">
+                <p>Баланс токенов</p>
+                <div class="amount"><span id="total-balance">0.00</span> $LUM</div>
+            </div>
+            <div id="last-score" class="game-status-text"></div>
+        </div>
+
+        <button class="btn" onclick="startGame()">Начать раунд</button>
     </div>
 
     <div id="game-screen">
         <div class="hud">
-            <div class="score-box">Очки: <span id="score">0</span></div>
-            <div class="timer-box">Время: <span id="timer">30</span>с</div>
+            <div class="hud-box">Поймано<div><span id="score">0</span></div></div>
+            <div class="hud-box" style="text-align: right;">Осталось<div><span id="timer">30</span>с</div></div>
         </div>
         <div id="game-area"></div>
     </div>
 
     <script>
+        const body = document.getElementById('body');
         const menuScreen = document.getElementById('menu-screen');
         const gameScreen = document.getElementById('game-screen');
         const gameArea = document.getElementById('game-area');
         const scoreDisplay = document.getElementById('score');
         const timerDisplay = document.getElementById('timer');
+        const totalBalanceDisplay = document.getElementById('total-balance');
         const lastScoreDisplay = document.getElementById('last-score');
+        const flashOverlay = document.getElementById('flash-overlay');
+
+        // Инициализация крипто-баланса из памяти устройства
+        let cryptoBalance = parseFloat(localStorage.getItem('lum_balance')) || 0;
+        totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
 
         let score = 0;
         let timeLeft = 30;
         let gameInterval;
         let spawnInterval;
         let gameActive = false;
+        let isFrozen = false;
+        let isStunned = false; // Блокировка кликов при оглушении от бомбы
 
-        // Конфигурация предметов
-        // В оригинале Blum это зеленые снежинки, здесь это кристаллы 💎 и бомбы 💣
+        // Расширенные типы предметов с разным поведением
         const TYPES = [
-            { id: 'crystal', icon: '💎', points: 10, chance: 0.85 },
-            { id: 'bomb', icon: '💣', points: -50, chance: 0.15 }
+            { id: 'crystal', icon: '💎', points: 10, chance: 0.80 }, 
+            { id: 'freeze', icon: '❄️', points: 5, chance: 0.08 },   // Заморозка времени
+            { id: 'bomb', icon: '💣', points: -100, chance: 0.12 }   // Бомба-ловушка
         ];
 
         function startGame() {
-            // Сброс состояния
             score = 0;
             timeLeft = 30;
+            isFrozen = false;
+            isStunned = false;
             scoreDisplay.textContent = score;
             timerDisplay.textContent = timeLeft;
             gameArea.innerHTML = '';
+            flashOverlay.className = '';
+            flashOverlay.style.opacity = '0';
             
-            // Переключение экранов
             menuScreen.style.display = 'none';
             gameScreen.style.display = 'flex';
             gameActive = true;
 
-            // Таймер игры
+            // Основной таймер
             gameInterval = setInterval(() => {
-                timeLeft--;
-                timerDisplay.textContent = timeLeft;
-                if (timeLeft <= 0) {
-                    endGame();
+                if (!isFrozen) {
+                    timeLeft--;
+                    timerDisplay.textContent = timeLeft;
+                    if (timeLeft <= 0) endGame();
                 }
             }, 1000);
 
-            // Спавн предметов (каждые 400мс)
-            spawnInterval = setInterval(createItem, 400);
+            // Интенсивный спавн предметов
+            spawnInterval = setInterval(createItem, 380);
         }
 
         function createItem() {
             if (!gameActive) return;
+            // Если время заморожено, новые предметы временно не сыпятся сверху
+            if (isFrozen) return; 
 
             const item = document.createElement('div');
             item.classList.add('item');
 
-            // Выбираем тип (кристалл или бомба) на основе шанса
+            // Расчет вероятности появления предмета
             const rand = Math.random();
-            let type = TYPES[0]; // по умолчанию кристалл
-            if (rand > TYPES[0].chance) {
-                type = TYPES[1]; // бомба
+            let type = TYPES[0]; // дефолт: кристалл
+            
+            if (rand < TYPES[1].chance) {
+                type = TYPES[1]; // лед
+            } else if (rand < TYPES[1].chance + TYPES[2].chance) {
+                type = TYPES[2]; // бомба
             }
 
             item.textContent = type.icon;
             item.dataset.type = type.id;
             item.dataset.points = type.points;
 
-            // Рандомная позиция по горизонтали (от 10% до 90% ширины экрана)
-            const randomX = Math.floor(Math.random() * 80) + 10;
+            const randomX = Math.floor(Math.random() * 84) + 8;
             item.style.left = randomX + '%';
 
-            // Рандомная скорость падения (от 2 до 4 секунд)
-            const speed = (Math.random() * 2 + 2).toFixed(2);
+            const speed = (Math.random() * 1.8 + 2.2).toFixed(2);
             item.style.animationDuration = speed + 's';
 
-            // Обработка клика / тапа
-            item.addEventListener('touchstart', (e) => {
-                e.preventDefault(); // Предотвращает двойной тап на смартфонах
-                catchItem(item);
-            });
-            item.addEventListener('mousedown', () => catchItem(item));
+            // Нажатия без задержек на мобилках
+            item.addEventListener('touchstart', (e) => { e.preventDefault(); handleHit(item); });
+            item.addEventListener('mousedown', () => handleHit(item));
 
-            // Удаляем элемент после того, как он упал за экран
-            item.addEventListener('animationend', () => {
-                item.remove();
-            });
-
+            item.addEventListener('animationend', () => item.remove());
             gameArea.appendChild(item);
         }
 
-        function catchItem(item) {
-            if (!gameActive) return;
+        function handleHit(item) {
+            if (!gameActive || isStunned) return;
 
+            const type = item.dataset.type;
             const points = parseInt(item.dataset.points);
+
+            if (type === 'bomb') {
+                triggerBombExplosion(item);
+                return;
+            }
+
+            if (type === 'freeze') {
+                triggerFreezeEffect();
+            }
+
+            // Начисление очков за кристаллы или лед
             score += points;
-            if (score < 0) score = 0; // Очки не падают ниже нуля
+            if (score < 0) score = 0;
             scoreDisplay.textContent = score;
 
-            // Создаем красивый текст с эффектом на месте клика
-            createPopEffect(item.offsetLeft, item.offsetTop, points > 0 ? `+${points}` : points);
-
-            // Удаляем пойманный элемент
+            createPopEffect(item.offsetLeft, item.offsetTop, `+${points}`, '#00ffcc');
             item.remove();
         }
 
-        function createPopEffect(x, y, text) {
+        // МЕХАНИКА 1: Реальный взрыв бомбы
+        function triggerBombExplosion(item) {
+            isStunned = true; // Блокируем клики игрока
+            
+            // Визуальный взрыв на месте бомбы
+            createPopEffect(item.offsetLeft, item.offsetTop, '💥 БУМ!', '#ff3366');
+            item.remove();
+
+            // Тряска всего экрана
+            body.classList.add('shake');
+            
+            // Вспышка огня на весь экран
+            flashOverlay.style.background = 'rgba(255, 51, 102, 0.4)';
+            flashOverlay.style.opacity = '1';
+
+            // Вычитаем очки
+            score -= 100;
+            if (score < 0) score = 0;
+            scoreDisplay.textContent = score;
+
+            // Через 0.5 сек убираем эффекты взрыва и возвращаем управление
+            setTimeout(() => {
+                body.classList.remove('shake');
+                flashOverlay.style.opacity = '0';
+                isStunned = false;
+            }, 500);
+        }
+
+        // МЕХАНИКА 2: Ледяная заморозка времени
+        function triggerFreezeEffect() {
+            if (isFrozen) return; // Чтобы эффекты не накладывались друг на друга
+            isFrozen = true;
+
+            // Включаем синий ледяной фильтр
+            flashOverlay.className = 'frozen-bg';
+            flashOverlay.style.opacity = '1';
+
+            // Останавливаем анимацию у всех летящих в данный момент элементов
+            const currentItems = document.querySelectorAll('.item');
+            currentItems.forEach(i => {
+                i.style.animationPlayState = 'paused';
+            });
+
+            // Через 3 секунды размораживаем игру
+            setTimeout(() => {
+                isFrozen = false;
+                flashOverlay.style.opacity = '0';
+                flashOverlay.className = '';
+                
+                const currentItems = document.querySelectorAll('.item');
+                currentItems.forEach(i => {
+                    i.style.animationPlayState = 'running';
+                });
+            }, 3000);
+        }
+
+        function createPopEffect(x, y, text, color) {
             const pop = document.createElement('div');
             pop.classList.add('pop');
             pop.style.left = x + 'px';
             pop.style.top = y + 'px';
+            pop.style.color = color;
             pop.textContent = text;
-            
-            if (text.startsWith('-')) {
-                pop.style.color = '#ff3366'; // Красный цвет для бомбы
-            }
-
             gameArea.appendChild(pop);
-            setTimeout(() => pop.remove(), 400);
+            setTimeout(() => pop.remove(), 500);
         }
 
+        // МЕХАНИКА 3: Конвертация очков в Крипто-Валюту
         function endGame() {
             gameActive = false;
             clearInterval(gameInterval);
             clearInterval(spawnInterval);
 
-            // Показываем счет в меню
-            lastScoreDisplay.textContent = `Ваш результат в Lum: ${score} очков!`;
-            lastScoreDisplay.style.display = 'block';
+            // Формула конвертации: например, 10 очков = 0.1 $LUM токена
+            const earnedCrypto = score * 0.01;
+            cryptoBalance += earnedCrypto;
 
-            // Возврат на экран меню
+            // Сохранение баланса в локальную память браузера
+            localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
+            totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
+
+            // Вывод красивого уведомления о заработке
+            lastScoreDisplay.innerHTML = `Раунд завершен! Фарм: <span style="color:#00ffcc">+${earnedCrypto.toFixed(2)} $LUM</span> (+${score} очков)`;
+
             gameScreen.style.display = 'none';
-            menuScreen.style.style.display = 'flex'; // небольшая страховка для сброса стилей flex
-            menuScreen.setAttribute("style", "display: flex;");
+            menuScreen.style.display = 'flex';
         }
     </script>
 </body>
