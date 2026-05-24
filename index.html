@@ -40,7 +40,7 @@
         #game-screen {
             display: none;
             justify-content: flex-start;
-            pointer-events: none; /* Клик ловит Canvas ниже */
+            pointer-events: none;
         }
 
         .brand-section {
@@ -59,7 +59,6 @@
             margin-bottom: 5px;
         }
 
-        /* Премиальный дизайн баланса */
         .crypto-balance {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
             border: 1px solid rgba(0, 255, 204, 0.2);
@@ -140,7 +139,7 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             z-index: 12;
-            pointer-events: auto; /* Позволяет HUD не пропускать клики сквозь себя */
+            pointer-events: auto;
         }
 
         .hud-box {
@@ -164,7 +163,6 @@
         #score { color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.3); }
         #timer { color: #ff3366; text-shadow: 0 0 10px rgba(ff,51,102,0.3); }
 
-        /* ИГРОВОЙ ХОЛСТ С ГРАФИКОЙ */
         canvas {
             position: absolute;
             top: 0;
@@ -189,10 +187,8 @@
 </head>
 <body id="body">
 
-    <!-- Графический движок -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- МЕНЮ -->
     <div id="menu-screen">
         <div class="brand-section">
             <h1>LUM</h1>
@@ -205,7 +201,6 @@
         <button class="btn" onclick="startGame()">ИГРАТЬ</button>
     </div>
 
-    <!-- ИГРОВОЙ ХОЛСТ (ИНТЕРФЕЙС) -->
     <div id="game-screen">
         <div class="hud">
             <div class="hud-box">Токены<div><span id="score">0</span></div></div>
@@ -224,36 +219,36 @@
         const totalBalanceDisplay = document.getElementById('total-balance');
         const lastScoreDisplay = document.getElementById('last-score');
 
-        // Инициализация баланса
         let cryptoBalance = parseFloat(localStorage.getItem('lum_balance')) || 0;
         totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
 
-        // Игровые переменные
         let score = 0;
         let timeLeft = 30;
         let gameActive = false;
+        
+        // Переменные заморозки
         let isFrozen = false;
+        let freezeAlpha = 0; // Плавное проявление льда (от 0 до 1)
+        let snowParticles = []; // Частицы падающего неона во время мерзлоты
+
         let isStunned = false;
         let lastTime = 0;
         let spawnTimer = 0;
         let secondTimer = 0;
 
-        // Массивы объектов движка
         let items = [];
         let particles = [];
         let stars = [];
         let floatingTexts = [];
         let shockwaves = [];
 
-        // Настройки баланса (Снижен спавн снежинок до 3%)
-        const SPAWN_RATE = 350; // спавн каждые 350 мс
+        const SPAWN_RATE = 350;
         const TYPES = {
             CRYSTAL: { id: 'crystal', color: '#00ffcc', points: 10, chance: 0.85 },
             BOMB: { id: 'bomb', color: '#ff3366', points: -50, chance: 0.12 },
-            FREEZE: { id: 'freeze', color: '#00b3ff', points: 5, chance: 0.03 } // Редкая штука
+            FREEZE: { id: 'freeze', color: '#00b3ff', points: 5, chance: 0.03 } 
         };
 
-        // Ресайз холста под экран смартфона/ПК
         function resizeCanvas() {
             canvas.width = window.innerWidth * window.devicePixelRatio;
             canvas.height = window.innerHeight * window.devicePixelRatio;
@@ -262,7 +257,6 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // Генерация фоновых звезд киберпространства
         function initStars() {
             stars = [];
             for(let i=0; i<60; i++) {
@@ -276,15 +270,32 @@
         }
         initStars();
 
+        // Инициализация кастомного падающего нежного снега для эффекта заморозки
+        function initSnow() {
+            snowParticles = [];
+            for(let i=0; i<35; i++) {
+                snowParticles.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight - window.innerHeight,
+                    size: Math.random() * 2 + 1,
+                    speedY: Math.random() * 1 + 0.5,
+                    speedX: Math.random() * 0.4 - 0.2,
+                    drift: Math.random() * 0.02
+                });
+            }
+        }
+
         function startGame() {
             score = 0;
             timeLeft = 30;
             isFrozen = false;
+            freezeAlpha = 0;
             isStunned = false;
             items = [];
             particles = [];
             floatingTexts = [];
             shockwaves = [];
+            snowParticles = [];
             
             scoreDisplay.textContent = score;
             timerDisplay.textContent = timeLeft;
@@ -297,19 +308,16 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // РЕАЛИСТИЧНЫЙ СПРАЙТ: Отрисовка Неонового Кристалла
+        // Отрисовка Неонового Кристалла
         function drawCrystal(ctx, x, y, size, angle) {
             ctx.save();
             ctx.translate(x, y);
             ctx.rotate(angle);
-            
             ctx.shadowBlur = 15;
             ctx.shadowColor = '#00ffcc';
             ctx.strokeStyle = '#00ffcc';
             ctx.lineWidth = 3;
             ctx.fillStyle = 'rgba(0, 255, 204, 0.2)';
-
-            // Отрисовка ограненного ромба (как кристалл Blum)
             ctx.beginPath();
             ctx.moveTo(0, -size);
             ctx.lineTo(size * 0.7, -size * 0.2);
@@ -320,8 +328,6 @@
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
-
-            // Внутренние грани кристалла для детализации
             ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(0, -size);
@@ -329,20 +335,15 @@
             ctx.moveTo(-size * 0.7, -size * 0.2);
             ctx.lineTo(size * 0.7, -size * 0.2);
             ctx.stroke();
-
             ctx.restore();
         }
 
-        // РЕАЛИСТИЧНЫЙ СПРАЙТ: Отрисовка Кибер-Бомбы
+        // Отрисовка Кибер-Бомбы
         function drawBomb(ctx, x, y, size, pulse) {
             ctx.save();
             ctx.translate(x, y);
-            
-            // Внешнее свечение опасности
             ctx.shadowBlur = 15 + pulse * 10;
             ctx.shadowColor = '#ff3366';
-            
-            // Тело мины
             ctx.fillStyle = '#1a0510';
             ctx.strokeStyle = '#ff3366';
             ctx.lineWidth = 3;
@@ -350,14 +351,10 @@
             ctx.arc(0, 0, size * 0.8, 0, Math.PI * 2);
             ctx.fill();
             ctx.stroke();
-
-            // Пульсирующее неоновое ядро
             ctx.fillStyle = `rgba(255, 51, 102, ${0.4 + pulse * 0.6})`;
             ctx.beginPath();
             ctx.arc(0, 0, size * 0.4, 0, Math.PI * 2);
             ctx.fill();
-
-            // Шипы мины по кругу
             ctx.lineWidth = 2;
             for(let i=0; i<8; i++) {
                 ctx.rotate(Math.PI / 4);
@@ -369,19 +366,16 @@
             ctx.restore();
         }
 
-        // РЕАЛИСТИЧНЫЙ СПРАЙТ: Отрисовка Модуля Заморозки
+        // Отрисовка Модуля Заморозки
         function drawFreeze(ctx, x, y, size, angle) {
             ctx.save();
             ctx.translate(x, y);
             ctx.rotate(angle);
-            
             ctx.shadowBlur = 15;
             ctx.shadowColor = '#00b3ff';
             ctx.strokeStyle = '#00b3ff';
             ctx.lineWidth = 2.5;
             ctx.fillStyle = 'rgba(0, 179, 255, 0.15)';
-
-            // Технологичный шестиугольник ледяного ядра
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
                 ctx.lineTo(size * Math.cos(i * Math.PI / 3), size * Math.sin(i * Math.PI / 3));
@@ -389,8 +383,6 @@
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
-
-            // Внутренний крест снежинки
             ctx.beginPath();
             for(let i=0; i<3; i++) {
                 ctx.rotate(Math.PI / 3);
@@ -398,22 +390,21 @@
                 ctx.lineTo(0, size);
             }
             ctx.stroke();
-
             ctx.restore();
         }
 
-        // ИГРОВОЙ ЦИКЛ ENGINE (60 FPS)
+        // ЛОГИКА И ЭФФЕКТЫ ДВИЖКА (60 FPS)
         function gameLoop(time) {
             if (!gameActive) return;
 
             let dt = time - lastTime;
             lastTime = time;
 
-            // Очистка экрана и рендер космоса
-            ctx.fillStyle = isFrozen ? '#020b18' : '#030108';
+            // Очистка сцены базовым космическим цветом
+            ctx.fillStyle = '#030108';
             ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-            // Движение фоновых звезд
+            // Рендер звезд бэкграунда
             ctx.shadowBlur = 0;
             ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
             stars.forEach(star => {
@@ -422,7 +413,34 @@
                 ctx.fillRect(star.x, star.y, star.size, star.size);
             });
 
-            // Таймеры спавна и раунда
+            // Плавное изменение прозрачности ледяного налета (Frost Vignette)
+            if (isFrozen && freezeAlpha < 1) {
+                freezeAlpha += 0.05; // Лед нарастает
+            } else if (!isFrozen && freezeAlpha > 0) {
+                freezeAlpha -= 0.05; // Лед тает
+            }
+
+            // ВИЗУАЛ ЗАМОРОЗКИ ЭТАП 1: Медленный неоновый снег внутри замерзшего экрана
+            if (freezeAlpha > 0.01) {
+                ctx.save();
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = 'rgba(0, 179, 255, 0.6)';
+                ctx.fillStyle = `rgba(135, 220, 255, ${freezeAlpha * 0.7})`;
+                snowParticles.forEach(p => {
+                    p.y += p.speedY;
+                    p.x += p.speedX + Math.sin(time * p.drift) * 0.2;
+                    if (p.y > window.innerHeight) {
+                        p.y = -10;
+                        p.x = Math.random() * window.innerWidth;
+                    }
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+                ctx.restore();
+            }
+
+            // Работа таймеров спавна и раунда
             if (!isFrozen) {
                 spawnTimer += dt;
                 if (spawnTimer >= SPAWN_RATE) {
@@ -439,32 +457,29 @@
                 }
             }
 
-            // Рендер и логика летящих предметов
+            // Отрисовка падающих предметов
             let pulseValue = Math.sin(time * 0.01);
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
-                
                 if (!isFrozen) {
                     item.y += item.speed;
                     item.angle += item.rotSpeed;
                 }
-
                 if (item.y > window.innerHeight + 50) {
                     items.splice(i, 1);
                     continue;
                 }
-
                 if (item.type === 'crystal') drawCrystal(ctx, item.x, item.y, item.size, item.angle);
                 if (item.type === 'bomb') drawBomb(ctx, item.x, item.y, item.size, pulseValue);
                 if (item.type === 'freeze') drawFreeze(ctx, item.x, item.y, item.size, item.angle);
             }
 
-            // Система частиц (Разрушение кристаллов, искры)
+            // Частицы от взрывов и сборов
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
                 p.x += p.vx;
                 p.y += p.vy;
-                p.vy += 0.1; // гравитация для осколков
+                p.vy += 0.1;
                 p.alpha -= 0.02;
                 if (p.alpha <= 0) {
                     particles.splice(i, 1);
@@ -479,7 +494,7 @@
                 ctx.restore();
             }
 
-            // Эффекты взрывных волн (Shockwaves от бомб)
+            // Взрывные волны
             for(let i = shockwaves.length - 1; i >= 0; i--) {
                 let sw = shockwaves[i];
                 sw.radius += 8;
@@ -500,7 +515,7 @@
                 ctx.restore();
             }
 
-            // Всплывающие неоновые тексты (+10 / -50)
+            // Тексты очков
             for(let i = floatingTexts.length - 1; i >= 0; i--) {
                 let ft = floatingTexts[i];
                 ft.y -= 1.5;
@@ -520,14 +535,29 @@
                 ctx.restore();
             }
 
-            // Визуальный эффект ледяной рамки при заморозке экрана
-            if (isFrozen) {
+            // ВИЗУАЛ ЗАМОРОЗКИ ЭТАП 2: Реалистичный ледяной туман (Frost Vignette) по краям экрана
+            if (freezeAlpha > 0.01) {
                 ctx.save();
-                ctx.strokeStyle = 'rgba(0, 179, 255, 0.4)';
-                ctx.lineWidth = 15;
-                ctx.shadowBlur = 25;
-                ctx.shadowColor = '#00b3ff';
-                ctx.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+                // Накладываем холодную тонировку на весь дисплей
+                ctx.fillStyle = `rgba(0, 140, 255, ${freezeAlpha * 0.08})`;
+                ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+                // Создаем градиент замерзания (от матового краев к прозрачному центру)
+                let width = window.innerWidth;
+                let height = window.innerHeight;
+                let radialGrad = ctx.createRadialGradient(
+                    width / 2, height / 2, Math.min(width, height) * 0.2, 
+                    width / 2, height / 2, Math.max(width, height) * 0.75
+                );
+                
+                radialGrad.addColorStop(0, 'rgba(0, 179, 255, 0)');
+                radialGrad.addColorStop(0.5, `rgba(0, 179, 255, ${freezeAlpha * 0.15})`);
+                radialGrad.addColorStop(0.85, `rgba(135, 225, 255, ${freezeAlpha * 0.45})`);
+                radialGrad.addColorStop(1, `rgba(200, 245, 255, ${freezeAlpha * 0.75})`);
+
+                ctx.fillStyle = radialGrad;
+                ctx.globalCompositeOperation = 'source-over';
+                ctx.fillRect(0, 0, width, height);
                 ctx.restore();
             }
 
@@ -555,7 +585,6 @@
             });
         }
 
-        // ОБРАБОТКА НАЖАТИЙ (Кастомный хитбокс)
         function checkHit(clientX, clientY) {
             if (!gameActive || isStunned) return;
 
@@ -563,7 +592,6 @@
                 let item = items[i];
                 let dist = Math.hypot(clientX - item.x, clientY - item.y);
 
-                // Если попали по элементу (радиус нажатия увеличен для удобства тапа пальцем)
                 if (dist < item.size + 15) {
                     createParticles(item.x, item.y, TYPES[item.type.toUpperCase()].color);
                     
@@ -590,15 +618,13 @@
             }
         }
 
-        // ХИТ-ТРИГГЕРЫ НА ЭКРАНЕ
         window.addEventListener('mousedown', (e) => checkHit(e.clientX, e.clientY));
         window.addEventListener('touchstart', (e) => {
             checkHit(e.touches[0].clientX, e.touches[0].clientY);
         });
 
-        // Создание искр/осколков при взрыве или сборе
         function createParticles(x, y, color) {
-            let amount = color === '#ff3366' ? 35 : 12; // от бомбы больше искр
+            let amount = color === '#ff3366' ? 35 : 12;
             for(let i=0; i<amount; i++) {
                 let angle = Math.random() * Math.PI * 2;
                 let speed = Math.random() * 4 + 1;
@@ -613,7 +639,6 @@
             }
         }
 
-        // МЕХАНИКА ВЗРЫВА БОМБЫ С УДАРНОЙ ВОЛНОЙ
         function triggerBomb(x, y) {
             isStunned = true;
             shockwaves.push({ x: x, y: y, radius: 10, alpha: 1 });
@@ -631,18 +656,19 @@
             }, 400);
         }
 
-        // МЕХАНИКА ЗАМОРОЗКИ
+        // КИНЕМАТОГРАФИЧНАЯ ЗАМОРОЗКА С ЭФФЕКТАМИ
         function triggerFreeze() {
             if (isFrozen) return;
             isFrozen = true;
-            setTimeout(() => { isFrozen = false; }, 3000);
+            initSnow(); // Запускаем генератор неонового снега
+
+            setTimeout(() => { 
+                isFrozen = false; 
+            }, 3000);
         }
 
-        // НАКОПЛЕНИЕ КРИПТОВАЛЮТЫ И КОНЕЦ ИГРЫ
         function endGame() {
             gameActive = false;
-            
-            // 1 раунд фармит реальную долю токенов на баланс
             let earnedCrypto = score * 0.01;
             cryptoBalance += earnedCrypto;
 
