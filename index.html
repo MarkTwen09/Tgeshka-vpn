@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Lum Crypto Game</title>
+    <title>Lum Crypto Drop Game</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800;900&family=Rajdhani:wght@500;700&display=swap');
+
         * {
             box-sizing: border-box;
             user-select: none;
@@ -14,15 +16,15 @@
         }
 
         body {
-            background: radial-gradient(circle at center, #17072b, #04010a);
+            background: #030108;
             color: #fff;
-            font-family: 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Rajdhani', sans-serif;
             overflow: hidden;
             width: 100vw;
             height: 100vh;
         }
 
-        /* ЭКРАН МЕНЮ / ХАБ */
+        /* ЭКРАН ХАБА / МЕНЮ */
         #menu-screen, #game-screen {
             position: absolute;
             width: 100%;
@@ -31,205 +33,166 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 30px 20px;
-            transition: opacity 0.3s ease;
+            padding: 40px 24px;
+            z-index: 10;
         }
 
         #game-screen {
             display: none;
             justify-content: flex-start;
+            pointer-events: none; /* Клик ловит Canvas ниже */
         }
 
         .brand-section {
             text-align: center;
-            margin-top: 40px;
+            margin-top: 20px;
+            width: 100%;
         }
 
         h1 {
-            font-size: 4.5rem;
-            color: #00ffcc;
-            text-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
-            letter-spacing: 4px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 5rem;
             font-weight: 900;
-        }
-
-        /* Виджет баланса крипты как в Blum */
-        .crypto-balance {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(0, 255, 204, 0.15);
-            padding: 20px 40px;
-            border-radius: 20px;
-            text-align: center;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin: 20px 0;
-        }
-
-        .crypto-balance p {
-            font-size: 0.9rem;
-            color: #8a7fa4;
-            text-transform: uppercase;
-            letter-spacing: 2px;
+            color: #00ffcc;
+            text-shadow: 0 0 20px rgba(0, 255, 204, 0.6), 0 0 40px rgba(0, 255, 204, 0.3);
+            letter-spacing: 8px;
             margin-bottom: 5px;
         }
 
+        /* Премиальный дизайн баланса */
+        .crypto-balance {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            padding: 24px 20px;
+            border-radius: 24px;
+            text-align: center;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.1);
+            margin: 30px auto;
+            width: 90%;
+            max-width: 340px;
+        }
+
+        .crypto-balance p {
+            font-size: 0.85rem;
+            color: #6c5f93;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
         .crypto-balance .amount {
-            font-size: 2.5rem;
-            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.3rem;
+            font-weight: 800;
             color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
 
         .crypto-balance .amount span {
             color: #00ffcc;
-            text-shadow: 0 0 10px rgba(0, 255, 204, 0.4);
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
         }
 
         .game-status-text {
             color: #ff3366;
-            font-size: 1.1rem;
-            min-height: 24px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            min-height: 30px;
             text-align: center;
+            letter-spacing: 1px;
         }
 
         .btn {
-            background: linear-gradient(135deg, #00ffcc, #0099ff);
-            color: #05010d;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #00ffcc, #00b3ff);
+            color: #030108;
             border: none;
-            padding: 18px 60px;
-            font-size: 1.4rem;
-            font-weight: bold;
-            border-radius: 30px;
+            padding: 20px;
+            font-size: 1.3rem;
+            font-weight: 900;
+            border-radius: 24px;
             cursor: pointer;
-            box-shadow: 0 8px 25px rgba(0, 255, 204, 0.3);
-            transition: transform 0.1s, box-shadow 0.1s;
-            width: 85%;
-            max-width: 320px;
-            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.3), inset 0 -4px 0 rgba(0,0,0,0.15);
+            transition: transform 0.1s;
+            width: 90%;
+            max-width: 340px;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
         }
 
         .btn:active {
-            transform: scale(0.96);
+            transform: scale(0.95);
         }
 
-        /* ИГРОВОЙ ИНТЕРФЕЙС */
+        /* ИНТЕРФЕЙС ИГРЫ */
         .hud {
             display: flex;
             width: 100%;
+            max-width: 500px;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255, 255, 255, 0.04);
-            padding: 15px 25px;
+            background: rgba(3, 1, 8, 0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 16px 24px;
             border-radius: 20px;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.05);
-            z-index: 10;
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 12;
+            pointer-events: auto; /* Позволяет HUD не пропускать клики сквозь себя */
         }
 
         .hud-box {
-            font-size: 1rem;
-            color: #8a7fa4;
+            font-size: 0.9rem;
+            color: #6c5f93;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 700;
         }
 
         .hud-box div {
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #fff;
-        }
-
-        #score { color: #00ffcc; }
-        #timer { color: #ff3366; }
-
-        #game-area {
-            position: relative;
-            width: 100%;
-            flex-grow: 1;
-            margin-top: 20px;
-            overflow: hidden;
-        }
-
-        /* ПАДАЮЩИЕ ОБЪЕКТЫ */
-        .item {
-            position: absolute;
-            width: 55px;
-            height: 55px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.2rem;
-            cursor: pointer;
-            transform-origin: center;
-            animation: fall linear forwards, spin 4s linear infinite;
-            touch-action: none;
-            z-index: 2;
-            transition: transform 0.1s ease-out;
-        }
-
-        @keyframes fall {
-            0% { top: -60px; }
-            100% { top: calc(100% + 60px); }
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* ЭФФЕКТЫ */
-        .pop {
-            position: absolute;
-            font-weight: 900;
+            font-family: 'Orbitron', sans-serif;
             font-size: 1.8rem;
-            animation: floatUp 0.5s ease-out forwards;
-            pointer-events: none;
-            z-index: 5;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+            font-weight: 800;
+            color: #fff;
+            text-transform: none;
+            letter-spacing: 0;
+            margin-top: 4px;
         }
 
-        @keyframes floatUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-40px) scale(0.8); }
-        }
+        #score { color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.3); }
+        #timer { color: #ff3366; text-shadow: 0 0 10px rgba(ff,51,102,0.3); }
 
-        /* ЭКРАННЫЕ ВСПЫШКИ (Взрыв / Заморозка) */
-        #flash-overlay {
+        /* ИГРОВОЙ ХОЛСТ С ГРАФИКОЙ */
+        canvas {
             position: absolute;
-            width: 100%;
-            height: 100%;
             top: 0;
             left: 0;
-            pointer-events: none;
-            z-index: 8;
-            opacity: 0;
-            transition: opacity 0.1s ease;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: block;
         }
 
-        /* Состояние заморозки сцены */
-        .frozen-bg {
-            background: rgba(0, 153, 255, 0.15);
-            box-shadow: inset 0 0 100px rgba(0, 191, 255, 0.4);
-            backdrop-filter: blur(2px);
-        }
-
-        /* Анимация тряски экрана при взрыве бомбы */
         .shake {
-            animation: shakeScreen 0.4s ease-in-out;
+            animation: shakeScreen 0.4s cubic-bezier(.36,.07,.19,.97) both;
         }
 
         @keyframes shakeScreen {
-            0%, 100% { transform: translate(0, 0); }
-            10%, 30%, 50%, 70%, 90% { transform: translate(-5px, 4px); }
-            20%, 40%, 60%, 80% { transform: translate(6px, -3px); }
+            10%, 90% { transform: translate3d(-2px, 1px, 0); }
+            20%, 80% { transform: translate3d(4px, -3px, 0); }
+            30%, 50%, 70% { transform: translate3d(-6px, 5px, 0); }
+            40%, 60% { transform: translate3d(6px, -4px, 0); }
         }
     </style>
 </head>
 <body id="body">
 
-    <div id="flash-overlay"></div>
+    <!-- Графический движок -->
+    <canvas id="gameCanvas"></canvas>
 
+    <!-- МЕНЮ -->
     <div id="menu-screen">
         <div class="brand-section">
             <h1>LUM</h1>
@@ -239,219 +202,454 @@
             </div>
             <div id="last-score" class="game-status-text"></div>
         </div>
-
-        <button class="btn" onclick="startGame()">Начать раунд</button>
+        <button class="btn" onclick="startGame()">ИГРАТЬ</button>
     </div>
 
+    <!-- ИГРОВОЙ ХОЛСТ (ИНТЕРФЕЙС) -->
     <div id="game-screen">
         <div class="hud">
-            <div class="hud-box">Поймано<div><span id="score">0</span></div></div>
-            <div class="hud-box" style="text-align: right;">Осталось<div><span id="timer">30</span>с</div></div>
+            <div class="hud-box">Токены<div><span id="score">0</span></div></div>
+            <div class="hud-box" style="text-align: right;">Время<div><span id="timer">30</span>с</div></div>
         </div>
-        <div id="game-area"></div>
     </div>
 
     <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
         const body = document.getElementById('body');
         const menuScreen = document.getElementById('menu-screen');
         const gameScreen = document.getElementById('game-screen');
-        const gameArea = document.getElementById('game-area');
         const scoreDisplay = document.getElementById('score');
         const timerDisplay = document.getElementById('timer');
         const totalBalanceDisplay = document.getElementById('total-balance');
         const lastScoreDisplay = document.getElementById('last-score');
-        const flashOverlay = document.getElementById('flash-overlay');
 
-        // Инициализация крипто-баланса из памяти устройства
+        // Инициализация баланса
         let cryptoBalance = parseFloat(localStorage.getItem('lum_balance')) || 0;
         totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
 
+        // Игровые переменные
         let score = 0;
         let timeLeft = 30;
-        let gameInterval;
-        let spawnInterval;
         let gameActive = false;
         let isFrozen = false;
-        let isStunned = false; // Блокировка кликов при оглушении от бомбы
+        let isStunned = false;
+        let lastTime = 0;
+        let spawnTimer = 0;
+        let secondTimer = 0;
 
-        // Расширенные типы предметов с разным поведением
-        const TYPES = [
-            { id: 'crystal', icon: '💎', points: 10, chance: 0.80 }, 
-            { id: 'freeze', icon: '❄️', points: 5, chance: 0.08 },   // Заморозка времени
-            { id: 'bomb', icon: '💣', points: -100, chance: 0.12 }   // Бомба-ловушка
-        ];
+        // Массивы объектов движка
+        let items = [];
+        let particles = [];
+        let stars = [];
+        let floatingTexts = [];
+        let shockwaves = [];
+
+        // Настройки баланса (Снижен спавн снежинок до 3%)
+        const SPAWN_RATE = 350; // спавн каждые 350 мс
+        const TYPES = {
+            CRYSTAL: { id: 'crystal', color: '#00ffcc', points: 10, chance: 0.85 },
+            BOMB: { id: 'bomb', color: '#ff3366', points: -50, chance: 0.12 },
+            FREEZE: { id: 'freeze', color: '#00b3ff', points: 5, chance: 0.03 } // Редкая штука
+        };
+
+        // Ресайз холста под экран смартфона/ПК
+        function resizeCanvas() {
+            canvas.width = window.innerWidth * window.devicePixelRatio;
+            canvas.height = window.innerHeight * window.devicePixelRatio;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        // Генерация фоновых звезд киберпространства
+        function initStars() {
+            stars = [];
+            for(let i=0; i<60; i++) {
+                stars.push({
+                    x: Math.random() * window.innerWidth,
+                    y: Math.random() * window.innerHeight,
+                    size: Math.random() * 1.5 + 0.5,
+                    speed: Math.random() * 0.3 + 0.1
+                });
+            }
+        }
+        initStars();
 
         function startGame() {
             score = 0;
             timeLeft = 30;
             isFrozen = false;
             isStunned = false;
+            items = [];
+            particles = [];
+            floatingTexts = [];
+            shockwaves = [];
+            
             scoreDisplay.textContent = score;
             timerDisplay.textContent = timeLeft;
-            gameArea.innerHTML = '';
-            flashOverlay.className = '';
-            flashOverlay.style.opacity = '0';
             
             menuScreen.style.display = 'none';
             gameScreen.style.display = 'flex';
             gameActive = true;
-
-            // Основной таймер
-            gameInterval = setInterval(() => {
-                if (!isFrozen) {
-                    timeLeft--;
-                    timerDisplay.textContent = timeLeft;
-                    if (timeLeft <= 0) endGame();
-                }
-            }, 1000);
-
-            // Интенсивный спавн предметов
-            spawnInterval = setInterval(createItem, 380);
+            lastTime = performance.now();
+            
+            requestAnimationFrame(gameLoop);
         }
 
-        function createItem() {
+        // РЕАЛИСТИЧНЫЙ СПРАЙТ: Отрисовка Неонового Кристалла
+        function drawCrystal(ctx, x, y, size, angle) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#00ffcc';
+            ctx.strokeStyle = '#00ffcc';
+            ctx.lineWidth = 3;
+            ctx.fillStyle = 'rgba(0, 255, 204, 0.2)';
+
+            // Отрисовка ограненного ромба (как кристалл Blum)
+            ctx.beginPath();
+            ctx.moveTo(0, -size);
+            ctx.lineTo(size * 0.7, -size * 0.2);
+            ctx.lineTo(size * 0.5, size * 0.8);
+            ctx.lineTo(0, size);
+            ctx.lineTo(-size * 0.5, size * 0.8);
+            ctx.lineTo(-size * 0.7, -size * 0.2);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Внутренние грани кристалла для детализации
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(0, -size);
+            ctx.lineTo(0, size);
+            ctx.moveTo(-size * 0.7, -size * 0.2);
+            ctx.lineTo(size * 0.7, -size * 0.2);
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // РЕАЛИСТИЧНЫЙ СПРАЙТ: Отрисовка Кибер-Бомбы
+        function drawBomb(ctx, x, y, size, pulse) {
+            ctx.save();
+            ctx.translate(x, y);
+            
+            // Внешнее свечение опасности
+            ctx.shadowBlur = 15 + pulse * 10;
+            ctx.shadowColor = '#ff3366';
+            
+            // Тело мины
+            ctx.fillStyle = '#1a0510';
+            ctx.strokeStyle = '#ff3366';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(0, 0, size * 0.8, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            // Пульсирующее неоновое ядро
+            ctx.fillStyle = `rgba(255, 51, 102, ${0.4 + pulse * 0.6})`;
+            ctx.beginPath();
+            ctx.arc(0, 0, size * 0.4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Шипы мины по кругу
+            ctx.lineWidth = 2;
+            for(let i=0; i<8; i++) {
+                ctx.rotate(Math.PI / 4);
+                ctx.beginPath();
+                ctx.moveTo(0, -size * 0.8);
+                ctx.lineTo(0, -size * 1.1);
+                ctx.stroke();
+            }
+            ctx.restore();
+        }
+
+        // РЕАЛИСТИЧНЫЙ СПРАЙТ: Отрисовка Модуля Заморозки
+        function drawFreeze(ctx, x, y, size, angle) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#00b3ff';
+            ctx.strokeStyle = '#00b3ff';
+            ctx.lineWidth = 2.5;
+            ctx.fillStyle = 'rgba(0, 179, 255, 0.15)';
+
+            // Технологичный шестиугольник ледяного ядра
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                ctx.lineTo(size * Math.cos(i * Math.PI / 3), size * Math.sin(i * Math.PI / 3));
+            }
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Внутренний крест снежинки
+            ctx.beginPath();
+            for(let i=0; i<3; i++) {
+                ctx.rotate(Math.PI / 3);
+                ctx.moveTo(0, -size);
+                ctx.lineTo(0, size);
+            }
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        // ИГРОВОЙ ЦИКЛ ENGINE (60 FPS)
+        function gameLoop(time) {
             if (!gameActive) return;
-            // Если время заморожено, новые предметы временно не сыпятся сверху
-            if (isFrozen) return; 
 
-            const item = document.createElement('div');
-            item.classList.add('item');
+            let dt = time - lastTime;
+            lastTime = time;
 
-            // Расчет вероятности появления предмета
-            const rand = Math.random();
-            let type = TYPES[0]; // дефолт: кристалл
-            
-            if (rand < TYPES[1].chance) {
-                type = TYPES[1]; // лед
-            } else if (rand < TYPES[1].chance + TYPES[2].chance) {
-                type = TYPES[2]; // бомба
-            }
+            // Очистка экрана и рендер космоса
+            ctx.fillStyle = isFrozen ? '#020b18' : '#030108';
+            ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-            item.textContent = type.icon;
-            item.dataset.type = type.id;
-            item.dataset.points = type.points;
-
-            const randomX = Math.floor(Math.random() * 84) + 8;
-            item.style.left = randomX + '%';
-
-            const speed = (Math.random() * 1.8 + 2.2).toFixed(2);
-            item.style.animationDuration = speed + 's';
-
-            // Нажатия без задержек на мобилках
-            item.addEventListener('touchstart', (e) => { e.preventDefault(); handleHit(item); });
-            item.addEventListener('mousedown', () => handleHit(item));
-
-            item.addEventListener('animationend', () => item.remove());
-            gameArea.appendChild(item);
-        }
-
-        function handleHit(item) {
-            if (!gameActive || isStunned) return;
-
-            const type = item.dataset.type;
-            const points = parseInt(item.dataset.points);
-
-            if (type === 'bomb') {
-                triggerBombExplosion(item);
-                return;
-            }
-
-            if (type === 'freeze') {
-                triggerFreezeEffect();
-            }
-
-            // Начисление очков за кристаллы или лед
-            score += points;
-            if (score < 0) score = 0;
-            scoreDisplay.textContent = score;
-
-            createPopEffect(item.offsetLeft, item.offsetTop, `+${points}`, '#00ffcc');
-            item.remove();
-        }
-
-        // МЕХАНИКА 1: Реальный взрыв бомбы
-        function triggerBombExplosion(item) {
-            isStunned = true; // Блокируем клики игрока
-            
-            // Визуальный взрыв на месте бомбы
-            createPopEffect(item.offsetLeft, item.offsetTop, '💥 БУМ!', '#ff3366');
-            item.remove();
-
-            // Тряска всего экрана
-            body.classList.add('shake');
-            
-            // Вспышка огня на весь экран
-            flashOverlay.style.background = 'rgba(255, 51, 102, 0.4)';
-            flashOverlay.style.opacity = '1';
-
-            // Вычитаем очки
-            score -= 100;
-            if (score < 0) score = 0;
-            scoreDisplay.textContent = score;
-
-            // Через 0.5 сек убираем эффекты взрыва и возвращаем управление
-            setTimeout(() => {
-                body.classList.remove('shake');
-                flashOverlay.style.opacity = '0';
-                isStunned = false;
-            }, 500);
-        }
-
-        // МЕХАНИКА 2: Ледяная заморозка времени
-        function triggerFreezeEffect() {
-            if (isFrozen) return; // Чтобы эффекты не накладывались друг на друга
-            isFrozen = true;
-
-            // Включаем синий ледяной фильтр
-            flashOverlay.className = 'frozen-bg';
-            flashOverlay.style.opacity = '1';
-
-            // Останавливаем анимацию у всех летящих в данный момент элементов
-            const currentItems = document.querySelectorAll('.item');
-            currentItems.forEach(i => {
-                i.style.animationPlayState = 'paused';
+            // Движение фоновых звезд
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+            stars.forEach(star => {
+                if (!isFrozen) star.y += star.speed;
+                if (star.y > window.innerHeight) star.y = -5;
+                ctx.fillRect(star.x, star.y, star.size, star.size);
             });
 
-            // Через 3 секунды размораживаем игру
-            setTimeout(() => {
-                isFrozen = false;
-                flashOverlay.style.opacity = '0';
-                flashOverlay.className = '';
+            // Таймеры спавна и раунда
+            if (!isFrozen) {
+                spawnTimer += dt;
+                if (spawnTimer >= SPAWN_RATE) {
+                    spawnItem();
+                    spawnTimer = 0;
+                }
+
+                secondTimer += dt;
+                if (secondTimer >= 1000) {
+                    timeLeft--;
+                    timerDisplay.textContent = timeLeft;
+                    secondTimer = 0;
+                    if (timeLeft <= 0) { endGame(); return; }
+                }
+            }
+
+            // Рендер и логика летящих предметов
+            let pulseValue = Math.sin(time * 0.01);
+            for (let i = items.length - 1; i >= 0; i--) {
+                let item = items[i];
                 
-                const currentItems = document.querySelectorAll('.item');
-                currentItems.forEach(i => {
-                    i.style.animationPlayState = 'running';
+                if (!isFrozen) {
+                    item.y += item.speed;
+                    item.angle += item.rotSpeed;
+                }
+
+                if (item.y > window.innerHeight + 50) {
+                    items.splice(i, 1);
+                    continue;
+                }
+
+                if (item.type === 'crystal') drawCrystal(ctx, item.x, item.y, item.size, item.angle);
+                if (item.type === 'bomb') drawBomb(ctx, item.x, item.y, item.size, pulseValue);
+                if (item.type === 'freeze') drawFreeze(ctx, item.x, item.y, item.size, item.angle);
+            }
+
+            // Система частиц (Разрушение кристаллов, искры)
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.1; // гравитация для осколков
+                p.alpha -= 0.02;
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = p.color;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                ctx.restore();
+            }
+
+            // Эффекты взрывных волн (Shockwaves от бомб)
+            for(let i = shockwaves.length - 1; i >= 0; i--) {
+                let sw = shockwaves[i];
+                sw.radius += 8;
+                sw.alpha -= 0.03;
+                if(sw.alpha <= 0) {
+                    shockwaves.splice(i, 1);
+                    continue;
+                }
+                ctx.save();
+                ctx.globalAlpha = sw.alpha;
+                ctx.lineWidth = 4;
+                ctx.strokeStyle = '#ff3366';
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = '#ff3366';
+                ctx.beginPath();
+                ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            // Всплывающие неоновые тексты (+10 / -50)
+            for(let i = floatingTexts.length - 1; i >= 0; i--) {
+                let ft = floatingTexts[i];
+                ft.y -= 1.5;
+                ft.alpha -= 0.02;
+                if(ft.alpha <= 0) {
+                    floatingTexts.splice(i, 1);
+                    continue;
+                }
+                ctx.save();
+                ctx.globalAlpha = ft.alpha;
+                ctx.font = "bold 1.6rem 'Orbitron', sans-serif";
+                ctx.fillStyle = ft.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = ft.color;
+                ctx.textAlign = 'center';
+                ctx.fillText(ft.text, ft.x, ft.y);
+                ctx.restore();
+            }
+
+            // Визуальный эффект ледяной рамки при заморозке экрана
+            if (isFrozen) {
+                ctx.save();
+                ctx.strokeStyle = 'rgba(0, 179, 255, 0.4)';
+                ctx.lineWidth = 15;
+                ctx.shadowBlur = 25;
+                ctx.shadowColor = '#00b3ff';
+                ctx.strokeRect(0, 0, window.innerWidth, window.innerHeight);
+                ctx.restore();
+            }
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function spawnItem() {
+            let rand = Math.random();
+            let type = 'crystal';
+
+            if (rand < TYPES.FREEZE.chance) {
+                type = 'freeze';
+            } else if (rand < TYPES.FREEZE.chance + TYPES.BOMB.chance) {
+                type = 'bomb';
+            }
+
+            items.push({
+                x: Math.random() * (window.innerWidth - 60) + 30,
+                y: -40,
+                size: 26,
+                speed: Math.random() * 2 + 3,
+                angle: Math.random() * Math.PI,
+                rotSpeed: Math.random() * 0.04 - 0.02,
+                type: type
+            });
+        }
+
+        // ОБРАБОТКА НАЖАТИЙ (Кастомный хитбокс)
+        function checkHit(clientX, clientY) {
+            if (!gameActive || isStunned) return;
+
+            for (let i = items.length - 1; i >= 0; i--) {
+                let item = items[i];
+                let dist = Math.hypot(clientX - item.x, clientY - item.y);
+
+                // Если попали по элементу (радиус нажатия увеличен для удобства тапа пальцем)
+                if (dist < item.size + 15) {
+                    createParticles(item.x, item.y, TYPES[item.type.toUpperCase()].color);
+                    
+                    if (item.type === 'bomb') {
+                        triggerBomb(item.x, item.y);
+                    } else {
+                        if (item.type === 'freeze') triggerFreeze();
+                        
+                        let points = TYPES[item.type.toUpperCase()].points;
+                        score += points;
+                        if(score < 0) score = 0;
+                        scoreDisplay.textContent = score;
+
+                        floatingTexts.push({
+                            x: item.x, y: item.y,
+                            text: `+${points}`,
+                            color: TYPES[item.type.toUpperCase()].color,
+                            alpha: 1
+                        });
+                    }
+                    items.splice(i, 1);
+                    break; 
+                }
+            }
+        }
+
+        // ХИТ-ТРИГГЕРЫ НА ЭКРАНЕ
+        window.addEventListener('mousedown', (e) => checkHit(e.clientX, e.clientY));
+        window.addEventListener('touchstart', (e) => {
+            checkHit(e.touches[0].clientX, e.touches[0].clientY);
+        });
+
+        // Создание искр/осколков при взрыве или сборе
+        function createParticles(x, y, color) {
+            let amount = color === '#ff3366' ? 35 : 12; // от бомбы больше искр
+            for(let i=0; i<amount; i++) {
+                let angle = Math.random() * Math.PI * 2;
+                let speed = Math.random() * 4 + 1;
+                particles.push({
+                    x: x, y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: Math.random() * 3 + 2,
+                    color: color,
+                    alpha: 1
                 });
-            }, 3000);
+            }
         }
 
-        function createPopEffect(x, y, text, color) {
-            const pop = document.createElement('div');
-            pop.classList.add('pop');
-            pop.style.left = x + 'px';
-            pop.style.top = y + 'px';
-            pop.style.color = color;
-            pop.textContent = text;
-            gameArea.appendChild(pop);
-            setTimeout(() => pop.remove(), 500);
+        // МЕХАНИКА ВЗРЫВА БОМБЫ С УДАРНОЙ ВОЛНОЙ
+        function triggerBomb(x, y) {
+            isStunned = true;
+            shockwaves.push({ x: x, y: y, radius: 10, alpha: 1 });
+            body.classList.add('shake');
+
+            score -= 50;
+            if (score < 0) score = 0;
+            scoreDisplay.textContent = score;
+
+            floatingTexts.push({ x: x, y: y - 20, text: '-50 $LUM', color: '#ff3366', alpha: 1 });
+
+            setTimeout(() => {
+                body.classList.remove('shake');
+                isStunned = false;
+            }, 400);
         }
 
-        // МЕХАНИКА 3: Конвертация очков в Крипто-Валюту
+        // МЕХАНИКА ЗАМОРОЗКИ
+        function triggerFreeze() {
+            if (isFrozen) return;
+            isFrozen = true;
+            setTimeout(() => { isFrozen = false; }, 3000);
+        }
+
+        // НАКОПЛЕНИЕ КРИПТОВАЛЮТЫ И КОНЕЦ ИГРЫ
         function endGame() {
             gameActive = false;
-            clearInterval(gameInterval);
-            clearInterval(spawnInterval);
-
-            // Формула конвертации: например, 10 очков = 0.1 $LUM токена
-            const earnedCrypto = score * 0.01;
+            
+            // 1 раунд фармит реальную долю токенов на баланс
+            let earnedCrypto = score * 0.01;
             cryptoBalance += earnedCrypto;
 
-            // Сохранение баланса в локальную память браузера
             localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
             totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
 
-            // Вывод красивого уведомления о заработке
-            lastScoreDisplay.innerHTML = `Раунд завершен! Фарм: <span style="color:#00ffcc">+${earnedCrypto.toFixed(2)} $LUM</span> (+${score} очков)`;
+            lastScoreDisplay.innerHTML = `РАУНД ЗАВЕРШЕН!<br><span style="color:#00ffcc; font-family:'Orbitron'">+${earnedCrypto.toFixed(2)} $LUM</span>`;
 
             gameScreen.style.display = 'none';
             menuScreen.style.display = 'flex';
