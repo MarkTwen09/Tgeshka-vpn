@@ -670,18 +670,17 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
-        // ИНИЦИАЛИЗАЦИЯ ТРЕХСЛОЙНОГО ПАРАЛЛАКСА ЗВЕЗД
         function initStars() {
             stars = [];
             for(let i=0; i<60; i++) {
                 let layerRand = Math.random();
                 let size, speed, opacity;
                 
-                if (layerRand < 0.6) { // Задний план (мелкие)
+                if (layerRand < 0.6) { 
                     size = Math.random() * 0.7 + 0.3; speed = Math.random() * 0.1 + 0.05; opacity = Math.random() * 0.3 + 0.2;
-                } else if (layerRand < 0.9) { // Средний план
+                } else if (layerRand < 0.9) { 
                     size = Math.random() * 1.0 + 0.7; speed = Math.random() * 0.2 + 0.15; opacity = Math.random() * 0.4 + 0.4;
-                } else { // Передний план (крупные)
+                } else { 
                     size = Math.random() * 1.5 + 1.2; speed = Math.random() * 0.4 + 0.35; opacity = Math.random() * 0.3 + 0.6;
                 }
 
@@ -712,25 +711,22 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // ОТРИСОВКА ОБЪЕКТОВ С НЕОНОВЫМ СЛЕДОМ (HISTORY TRAIL)
         function drawTrail(item, ctx, drawFunc) {
             if (!item.history) item.history = [];
             if (!isFrozen && gameActive) {
-                item.history.push({ x: item.x, y: item.y, angle: item.angle });
+                item.history.push({ x: item.currentX, y: item.y, angle: item.angle });
                 if (item.history.length > 5) item.history.shift();
             }
             
-            // Рисуем затухающие копии сзади
             ctx.save();
             for (let i = 0; i < item.history.length - 1; i++) {
                 let pos = item.history[i];
-                let alpha = (i + 1) / item.history.length * 0.18; // очень мягкий шлейф
+                let alpha = (i + 1) / item.history.length * 0.18; 
                 ctx.globalAlpha = alpha;
                 drawFunc(ctx, pos.x, pos.y, item.size, pos.angle, true);
             }
             ctx.restore();
-            // Основной объект
-            drawFunc(ctx, item.x, item.y, item.size, item.angle, false);
+            drawFunc(ctx, item.currentX, item.y, item.size, item.angle, false);
         }
 
         function drawCrystal(ctx, x, y, size, angle, isTrail=false) {
@@ -775,7 +771,6 @@
             let dt = time - lastTime; lastTime = time;
             ctx.fillStyle = '#030108'; ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-            // РЕНДЕР ПАРАЛЛАКС ЗВЕЗД С УЧЕТОМ ИХ СЛОЕВ
             stars.forEach(star => {
                 if (!isFrozen) star.y += star.speed * timeScale;
                 if (star.y > window.innerHeight) star.y = -5;
@@ -798,10 +793,16 @@
                 if (endStageAlpha >= 1) { executeEndGame(); return; }
             }
 
-            // Отрисовка падающих предметов со шлейфами
+            // РЕНДЕР ПРЕДМЕТОВ С ФИЗИКОЙ ВЕТРА (СИНУСОИДАЛЬНОЕ СМЕЩЕНИЕ)
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
-                if (!isFrozen) { item.y += item.speed * timeScale; item.angle += item.rotSpeed * timeScale; }
+                if (!isFrozen) { 
+                    item.y += item.speed * timeScale; 
+                    item.angle += item.rotSpeed * timeScale;
+                    
+                    // Вычисляем смещение влево/вправо по формуле синуса от текущей высоты Y
+                    item.currentX = item.baseX + Math.sin(item.y * item.swingSpeed) * item.swingRange;
+                }
                 if (item.y > window.innerHeight + 50) { items.splice(i, 1); continue; }
                 
                 if (item.type === 'crystal') drawTrail(item, ctx, drawCrystal);
@@ -811,12 +812,10 @@
                 else if (item.type === 'freeze') drawTrail(item, ctx, drawFreeze);
             }
 
-            // КИНЕТИЧЕСКИЕ ЛАЗЕРНЫЕ ИСКРЫ (ЧАСТИЦЫ)
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i]; 
                 p.x += p.vx * timeScale; p.y += p.vy * timeScale; 
                 p.vy += 0.08 * timeScale; p.alpha -= 0.025;
-                
                 if (p.alpha <= 0) { particles.splice(i, 1); continue; }
                 
                 ctx.save(); 
@@ -824,7 +823,6 @@
                 ctx.strokeStyle = p.color;
                 ctx.lineWidth = p.size;
                 ctx.beginPath();
-                // Линия вытягивается по вектору движения
                 ctx.moveTo(p.x, p.y);
                 ctx.lineTo(p.x - p.vx * 2, p.y - p.vy * 2);
                 ctx.stroke(); 
@@ -837,7 +835,6 @@
                 ctx.save(); ctx.globalAlpha = w.alpha; ctx.strokeStyle = w.color; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(w.x, w.y, w.r, 0, Math.PI*2); ctx.stroke(); ctx.restore();
             }
 
-            // Рендеринг всплывающего текста комбо (+3с или Множители)
             for (let i = floatingTexts.length - 1; i >= 0; i--) {
                 let t = floatingTexts[i]; t.y -= 1; t.alpha -= 0.02;
                 if (t.alpha <= 0) { floatingTexts.splice(i, 1); continue; }
@@ -866,15 +863,21 @@
             else if (rand < TYPES.FREEZE.chance + TYPES.TIME.chance + TYPES.GOLD.chance) type = 'gold';
             else if (rand < TYPES.FREEZE.chance + TYPES.TIME.chance + TYPES.GOLD.chance + TYPES.BOMB.chance) type = 'bomb';
 
+            let startX = Math.random() * (window.innerWidth - 80) + 40;
+
             items.push({
-                x: Math.random() * (window.innerWidth - 60) + 30,
+                baseX: startX,          // Опорная линия падения
+                currentX: startX,       // Реальная позиция с учетом ветра
                 y: -30, 
                 size: 24,
                 speed: (type === 'gold' ? Math.random() * 2 + 3.5 : Math.random() * 2 + 2.5), 
                 angle: Math.random() * Math.PI,
                 rotSpeed: Math.random() * 0.04 - 0.02,
                 type: type,
-                history: []
+                history: [],
+                // Уникальные параметры покачивания для каждого кристалла
+                swingSpeed: Math.random() * 0.01 + 0.008, 
+                swingRange: Math.random() * 15 + 10        // Амплитуда отклонения от 10 до 25 пикселей
             });
         }
 
@@ -903,19 +906,20 @@
 
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
-                let dist = Math.hypot(clientX - item.x, clientY - item.y);
+                // Проверка тапа теперь идет по динамической координате currentX
+                let dist = Math.hypot(clientX - item.currentX, clientY - item.y);
 
                 if (dist < item.size + 20) {
                     hitSomething = true;
-                    createParticles(item.x, item.y, TYPES[item.type.toUpperCase()].color);
+                    createParticles(item.currentX, item.y, TYPES[item.type.toUpperCase()].color);
                     visualTapWaves.push({ x: clientX, y: clientY, r: 10, alpha: 1, color: TYPES[item.type.toUpperCase()].color });
 
                     if (item.type === 'bomb') { 
-                        triggerBomb(item.x, item.y); 
+                        triggerBomb(item.currentX, item.y); 
                     } else if (item.type === 'time') {
                         timeLeft += 3;
                         timerDisplay.textContent = timeLeft;
-                        floatingTexts.push({ x: item.x, y: item.y - 15, text: "+3 сек", color: '#ff33cc', alpha: 1 });
+                        floatingTexts.push({ x: item.currentX, y: item.y - 15, text: "+3 сек", color: '#ff33cc', alpha: 1 });
                         updateCombo(true);
                     } else {
                         if (item.type === 'freeze') triggerFreeze();
@@ -929,7 +933,7 @@
                         scoreDisplay.textContent = score;
 
                         let textShow = comboMultiplier > 1 ? `+${finalPoints} (x${comboMultiplier})` : `+${finalPoints}`;
-                        floatingTexts.push({ x: item.x, y: item.y - 15, text: textShow, color: TYPES[item.type.toUpperCase()].color, alpha: 1 });
+                        floatingTexts.push({ x: item.currentX, y: item.y - 15, text: textShow, color: TYPES[item.type.toUpperCase()].color, alpha: 1 });
                         
                         updateCombo(true);
                     }
@@ -946,7 +950,6 @@
         window.addEventListener('touchstart', (e) => { checkHit(e.touches[0].clientX, e.touches[0].clientY); });
 
         function createParticles(x, y, color) {
-            // Создаем направленные лазерные искры
             for(let i=0; i<12; i++) {
                 let angle = Math.random() * Math.PI * 2; 
                 let speed = Math.random() * 4 + 2;
@@ -955,7 +958,7 @@
                     y: y, 
                     vx: Math.cos(angle) * speed, 
                     vy: Math.sin(angle) * speed, 
-                    size: Math.random() * 1.5 + 1.5, // толщина линии искры
+                    size: Math.random() * 1.5 + 1.5, 
                     color: color, 
                     alpha: 1 
                 });
