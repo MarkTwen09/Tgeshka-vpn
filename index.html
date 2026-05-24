@@ -94,10 +94,10 @@
             text-shadow: 0 0 25px rgba(0, 255, 204, 0.5), 0 0 50px rgba(0, 255, 204, 0.2);
             letter-spacing: 12px;
             margin-bottom: 25px;
-            text-indent: 12px; /* Выравнивание из-за letter-spacing */
+            text-indent: 12px;
         }
 
-        /* ПРЕМИАЛЬНЫЙ ДИЗАЙН БАЛАНСА (GLASSMORPHISM) */
+        /* ДИЗАЙН БАЛАНСА */
         .crypto-balance {
             background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
             border: 1px solid rgba(0, 255, 204, 0.25);
@@ -134,7 +134,7 @@
             text-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
         }
 
-        /* НОВЫЙ ЭЛИТНЫЙ БЛОК: КРИПТО ФАРМИНГ */
+        /* КРИПТО ФАРМИНГ */
         .farming-container {
             width: 100%;
             max-width: 350px;
@@ -185,7 +185,7 @@
             transform: scale(0.95);
         }
 
-        /* БЛОК СТАТИСТИКИ (Задания и билеты) */
+        /* БЛОК СТАТИСТИКИ */
         .stats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -229,7 +229,7 @@
             line-height: 1.4;
         }
 
-        /* ЭЛИТНАЯ КНОПКА С НЕОНОВЫМ БЛИКОМ (SHIMMER) */
+        /* КНОПКА С НЕОНОВЫМ БЛИКОМ */
         .btn-wrapper {
             width: 100%;
             display: flex;
@@ -249,7 +249,7 @@
             border-radius: 26px;
             cursor: pointer;
             box-shadow: 0 15px 40px rgba(0, 255, 204, 0.35), inset 0 -4px 0 rgba(0,0,0,0.15);
-            transition: transform 0.1s, box-shadow 0.2s;
+            transition: all 0.3s ease;
             width: 100%;
             max-width: 350px;
             letter-spacing: 3px;
@@ -257,7 +257,6 @@
             overflow: hidden;
         }
 
-        /* Эффект пробегающего блика */
         .btn::after {
             content: '';
             position: absolute;
@@ -275,9 +274,31 @@
             100% { left: 140%; }
         }
 
-        .btn:active {
+        .btn:active:not(:disabled) {
             transform: scale(0.96);
             box-shadow: 0 8px 20px rgba(0, 255, 204, 0.2);
+        }
+
+        /* Состояние отсутствия билетов */
+        .btn:disabled {
+            background: linear-gradient(135deg, #2a2635, #15131c);
+            color: #554e68;
+            border: 1px solid rgba(255,255,255,0.05);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        .btn:disabled::after {
+            display: none;
+        }
+
+        .btn .sub-timeout {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            margin-top: 4px;
+            color: #ff3366;
+            font-family: 'Orbitron', sans-serif;
         }
 
         /* ИНТЕРФЕЙС ИГРЫ */
@@ -365,7 +386,7 @@
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="label">Билеты</div>
-                    <div class="val">⚡ 7/7</div>
+                    <div class="val" id="tickets-display">⚡ 7/7</div>
                 </div>
                 <div class="stat-card">
                     <div class="label">Квесты</div>
@@ -377,7 +398,7 @@
         </div>
 
         <div class="btn-wrapper">
-            <button class="btn" onclick="startGame()">ИГРАТЬ</button>
+            <button class="btn" id="play-btn" onclick="tryStartGame()">ИГРАТЬ</button>
         </div>
     </div>
 
@@ -401,15 +422,15 @@
         const glow1 = document.getElementById('glow1');
         const glow2 = document.getElementById('glow2');
         const farmDisplay = document.getElementById('farm-display');
+        const ticketsDisplay = document.getElementById('tickets-display');
+        const playBtn = document.getElementById('play-btn');
 
         // Логика кошелька
         let cryptoBalance = parseFloat(localStorage.getItem('lum_balance')) || 0;
         totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
 
-        // Переменные пассивного фарма
+        // Пассивный фарминг
         let activeFarmAccum = parseFloat(localStorage.getItem('lum_farm_accum')) || 0;
-        
-        // Каждую секунду пассивно капает микро-доля крипты в меню
         setInterval(() => {
             if (!gameActive) {
                 activeFarmAccum += 0.0003;
@@ -429,7 +450,71 @@
             farmDisplay.textContent = "0.0000";
         }
 
-        // Игровой движок
+        // ==========================================
+        // ЭЛИТНАЯ СИСТЕМА БИЛЕТОВ (3 МИНУТЫ РЕГЕНЕРАЦИЯ)
+        // ==========================================
+        const MAX_TICKETS = 7;
+        const REGEN_TIME = 3 * 60 * 1000; // 3 минуты в миллисекундах
+
+        let tickets = parseInt(localStorage.getItem('lum_tickets'));
+        if (isNaN(tickets)) tickets = MAX_TICKETS;
+        
+        let lastRegenTime = parseInt(localStorage.getItem('lum_last_regen_time')) || Date.now();
+
+        function updateTicketsSystem() {
+            let now = Date.now();
+            
+            if (tickets < MAX_TICKETS) {
+                let elapsed = now - lastRegenTime;
+                if (elapsed >= REGEN_TIME) {
+                    let generated = Math.floor(elapsed / REGEN_TIME);
+                    tickets = Math.min(MAX_TICKETS, tickets + generated);
+                    lastRegenTime = lastRegenTime + (generated * REGEN_TIME);
+                    
+                    localStorage.setItem('lum_tickets', tickets);
+                    localStorage.setItem('lum_last_regen_time', lastRegenTime);
+                }
+            } else {
+                lastRegenTime = now;
+                localStorage.setItem('lum_last_regen_time', lastRegenTime);
+            }
+
+            // Рендер виджета билетов в меню
+            ticketsDisplay.textContent = `⚡ ${tickets}/${MAX_TICKETS}`;
+
+            // Управление состоянием главной кнопки
+            if (gameActive) return;
+
+            if (tickets > 0) {
+                playBtn.disabled = false;
+                playBtn.innerHTML = "ИГРАТЬ";
+            } else {
+                playBtn.disabled = true;
+                let nextTicketIn = REGEN_TIME - (now - lastRegenTime);
+                let mins = Math.floor(nextTicketIn / 60000);
+                let secs = Math.floor((nextTicketIn % 60000) / 1000);
+                let formatSecs = secs < 10 ? '0' + secs : secs;
+                playBtn.innerHTML = `НЕТ БИЛЕТОВ <span class="sub-timeout">+1 ТИКЕТ ЧЕРЕЗ ${mins}:${formatSecs}</span>`;
+            }
+        }
+
+        // Запуск тика системы тикетов (каждые 500 мс для плавных часов на кнопке)
+        setInterval(updateTicketsSystem, 500);
+
+        function tryStartGame() {
+            if (tickets > 0) {
+                tickets--;
+                if (tickets < MAX_TICKETS && tickets === MAX_TICKETS - 1) {
+                    lastRegenTime = Date.now(); // Стартуем таймер регена с момента траты первого тикета
+                }
+                localStorage.setItem('lum_tickets', tickets);
+                localStorage.setItem('lum_last_regen_time', lastRegenTime);
+                updateTicketsSystem();
+                startGame();
+            }
+        }
+
+        // Игровые переменные движка
         let score = 0;
         let timeLeft = 30;
         let gameActive = false;
@@ -440,6 +525,11 @@
         let lastTime = 0;
         let spawnTimer = 0;
         let secondTimer = 0;
+
+        // Переменные для кинематографичного финала
+        let isEndingStage = false;
+        let endStageAlpha = 0;
+        let timeScale = 1.0; // Коэффициент скорости слоу-мо
 
         let items = [];
         let particles = [];
@@ -495,6 +585,10 @@
             isFrozen = false;
             freezeAlpha = 0;
             isStunned = false;
+            isEndingStage = false;
+            endStageAlpha = 0;
+            timeScale = 1.0;
+            
             items = [];
             particles = [];
             floatingTexts = [];
@@ -504,7 +598,6 @@
             scoreDisplay.textContent = score;
             timerDisplay.textContent = timeLeft;
             
-            // Прячем меню и неоновый бэкграунд декораций меню
             menuScreen.style.display = 'none';
             glow1.style.display = 'none';
             glow2.style.display = 'none';
@@ -516,7 +609,6 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Рендер Кристалла
         function drawCrystal(ctx, x, y, size, angle) {
             ctx.save();
             ctx.translate(x, y);
@@ -546,7 +638,6 @@
             ctx.restore();
         }
 
-        // Рендер Бомбы
         function drawBomb(ctx, x, y, size, pulse) {
             ctx.save();
             ctx.translate(x, y);
@@ -574,7 +665,6 @@
             ctx.restore();
         }
 
-        // Рендер Заморозки
         function drawFreeze(ctx, x, y, size, angle) {
             ctx.save();
             ctx.translate(x, y);
@@ -610,10 +700,11 @@
             ctx.fillStyle = '#030108';
             ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
+            // Движение звезд с учетом слоу-мо масштаба
             ctx.shadowBlur = 0;
             ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
             stars.forEach(star => {
-                if (!isFrozen) star.y += star.speed;
+                if (!isFrozen) star.y += star.speed * timeScale;
                 if (star.y > window.innerHeight) star.y = -5;
                 ctx.fillRect(star.x, star.y, star.size, star.size);
             });
@@ -630,8 +721,8 @@
                 ctx.shadowColor = 'rgba(0, 179, 255, 0.6)';
                 ctx.fillStyle = `rgba(135, 220, 255, ${freezeAlpha * 0.7})`;
                 snowParticles.forEach(p => {
-                    p.y += p.speedY;
-                    p.x += p.speedX + Math.sin(time * p.drift) * 0.2;
+                    p.y += p.speedY * timeScale;
+                    p.x += (p.speedX + Math.sin(time * p.drift) * 0.2) * timeScale;
                     if (p.y > window.innerHeight) {
                         p.y = -10;
                         p.x = Math.random() * window.innerWidth;
@@ -643,7 +734,8 @@
                 ctx.restore();
             }
 
-            if (!isFrozen) {
+            // Обычная логика таймеров (только если не стадия финала)
+            if (!isFrozen && !isEndingStage) {
                 spawnTimer += dt;
                 if (spawnTimer >= SPAWN_RATE) {
                     spawnItem();
@@ -655,7 +747,19 @@
                     timeLeft--;
                     timerDisplay.textContent = timeLeft;
                     secondTimer = 0;
-                    if (timeLeft <= 0) { endGame(); return; }
+                    if (timeLeft <= 0) { 
+                        triggerEndStage(); // Переходим к красивой концовке
+                    }
+                }
+            }
+
+            // Плавное замедление времени и нарастание оверлея при завершении раунда
+            if (isEndingStage) {
+                if (timeScale > 0.05) timeScale -= 0.02; // Тормозим мир
+                if (endStageAlpha < 1) endStageAlpha += 0.02; // Проявляем финал оверлей
+                if (endStageAlpha >= 1) {
+                    executeEndGame(); // Окончательный выход
+                    return;
                 }
             }
 
@@ -663,8 +767,8 @@
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
                 if (!isFrozen) {
-                    item.y += item.speed;
-                    item.angle += item.rotSpeed;
+                    item.y += item.speed * timeScale;
+                    item.angle += item.rotSpeed * timeScale;
                 }
                 if (item.y > window.innerHeight + 50) {
                     items.splice(i, 1);
@@ -677,9 +781,9 @@
 
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += 0.1;
+                p.x += p.vx * timeScale;
+                p.y += p.vy * timeScale;
+                p.vy += 0.1 * timeScale;
                 p.alpha -= 0.02;
                 if (p.alpha <= 0) {
                     particles.splice(i, 1);
@@ -696,7 +800,7 @@
 
             for(let i = shockwaves.length - 1; i >= 0; i--) {
                 let sw = shockwaves[i];
-                sw.radius += 8;
+                sw.radius += 8 * timeScale;
                 sw.alpha -= 0.03;
                 if(sw.alpha <= 0) {
                     shockwaves.splice(i, 1);
@@ -716,7 +820,7 @@
 
             for(let i = floatingTexts.length - 1; i >= 0; i--) {
                 let ft = floatingTexts[i];
-                ft.y -= 1.5;
+                ft.y -= 1.5 * timeScale;
                 ft.alpha -= 0.02;
                 if(ft.alpha <= 0) {
                     floatingTexts.splice(i, 1);
@@ -755,6 +859,28 @@
                 ctx.restore();
             }
 
+            // ЭЛИТНЫЙ КИНЕМАТОГРАФИЧНЫЙ ФИНАЛЬНЫЙ ОВЕРЛЕЙ
+            if (endStageAlpha > 0.01) {
+                ctx.save();
+                // Насыщенный сине-пурпурный градиент размытия
+                let endGrad = ctx.createLinearGradient(0, 0, 0, window.innerHeight);
+                endGrad.addColorStop(0, `rgba(4, 2, 9, ${endStageAlpha * 0.85})`);
+                endGrad.addColorStop(1, `rgba(15, 5, 28, ${endStageAlpha * 0.95})`);
+                ctx.fillStyle = endGrad;
+                ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+
+                // Всплывающий неоновый текст "TIME OVER" прямо на холсте
+                ctx.font = "900 2.8rem 'Orbitron', sans-serif";
+                ctx.fillStyle = '#ff3366';
+                ctx.shadowBlur = 25;
+                ctx.shadowColor = '#ff3366';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.letterSpacing = '6px';
+                ctx.fillText("TIME OVER", window.innerWidth / 2, window.innerHeight / 2 - 20);
+                ctx.restore();
+            }
+
             requestAnimationFrame(gameLoop);
         }
 
@@ -780,7 +906,8 @@
         }
 
         function checkHit(clientX, clientY) {
-            if (!gameActive || isStunned) return;
+            // Во время финальной заставки тапы блокируются
+            if (!gameActive || isStunned || isEndingStage) return;
 
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
@@ -857,7 +984,13 @@
             setTimeout(() => { isFrozen = false; }, 3000);
         }
 
-        function endGame() {
+        // Включение первой фазы финала
+        function triggerEndStage() {
+            isEndingStage = true;
+        }
+
+        // Окончательный подсчет и выход в лобби
+        function executeEndGame() {
             gameActive = false;
             let earnedCrypto = score * 0.01;
             cryptoBalance += earnedCrypto;
@@ -869,10 +1002,11 @@
 
             gameScreen.style.display = 'none';
             
-            // Возвращаем меню и фоновые премиум неоновые круги
             menuScreen.style.display = 'flex';
             glow1.style.display = 'block';
             glow2.style.display = 'block';
+            
+            updateTicketsSystem(); // Обновляем кнопку сразу после выхода
         }
     </script>
 </body>
