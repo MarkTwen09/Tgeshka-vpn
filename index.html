@@ -44,7 +44,7 @@
             100% { transform: scale(1.3) translate(30px, 20px); opacity: 0.35; }
         }
 
-        /* ЭКРАН ХАБА / МЕНЮ */
+        /* ЭКРАН ХАБА / МЕНЮ С ЭФФЕКТОМ ДОРОГОГО СТЕКЛА */
         #menu-screen {
             position: absolute;
             width: 100%;
@@ -88,16 +88,16 @@
             text-indent: 12px;
         }
 
-        /* ДИЗАЙН БАЛАНСА */
+        /* ДИЗАЙН БАЛАНСА С МЯГКИМ СТЕКЛЯННЫМ БЛИКОМ */
         .crypto-balance {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
             border: 1px solid rgba(0, 255, 204, 0.25);
             padding: 20px 20px;
             border-radius: 24px;
             text-align: center;
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.75), inset 0 1px 1px rgba(255,255,255,0.1);
             width: 100%;
             max-width: 350px;
             margin: 0 auto;
@@ -127,7 +127,7 @@
         .farming-container {
             width: 100%;
             max-width: 350px;
-            background: rgba(255, 255, 255, 0.02);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
             border: 1px solid rgba(255, 255, 255, 0.06);
             border-radius: 20px;
             padding: 14px 20px;
@@ -136,6 +136,7 @@
             justify-content: space-between;
             margin-top: 12px;
             backdrop-filter: blur(10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 0px rgba(255,255,255,0.05);
         }
 
         .farming-info p {
@@ -162,7 +163,9 @@
             font-size: 0.8rem;
             font-weight: 800;
             cursor: pointer;
+            transition: background 0.2s;
         }
+        .claim-btn:active { background: rgba(0, 255, 204, 0.25); }
 
         /* БЛОК СТАТИСТИКИ И КНОПОК */
         .stats-grid {
@@ -175,12 +178,14 @@
         }
 
         .stat-card {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid rgba(255,255,255,0.05);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.005));
+            border: 1px solid rgba(255, 255, 255, 0.05);
             border-radius: 18px;
             padding: 12px 14px;
             text-align: left;
             cursor: pointer;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3), inset 0 1px 0px rgba(255,255,255,0.05);
             transition: background 0.2s;
         }
         .stat-card:active { background: rgba(255,255,255,0.07); }
@@ -227,11 +232,11 @@
             position: relative;
             overflow: hidden;
         }
-
+        .btn:active:not(:disabled) { transform: scale(0.98); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.2); }
         .btn:disabled { background: #1e1b24; color: #4e485d; box-shadow: none; cursor: not-allowed; }
         .btn .sub-timeout { display: block; font-size: 0.7rem; color: #ff3366; margin-top: 2px; }
 
-        /* АККУРАТНЫЙ ПАРЯЩИЙ HUD */
+        /* ВОЗДУШНЫЙ ПАРЯЩИЙ HUD */
         .hud {
             display: flex;
             width: 100%;
@@ -244,14 +249,14 @@
         }
 
         .hud-card {
-            background: rgba(255, 255, 255, 0.03);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.005));
             border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 8px 16px;
             border-radius: 16px;
             backdrop-filter: blur(15px);
             -webkit-backdrop-filter: blur(15px);
             min-width: 115px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.45), inset 0 1px 0px rgba(255,255,255,0.08);
             position: relative;
         }
 
@@ -274,7 +279,7 @@
         #score { color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.2); }
         #timer { color: #ff3366; text-shadow: 0 0 10px rgba(255,51,102,0.2); }
 
-        /* ИНДИКАТОР КОМБО (АККУРАТНЫЙ БЭЙДЖ) */
+        /* ИНДИКАТОР КОМБО */
         .combo-badge {
             position: absolute;
             bottom: -10px;
@@ -287,7 +292,7 @@
             font-weight: 900;
             padding: 2px 8px;
             border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(255, 85, 0, 0.4);
+            box-shadow: 0 4px 12px rgba(255, 85, 0, 0.5);
             opacity: 0;
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             white-space: nowrap;
@@ -645,15 +650,14 @@
         let isEndingStage = false, endStageAlpha = 0, timeScale = 1.0; 
         let items = [], particles = [], stars = [], floatingTexts = [], visualTapWaves = [];
         
-        // Переменные комбо-системы
         let comboStreak = 0;
         let comboMultiplier = 1;
 
         const SPAWN_RATE = 330;
         const TYPES = {
             CRYSTAL: { id: 'crystal', color: '#00ffcc', points: 10, chance: 0.70 },
-            GOLD: { id: 'gold', color: '#ffcc00', points: 30, chance: 0.08 }, // Золотой Jackpot
-            TIME: { id: 'time', color: '#ff33cc', points: 0, chance: 0.05 },    // +3 секунды
+            GOLD: { id: 'gold', color: '#ffcc00', points: 30, chance: 0.08 }, 
+            TIME: { id: 'time', color: '#ff33cc', points: 0, chance: 0.05 },    
             BOMB: { id: 'bomb', color: '#ff3366', points: -50, chance: 0.14 },
             FREEZE: { id: 'freeze', color: '#00b3ff', points: 5, chance: 0.03 } 
         };
@@ -666,10 +670,22 @@
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
+        // ИНИЦИАЛИЗАЦИЯ ТРЕХСЛОЙНОГО ПАРАЛЛАКСА ЗВЕЗД
         function initStars() {
             stars = [];
-            for(let i=0; i<50; i++) {
-                stars.push({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, size: Math.random() * 1.2 + 0.5, speed: Math.random() * 0.2 + 0.1 });
+            for(let i=0; i<60; i++) {
+                let layerRand = Math.random();
+                let size, speed, opacity;
+                
+                if (layerRand < 0.6) { // Задний план (мелкие)
+                    size = Math.random() * 0.7 + 0.3; speed = Math.random() * 0.1 + 0.05; opacity = Math.random() * 0.3 + 0.2;
+                } else if (layerRand < 0.9) { // Средний план
+                    size = Math.random() * 1.0 + 0.7; speed = Math.random() * 0.2 + 0.15; opacity = Math.random() * 0.4 + 0.4;
+                } else { // Передний план (крупные)
+                    size = Math.random() * 1.5 + 1.2; speed = Math.random() * 0.4 + 0.35; opacity = Math.random() * 0.3 + 0.6;
+                }
+
+                stars.push({ x: Math.random() * window.innerWidth, y: Math.random() * window.innerHeight, size: size, speed: speed, opacity: opacity });
             }
         }
         initStars();
@@ -696,28 +712,61 @@
             requestAnimationFrame(gameLoop);
         }
 
-        function drawCrystal(ctx, x, y, size, angle) {
-            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.shadowBlur = 12; ctx.shadowColor = '#00ffcc'; ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2.5; ctx.fillStyle = 'rgba(0, 255, 204, 0.15)';
+        // ОТРИСОВКА ОБЪЕКТОВ С НЕОНОВЫМ СЛЕДОМ (HISTORY TRAIL)
+        function drawTrail(item, ctx, drawFunc) {
+            if (!item.history) item.history = [];
+            if (!isFrozen && gameActive) {
+                item.history.push({ x: item.x, y: item.y, angle: item.angle });
+                if (item.history.length > 5) item.history.shift();
+            }
+            
+            // Рисуем затухающие копии сзади
+            ctx.save();
+            for (let i = 0; i < item.history.length - 1; i++) {
+                let pos = item.history[i];
+                let alpha = (i + 1) / item.history.length * 0.18; // очень мягкий шлейф
+                ctx.globalAlpha = alpha;
+                drawFunc(ctx, pos.x, pos.y, item.size, pos.angle, true);
+            }
+            ctx.restore();
+            // Основной объект
+            drawFunc(ctx, item.x, item.y, item.size, item.angle, false);
+        }
+
+        function drawCrystal(ctx, x, y, size, angle, isTrail=false) {
+            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); 
+            ctx.shadowBlur = isTrail ? 4 : 12; ctx.shadowColor = '#00ffcc'; 
+            ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2.5; ctx.fillStyle = 'rgba(0, 255, 204, 0.15)';
             ctx.beginPath(); ctx.moveTo(0, -size); ctx.lineTo(size * 0.7, -size * 0.2); ctx.lineTo(size * 0.5, size * 0.8); ctx.lineTo(0, size); ctx.lineTo(-size * 0.5, size * 0.8); ctx.lineTo(-size * 0.7, -size * 0.2); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
         }
 
-        function drawGoldCrystal(ctx, x, y, size, angle) {
-            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.shadowBlur = 18; ctx.shadowColor = '#ffcc00'; ctx.strokeStyle = '#ffcc00'; ctx.lineWidth = 3; ctx.fillStyle = 'rgba(255, 204, 0, 0.25)';
+        function drawGoldCrystal(ctx, x, y, size, angle, isTrail=false) {
+            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); 
+            ctx.shadowBlur = isTrail ? 6 : 18; ctx.shadowColor = '#ffcc00'; 
+            ctx.strokeStyle = '#ffcc00'; ctx.lineWidth = 3; ctx.fillStyle = 'rgba(255, 204, 0, 0.25)';
             ctx.beginPath(); ctx.moveTo(0, -size * 1.1); ctx.lineTo(size * 0.8, -size * 0.2); ctx.lineTo(size * 0.5, size * 0.9); ctx.lineTo(0, size * 1.1); ctx.lineTo(-size * 0.5, size * 0.9); ctx.lineTo(-size * 0.8, -size * 0.2); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
         }
 
-        function drawTimeCrystal(ctx, x, y, size, angle) {
-            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.shadowBlur = 14; ctx.shadowColor = '#ff33cc'; ctx.strokeStyle = '#ff33cc'; ctx.lineWidth = 2.5; ctx.fillStyle = 'rgba(255, 51, 204, 0.2)';
+        function drawTimeCrystal(ctx, x, y, size, angle, isTrail=false) {
+            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); 
+            ctx.shadowBlur = isTrail ? 5 : 14; ctx.shadowColor = '#ff33cc'; 
+            ctx.strokeStyle = '#ff33cc'; ctx.lineWidth = 2.5; ctx.fillStyle = 'rgba(255, 51, 204, 0.2)';
             ctx.beginPath(); ctx.moveTo(0, -size); ctx.lineTo(size * 0.6, -size * 0.6); ctx.lineTo(size, 0); ctx.lineTo(size * 0.6, size * 0.6); ctx.lineTo(0, size); ctx.lineTo(-size * 0.6, size * 0.6); ctx.lineTo(-size, 0); ctx.lineTo(-size * 0.6, -size * 0.6); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
         }
 
-        function drawBomb(ctx, x, y, size, pulse) {
-            ctx.save(); ctx.translate(x, y); ctx.shadowBlur = 12 + pulse * 8; ctx.shadowColor = '#ff3366'; ctx.fillStyle = '#1a0510'; ctx.strokeStyle = '#ff3366'; ctx.lineWidth = 2.5;
-            ctx.beginPath(); ctx.arc(0, 0, size * 0.8, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); ctx.fillStyle = `rgba(255, 51, 102, ${0.4 + pulse * 0.6})`; ctx.beginPath(); ctx.arc(0, 0, size * 0.35, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+        function drawBomb(ctx, x, y, size, angle, isTrail=false) {
+            let pulse = Math.sin(performance.now() * 0.01);
+            ctx.save(); ctx.translate(x, y); 
+            ctx.shadowBlur = isTrail ? 4 : (12 + pulse * 8); ctx.shadowColor = '#ff3366'; 
+            ctx.fillStyle = '#1a0510'; ctx.strokeStyle = '#ff3366'; ctx.lineWidth = 2.5;
+            ctx.beginPath(); ctx.arc(0, 0, size * 0.8, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); 
+            ctx.fillStyle = `rgba(255, 51, 102, ${0.4 + pulse * 0.6})`; ctx.beginPath(); ctx.arc(0, 0, size * 0.35, 0, Math.PI * 2); ctx.fill(); ctx.restore();
         }
 
-        function drawFreeze(ctx, x, y, size, angle) {
-            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); ctx.shadowBlur = 12; ctx.shadowColor = '#00b3ff'; ctx.strokeStyle = '#00b3ff'; ctx.lineWidth = 2; ctx.fillStyle = 'rgba(0, 179, 255, 0.15)';
+        function drawFreeze(ctx, x, y, size, angle, isTrail=false) {
+            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); 
+            ctx.shadowBlur = isTrail ? 4 : 12; ctx.shadowColor = '#00b3ff'; 
+            ctx.strokeStyle = '#00b3ff'; ctx.lineWidth = 2; ctx.fillStyle = 'rgba(0, 179, 255, 0.15)';
             ctx.beginPath(); for (let i = 0; i < 6; i++) { ctx.lineTo(size * Math.cos(i * Math.PI / 3), size * Math.sin(i * Math.PI / 3)); } ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
         }
 
@@ -726,11 +775,14 @@
             let dt = time - lastTime; lastTime = time;
             ctx.fillStyle = '#030108'; ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            // РЕНДЕР ПАРАЛЛАКС ЗВЕЗД С УЧЕТОМ ИХ СЛОЕВ
             stars.forEach(star => {
                 if (!isFrozen) star.y += star.speed * timeScale;
                 if (star.y > window.innerHeight) star.y = -5;
+                ctx.save();
+                ctx.fillStyle = `rgba(255, 255, 255, ${star.opacity})`;
                 ctx.fillRect(star.x, star.y, star.size, star.size);
+                ctx.restore();
             });
 
             if (!isFrozen && !isEndingStage) {
@@ -746,23 +798,37 @@
                 if (endStageAlpha >= 1) { executeEndGame(); return; }
             }
 
-            let pulseValue = Math.sin(time * 0.01);
+            // Отрисовка падающих предметов со шлейфами
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
                 if (!isFrozen) { item.y += item.speed * timeScale; item.angle += item.rotSpeed * timeScale; }
                 if (item.y > window.innerHeight + 50) { items.splice(i, 1); continue; }
                 
-                if (item.type === 'crystal') drawCrystal(ctx, item.x, item.y, item.size, item.angle);
-                else if (item.type === 'gold') drawGoldCrystal(ctx, item.x, item.y, item.size, item.angle);
-                else if (item.type === 'time') drawTimeCrystal(ctx, item.x, item.y, item.size, item.angle);
-                else if (item.type === 'bomb') drawBomb(ctx, item.x, item.y, item.size, pulseValue);
-                else if (item.type === 'freeze') drawFreeze(ctx, item.x, item.y, item.size, item.angle);
+                if (item.type === 'crystal') drawTrail(item, ctx, drawCrystal);
+                else if (item.type === 'gold') drawTrail(item, ctx, drawGoldCrystal);
+                else if (item.type === 'time') drawTrail(item, ctx, drawTimeCrystal);
+                else if (item.type === 'bomb') drawTrail(item, ctx, drawBomb);
+                else if (item.type === 'freeze') drawTrail(item, ctx, drawFreeze);
             }
 
+            // КИНЕТИЧЕСКИЕ ЛАЗЕРНЫЕ ИСКРЫ (ЧАСТИЦЫ)
             for (let i = particles.length - 1; i >= 0; i--) {
-                let p = particles[i]; p.x += p.vx * timeScale; p.y += p.vy * timeScale; p.vy += 0.1 * timeScale; p.alpha -= 0.02;
+                let p = particles[i]; 
+                p.x += p.vx * timeScale; p.y += p.vy * timeScale; 
+                p.vy += 0.08 * timeScale; p.alpha -= 0.025;
+                
                 if (p.alpha <= 0) { particles.splice(i, 1); continue; }
-                ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, p.size, p.size); ctx.restore();
+                
+                ctx.save(); 
+                ctx.globalAlpha = p.alpha; 
+                ctx.strokeStyle = p.color;
+                ctx.lineWidth = p.size;
+                ctx.beginPath();
+                // Линия вытягивается по вектору движения
+                ctx.moveTo(p.x, p.y);
+                ctx.lineTo(p.x - p.vx * 2, p.y - p.vy * 2);
+                ctx.stroke(); 
+                ctx.restore();
             }
 
             for (let i = visualTapWaves.length - 1; i >= 0; i--) {
@@ -804,10 +870,11 @@
                 x: Math.random() * (window.innerWidth - 60) + 30,
                 y: -30, 
                 size: 24,
-                speed: (type === 'gold' ? Math.random() * 2 + 3.5 : Math.random() * 2 + 2.5), // Золотые летят резвее
+                speed: (type === 'gold' ? Math.random() * 2 + 3.5 : Math.random() * 2 + 2.5), 
                 angle: Math.random() * Math.PI,
                 rotSpeed: Math.random() * 0.04 - 0.02,
-                type: type
+                type: type,
+                history: []
             });
         }
 
@@ -824,7 +891,6 @@
                     comboBadge.classList.add('active');
                 }
             } else {
-                // Сброс комбо при промахе или взрыве
                 comboStreak = 0;
                 comboMultiplier = 1;
                 comboBadge.classList.remove('active');
@@ -857,7 +923,6 @@
                         let basePoints = TYPES[item.type.toUpperCase()].points;
                         let shopMultiplier = 1 + (clickLevel - 1) * 0.2; 
                         
-                        // Итоговые очки = База * Магазин * Комбо-множитель
                         let finalPoints = Math.round(basePoints * shopMultiplier * comboMultiplier);
                         
                         score += finalPoints; 
@@ -873,7 +938,7 @@
             }
             if (!hitSomething) { 
                 visualTapWaves.push({ x: clientX, y: clientY, r: 5, alpha: 0.5, color: 'rgba(255,255,255,0.3)' }); 
-                updateCombo(false); // Мисс-клик обнуляет стрик
+                updateCombo(false); 
             }
         }
 
@@ -881,9 +946,19 @@
         window.addEventListener('touchstart', (e) => { checkHit(e.touches[0].clientX, e.touches[0].clientY); });
 
         function createParticles(x, y, color) {
-            for(let i=0; i<10; i++) {
-                let angle = Math.random() * Math.PI * 2; let speed = Math.random() * 3 + 1;
-                particles.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, size: Math.random() * 2 + 2, color: color, alpha: 1 });
+            // Создаем направленные лазерные искры
+            for(let i=0; i<12; i++) {
+                let angle = Math.random() * Math.PI * 2; 
+                let speed = Math.random() * 4 + 2;
+                particles.push({ 
+                    x: x, 
+                    y: y, 
+                    vx: Math.cos(angle) * speed, 
+                    vy: Math.sin(angle) * speed, 
+                    size: Math.random() * 1.5 + 1.5, // толщина линии искры
+                    color: color, 
+                    alpha: 1 
+                });
             }
         }
 
@@ -892,7 +967,7 @@
             body.classList.add('shake'); 
             score -= 50; if (score < 0) score = 0; 
             scoreDisplay.textContent = score;
-            updateCombo(false); // Взрыв обнуляет комбо
+            updateCombo(false); 
             setTimeout(() => { body.classList.remove('shake'); isStunned = false; }, 400);
         }
 
