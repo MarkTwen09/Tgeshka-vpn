@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Lum Crypto Drop Game</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800;900&family=Rajdhani:wght@500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800;900&family=Rajdhani:wght@500;600;700&display=swap');
 
         * {
             box-sizing: border-box;
@@ -16,7 +16,7 @@
         }
 
         body {
-            background: #030108;
+            background: #040209;
             color: #fff;
             font-family: 'Rajdhani', sans-serif;
             overflow: hidden;
@@ -24,8 +24,37 @@
             height: 100vh;
         }
 
+        /* КИБЕР-ГРАДИЕНТЫ НА ФОНЕ МЕНЮ */
+        .bg-glow-1, .bg-glow-2 {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            filter: blur(120px);
+            opacity: 0.25;
+            z-index: 0;
+            pointer-events: none;
+            animation: pulseGlow 8s ease-in-out infinite alternate;
+        }
+        .bg-glow-1 {
+            background: #00ffcc;
+            top: -50px;
+            left: -50px;
+        }
+        .bg-glow-2 {
+            background: #9900ff;
+            bottom: 50px;
+            right: -50px;
+            animation-delay: -4s;
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.2; }
+            100% { transform: scale(1.3) translate(30px, 20px); opacity: 0.35; }
+        }
+
         /* ЭКРАН ХАБА / МЕНЮ */
-        #menu-screen, #game-screen {
+        #menu-screen {
             position: absolute;
             width: 100%;
             height: 100%;
@@ -33,96 +62,222 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 40px 24px;
+            padding: 50px 24px 40px 24px;
             z-index: 10;
+            overflow-y: auto;
         }
 
         #game-screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
             display: none;
+            flex-direction: column;
+            align-items: center;
             justify-content: flex-start;
+            padding: 40px 24px;
+            z-index: 10;
             pointer-events: none;
         }
 
         .brand-section {
             text-align: center;
-            margin-top: 20px;
             width: 100%;
+            z-index: 2;
         }
 
         h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 5rem;
+            font-size: 4.8rem;
             font-weight: 900;
             color: #00ffcc;
-            text-shadow: 0 0 20px rgba(0, 255, 204, 0.6), 0 0 40px rgba(0, 255, 204, 0.3);
-            letter-spacing: 8px;
-            margin-bottom: 5px;
+            text-shadow: 0 0 25px rgba(0, 255, 204, 0.5), 0 0 50px rgba(0, 255, 204, 0.2);
+            letter-spacing: 12px;
+            margin-bottom: 25px;
+            text-indent: 12px; /* Выравнивание из-за letter-spacing */
         }
 
+        /* ПРЕМИАЛЬНЫЙ ДИЗАЙН БАЛАНСА (GLASSMORPHISM) */
         .crypto-balance {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-            border: 1px solid rgba(0, 255, 204, 0.2);
-            padding: 24px 20px;
-            border-radius: 24px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01));
+            border: 1px solid rgba(0, 255, 204, 0.25);
+            padding: 26px 20px;
+            border-radius: 28px;
             text-align: center;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.1);
-            margin: 30px auto;
-            width: 90%;
-            max-width: 340px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6), inset 0 1px 2px rgba(255,255,255,0.15);
+            width: 100%;
+            max-width: 350px;
+            margin: 0 auto;
         }
 
         .crypto-balance p {
             font-size: 0.85rem;
-            color: #6c5f93;
+            color: #7b70a2;
             text-transform: uppercase;
             letter-spacing: 3px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             font-weight: 700;
         }
 
         .crypto-balance .amount {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.3rem;
-            font-weight: 800;
+            font-size: 2.4rem;
+            font-weight: 900;
             color: #fff;
+            letter-spacing: -1px;
         }
 
         .crypto-balance .amount span {
             color: #00ffcc;
-            text-shadow: 0 0 15px rgba(0, 255, 204, 0.5);
+            text-shadow: 0 0 20px rgba(0, 255, 204, 0.6);
+        }
+
+        /* НОВЫЙ ЭЛИТНЫЙ БЛОК: КРИПТО ФАРМИНГ */
+        .farming-container {
+            width: 100%;
+            max-width: 350px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.005));
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 16px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+        }
+
+        .farming-info p {
+            font-size: 0.75rem;
+            color: #6c5f93;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+
+        .farming-info .farm-amount {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #00b3ff;
+            margin-top: 2px;
+        }
+
+        .claim-btn {
+            font-family: 'Orbitron', sans-serif;
+            background: rgba(0, 255, 204, 0.1);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            color: #00ffcc;
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .claim-btn:active {
+            background: rgba(0, 255, 204, 0.3);
+            transform: scale(0.95);
+        }
+
+        /* БЛОК СТАТИСТИКИ (Задания и билеты) */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            width: 100%;
+            max-width: 350px;
+            margin-top: 16px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.01);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 20px;
+            padding: 14px;
+            text-align: left;
+        }
+
+        .stat-card .label {
+            font-size: 0.75rem;
+            color: #6c5f93;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card .val {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-top: 4px;
         }
 
         .game-status-text {
             color: #ff3366;
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             font-weight: 700;
-            min-height: 30px;
+            min-height: 50px;
             text-align: center;
             letter-spacing: 1px;
+            margin-top: 25px;
+            line-height: 1.4;
+        }
+
+        /* ЭЛИТНАЯ КНОПКА С НЕОНОВЫМ БЛИКОМ (SHIMMER) */
+        .btn-wrapper {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 2;
         }
 
         .btn {
             font-family: 'Orbitron', sans-serif;
             background: linear-gradient(135deg, #00ffcc, #00b3ff);
-            color: #030108;
+            color: #040209;
             border: none;
-            padding: 20px;
-            font-size: 1.3rem;
+            padding: 22px;
+            font-size: 1.4rem;
             font-weight: 900;
-            border-radius: 24px;
+            border-radius: 26px;
             cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.3), inset 0 -4px 0 rgba(0,0,0,0.15);
-            transition: transform 0.1s;
-            width: 90%;
-            max-width: 340px;
-            letter-spacing: 2px;
-            margin-bottom: 20px;
+            box-shadow: 0 15px 40px rgba(0, 255, 204, 0.35), inset 0 -4px 0 rgba(0,0,0,0.15);
+            transition: transform 0.1s, box-shadow 0.2s;
+            width: 100%;
+            max-width: 350px;
+            letter-spacing: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Эффект пробегающего блика */
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -60%;
+            width: 30%;
+            height: 200%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0) 100%);
+            transform: rotate(25deg);
+            animation: shimmer 3.5s infinite linear;
+        }
+
+        @keyframes shimmer {
+            0% { left: -60%; }
+            100% { left: 140%; }
         }
 
         .btn:active {
-            transform: scale(0.95);
+            transform: scale(0.96);
+            box-shadow: 0 8px 20px rgba(0, 255, 204, 0.2);
         }
 
         /* ИНТЕРФЕЙС ИГРЫ */
@@ -132,12 +287,12 @@
             max-width: 500px;
             justify-content: space-between;
             align-items: center;
-            background: rgba(3, 1, 8, 0.6);
+            background: rgba(4, 2, 9, 0.7);
             border: 1px solid rgba(255,255,255,0.08);
             padding: 16px 24px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
+            border-radius: 22px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             z-index: 12;
             pointer-events: auto;
         }
@@ -155,13 +310,11 @@
             font-size: 1.8rem;
             font-weight: 800;
             color: #fff;
-            text-transform: none;
-            letter-spacing: 0;
             margin-top: 4px;
         }
 
         #score { color: #00ffcc; text-shadow: 0 0 10px rgba(0,255,204,0.3); }
-        #timer { color: #ff3366; text-shadow: 0 0 10px rgba(ff,51,102,0.3); }
+        #timer { color: #ff3366; text-shadow: 0 0 10px rgba(255,51,102,0.3); }
 
         canvas {
             position: absolute;
@@ -187,18 +340,45 @@
 </head>
 <body id="body">
 
+    <div id="glow1" class="bg-glow-1"></div>
+    <div id="glow2" class="bg-glow-2"></div>
+
     <canvas id="gameCanvas"></canvas>
 
     <div id="menu-screen">
         <div class="brand-section">
             <h1>LUM</h1>
+            
             <div class="crypto-balance">
                 <p>Баланс токенов</p>
                 <div class="amount"><span id="total-balance">0.00</span> $LUM</div>
             </div>
+
+            <div class="farming-container">
+                <div class="farming-info">
+                    <p>Пассивный фарминг</p>
+                    <div class="farm-amount" id="farm-display">0.0000</div>
+                </div>
+                <button class="claim-btn" onclick="claimFarming()">CLAIM</button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label">Билеты</div>
+                    <div class="val">⚡ 7/7</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Квесты</div>
+                    <div class="val" style="color: #00ffcc;">✓ 4 готово</div>
+                </div>
+            </div>
+
             <div id="last-score" class="game-status-text"></div>
         </div>
-        <button class="btn" onclick="startGame()">ИГРАТЬ</button>
+
+        <div class="btn-wrapper">
+            <button class="btn" onclick="startGame()">ИГРАТЬ</button>
+        </div>
     </div>
 
     <div id="game-screen">
@@ -218,19 +398,44 @@
         const timerDisplay = document.getElementById('timer');
         const totalBalanceDisplay = document.getElementById('total-balance');
         const lastScoreDisplay = document.getElementById('last-score');
+        const glow1 = document.getElementById('glow1');
+        const glow2 = document.getElementById('glow2');
+        const farmDisplay = document.getElementById('farm-display');
 
+        // Логика кошелька
         let cryptoBalance = parseFloat(localStorage.getItem('lum_balance')) || 0;
         totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
 
+        // Переменные пассивного фарма
+        let activeFarmAccum = parseFloat(localStorage.getItem('lum_farm_accum')) || 0;
+        
+        // Каждую секунду пассивно капает микро-доля крипты в меню
+        setInterval(() => {
+            if (!gameActive) {
+                activeFarmAccum += 0.0003;
+                farmDisplay.textContent = activeFarmAccum.toFixed(4);
+                localStorage.setItem('lum_farm_accum', activeFarmAccum);
+            }
+        }, 1000);
+        farmDisplay.textContent = activeFarmAccum.toFixed(4);
+
+        function claimFarming() {
+            if (activeFarmAccum <= 0) return;
+            cryptoBalance += activeFarmAccum;
+            activeFarmAccum = 0;
+            localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
+            localStorage.setItem('lum_farm_accum', activeFarmAccum);
+            totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
+            farmDisplay.textContent = "0.0000";
+        }
+
+        // Игровой движок
         let score = 0;
         let timeLeft = 30;
         let gameActive = false;
-        
-        // Переменные заморозки
         let isFrozen = false;
-        let freezeAlpha = 0; // Плавное проявление льда (от 0 до 1)
-        let snowParticles = []; // Частицы падающего неона во время мерзлоты
-
+        let freezeAlpha = 0; 
+        let snowParticles = []; 
         let isStunned = false;
         let lastTime = 0;
         let spawnTimer = 0;
@@ -270,7 +475,6 @@
         }
         initStars();
 
-        // Инициализация кастомного падающего нежного снега для эффекта заморозки
         function initSnow() {
             snowParticles = [];
             for(let i=0; i<35; i++) {
@@ -300,7 +504,11 @@
             scoreDisplay.textContent = score;
             timerDisplay.textContent = timeLeft;
             
+            // Прячем меню и неоновый бэкграунд декораций меню
             menuScreen.style.display = 'none';
+            glow1.style.display = 'none';
+            glow2.style.display = 'none';
+            
             gameScreen.style.display = 'flex';
             gameActive = true;
             lastTime = performance.now();
@@ -308,7 +516,7 @@
             requestAnimationFrame(gameLoop);
         }
 
-        // Отрисовка Неонового Кристалла
+        // Рендер Кристалла
         function drawCrystal(ctx, x, y, size, angle) {
             ctx.save();
             ctx.translate(x, y);
@@ -338,7 +546,7 @@
             ctx.restore();
         }
 
-        // Отрисовка Кибер-Бомбы
+        // Рендер Бомбы
         function drawBomb(ctx, x, y, size, pulse) {
             ctx.save();
             ctx.translate(x, y);
@@ -366,7 +574,7 @@
             ctx.restore();
         }
 
-        // Отрисовка Модуля Заморозки
+        // Рендер Заморозки
         function drawFreeze(ctx, x, y, size, angle) {
             ctx.save();
             ctx.translate(x, y);
@@ -393,18 +601,15 @@
             ctx.restore();
         }
 
-        // ЛОГИКА И ЭФФЕКТЫ ДВИЖКА (60 FPS)
         function gameLoop(time) {
             if (!gameActive) return;
 
             let dt = time - lastTime;
             lastTime = time;
 
-            // Очистка сцены базовым космическим цветом
             ctx.fillStyle = '#030108';
             ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-            // Рендер звезд бэкграунда
             ctx.shadowBlur = 0;
             ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
             stars.forEach(star => {
@@ -413,14 +618,12 @@
                 ctx.fillRect(star.x, star.y, star.size, star.size);
             });
 
-            // Плавное изменение прозрачности ледяного налета (Frost Vignette)
             if (isFrozen && freezeAlpha < 1) {
-                freezeAlpha += 0.05; // Лед нарастает
+                freezeAlpha += 0.05;
             } else if (!isFrozen && freezeAlpha > 0) {
-                freezeAlpha -= 0.05; // Лед тает
+                freezeAlpha -= 0.05;
             }
 
-            // ВИЗУАЛ ЗАМОРОЗКИ ЭТАП 1: Медленный неоновый снег внутри замерзшего экрана
             if (freezeAlpha > 0.01) {
                 ctx.save();
                 ctx.shadowBlur = 8;
@@ -440,7 +643,6 @@
                 ctx.restore();
             }
 
-            // Работа таймеров спавна и раунда
             if (!isFrozen) {
                 spawnTimer += dt;
                 if (spawnTimer >= SPAWN_RATE) {
@@ -457,7 +659,6 @@
                 }
             }
 
-            // Отрисовка падающих предметов
             let pulseValue = Math.sin(time * 0.01);
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
@@ -474,7 +675,6 @@
                 if (item.type === 'freeze') drawFreeze(ctx, item.x, item.y, item.size, item.angle);
             }
 
-            // Частицы от взрывов и сборов
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
                 p.x += p.vx;
@@ -494,7 +694,6 @@
                 ctx.restore();
             }
 
-            // Взрывные волны
             for(let i = shockwaves.length - 1; i >= 0; i--) {
                 let sw = shockwaves[i];
                 sw.radius += 8;
@@ -515,7 +714,6 @@
                 ctx.restore();
             }
 
-            // Тексты очков
             for(let i = floatingTexts.length - 1; i >= 0; i--) {
                 let ft = floatingTexts[i];
                 ft.y -= 1.5;
@@ -535,14 +733,11 @@
                 ctx.restore();
             }
 
-            // ВИЗУАЛ ЗАМОРОЗКИ ЭТАП 2: Реалистичный ледяной туман (Frost Vignette) по краям экрана
             if (freezeAlpha > 0.01) {
                 ctx.save();
-                // Накладываем холодную тонировку на весь дисплей
                 ctx.fillStyle = `rgba(0, 140, 255, ${freezeAlpha * 0.08})`;
                 ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
 
-                // Создаем градиент замерзания (от матового краев к прозрачному центру)
                 let width = window.innerWidth;
                 let height = window.innerHeight;
                 let radialGrad = ctx.createRadialGradient(
@@ -556,7 +751,6 @@
                 radialGrad.addColorStop(1, `rgba(200, 245, 255, ${freezeAlpha * 0.75})`);
 
                 ctx.fillStyle = radialGrad;
-                ctx.globalCompositeOperation = 'source-over';
                 ctx.fillRect(0, 0, width, height);
                 ctx.restore();
             }
@@ -656,15 +850,11 @@
             }, 400);
         }
 
-        // КИНЕМАТОГРАФИЧНАЯ ЗАМОРОЗКА С ЭФФЕКТАМИ
         function triggerFreeze() {
             if (isFrozen) return;
             isFrozen = true;
-            initSnow(); // Запускаем генератор неонового снега
-
-            setTimeout(() => { 
-                isFrozen = false; 
-            }, 3000);
+            initSnow();
+            setTimeout(() => { isFrozen = false; }, 3000);
         }
 
         function endGame() {
@@ -675,10 +865,14 @@
             localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
             totalBalanceDisplay.textContent = cryptoBalance.toFixed(2);
 
-            lastScoreDisplay.innerHTML = `РАУНД ЗАВЕРШЕН!<br><span style="color:#00ffcc; font-family:'Orbitron'">+${earnedCrypto.toFixed(2)} $LUM</span>`;
+            lastScoreDisplay.innerHTML = `РАУНД ЗАВЕРШЕН!<br><span style="color:#00ffcc; font-family:'Orbitron'; font-size:1.4rem;">+${earnedCrypto.toFixed(2)} $LUM</span>`;
 
             gameScreen.style.display = 'none';
+            
+            // Возвращаем меню и фоновые премиум неоновые круги
             menuScreen.style.display = 'flex';
+            glow1.style.display = 'block';
+            glow2.style.display = 'block';
         }
     </script>
 </body>
