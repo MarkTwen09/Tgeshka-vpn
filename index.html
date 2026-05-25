@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shaman Coin Slot</title>
+    <title>Shaman Coin Slot PRO</title>
     <style>
-        /* --- ТВОЙ КРУТОЙ ТЕМНЫЙ СТИЛЬ (CSS) --- */
         :root {
             --bg-color: #0b0d13;
             --card-bg: rgba(25, 28, 36, 0.8);
@@ -13,6 +12,8 @@
             --mana-blue: #3a86ff;
             --text-main: #ffffff;
             --border-glass: rgba(255, 255, 255, 0.08);
+            /* Высота одного символа внутри барабана */
+            --slot-height: 120px; 
         }
 
         * {
@@ -33,12 +34,11 @@
             min-height: 100vh;
         }
 
-        /* Контейнер приложения (под мобилку) */
         .game-container {
             width: 100%;
             max-width: 412px;
             height: 850px;
-            background: radial-gradient(circle at top, #1a1c24 0%, var(--bg-color) 100%);
+            background: radial-gradient(circle at top, #161922 0%, var(--bg-color) 100%);
             position: relative;
             overflow: hidden;
             display: flex;
@@ -46,7 +46,7 @@
             justify-content: space-between;
             padding: 20px;
             border-radius: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
         }
 
         /* Шапка */
@@ -58,11 +58,11 @@
         }
 
         .wallet-btn, .profile {
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             background: var(--card-bg);
             border: 1px solid var(--border-glass);
-            border-radius: 12px;
+            border-radius: 14px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -75,39 +75,33 @@
             align-items: center;
             gap: 8px;
             font-size: 26px;
-            font-weight: bold;
+            font-weight: 800;
+            letter-spacing: 0.5px;
         }
 
-        /* Аватарка справа вверху как на скрине */
-        .profile {
-            border-radius: 50%;
-            overflow: hidden;
-            background: #252836;
-        }
-
-        /* Персонаж (Шаман) */
+        /* Шаман */
         .shaman-container {
             display: flex;
             justify-content: center;
             margin-top: 10px;
         }
         .shaman-img {
-            width: 200px;
+            width: 180px;
             height: auto;
-            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.6));
+            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.7));
             animation: float 4s ease-in-out infinite;
         }
 
-        /* Блок игрового автомата */
+        /* Слот Машина */
         .slot-machine {
-            background: var(--card-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+            background: rgba(20, 22, 31, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border-glass);
-            border-radius: 24px;
-            padding: 25px 15px 20px 15px;
+            border-radius: 28px;
+            padding: 30px 16px 20px 16px;
             position: relative;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 15px 35px rgba(0,0,0,0.6);
         }
 
         .bet-badge {
@@ -116,60 +110,89 @@
             left: 50%;
             transform: translateX(-50%);
             background: linear-gradient(135deg, #ffb703, #fb8500);
-            padding: 6px 20px;
-            border-radius: 12px;
+            padding: 6px 22px;
+            border-radius: 14px;
             font-weight: 900;
             font-size: 13px;
             color: #000;
-            box-shadow: 0 4px 15px rgba(255, 183, 3, 0.4);
-            letter-spacing: 1px;
+            box-shadow: 0 5px 20px rgba(255, 183, 3, 0.4);
+            letter-spacing: 0.5px;
         }
 
+        /* БАРАБАНЫ И РУЛЕТКА */
         .slots-container {
             display: flex;
             justify-content: space-between;
             gap: 12px;
-            margin-top: 15px;
-            margin-bottom: 20px;
+            margin-top: 10px;
+            margin-bottom: 25px;
         }
 
         .slot-window {
             flex: 1;
-            height: 130px;
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 18px;
+            height: var(--slot-height);
+            background: #06070a;
+            border-radius: 20px;
             border: 1px solid rgba(255,255,255,0.05);
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 8px 16px rgba(0,0,0,0.85), inset 0 -8px 16px rgba(0,0,0,0.85);
+        }
+
+        /* Движущаяся лента внутри каждого слота */
+        .slot-track {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .slot-tile {
+            height: var(--slot-height);
+            width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
             font-size: 45px;
-            overflow: hidden;
-            transition: transform 0.1s ease;
-            box-shadow: inset 0 4px 10px rgba(0,0,0,0.8);
+            transform: translateZ(0); /* Аппаратное ускорение */
         }
 
-        /* Мана-бар */
+        /* КЛАССЫ ДЛЯ РЕАЛИСТИЧНОЙ АНИМАЦИИ */
+        .spinning {
+            /* Крутится бесконечно со смазыванием */
+            animation: spinContinuous 0.25s linear infinite;
+            filter: blur(3px) contrast(1.2);
+        }
+
+        .stopping {
+            /* Плавный останов с красивым отскоком назад в конце (cubic-bezier) */
+            animation: stopBounce 1.2s cubic-bezier(0.15, 0.85, 0.3, 1.15) forwards;
+        }
+
+        /* Энергия / Мана */
         .mana-section {
-            margin-bottom: 20px;
+            margin-bottom: 22px;
             text-align: center;
         }
 
         .mana-bar-container {
             width: 100%;
             height: 26px;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0,0,0,0.7);
             border-radius: 13px;
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.06);
         }
 
         .mana-bar {
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, #00b4d8, var(--mana-blue));
-            box-shadow: 0 0 12px var(--mana-blue);
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 14px rgba(58, 134, 255, 0.6);
+            transition: width 0.3s ease;
         }
 
         .mana-text {
@@ -178,17 +201,17 @@
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 13px;
-            font-weight: bold;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+            font-weight: 800;
+            text-shadow: 0 1px 4px rgba(0,0,0,1);
         }
 
         .mana-label {
             font-size: 12px;
-            color: #8a8d98;
+            color: #797c87;
             margin-top: 6px;
         }
 
-        /* Кнопки */
+        /* Кнопки управления */
         .control-panel {
             display: flex;
             justify-content: space-between;
@@ -197,10 +220,10 @@
         }
 
         .side-btn {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            background: rgba(37, 40, 54, 0.8);
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            background: rgba(30, 33, 45, 0.8);
             border: 1px solid var(--border-glass);
             color: white;
             font-size: 22px;
@@ -208,41 +231,42 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         .spin-btn {
             flex: 1;
-            height: 55px;
+            height: 56px;
             background: linear-gradient(135deg, #ffe47e, var(--accent-gold));
             border: none;
-            border-radius: 16px;
+            border-radius: 18px;
             font-size: 24px;
             font-weight: 900;
-            color: #111;
+            color: #0c0e14;
             cursor: pointer;
-            box-shadow: 0 5px 25px rgba(255, 183, 3, 0.35);
+            box-shadow: 0 6px 25px rgba(255, 183, 3, 0.4);
             transition: transform 0.05s, box-shadow 0.05s;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .spin-btn:active {
-            transform: scale(0.95);
-            box-shadow: 0 2px 10px rgba(255, 183, 3, 0.2);
+            transform: scale(0.96);
+            box-shadow: 0 2px 8px rgba(255, 183, 3, 0.2);
         }
 
         .spin-btn:disabled {
-            background: #444;
-            color: #777;
+            background: linear-gradient(135deg, #2a2c35, #1e2026);
+            color: #525665;
             box-shadow: none;
             cursor: not-allowed;
         }
 
-        /* Нижняя навигация */
+        /* Нижнее меню */
         .bottom-nav {
             display: flex;
             justify-content: space-between;
-            background: rgba(11, 13, 19, 0.9);
-            padding: 12px 10px;
+            background: rgba(9, 10, 15, 0.95);
+            padding: 14px 10px;
             border-top: 1px solid var(--border-glass);
             margin: 0 -20px -20px -20px;
         }
@@ -253,25 +277,47 @@
             flex-direction: column;
             align-items: center;
             font-size: 20px;
-            color: #5c616f;
+            color: #525665;
             cursor: pointer;
-            transition: color 0.2s;
         }
 
         .nav-item span {
             font-size: 11px;
             margin-top: 5px;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         .nav-item.active {
             color: var(--accent-gold);
         }
 
-        /* Анимация левитации шамана */
+        /* --- КРУТЫЕ АНИМАЦИИ ДВИЖЕНИЯ БАРАБАНОВ --- */
+        
+        /* 1. Бесконечный быстрый цикл (пока крутится) */
+        @keyframes spinContinuous {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(calc(-1 * var(--slot-height) * 3)); }
+        }
+
+        /* 2. Остановка с крутым эффектом торможения и финального отскока назад */
+        @keyframes stopBounce {
+            0% { 
+                transform: translateY(0);
+                filter: blur(2px);
+            }
+            70% {
+                filter: blur(0px);
+            }
+            /* Прокручивается до целевого финального смещения */
+            100% { 
+                transform: translateY(var(--final-y)); 
+                filter: blur(0px);
+            }
+        }
+
         @keyframes float {
             0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+            50% { transform: translateY(-8px); }
             100% { transform: translateY(0px); }
         }
     </style>
@@ -283,7 +329,7 @@
             <div class="wallet-btn">👛</div>
             <div class="balance-container">
                 <span style="color: var(--accent-gold);">🪙</span>
-                <span id="balance">0</span>
+                <span id="balance">300</span>
             </div>
             <div class="profile">😎</div>
         </header>
@@ -296,9 +342,15 @@
             <div class="bet-badge">СТАВКА X1 ⚡</div>
             
             <div class="slots-container">
-                <div class="slot-window" id="slot1">💎</div>
-                <div class="slot-window" id="slot2">👺</div>
-                <div class="slot-window" id="slot3">🍒</div>
+                <div class="slot-window">
+                    <div class="slot-track" id="track1"></div>
+                </div>
+                <div class="slot-window">
+                    <div class="slot-track" id="track2"></div>
+                </div>
+                <div class="slot-window">
+                    <div class="slot-track" id="track3"></div>
+                </div>
             </div>
 
             <div class="mana-section">
@@ -326,71 +378,112 @@
     </div>
 
     <script>
-        const symbols = ['💎', '👺', '🍒', '🌟', '🔮'];
-        let balance = 0;
+        // Набор красивых символов
+        const symbols = ['💎', '🔮', '🍒', '🌟', '👺'];
+        
+        let balance = 300;
         let mana = 50;
         const maxMana = 50;
+        const slotHeight = 120; // Соответствует --slot-height в CSS
 
         const spinBtn = document.getElementById('spinBtn');
         const balanceText = document.getElementById('balance');
         const manaBar = document.getElementById('manaBar');
         const manaText = document.getElementById('manaText');
-
-        const slots = [
-            document.getElementById('slot1'),
-            document.getElementById('slot2'),
-            document.getElementById('slot3')
+        
+        const tracks = [
+            document.getElementById('track1'),
+            document.getElementById('track2'),
+            document.getElementById('track3')
         ];
+
+        // Генерируем стартовые ленты символов для каждого барабана
+        function initSlots() {
+            tracks.forEach(track => {
+                track.innerHTML = '';
+                // Создаем длинную ленту (например, 15 элементов), чтобы было куда крутить
+                for (let i = 0; i < 15; i++) {
+                    const tile = document.createElement('div');
+                    tile.className = 'slot-tile';
+                    // Заполняем случайными символами
+                    tile.innerText = symbols[Math.floor(Math.random() * symbols.length)];
+                    track.appendChild(tile);
+                }
+            });
+        }
+
+        initSlots();
 
         spinBtn.addEventListener('click', () => {
             if (mana < 1) {
-                alert('Энергия на нуле! Подожди восстановления.');
+                alert('Энергия на нуле!');
                 return;
             }
 
-            // Минус мана
             mana--;
             updateManaUI();
-
-            // Отключаем кнопку во время кручения
             spinBtn.disabled = true;
 
-            // Имитация кручения слотов
-            let counter = 0;
-            const interval = setInterval(() => {
-                slots.forEach(slot => {
-                    const randomSym = symbols[Math.floor(Math.random() * symbols.length)];
-                    slot.innerText = randomSym;
-                });
-                counter += 100;
+            // 1. Запускаем бешеное бесконечное кручение (анимация .spinning)
+            tracks.forEach(track => {
+                track.style.animation = 'none'; // Сброс
+                track.offsetHeight; // Хакаем перерисовку браузера
+                track.classList.remove('stopping');
+                track.classList.add('spinning');
+            });
 
-                if (counter >= 1000) { // Крутим ровно 1 секунду
-                    clearInterval(interval);
+            // Массив финальных результатов
+            const finalResults = [
+                Math.floor(Math.random() * symbols.length),
+                Math.floor(Math.random() * symbols.length),
+                Math.floor(Math.random() * symbols.length)
+            ];
 
-                    // Финал кручения
-                    const finalRes = [
-                        symbols[Math.floor(Math.random() * symbols.length)],
-                        symbols[Math.floor(Math.random() * symbols.length)],
-                        symbols[Math.floor(Math.random() * symbols.length)]
-                    ];
+            // 2. Останавливаем барабаны по очереди с небольшой задержкой (как в казино)
+            tracks.forEach((track, index) => {
+                setTimeout(() => {
+                    // Убираем бесконечный спин
+                    track.classList.remove('spinning');
+                    
+                    // Перестраиваем ленту: на целевую позицию (индекс 2) ставим выигрышный символ
+                    const tiles = track.querySelectorAll('.slot-tile');
+                    
+                    // Символ, который игрок увидит по центру
+                    const targetSymbol = symbols[finalResults[index]];
+                    tiles[2].innerText = targetSymbol; 
+                    
+                    // Задаем смещение через CSS переменную для анимации stopBounce
+                    // Смещаем ровно на 2 элемента вниз, чтобы увидеть tiles[2]
+                    const finalY = -2 * slotHeight;
+                    track.style.setProperty('--final-y', `${finalY}px`);
+                    
+                    // Включаем физичное торможение с отскоком
+                    track.classList.add('stopping');
 
-                    slots[0].innerText = finalRes[0];
-                    slots[1].innerText = finalRes[1];
-                    slots[2].innerText = finalRes[2];
-
-                    // Логика побед
-                    if (finalRes[0] === finalRes[1] && finalRes[1] === finalRes[2]) {
-                        balance += 250; // Три в ряд
-                        triggerWinEffect();
-                    } else if (finalRes[0] === finalRes[1] || finalRes[1] === finalRes[2] || finalRes[0] === finalRes[2]) {
-                        balance += 50; // Два в ряд
+                    // Когда остановился ПОСЛЕДНИЙ барабан — проверяем результат
+                    if (index === 2) {
+                        setTimeout(() => {
+                            checkWin(finalResults);
+                            spinBtn.disabled = false;
+                        }, 1200); // Время совпадает с длиной анимации stopBounce
                     }
 
-                    balanceText.innerText = balance;
-                    spinBtn.disabled = false;
-                }
-            }, 80);
+                }, 600 + index * 400); // Первый встает через 0.6с, второй через 1.0с, третий через 1.4с
+            });
         });
+
+        function checkWin(results) {
+            // Три одинаковых в ряд
+            if (results[0] === results[1] && results[1] === results[2]) {
+                balance += 300;
+                triggerWinUI();
+            } 
+            // Два одинаковых в ряд
+            else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
+                balance += 40;
+            }
+            balanceText.innerText = balance;
+        }
 
         function updateManaUI() {
             const pct = (mana / maxMana) * 100;
@@ -398,14 +491,14 @@
             manaText.innerText = `${mana}/${maxMana}`;
         }
 
-        function triggerWinEffect() {
-            slots.forEach(slot => {
-                slot.style.transform = 'scale(1.15)';
-                setTimeout(() => slot.style.transform = 'scale(1)', 250);
+        function triggerWinUI() {
+            tracks.forEach(track => {
+                track.style.transform = 'translateY(-240px) scale(1.08)';
+                setTimeout(() => track.style.transform = 'translateY(-240px) scale(1)', 200);
             });
         }
 
-        // Авторегенерация маны раз в 4 секунды
+        // Регенерация маны
         setInterval(() => {
             if (mana < maxMana) {
                 mana++;
