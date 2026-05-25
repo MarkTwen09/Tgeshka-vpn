@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Lum Crypto Drop Game</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800;900&family=Rajdhani:wght@500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght=500;800;900&family=Rajdhani:wght=500;600;700&display=swap');
 
         * {
             box-sizing: border-box;
@@ -711,59 +711,133 @@
             requestAnimationFrame(gameLoop);
         }
 
-        function drawTrail(item, ctx, drawFunc) {
-            if (!item.history) item.history = [];
-            if (!isFrozen && gameActive) {
-                item.history.push({ x: item.currentX, y: item.y, angle: item.angle });
-                if (item.history.length > 5) item.history.shift();
-            }
-            
+        // ПОДВИЖНЫЙ ФИКС БАГА С ДУБЛИРОВАНИЕМ (Рисуем плавную неоновую линию, а не копии)
+        function drawTrail(item, ctx, color) {
+            if (!item.history || item.history.length < 2) return;
             ctx.save();
-            for (let i = 0; i < item.history.length - 1; i++) {
-                let pos = item.history[i];
-                let alpha = (i + 1) / item.history.length * 0.18; 
-                ctx.globalAlpha = alpha;
-                drawFunc(ctx, pos.x, pos.y, item.size, pos.angle, true);
+            ctx.beginPath();
+            ctx.moveTo(item.history[0].x, item.history[0].y);
+            for (let i = 1; i < item.history.length; i++) {
+                ctx.lineTo(item.history[i].x, item.history[i].y);
+            }
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 4;
+            ctx.globalAlpha = 0.25;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = color;
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // МАТЕМАТИЧЕСКАЯ ФУНКЦИЯ ДЛЯ ЧЕСТНОГО 3Д КРИСТАЛЛА/ОБЪЕКТА
+        function draw3DPoly(ctx, x, y, size, rotX, rotY, faces, baseColor, strokeColor) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.shadowBlur = 12;
+            ctx.shadowColor = strokeColor;
+
+            let projected = faces.map(v => {
+                // Вращение по Y
+                let x1 = v.x * Math.cos(rotY) - v.z * Math.sin(rotY);
+                let z1 = v.x * Math.sin(rotY) + v.z * Math.cos(rotY);
+                // Вращение по X
+                let y2 = v.y * Math.cos(rotX) - z1 * Math.sin(rotX);
+                let z2 = v.y * Math.sin(rotX) + z1 * Math.cos(rotX);
+                // Простая перспектива глубины
+                let perspective = 1 + z2 * 0.01;
+                return { x: x1 * size * perspective, y: y2 * size * perspective, z: z2 };
+            });
+
+            // Рендерим задние грани (более прозрачные для глубины)
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = 1.5;
+            
+            // Соединяем вершины линиями, формируя 3D структуру граней
+            for(let i = 0; i < projected.length; i++) {
+                for(let j = i + 1; j < projected.length; j++) {
+                    let dist = Math.hypot(projected[i].x - projected[j].x, projected[i].y - projected[j].y);
+                    if (dist < size * 2.2) {
+                        ctx.fillStyle = baseColor;
+                        ctx.globalAlpha = projected[i].z + projected[j].z > 0 ? 0.3 : 0.08;
+                        ctx.beginPath();
+                        ctx.moveTo(0, 0);
+                        ctx.lineTo(projected[i].x, projected[i].y);
+                        ctx.lineTo(projected[j].x, projected[j].y);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.stroke();
+                    }
+                }
             }
             ctx.restore();
-            drawFunc(ctx, item.currentX, item.y, item.size, item.angle, false);
         }
 
-        function drawCrystal(ctx, x, y, size, angle, isTrail=false) {
-            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); 
-            ctx.shadowBlur = isTrail ? 4 : 12; ctx.shadowColor = '#00ffcc'; 
-            ctx.strokeStyle = '#00ffcc'; ctx.lineWidth = 2.5; ctx.fillStyle = 'rgba(0, 255, 204, 0.15)';
-            ctx.beginPath(); ctx.moveTo(0, -size); ctx.lineTo(size * 0.7, -size * 0.2); ctx.lineTo(size * 0.5, size * 0.8); ctx.lineTo(0, size); ctx.lineTo(-size * 0.5, size * 0.8); ctx.lineTo(-size * 0.7, -size * 0.2); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+        // РЕНДЕР 3D ОБЫЧНОГО КРИСТАЛЛА (Октаэдр)
+        function render3DCrystal(ctx, item) {
+            let vertices = [
+                {x: 0, y: -1, z: 0}, {x: 1, y: 0, z: 0}, {x: 0, y: 0, z: 1},
+                {x: -1, y: 0, z: 0}, {x: 0, y: 0, z: -1}, {x: 0, y: 1, z: 0}
+            ];
+            draw3DPoly(ctx, item.currentX, item.y, item.size * 0.9, item.rotX, item.rotY, vertices, 'rgba(0, 255, 204, 0.2)', '#00ffcc');
         }
 
-        function drawGoldCrystal(ctx, x, y, size, angle, isTrail=false) {
-            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); 
-            ctx.shadowBlur = isTrail ? 6 : 18; ctx.shadowColor = '#ffcc00'; 
-            ctx.strokeStyle = '#ffcc00'; ctx.lineWidth = 3; ctx.fillStyle = 'rgba(255, 204, 0, 0.25)';
-            ctx.beginPath(); ctx.moveTo(0, -size * 1.1); ctx.lineTo(size * 0.8, -size * 0.2); ctx.lineTo(size * 0.5, size * 0.9); ctx.lineTo(0, size * 1.1); ctx.lineTo(-size * 0.5, size * 0.9); ctx.lineTo(-size * 0.8, -size * 0.2); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+        // РЕНДЕР 3D ЗОЛОТОГО КРИСТАЛЛА (Вытянутый двойной конус)
+        function render3DGold(ctx, item) {
+            let vertices = [
+                {x: 0, y: -1.3, z: 0}, {x: 0.8, y: 0, z: 0.8}, {x: -0.8, y: 0, z: 0.8},
+                {x: -0.8, y: 0, z: -0.8}, {x: 0.8, y: 0, z: -0.8}, {x: 0, y: 1.3, z: 0}
+            ];
+            draw3DPoly(ctx, item.currentX, item.y, item.size * 0.9, item.rotX, item.rotY, vertices, 'rgba(255, 204, 0, 0.3)', '#ffcc00');
         }
 
-        function drawTimeCrystal(ctx, x, y, size, angle, isTrail=false) {
-            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); 
-            ctx.shadowBlur = isTrail ? 5 : 14; ctx.shadowColor = '#ff33cc'; 
-            ctx.strokeStyle = '#ff33cc'; ctx.lineWidth = 2.5; ctx.fillStyle = 'rgba(255, 51, 204, 0.2)';
-            ctx.beginPath(); ctx.moveTo(0, -size); ctx.lineTo(size * 0.6, -size * 0.6); ctx.lineTo(size, 0); ctx.lineTo(size * 0.6, size * 0.6); ctx.lineTo(0, size); ctx.lineTo(-size * 0.6, size * 0.6); ctx.lineTo(-size, 0); ctx.lineTo(-size * 0.6, -size * 0.6); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+        // РЕНДЕР 3D РОЗОВОГО КРИСТАЛЛА ВРЕМЕНИ
+        function render3DTime(ctx, item) {
+            let vertices = [
+                {x: 0, y: -1, z: 0}, {x: 0.9, y: -0.3, z: 0.5}, {x: -0.9, y: -0.3, z: 0.5},
+                {x: 0, y: 0.3, z: 1}, {x: 0, y: 0.3, z: -1}, {x: 0, y: 1.1, z: 0}
+            ];
+            draw3DPoly(ctx, item.currentX, item.y, item.size * 0.9, item.rotX, item.rotY, vertices, 'rgba(255, 51, 204, 0.25)', '#ff33cc');
         }
 
-        function drawBomb(ctx, x, y, size, angle, isTrail=false) {
-            let pulse = Math.sin(performance.now() * 0.01);
-            ctx.save(); ctx.translate(x, y); 
-            ctx.shadowBlur = isTrail ? 4 : (12 + pulse * 8); ctx.shadowColor = '#ff3366'; 
-            ctx.fillStyle = '#1a0510'; ctx.strokeStyle = '#ff3366'; ctx.lineWidth = 2.5;
-            ctx.beginPath(); ctx.arc(0, 0, size * 0.8, 0, Math.PI * 2); ctx.fill(); ctx.stroke(); 
-            ctx.fillStyle = `rgba(255, 51, 102, ${0.4 + pulse * 0.6})`; ctx.beginPath(); ctx.arc(0, 0, size * 0.35, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+        // РЕНДЕР 3D СФЕРИЧЕСКОЙ БОМБЫ С БЛИКОМ
+        function render3DBomb(ctx, item) {
+            let pulse = Math.sin(performance.now() * 0.012);
+            let radius = item.size * 0.8;
+            
+            ctx.save();
+            ctx.translate(item.currentX, item.y);
+            ctx.shadowBlur = 14 + pulse * 6;
+            ctx.shadowColor = '#ff3366';
+
+            // Иллюзия 3D сферы с помощью радиального градиента (свет падает сверху слева)
+            let gradient = ctx.createRadialGradient(-radius*0.25, -radius*0.25, radius*0.1, 0, 0, radius);
+            gradient.addColorStop(0, '#ff99bb'); 
+            gradient.addColorStop(0.3, '#ff3366'); 
+            gradient.addColorStop(0.75, '#5c001e');
+            gradient.addColorStop(1, '#1a0007');
+
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(0, 0, radius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Орбитальный фитиль / кольцо
+            ctx.strokeStyle = `rgba(255, 51, 102, ${0.5 + pulse * 0.4})`;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.ellipse(0, -radius*0.3, radius*0.7, radius * 0.25 * Math.sin(item.rotY), item.rotX, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
         }
 
-        function drawFreeze(ctx, x, y, size, angle, isTrail=false) {
-            ctx.save(); ctx.translate(x, y); ctx.rotate(angle); 
-            ctx.shadowBlur = isTrail ? 4 : 12; ctx.shadowColor = '#00b3ff'; 
-            ctx.strokeStyle = '#00b3ff'; ctx.lineWidth = 2; ctx.fillStyle = 'rgba(0, 179, 255, 0.15)';
-            ctx.beginPath(); for (let i = 0; i < 6; i++) { ctx.lineTo(size * Math.cos(i * Math.PI / 3), size * Math.sin(i * Math.PI / 3)); } ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore();
+        // РЕНДЕР 3D ЗАМОРОЗКИ (Звезда-Гексаэдр)
+        function render3DFreeze(ctx, item) {
+            let vertices = [
+                {x: 0, y: -1.1, z: 0}, {x: 1, y: 0, z: 0}, {x: -1, y: 0, z: 0},
+                {x: 0, y: 0, z: 1}, {x: 0, y: 0, z: -1}, {x: 0, y: 1.1, z: 0},
+                {x: 0.6, y: 0.6, z: 0.6}, {x: -0.6, y: -0.6, z: -0.6}
+            ];
+            draw3DPoly(ctx, item.currentX, item.y, item.size * 0.85, item.rotX, item.rotY, vertices, 'rgba(0, 179, 255, 0.25)', '#00b3ff');
         }
 
         function gameLoop(time) {
@@ -793,23 +867,35 @@
                 if (endStageAlpha >= 1) { executeEndGame(); return; }
             }
 
-            // РЕНДЕР ПРЕДМЕТОВ С ФИЗИКОЙ ВЕТРА (СИНУСОИДАЛЬНОЕ СМЕЩЕНИЕ)
+            // РЕНДЕР ПРЕДМЕТОВ
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
                 if (!isFrozen) { 
                     item.y += item.speed * timeScale; 
-                    item.angle += item.rotSpeed * timeScale;
                     
-                    // Вычисляем смещение влево/вправо по формуле синуса от текущей высоты Y
+                    // Поворот по осям X и Y для 3D вращения
+                    item.rotX += item.rotSpeedX * timeScale;
+                    item.rotY += item.rotSpeedY * timeScale;
+                    
+                    // Синусоидальный космический ветер
                     item.currentX = item.baseX + Math.sin(item.y * item.swingSpeed) * item.swingRange;
+
+                    // Запись истории ТОЛЬКО координат для шлейфа-линии
+                    item.history.push({x: item.currentX, y: item.y});
+                    if (item.history.length > 8) item.history.shift();
                 }
                 if (item.y > window.innerHeight + 50) { items.splice(i, 1); continue; }
                 
-                if (item.type === 'crystal') drawTrail(item, ctx, drawCrystal);
-                else if (item.type === 'gold') drawTrail(item, ctx, drawGoldCrystal);
-                else if (item.type === 'time') drawTrail(item, ctx, drawTimeCrystal);
-                else if (item.type === 'bomb') drawTrail(item, ctx, drawBomb);
-                else if (item.type === 'freeze') drawTrail(item, ctx, drawFreeze);
+                // Сначала рисуем шлейф под кристаллом
+                let color = TYPES[item.type.toUpperCase()].color;
+                drawTrail(item, ctx, color);
+
+                // Отрисовка объёмных 3D моделей
+                if (item.type === 'crystal') render3DCrystal(ctx, item);
+                else if (item.type === 'gold') render3DGold(ctx, item);
+                else if (item.type === 'time') render3DTime(ctx, item);
+                else if (item.type === 'bomb') render3DBomb(ctx, item);
+                else if (item.type === 'freeze') render3DFreeze(ctx, item);
             }
 
             for (let i = particles.length - 1; i >= 0; i--) {
@@ -866,18 +952,20 @@
             let startX = Math.random() * (window.innerWidth - 80) + 40;
 
             items.push({
-                baseX: startX,          // Опорная линия падения
-                currentX: startX,       // Реальная позиция с учетом ветра
-                y: -30, 
-                size: 24,
+                baseX: startX,
+                currentX: startX,
+                y: -40, 
+                size: 26,
                 speed: (type === 'gold' ? Math.random() * 2 + 3.5 : Math.random() * 2 + 2.5), 
-                angle: Math.random() * Math.PI,
-                rotSpeed: Math.random() * 0.04 - 0.02,
+                // Двухосевое 3D вращение
+                rotX: Math.random() * Math.PI,
+                rotY: Math.random() * Math.PI,
+                rotSpeedX: Math.random() * 0.03 + 0.015,
+                rotSpeedY: Math.random() * 0.03 + 0.015,
                 type: type,
                 history: [],
-                // Уникальные параметры покачивания для каждого кристалла
-                swingSpeed: Math.random() * 0.01 + 0.008, 
-                swingRange: Math.random() * 15 + 10        // Амплитуда отклонения от 10 до 25 пикселей
+                swingSpeed: Math.random() * 0.008 + 0.006, 
+                swingRange: Math.random() * 12 + 8
             });
         }
 
@@ -906,10 +994,9 @@
 
             for (let i = items.length - 1; i >= 0; i--) {
                 let item = items[i];
-                // Проверка тапа теперь идет по динамической координате currentX
                 let dist = Math.hypot(clientX - item.currentX, clientY - item.y);
 
-                if (dist < item.size + 20) {
+                if (dist < item.size + 22) {
                     hitSomething = true;
                     createParticles(item.currentX, item.y, TYPES[item.type.toUpperCase()].color);
                     visualTapWaves.push({ x: clientX, y: clientY, r: 10, alpha: 1, color: TYPES[item.type.toUpperCase()].color });
