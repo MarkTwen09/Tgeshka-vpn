@@ -4,7 +4,277 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shaman Coin Slot</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* --- ТВОЙ КРУТОЙ ТЕМНЫЙ СТИЛЬ (CSS) --- */
+        :root {
+            --bg-color: #0b0d13;
+            --card-bg: rgba(25, 28, 36, 0.8);
+            --accent-gold: #ffb703;
+            --mana-blue: #3a86ff;
+            --text-main: #ffffff;
+            --border-glass: rgba(255, 255, 255, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            background-color: #000;
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Контейнер приложения (под мобилку) */
+        .game-container {
+            width: 100%;
+            max-width: 412px;
+            height: 850px;
+            background: radial-gradient(circle at top, #1a1c24 0%, var(--bg-color) 100%);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+            border-radius: 30px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+
+        /* Шапка */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 50px;
+        }
+
+        .wallet-btn, .profile {
+            width: 40px;
+            height: 40px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-glass);
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .balance-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        /* Аватарка справа вверху как на скрине */
+        .profile {
+            border-radius: 50%;
+            overflow: hidden;
+            background: #252836;
+        }
+
+        /* Персонаж (Шаман) */
+        .shaman-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .shaman-img {
+            width: 200px;
+            height: auto;
+            filter: drop-shadow(0 10px 25px rgba(0,0,0,0.6));
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Блок игрового автомата */
+        .slot-machine {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 25px 15px 20px 15px;
+            position: relative;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.1), 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .bet-badge {
+            position: absolute;
+            top: -14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ffb703, #fb8500);
+            padding: 6px 20px;
+            border-radius: 12px;
+            font-weight: 900;
+            font-size: 13px;
+            color: #000;
+            box-shadow: 0 4px 15px rgba(255, 183, 3, 0.4);
+            letter-spacing: 1px;
+        }
+
+        .slots-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+
+        .slot-window {
+            flex: 1;
+            height: 130px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 45px;
+            overflow: hidden;
+            transition: transform 0.1s ease;
+            box-shadow: inset 0 4px 10px rgba(0,0,0,0.8);
+        }
+
+        /* Мана-бар */
+        .mana-section {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .mana-bar-container {
+            width: 100%;
+            height: 26px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 13px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .mana-bar {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #00b4d8, var(--mana-blue));
+            box-shadow: 0 0 12px var(--mana-blue);
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mana-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 13px;
+            font-weight: bold;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+        }
+
+        .mana-label {
+            font-size: 12px;
+            color: #8a8d98;
+            margin-top: 6px;
+        }
+
+        /* Кнопки */
+        .control-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .side-btn {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            background: rgba(37, 40, 54, 0.8);
+            border: 1px solid var(--border-glass);
+            color: white;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .spin-btn {
+            flex: 1;
+            height: 55px;
+            background: linear-gradient(135deg, #ffe47e, var(--accent-gold));
+            border: none;
+            border-radius: 16px;
+            font-size: 24px;
+            font-weight: 900;
+            color: #111;
+            cursor: pointer;
+            box-shadow: 0 5px 25px rgba(255, 183, 3, 0.35);
+            transition: transform 0.05s, box-shadow 0.05s;
+            letter-spacing: 1px;
+        }
+
+        .spin-btn:active {
+            transform: scale(0.95);
+            box-shadow: 0 2px 10px rgba(255, 183, 3, 0.2);
+        }
+
+        .spin-btn:disabled {
+            background: #444;
+            color: #777;
+            box-shadow: none;
+            cursor: not-allowed;
+        }
+
+        /* Нижняя навигация */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-between;
+            background: rgba(11, 13, 19, 0.9);
+            padding: 12px 10px;
+            border-top: 1px solid var(--border-glass);
+            margin: 0 -20px -20px -20px;
+        }
+
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 20px;
+            color: #5c616f;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .nav-item span {
+            font-size: 11px;
+            margin-top: 5px;
+            font-weight: 500;
+        }
+
+        .nav-item.active {
+            color: var(--accent-gold);
+        }
+
+        /* Анимация левитации шамана */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+    </style>
 </head>
 <body>
 
@@ -12,23 +282,23 @@
         <header class="header">
             <div class="wallet-btn">👛</div>
             <div class="balance-container">
-                <span class="coin-icon">🪙</span>
+                <span style="color: var(--accent-gold);">🪙</span>
                 <span id="balance">0</span>
             </div>
-            <div class="profile">👤</div>
+            <div class="profile">😎</div>
         </header>
 
         <div class="shaman-container">
-            <img src="https://via.placeholder.com/200x200?text=Shaman" alt="Shaman" class="shaman-img">
+            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=shaman&backgroundColor=transparent" alt="Shaman" class="shaman-img">
         </div>
 
         <div class="slot-machine">
             <div class="bet-badge">СТАВКА X1 ⚡</div>
             
             <div class="slots-container">
-                <div class="slot-window" id="slot1">🎰</div>
-                <div class="slot-window" id="slot2">🎰</div>
-                <div class="slot-window" id="slot3">🎰</div>
+                <div class="slot-window" id="slot1">💎</div>
+                <div class="slot-window" id="slot2">👺</div>
+                <div class="slot-window" id="slot3">🍒</div>
             </div>
 
             <div class="mana-section">
@@ -55,6 +325,93 @@
         </nav>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        const symbols = ['💎', '👺', '🍒', '🌟', '🔮'];
+        let balance = 0;
+        let mana = 50;
+        const maxMana = 50;
+
+        const spinBtn = document.getElementById('spinBtn');
+        const balanceText = document.getElementById('balance');
+        const manaBar = document.getElementById('manaBar');
+        const manaText = document.getElementById('manaText');
+
+        const slots = [
+            document.getElementById('slot1'),
+            document.getElementById('slot2'),
+            document.getElementById('slot3')
+        ];
+
+        spinBtn.addEventListener('click', () => {
+            if (mana < 1) {
+                alert('Энергия на нуле! Подожди восстановления.');
+                return;
+            }
+
+            // Минус мана
+            mana--;
+            updateManaUI();
+
+            // Отключаем кнопку во время кручения
+            spinBtn.disabled = true;
+
+            // Имитация кручения слотов
+            let counter = 0;
+            const interval = setInterval(() => {
+                slots.forEach(slot => {
+                    const randomSym = symbols[Math.floor(Math.random() * symbols.length)];
+                    slot.innerText = randomSym;
+                });
+                counter += 100;
+
+                if (counter >= 1000) { // Крутим ровно 1 секунду
+                    clearInterval(interval);
+
+                    // Финал кручения
+                    const finalRes = [
+                        symbols[Math.floor(Math.random() * symbols.length)],
+                        symbols[Math.floor(Math.random() * symbols.length)],
+                        symbols[Math.floor(Math.random() * symbols.length)]
+                    ];
+
+                    slots[0].innerText = finalRes[0];
+                    slots[1].innerText = finalRes[1];
+                    slots[2].innerText = finalRes[2];
+
+                    // Логика побед
+                    if (finalRes[0] === finalRes[1] && finalRes[1] === finalRes[2]) {
+                        balance += 250; // Три в ряд
+                        triggerWinEffect();
+                    } else if (finalRes[0] === finalRes[1] || finalRes[1] === finalRes[2] || finalRes[0] === finalRes[2]) {
+                        balance += 50; // Два в ряд
+                    }
+
+                    balanceText.innerText = balance;
+                    spinBtn.disabled = false;
+                }
+            }, 80);
+        });
+
+        function updateManaUI() {
+            const pct = (mana / maxMana) * 100;
+            manaBar.style.width = `${pct}%`;
+            manaText.innerText = `${mana}/${maxMana}`;
+        }
+
+        function triggerWinEffect() {
+            slots.forEach(slot => {
+                slot.style.transform = 'scale(1.15)';
+                setTimeout(() => slot.style.transform = 'scale(1)', 250);
+            });
+        }
+
+        // Авторегенерация маны раз в 4 секунды
+        setInterval(() => {
+            if (mana < maxMana) {
+                mana++;
+                updateManaUI();
+            }
+        }, 4000);
+    </script>
 </body>
 </html>
