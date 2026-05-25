@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>LUM: Space Odyssey</title>
+    <title>LUM: Planetary System</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght=500;800;900&family=Rajdhani:wght=600;700&display=swap');
 
@@ -24,14 +24,14 @@
             height: 100vh;
         }
 
-        #webgl-container {
+        #game-canvas {
             position: absolute;
             top: 0; left: 0;
             width: 100%; height: 100%;
             z-index: 1;
         }
 
-        /* КИБЕР-ИНТЕРФЕЙС МЕНЮ */
+        /* ИНТЕРФЕЙС ГЛАВНОГО МЕНЮ */
         #menu-screen {
             position: absolute;
             width: 100%; height: 100%;
@@ -39,10 +39,9 @@
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            padding: 30px 20px;
+            padding: 40px 20px;
             z-index: 10;
-            overflow-y: auto;
-            background: linear-gradient(to bottom, rgba(2,1,5,0.4), rgba(15,10,30,0.2));
+            background: linear-gradient(to bottom, rgba(2,1,5,0.3), rgba(15,10,30,0.1));
         }
 
         #game-screen {
@@ -64,821 +63,528 @@
 
         h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 3.8rem;
+            font-size: 3.5rem;
             font-weight: 900;
             color: #00ffcc;
-            text-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
-            letter-spacing: 10px;
-            margin-bottom: 5px;
-            text-indent: 10px;
+            text-shadow: 0 0 25px rgba(0, 255, 204, 0.6);
+            letter-spacing: 8px;
+            margin-bottom: 10px;
+            text-indent: 8px;
         }
 
-        /* НЕОНОВЫЙ КРИПТО-БАЛАНС */
-        .balance-container {
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.01));
-            border: 1px solid rgba(0, 255, 204, 0.3);
-            padding: 16px;
-            border-radius: 24px;
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.1);
-            width: 100%; max-width: 360px;
-            margin: 0 auto;
+        .balance-box {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+            border: 1px solid rgba(0, 255, 204, 0.25);
+            padding: 15px;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            width: 100%; max-width: 350px;
+            margin: 0 auto 15px auto;
         }
 
-        .balance-container p {
-            font-size: 0.8rem;
+        .balance-box p {
+            font-size: 0.75rem;
             color: #8c82b3;
             text-transform: uppercase;
-            letter-spacing: 2.5px;
-            margin-bottom: 2px;
+            letter-spacing: 2px;
         }
 
-        .balance-container .value {
+        .balance-box .val {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.3rem;
+            font-size: 2.2rem;
             font-weight: 900;
+            color: #fff;
         }
-        .balance-container .value span {
+        .balance-box .val span {
             color: #00ffcc;
-            text-shadow: 0 0 20px rgba(0, 255, 204, 0.5);
+            text-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
         }
 
-        /* СИСТЕМА ВЫБОРА ПЛАНЕТ (СТИЛЬ СЛАЙДЕРА CLASH ROYALE) */
-        .planet-selector-zone {
-            width: 100%;
-            max-width: 360px;
-            margin: 15px 0;
-            text-align: center;
-        }
-
-        .planet-switcher-box {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        /* СИСТЕМА ВЫБОРА ПЛАНЕТ (СТИЛЬ CLASH ROYALE) */
+        .planet-slider {
+            width: 100%; max-width: 350px;
+            margin: 10px auto;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 20px;
-            padding: 10px 15px;
+            padding: 12px 15px;
             backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .arrow-btn {
+        .slide-btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.1);
             color: #fff;
-            width: 40px; height: 40px;
+            width: 38px; height: 38px;
             border-radius: 50%;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.1rem;
-            font-weight: bold;
+            font-size: 1rem;
             cursor: pointer;
             display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
+            transition: background 0.2s;
         }
-        .arrow-btn:active { background: #00ffcc; color: #000; }
+        .slide-btn:active { background: #00ffcc; color: #000; }
 
-        .planet-info-slide {
-            flex-grow: 1;
-            padding: 0 10px;
-        }
+        .planet-info { flex-grow: 1; text-align: center; padding: 0 5px; }
+        .planet-name { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 800; }
+        .planet-lock { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
 
-        .planet-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #fff;
-            letter-spacing: 1px;
-        }
-
-        .planet-status {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 3px;
-        }
-
-        /* СЕКЦИЯ СТАТИСТИКИ ХАБА */
+        /* ИГРОВАЯ СТАТИСТИКА И ХАБ */
         .hub-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
-            width: 100%; max-width: 360px;
+            width: 100%; max-width: 350px;
             margin-bottom: 10px;
         }
 
-        .hub-card {
+        .hub-node {
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.06);
-            border-radius: 18px;
+            border-radius: 16px;
             padding: 12px;
-            backdrop-filter: blur(15px);
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
         }
+        .hub-node.full { grid-column: span 2; display: flex; align-items: center; justify-content: space-between; }
+        .hub-node .lbl { font-size: 0.7rem; color: #766b9c; text-transform: uppercase; }
+        .hub-node .num { font-family: 'Orbitron', sans-serif; font-size: 1.1rem; font-weight: 700; margin-top: 2px; }
 
-        .hub-card .lbl { font-size: 0.75rem; color: #766b9c; text-transform: uppercase; letter-spacing: 1px; }
-        .hub-card .val {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-top: 2px;
-            display: flex; align-items: center; justify-content: space-between;
-        }
-
-        /* КНОПКА ФАРМИНГА СЛИШКОМ СОЧНАЯ */
-        .farm-bar {
-            grid-column: span 2;
-            display: flex; align-items: center; justify-content: space-between;
-            background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
-            border: 1px solid rgba(0, 179, 255, 0.2);
-        }
-        .farm-val { font-family: 'Orbitron', sans-serif; color: #00b3ff; font-weight: 800; }
-        .claim-action {
+        .claim-btn {
             font-family: 'Orbitron', sans-serif;
             background: rgba(0, 179, 255, 0.15);
-            border: 1px solid #00b3ff;
-            color: #00b3ff;
-            padding: 6px 14px; border-radius: 10px;
-            font-size: 0.75rem; font-weight: 800; cursor: pointer;
+            border: 1px solid #00b3ff; color: #00b3ff;
+            padding: 6px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; cursor: pointer;
         }
-        .claim-action:active { background: #00b3ff; color: #000; }
+        .claim-btn:active { background: #00b3ff; color: #000; }
 
-        .game-status-box {
-            font-size: 0.9rem; font-weight: 700; text-align: center;
-            min-height: 40px; color: #ff3366; margin-top: 5px;
-        }
+        .status-msg { min-height: 35px; font-size: 0.9rem; font-weight: 700; text-align: center; margin-top: 5px; color: #00ffcc; }
 
-        /* КНОПКА ЗАПУСКА */
-        .action-zone { width: 100%; max-width: 360px; z-index: 5; }
-        .main-btn {
+        /* КНОПКА СТАРТА */
+        .btn-container { width: 100%; max-width: 350px; }
+        .play-btn {
             font-family: 'Orbitron', sans-serif;
             background: linear-gradient(135deg, #00ffcc, #00b3ff);
             color: #020105; border: none;
-            padding: 16px; font-size: 1.4rem; font-weight: 900;
-            border-radius: 20px; cursor: pointer;
-            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.3);
+            padding: 16px; font-size: 1.3rem; font-weight: 900;
+            border-radius: 18px; cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0, 255, 204, 0.3);
             width: 100%; letter-spacing: 2px;
-            transition: transform 0.1s;
         }
-        .main-btn:active:not(:disabled) { transform: scale(0.97); }
-        .main-btn:disabled { background: #181522; color: #433e52; box-shadow: none; cursor: not-allowed; }
-        .main-btn .lock-sub { display: block; font-size: 0.7rem; color: #ff3366; margin-top: 1px; }
+        .play-btn:active:not(:disabled) { transform: scale(0.98); }
+        .play-btn:disabled { background: #1a1724; color: #4e495c; box-shadow: none; cursor: not-allowed; }
 
         /* ИГРОВОЙ HUD */
         .game-hud {
-            display: flex; width: 100%; max-width: 440px;
+            display: flex; width: 100%; max-width: 400px;
             justify-content: space-between; pointer-events: auto;
         }
 
-        .hud-glass {
+        .hud-card {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 8px 16px; border-radius: 16px;
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            min-width: 110px; text-align: center;
-            position: relative;
+            padding: 8px 16px; border-radius: 14px;
+            backdrop-filter: blur(10px); min-width: 110px; text-align: center;
         }
-
-        .hud-label { font-size: 0.7rem; color: #8c82b3; text-transform: uppercase; letter-spacing: 1px; }
-        .hud-number { font-family: 'Orbitron', sans-serif; font-size: 1.4rem; font-weight: 900; }
-
-        .combo-tag {
-            position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%);
-            background: linear-gradient(135deg, #ff9900, #ff4400);
-            font-family: 'Orbitron', sans-serif; font-size: 0.65rem; font-weight: 900;
-            padding: 2px 8px; border-radius: 6px; box-shadow: 0 4px 10px rgba(255,68,0,0.4);
-            opacity: 0; white-space: nowrap;
-        }
-        .combo-tag.visible { opacity: 1; }
-
-        /* ОКНА МОДАЛОК */
-        .modal-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(2, 1, 5, 0.96); z-index: 100;
-            display: none; flex-direction: column; padding: 30px 20px;
-        }
-
-        .modal-w-header { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 360px; margin: 0 auto 20px auto; }
-        .modal-w-title { font-family: 'Orbitron', sans-serif; font-size: 1.6rem; color: #00ffcc; font-weight: 900; }
-        .m-close { background: rgba(255,255,255,0.06); border: none; color: #fff; width: 34px; height: 34px; border-radius: 50%; font-weight: bold; cursor: pointer; }
-
-        .modal-items-stack { width: 100%; max-width: 360px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; }
-        .list-row { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 14px; display: flex; justify-content: space-between; align-items: center; }
-        .row-info .r-title { font-weight: 700; color: #fff; }
-        .row-info .r-sub { font-size: 0.75rem; color: #6e6494; margin-top: 1px; }
-
-        .row-btn { font-family: 'Orbitron', sans-serif; background: #00ffcc; color: #020105; border: none; padding: 8px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; cursor: pointer; }
-        .row-btn:disabled { background: rgba(255,255,255,0.04); color: #494457; cursor: not-allowed; }
-
-        /* ЗД ТЕКСТЫ СЧЕТА */
-        .html-score-popup {
-            position: absolute; pointer-events: none;
-            font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 1.2rem;
-            text-shadow: 0 0 8px currentColor;
-            transform: translate(-50%, -50%);
-            animation: floatUp 0.8s ease-out forwards;
-            z-index: 20;
-        }
-        @keyframes floatUp {
-            0% { transform: translate(-50%, -50%) scale(0.6); opacity: 1; }
-            100% { transform: translate(-50%, -120px) scale(1.1); opacity: 0; }
-        }
+        .hud-lbl { font-size: 0.7rem; color: #8c82b3; text-transform: uppercase; }
+        .hud-val { font-family: 'Orbitron', sans-serif; font-size: 1.3rem; font-weight: 900; }
     </style>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
 
-    <div id="webgl-container"></div>
+    <canvas id="game-canvas"></canvas>
 
     <div id="menu-screen">
         <div class="header-brand">
             <h1>LUM</h1>
             
-            <div class="balance-container">
+            <div class="balance-box">
                 <p>Баланс токенов</p>
-                <div class="value"><span id="total-balance">0.00</span> $LUM</div>
+                <div class="val"><span id="balance-num">0.00</span> $LUM</div>
             </div>
 
-            <div class="planet-selector-zone">
-                <div style="font-size: 0.75rem; color: #766b9c; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 5px;">Локация миссии</div>
-                <div class="planet-switcher-box">
-                    <button class="arrow-btn" onclick="switchPlanet(-1)">◀</button>
-                    <div class="planet-info-slide">
-                        <div class="planet-title" id="p-slide-title">Луна</div>
-                        <div class="planet-status" id="p-slide-status" style="color: #00ffcc;">Доступно</div>
-                    </div>
-                    <button class="arrow-btn" onclick="switchPlanet(1)">▶</button>
+            <div class="planet-slider">
+                <button class="slide-btn" onclick="changePlanet(-1)">◀</button>
+                <div class="planet-info">
+                    <div class="planet-name" id="p-name">Луна</div>
+                    <div class="planet-lock" id="p-status" style="color: #00ffcc;">Доступно</div>
                 </div>
+                <button class="slide-btn" onclick="changePlanet(1)">▶</button>
             </div>
 
             <div class="hub-grid">
-                <div class="hub-card farm-bar">
+                <div class="hub-node full">
                     <div style="text-align: left;">
-                        <div class="lbl">Авто-добыча</div>
-                        <div class="farm-val" id="farm-display">0.0000</div>
+                        <div class="lbl">Пассивный доход</div>
+                        <div class="num" id="farm-num" style="color: #00b3ff;">0.0000</div>
                     </div>
-                    <button class="claim-action" onclick="claimFarming()">CLAIM</button>
+                    <button class="claim-btn" onclick="collectFarm()">CLAIM</button>
                 </div>
-                
-                <div class="hub-card">
+                <div class="hub-node">
                     <div class="lbl">Энергия</div>
-                    <div class="val" id="tickets-count">⚡ 7/7</div>
+                    <div class="num">⚡ 7/7</div>
                 </div>
-                
-                <div class="hub-card" onclick="openModal('quests-modal')">
-                    <div class="lbl">Задания</div>
-                    <div class="val" style="color: #00ffcc;" id="quests-btn-lbl">0/3 →</div>
-                </div>
-
-                <div class="hub-card" onclick="openModal('shop-modal')" style="grid-column: span 2; text-align: center; border: 1px solid rgba(0,255,204,0.15)">
-                    <div class="lbl">Улучшения технологий</div>
-                    <div class="val" style="color: #00b3ff; justify-content: center; gap: 5px;">🛒 МОДЕРНИЗАЦИЯ ХАБА</div>
+                <div class="hub-node">
+                    <div class="lbl">Квесты</div>
+                    <div class="num" style="color: #00ffcc;">3/3 ✓</div>
                 </div>
             </div>
 
-            <div id="last-score" class="game-status-box"></div>
+            <div id="status-report" class="status-msg"></div>
         </div>
 
-        <div class="action-zone">
-            <button class="main-btn" id="play-btn" onclick="tryStartGame()">ИГРАТЬ</button>
-        </div>
-    </div>
-
-    <div id="quests-modal" class="modal-overlay">
-        <div class="modal-w-header">
-            <div class="modal-w-title">ЗАДАНИЯ</div>
-            <button class="m-close" onclick="closeModal('quests-modal')">✕</button>
-        </div>
-        <div class="modal-items-stack" id="quests-list"></div>
-    </div>
-
-    <div id="shop-modal" class="modal-overlay">
-        <div class="modal-w-header">
-            <div class="modal-w-title">УЛУЧШЕНИЯ</div>
-            <button class="m-close" onclick="closeModal('shop-modal')">✕</button>
-        </div>
-        <div class="modal-items-stack">
-            <div class="list-row">
-                <div class="row-info">
-                    <div class="r-title">Экстрактор Кристаллов</div>
-                    <div class="r-sub" id="upg-click-desc">Ур. 1 (+0% к доходу)</div>
-                </div>
-                <button class="row-btn" id="upg-click-btn" onclick="buyUpgrade('click')">25 $LUM</button>
-            </div>
-            <div class="list-row">
-                <div class="row-info">
-                    <div class="r-title">Фарминг-Дрон</div>
-                    <div class="r-sub" id="upg-farm-desc">Ур. 1 (Стандарт)</div>
-                </div>
-                <button class="row-btn" id="upg-farm-btn" onclick="buyUpgrade('farm')">30 $LUM</button>
-            </div>
+        <div class="btn-container">
+            <button class="play-btn" id="start-btn" onclick="launchGame()">ИГРАТЬ</button>
         </div>
     </div>
 
     <div id="game-screen">
         <div class="game-hud">
-            <div class="hud-glass">
-                <div class="hud-label">Собрано</div>
-                <div class="hud-number" id="score" style="color: #00ffcc;">0</div>
-                <div class="combo-tag" id="combo-tag">COMBO x1</div>
+            <div class="hud-card">
+                <div class="hud-lbl">Собрано</div>
+                <div class="hud-val" id="game-score" style="color: #00ffcc;">0</div>
             </div>
-            <div class="hud-glass">
-                <div class="hud-label">Таймер</div>
-                <div class="hud-number" id="timer" style="color: #ff3366;">30</div>
+            <div class="hud-card">
+                <div class="hud-lbl">Таймер</div>
+                <div class="hud-val" id="game-timer" style="color: #ff3366;">30</div>
             </div>
         </div>
     </div>
 
     <script>
-        // ДАННЫЕ О СИСТЕМЕ ПЛАНЕТ (АНАЛОГ ОСТРОВОВ КЛЭШ РОЯЛЬ)
+        // ДАННЫЕ О ПЛАНЕТАХ (СИСТЕМА КУБКОВ/ОСТРОВОВ)
         const PLANETS = [
-            { id: 'moon', name: 'Луна', req: 0, color: 0x8899a6, spaceColor: 0x050510, speed: 1.0 },
-            { id: 'mars', name: 'Марс', req: 15, color: 0xcc5533, spaceColor: 0x1a0505, speed: 1.2 },
-            { id: 'jupiter', name: 'Юпитер', req: 50, color: 0xd4a373, spaceColor: 0x151005, speed: 1.4 },
-            { id: 'neptune', name: 'Нептун', req: 120, color: 0x3366cc, spaceColor: 0x020a1c, speed: 1.6 },
-            { id: 'lum_prime', name: 'Планета LUM', req: 300, color: 0x00ffcc, spaceColor: 0x01140f, speed: 2.0 }
+            { name: 'Луна', req: 0, color: '#8899a6', spaceBg: '#030208', speed: 1.0, size: 140 },
+            { name: 'Марс', req: 15, color: '#cc5533', spaceBg: '#120202', speed: 1.2, size: 160 },
+            { name: 'Юпитер', req: 50, color: '#d4a373', spaceBg: '#120d02', speed: 1.4, size: 190 },
+            { name: 'Нептун', req: 100, color: '#3366cc', spaceBg: '#020514', speed: 1.6, size: 170 },
+            { name: 'LUM Prime', req: 250, color: '#00ffcc', spaceBg: '#010f0b', speed: 2.0, size: 210 }
         ];
 
-        let selectedPlanetIdx = 0;
-        let activeGamePlanetIdx = 0;
+        let selectedPlanet = 0;
+        let activeMatchPlanet = 0;
 
-        // ПЕРЕМЕННЫЕ ХАБА И СОСТОЯНИЯ
-        let cryptoBalance = parseFloat(localStorage.getItem('lum_balance')) || 0;
-        let clickLevel = parseInt(localStorage.getItem('lum_shop_click_lvl')) || 1;
-        let farmLevel = parseInt(localStorage.getItem('lum_shop_farm_lvl')) || 1;
-        let activeFarmAccum = parseFloat(localStorage.getItem('lum_farm_accum')) || 0;
+        // СОСТОЯНИЕ ИГРОКА
+        let balance = parseFloat(localStorage.getItem('lum_val_bal')) || 0;
+        let farmAccum = parseFloat(localStorage.getItem('lum_val_farm')) || 0;
+        let gameActive = false, score = 0, secondsLeft = 30;
+        let itemsArray = [];
 
-        let gameActive = false, score = 0, timeLeft = 30, secondTimer = 0;
-        let comboStreak = 0, comboMultiplier = 1;
-        let isFrozen = false, freezeTimer = 0;
+        // CANVAS НАСТРОЙКИ
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        let stars = [];
+        let planetRotationAngle = 0;
 
-        // THREE.JS ДВИЖОК СЦЕНЫ
-        let scene, camera, renderer;
-        let spaceStars, centralPlanetMesh;
-        let active3DItems = [];
-        let raycaster = new THREE.Raycaster();
-        let mouse = new THREE.Vector2();
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            if (stars.length === 0) generateStars();
+        }
+        window.addEventListener('resize', resizeCanvas);
 
-        // ИНИЦИАЛИЗАЦИЯ ИГРОВОГО 3D ПРОСТРАНСТВА
-        function initEngine3D() {
-            const container = document.getElementById('webgl-container');
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(PLANETS[selectedPlanetIdx].spaceColor);
+        function generateStars() {
+            stars = [];
+            for (let i = 0; i < 150; i++) {
+                stars.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    size: Math.random() * 1.5 + 0.5,
+                    speed: Math.random() * 0.5 + 0.1
+                });
+            }
+        }
 
-            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
-            camera.position.z = 25;
-
-            renderer = new THREE.WebGLRenderer({ antialias: true });
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            container.appendChild(renderer.domElement);
-
-            // Освещение (чтобы 3D грани круто блестели)
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-            scene.add(ambientLight);
-
-            const dirLight1 = new THREE.DirectionalLight(0x00ffcc, 1);
-            dirLight1.position.set(5, 10, 7);
-            scene.add(dirLight1);
-
-            const dirLight2 = new THREE.DirectionalLight(0xff00bb, 0.5);
-            dirLight2.position.set(-5, -5, 5);
-            scene.add(dirLight2);
-
-            // Создание объемного звездного неба
-            buildStarsField();
-
-            // Создание главной фоновой планеты
-            buildBackgroundPlanet();
-
-            window.addEventListener('resize', onWindowResize);
+        // КЛИК ПО ЭКРАНУ И ПРОВЕРКА ПОПАДАНИЯ ЧЁТКО ПО ФИГУРАМ
+        canvas.addEventListener('pointerdown', (e) => {
+            if (!gameActive) return;
             
-            // Нажатия на 3D объекты
-            window.addEventListener('pointerdown', onPointScene);
+            const rect = canvas.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const clickY = e.clientY - rect.top;
 
-            // Запуск рендер-лупа
-            animateLoop();
-        }
-
-        function buildStarsField() {
-            const starGeo = new THREE.BufferGeometry();
-            const starCount = 400;
-            const posArray = new Float32Array(starCount * 3);
-
-            for(let i=0; i < starCount * 3; i++) {
-                posArray[i] = (Math.random() - 0.5) * 80;
+            for (let i = itemsArray.length - 1; i >= 0; i--) {
+                let item = itemsArray[i];
+                // Рассчитываем расстояние от центра объекта до клика
+                let dist = Math.hypot(clickX - item.x, clickY - item.y);
+                
+                if (dist < item.radius + 15) { // Берем небольшой хитбокс-запас для удобства на смартфонах
+                    handleItemCollect(item);
+                    itemsArray.splice(i, 1);
+                    return;
+                }
             }
-            starGeo.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-            const starMat = new THREE.PointsMaterial({ size: 0.15, color: 0xffffff, transparent: true, opacity: 0.8 });
-            spaceStars = new THREE.Points(starGeo, starMat);
-            scene.add(spaceStars);
-        }
+        });
 
-        function buildBackgroundPlanet() {
-            if (centralPlanetMesh) scene.remove(centralPlanetMesh);
-
-            const geom = new THREE.SphereGeometry(6, 32, 32);
-            // Используем крутую сеточную структуру для кибер-эффекта
-            const mat = new THREE.MeshPhongMaterial({
-                color: PLANETS[selectedPlanetIdx].color,
-                wireframe: true,
-                transparent: true,
-                opacity: 0.25
-            });
-            centralPlanetMesh = new THREE.Mesh(geom, mat);
-            // Смещаем назад и в центр, чтобы круто смотрелось в меню
-            centralPlanetMesh.position.set(0, -1, -5);
-            scene.add(centralPlanetMesh);
-        }
-
-        function onWindowResize() {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        }
-
-        // РЕНДЕР ЦИКЛ И АНИМАЦИЯ ОБЪЕКТОВ
-        let prevTime = performance.now();
-        function animateLoop() {
-            requestAnimationFrame(animateLoop);
-            const time = performance.now();
-            const delta = (time - prevTime) / 1000;
-            prevTime = time;
-
-            // Вращаем звезды и фоновую планету
-            if (spaceStars) spaceStars.rotation.y += 0.02 * delta;
-            if (centralPlanetMesh) {
-                centralPlanetMesh.rotation.y += 0.05 * delta;
-                centralPlanetMesh.rotation.x += 0.02 * delta;
-            }
-
-            // Плавное изменение позиции фоновой планеты (в игре она уходит вниз, в меню по центру)
-            if (gameActive) {
-                centralPlanetMesh.position.y = THREE.MathUtils.lerp(centralPlanetMesh.position.y, -14, 0.03);
-                centralPlanetMesh.scale.setScalar(THREE.MathUtils.lerp(centralPlanetMesh.scale.x, 1.4, 0.03));
+        function handleItemCollect(item) {
+            if (item.type === 'bomb') {
+                score -= 30; if (score < 0) score = 0;
+            } else if (item.type === 'gold') {
+                score += 25;
             } else {
-                centralPlanetMesh.position.y = THREE.MathUtils.lerp(centralPlanetMesh.position.y, -1, 0.03);
-                centralPlanetMesh.scale.setScalar(THREE.MathUtils.lerp(centralPlanetMesh.scale.x, 1.0, 0.03));
+                score += 10;
+            }
+            document.getElementById('game-score').textContent = score;
+        }
+
+        // СПАВН КРИСТАЛЛОВ И БОМБ
+        function spawnObject() {
+            if (!gameActive) return;
+            let typeRand = Math.random();
+            let type = 'crystal';
+            let color = PLANETS[activeMatchPlanet].color; // Цвет кристаллов под цвет планеты!
+
+            if (typeRand < 0.15) {
+                type = 'bomb';
+                color = '#ff3366';
+            } else if (typeRand < 0.30) {
+                type = 'gold';
+                color = '#ffcc00';
             }
 
-            // Обработка падающих 3D предметов в игре
+            itemsArray.push({
+                x: Math.random() * (canvas.width - 60) + 30,
+                y: -40,
+                type: type,
+                color: color,
+                radius: type === 'bomb' ? 18 : 16,
+                speed: (Math.random() * 2 + 3) * PLANETS[activeMatchPlanet].speed,
+                angle: 0,
+                rotSpeed: Math.random() * 0.04 - 0.02
+            });
+        }
+
+        // СУПЕР КРАСИВАЯ ОТРИСОВКА КРИСТАЛЛОВ С НЕОНОВЫМИ ГРАНЯМИ (КВАЗИ-3Д)
+        function drawGem(x, y, r, color, angle) {
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(angle);
+            
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = color;
+
+            ctx.fillStyle = color;
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 1.5;
+
+            // Рисуем красивый ограненный октаэдр
+            ctx.beginPath();
+            ctx.moveTo(0, -r);   // Верх
+            ctx.lineTo(r, 0);    // Право
+            ctx.lineTo(0, r);    // Низ
+            ctx.lineTo(-r, 0);   // Лево
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+
+            // Внутренние грани для объема
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.moveTo(-r, 0);
+            ctx.lineTo(r, 0);
+            ctx.moveTo(0, -r);
+            ctx.lineTo(0, r);
+            ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+            ctx.stroke();
+
+            ctx.restore();
+        }
+
+        function drawBomb(x, y, r) {
+            ctx.save();
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = '#ff3366';
+            
+            // Тело бомбы
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2);
+            ctx.fillStyle = '#1c1724';
+            ctx.strokeStyle = '#ff3366';
+            ctx.lineWidth = 2;
+            ctx.fill();
+            ctx.stroke();
+
+            // Сердцевина неоновая
+            ctx.beginPath();
+            ctx.arc(x, y, r * 0.4, 0, Math.PI * 2);
+            ctx.fillStyle = '#ff3366';
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        // ГЛАВНЫЙ КОР-ЦИКЛ ДВИЖКА (ОТРИСОВКА И АНИМАЦИЯ)
+        function engineRenderLoop() {
+            // Очистка экрана фоновым цветом текущей планеты
+            ctx.fillStyle = PLANETS[selectedPlanet].spaceBg;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 1. Рисуем фоновые звезды
+            ctx.fillStyle = '#ffffff';
+            stars.forEach(star => {
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                ctx.fill();
+                if (gameActive) {
+                    star.y += star.speed * PLANETS[activeMatchPlanet].speed * 2;
+                    if (star.y > canvas.height) star.y = 0;
+                }
+            });
+
+            // 2. Рисуем фоновую гигантскую неоновую планету
+            planetRotationAngle += 0.003;
+            let currentPlanetInfo = PLANETS[gameActive ? activeMatchPlanet : selectedPlanet];
+            
+            ctx.save();
+            // Позиция: в меню по центру, в игре опускается вниз как огромная сфера
+            let targetY = gameActive ? canvas.height + 50 : canvas.height * 0.65;
+            ctx.translate(canvas.width / 2, targetY);
+            ctx.rotate(planetRotationAngle);
+
+            ctx.shadowBlur = 30;
+            ctx.shadowColor = currentPlanetInfo.color;
+
+            // Внешняя сфера-атмосфера
+            ctx.beginPath();
+            ctx.arc(0, 0, currentPlanetInfo.size, 0, Math.PI * 2);
+            ctx.strokeStyle = currentPlanetInfo.color;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // Кибернетическая сетка планеты
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+            for(let i = -currentPlanetInfo.size; i <= currentPlanetInfo.size; i += 30) {
+                ctx.beginPath();
+                ctx.arc(0, 0, Math.abs(i), 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            ctx.restore();
+
+            // 3. Рисуем падающие игровые предметы
             if (gameActive) {
-                let currentSpeedMod = PLANETS[activeGamePlanetIdx].speed;
-                let finalSpeed = isFrozen ? 0.15 : currentSpeedMod;
+                for (let i = itemsArray.length - 1; i >= 0; i--) {
+                    let item = itemsArray[i];
+                    item.y += item.speed;
+                    item.angle += item.rotSpeed;
 
-                for (let i = active3DItems.length - 1; i >= 0; i--) {
-                    let item = active3DItems[i];
-                    item.mesh.position.y -= item.fallSpeed * finalSpeed * delta;
-                    
-                    // Настоящее сочное 3D вращение по всем осям
-                    item.mesh.rotation.x += item.rotSpeed.x * (isFrozen ? 0.2 : 1);
-                    item.mesh.rotation.y += item.rotSpeed.y * (isFrozen ? 0.2 : 1);
-                    item.mesh.rotation.z += item.rotSpeed.z * (isFrozen ? 0.2 : 1);
+                    if (item.type === 'bomb') {
+                        drawBomb(item.x, item.y, item.radius);
+                    } else {
+                        drawGem(item.x, item.y, item.radius, item.color, item.angle);
+                    }
 
-                    // Космическое покачивание волной
-                    item.mesh.position.x = item.initialX + Math.sin(item.mesh.position.y * 0.4) * 0.8;
-
-                    // Улетело за нижнюю границу экрана
-                    if (item.mesh.position.y < -16) {
-                        scene.remove(item.mesh);
-                        active3DItems.splice(i, 1);
+                    // Если улетел за экран
+                    if (item.y > canvas.height + 40) {
+                        itemsArray.splice(i, 1);
                     }
                 }
             }
 
-            renderer.render(scene, camera);
+            requestAnimationFrame(engineRenderLoop);
         }
 
-        // ГЕНЕРАЦИЯ ОБЪЕКТОВ (НАСТОЯЩЕЕ ГЕОМЕТРИЧЕСКОЕ 3Д)
-        function spawn3DItem() {
-            let rand = Math.random();
-            let type = 'crystal';
-            let color = 0x00ffcc;
-            let geom;
+        // ЛОГИКА ТАЙМЕРОВ СЕССИИ
+        let gameCountdownInterval;
+        let gameSpawnInterval;
 
-            if (rand < 0.12) {
-                type = 'bomb'; color = 0xff3366;
-                geom = new THREE.SphereGeometry(0.9, 16, 16); // Сфера бомбы
-            } else if (rand < 0.17) {
-                type = 'freeze'; color = 0x00b3ff;
-                geom = new THREE.IcosahedronGeometry(0.9, 0); // Икосаэдр для льда
-            } else if (rand < 0.22) {
-                type = 'time'; color = 0xff33cc;
-                geom = new THREE.ConeGeometry(0.7, 1.6, 5); // Конус времени
-            } else if (rand < 0.30) {
-                type = 'gold'; color = 0xffcc00;
-                geom = new THREE.OctahedronGeometry(1.0, 0); // Большой золотой октаэдр
-            } else {
-                type = 'crystal'; color = 0x00ffcc;
-                geom = new THREE.OctahedronGeometry(0.8, 0); // Обычный кристалл
-            }
+        function launchGame() {
+            score = 0; secondsLeft = 30; itemsArray = [];
+            activeMatchPlanet = selectedPlanet;
 
-            const mat = new THREE.MeshPhongMaterial({
-                color: color,
-                flatShading: true,
-                shininess: 80,
-                specular: 0xffffff
-            });
-
-            const mesh = new THREE.Mesh(geom, mat);
-            
-            // Рассчитываем координаты спавна в зависимости от пропорций экрана
-            let aspect = window.innerWidth / window.innerHeight;
-            let spawnWidthRange = (25 * aspect) - 2;
-            let randomX = (Math.random() - 0.5) * spawnWidthRange;
-
-            mesh.position.set(randomX, 15, 0);
-            scene.add(mesh);
-
-            active3DItems.push({
-                mesh: mesh,
-                type: type,
-                initialX: randomX,
-                fallSpeed: Math.random() * 3 + 5,
-                rotSpeed: new THREE.Vector3(Math.random()*2, Math.random()*2, Math.random()*2)
-            });
-        }
-
-        // ОБРАБОТКА ИГРОВЫХ КЛИКОВ ЧЕРЕЗ RAYCASTER
-        function onPointScene(e) {
-            if (!gameActive) return;
-
-            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
-
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObjects(active3DItems.map(i => i.mesh));
-
-            if (intersects.length > 0) {
-                let clickedMesh = intersects[0].object;
-                let index = active3DItems.findIndex(i => i.mesh === clickedMesh);
-                
-                if (index !== -1) {
-                    let item = active3DItems[index];
-                    handleHitItem(item, e.clientX, e.clientY);
-                    
-                    // Удаляем из 3D мира
-                    scene.remove(item.mesh);
-                    active3DItems.splice(index, 1);
-                }
-            } else {
-                // Мисс клик сбрасывает комбо
-                resetCombo();
-            }
-        }
-
-        function handleHitItem(item, clientX, clientY) {
-            let pointsGained = 0;
-            let textColor = '#00ffcc';
-            let labelText = '';
-
-            if (item.type === 'bomb') {
-                score -= 40; if (score < 0) score = 0;
-                resetCombo();
-                textColor = '#ff3366';
-                labelText = '-40';
-            } else if (item.type === 'time') {
-                timeLeft += 3;
-                textColor = '#ff33cc';
-                labelText = '+3с';
-                incrementCombo();
-            } else if (item.type === 'freeze') {
-                isFrozen = true; freezeTimer = 3.0;
-                pointsGained = 5;
-                textColor = '#00b3ff';
-                labelText = '+5 Заморозка';
-                incrementCombo();
-            } else {
-                let base = item.type === 'gold' ? 25 : 10;
-                let multiplier = 1 + (clickLevel - 1) * 0.15;
-                pointsGained = Math.round(base * multiplier * comboMultiplier);
-                textColor = item.type === 'gold' ? '#ffcc00' : '#00ffcc';
-                labelText = `+${pointsGained}`;
-                incrementCombo();
-            }
-
-            score += pointsGained;
-            document.getElementById('score').textContent = score;
-
-            // Всплывающий красивый плоский HTML текст поверх 3D
-            createScorePopup(clientX, clientY, labelText, textColor);
-        }
-
-        function createScorePopup(x, y, text, color) {
-            const popup = document.createElement('div');
-            popup.className = 'html-score-popup';
-            popup.style.left = `${x}px`;
-            popup.style.top = `${y}px`;
-            popup.style.color = color;
-            popup.textContent = text;
-            document.body.appendChild(popup);
-            setTimeout(() => popup.remove(), 800);
-        }
-
-        function incrementCombo() {
-            comboStreak++;
-            if (comboStreak >= 12) comboMultiplier = 4;
-            else if (comboStreak >= 8) comboMultiplier = 3;
-            else if (comboStreak >= 4) comboMultiplier = 2;
-            else comboMultiplier = 1;
-
-            const tag = document.getElementById('combo-tag');
-            if (comboMultiplier > 1) {
-                tag.textContent = `COMBO x${comboMultiplier}`;
-                tag.classList.add('visible');
-            }
-        }
-
-        function resetCombo() {
-            comboStreak = 0; comboMultiplier = 1;
-            document.getElementById('combo-tag').classList.remove('visible');
-        }
-
-        // ЛОГИКА ОБНОВЛЕНИЯ ИГРЫ ТАЙМЕРАМИ
-        let spawnCountdown = 0;
-        setInterval(() => {
-            if (!gameActive) return;
-
-            // Обработка таймеров
-            timeLeft--;
-            document.getElementById('timer').textContent = timeLeft;
-
-            if (isFrozen) {
-                freezeTimer--;
-                if (freezeTimer <= 0) isFrozen = false;
-            }
-
-            if (timeLeft <= 0) endGameSession();
-        }, 1000);
-
-        // Внутренний игровой цикл спавна
-        setInterval(() => {
-            if (!gameActive || isFrozen) return;
-            spawn3DItem();
-        }, 380);
-
-        function startGame() {
-            score = 0; timeLeft = 30; isFrozen = false;
-            activeGamePlanetIdx = selectedPlanetIdx; // Замораживаем планету на текущий раунд
-            resetCombo();
-            
-            // Чистим старые айтемы
-            active3DItems.forEach(i => scene.remove(i.mesh));
-            active3DItems = [];
-
-            document.getElementById('score').textContent = "0";
-            document.getElementById('timer').textContent = "30";
+            document.getElementById('game-score').textContent = "0";
+            document.getElementById('game-timer').textContent = "30";
 
             document.getElementById('menu-screen').style.display = 'none';
             document.getElementById('game-screen').style.display = 'flex';
-            
+
             gameActive = true;
+
+            gameCountdownInterval = setInterval(() => {
+                secondsLeft--;
+                document.getElementById('game-timer').textContent = secondsLeft;
+                if (secondsLeft <= 0) stopGameSession();
+            }, 1000);
+
+            gameSpawnInterval = setInterval(spawnObject, 400);
         }
 
-        function endGameSession() {
+        function stopGameSession() {
             gameActive = false;
+            clearInterval(gameCountdownInterval);
+            clearInterval(gameSpawnInterval);
+
             document.getElementById('game-screen').style.display = 'none';
             document.getElementById('menu-screen').style.display = 'flex';
 
-            let earnedCrypto = score * 0.01;
-            cryptoBalance += earnedCrypto;
-            localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
-            updateMenuUI();
-
-            document.getElementById('last-score').innerHTML = `МИССИЯ ВЫПОЛНЕНА!<br><span style="color:#00ffcc; font-family:'Orbitron'; font-size:1.2rem;">+${earnedCrypto.toFixed(2)} $LUM</span>`;
-        }
-
-        // СЛАЙДЕР ВЫБОРА ПЛАНЕТ (СТИЛЬ CLASH ROYALE)
-        function switchPlanet(dir) {
-            selectedPlanetIdx += dir;
-            if (selectedPlanetIdx < 0) selectedPlanetIdx = PLANETS.length - 1;
-            if (selectedPlanetIdx >= PLANETS.length) selectedPlanetIdx = 0;
-
-            // Перестраиваем 3D мир под тему планеты
-            scene.background = new THREE.Color(PLANETS[selectedPlanetIdx].spaceColor);
-            buildBackgroundPlanet();
-
-            updatePlanetSliderUI();
-        }
-
-        function updatePlanetSliderUI() {
-            const planet = PLANETS[selectedPlanetIdx];
-            document.getElementById('p-slide-title').textContent = planet.name;
+            let prize = score * 0.01;
+            balance += prize;
+            localStorage.setItem('lum_val_bal', balance.toFixed(2));
             
-            const statusLabel = document.getElementById('p-slide-status');
-            const playBtn = document.getElementById('play-btn');
+            updateUI();
+            document.getElementById('status-report').innerHTML = `РАУНД ЗАВЕРШЕН!<br><span style="color:#00ffcc;">+${prize.toFixed(2)} $LUM</span>`;
+        }
 
-            if (cryptoBalance >= planet.req) {
-                statusLabel.textContent = "Доступно";
-                statusLabel.style.color = "#00ffcc";
-                playBtn.disabled = false;
-                playBtn.innerHTML = `НАЧАТЬ МИССИЮ`;
+        // СЛАЙДЕР ВЫБОРА ПЛАНЕТ
+        function changePlanet(direction) {
+            selectedPlanet += direction;
+            if (selectedPlanet < 0) selectedPlanet = PLANETS.length - 1;
+            if (selectedPlanet >= PLANETS.length) selectedPlanet = 0;
+            updatePlanetUI();
+        }
+
+        function updatePlanetUI() {
+            const planet = PLANETS[selectedPlanet];
+            document.getElementById('p-name').textContent = planet.name;
+            
+            const status = document.getElementById('p-status');
+            const startBtn = document.getElementById('start-btn');
+
+            if (balance >= planet.req) {
+                status.textContent = "Доступно";
+                status.style.color = "#00ffcc";
+                startBtn.disabled = false;
+                startBtn.textContent = "ИГРАТЬ";
             } else {
-                statusLabel.textContent = `Блокировка: Нужна цель ${planet.req} $LUM`;
-                statusLabel.style.color = "#ff3366";
-                playBtn.disabled = true;
-                playBtn.innerHTML = `НЕДОСТУПНО <span class="lock-sub">ТРЕБУЕТСЯ КРИПТОБАЛАНС</span>`;
+                status.textContent = `Блок: Нужно ${planet.req} $LUM`;
+                status.style.color = "#ff3366";
+                startBtn.disabled = true;
+                startBtn.textContent = "ЗАБЛОКИРОВАНО";
             }
         }
 
-        // ЭКОНОМИКА ХАБА, ПАССИВНЫЙ ФАРМИНГ И ШОП
-        let questsData = JSON.parse(localStorage.getItem('lum_quests_state_v2')) || [
-            { id: 'q1', name: 'Полёт на Марс (Разблокировать планету)', reward: 10, target: 15, done: false },
-            { id: 'q2', name: 'Мастер Энергии (Прокачать шоп)', reward: 20, target: 2, done: false }
-        ];
-
-        function updateMenuUI() {
-            document.getElementById('total-balance').textContent = cryptoBalance.toFixed(2);
-            updatePlanetSliderUI();
-            
-            // Рендер квестов на кнопке главного меню
-            let completed = questsData.filter(q => q.done).length;
-            document.getElementById('quests-btn-lbl').textContent = `${completed}/${questsData.length} →`;
-        }
-
+        // АВТО-ФАРМИНГ ХАБА
         setInterval(() => {
             if (!gameActive) {
-                let farmMultiplier = 1 + (farmLevel - 1) * 0.4;
-                activeFarmAccum += 0.0002 * farmMultiplier;
-                document.getElementById('farm-display').textContent = activeFarmAccum.toFixed(4);
-                localStorage.setItem('lum_farm_accum', activeFarmAccum);
+                farmAccum += 0.0003;
+                document.getElementById('farm-num').textContent = farmAccum.toFixed(4);
+                localStorage.setItem('lum_val_farm', farmAccum);
             }
         }, 1000);
 
-        function claimFarming() {
-            if (activeFarmAccum <= 0) return;
-            cryptoBalance += activeFarmAccum;
-            activeFarmAccum = 0;
-            localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
-            localStorage.setItem('lum_farm_accum', activeFarmAccum);
-            updateMenuUI();
+        function collectFarm() {
+            if (farmAccum <= 0) return;
+            balance += farmAccum;
+            farmAccum = 0;
+            localStorage.setItem('lum_val_bal', balance.toFixed(2));
+            localStorage.setItem('lum_val_farm', farmAccum);
+            updateUI();
         }
 
-        function openModal(id) {
-            if (id === 'quests-modal') renderQuestsList();
-            if (id === 'shop-modal') updateShopModalUI();
-            document.getElementById(id).style.display = 'flex';
-        }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        function updateShopModalUI() {
-            let clickCost = clickLevel * 25;
-            let farmCost = farmLevel * 30;
-
-            document.getElementById('upg-click-desc').textContent = `Ур. ${clickLevel} (+${(clickLevel-1)*15}% ценность)`;
-            document.getElementById('upg-click-btn').textContent = `${clickCost} $LUM`;
-            document.getElementById('upg-click-btn').disabled = cryptoBalance < clickCost;
-
-            document.getElementById('upg-farm-desc').textContent = `Ур. ${farmLevel} (Скорость x${(1+(farmLevel-1)*0.4).toFixed(1)})`;
-            document.getElementById('upg-farm-btn').textContent = `${farmCost} $LUM`;
-            document.getElementById('upg-farm-btn').disabled = cryptoBalance < farmCost;
+        function updateUI() {
+            document.getElementById('balance-num').textContent = balance.toFixed(2);
+            updatePlanetUI();
         }
 
-        function buyUpgrade(type) {
-            if (type === 'click') {
-                let cost = clickLevel * 25;
-                if (cryptoBalance >= cost) { cryptoBalance -= cost; clickLevel++; localStorage.setItem('lum_shop_click_lvl', clickLevel); }
-            } else if (type === 'farm') {
-                let cost = farmLevel * 30;
-                if (cryptoBalance >= cost) { cryptoBalance -= cost; farmLevel++; localStorage.setItem('lum_shop_farm_lvl', farmLevel); }
-            }
-            // Проверка квестов
-            if (clickLevel >= 2 || farmLevel >= 2) { questsData[1].done = true; localStorage.setItem('lum_quests_state_v2', JSON.stringify(questsData)); }
-
-            localStorage.setItem('lum_balance', cryptoBalance.toFixed(2));
-            updateMenuUI();
-            updateShopModalUI();
-        }
-
-        function renderQuestsList() {
-            const list = document.getElementById('quests-list');
-            list.innerHTML = '';
-            
-            // Динамическая проверка квеста 1 на баланс
-            if (cryptoBalance >= 15) { questsData[0].done = true; localStorage.setItem('lum_quests_state_v2', JSON.stringify(questsData)); }
-
-            questsData.forEach((q, idx) => {
-                let row = document.createElement('div');
-                row.className = 'list-row';
-                let btn = q.done ? `<button class="row-btn" style="background:#554e68; color:#fff" disabled>ГОТОВО</button>` : `<button class="row-btn" style="background:#ff3366; color:#fff" disabled>В ПРОЦЕССЕ</button>`;
-                row.innerHTML = `<div class="row-info"><div class="r-title">${q.name}</div><div class="r-sub">Награда: +${q.reward} $LUM</div></div>${btn}`;
-                list.appendChild(row);
-            });
-        }
-
-        const MAX_TICKETS = 7;
-        let tickets = MAX_TICKETS;
-        
-        function tryStartGame() {
-            startGame(); // Запуск без жестких блокировок для удобства тестов
-        }
-
-        // Старт всего при загрузке страницы
+        // СТАРТ ПРИ ЗАГРУЗКЕ СТРАНИЦЫ
         window.onload = () => {
-            initEngine3D();
-            updateMenuUI();
+            resizeCanvas();
+            updateUI();
+            requestAnimationFrame(engineRenderLoop);
         };
     </script>
 </body>
