@@ -3,352 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Horizontal Rosary | Перебор</title>
-    <style>
-        :root {
-            --bg-color: #0b0f17;
-            --bead-bg: linear-gradient(145deg, #2a3547, #131924);
-            --bead-active: linear-gradient(145deg, #06b6d4, #0891b2);
-            --bead-shadow: rgba(0, 0, 0, 0.5);
-            --text-main: #f1f5f9;
-            --text-muted: #64748b;
-            --accent: #06b6d4;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            user-select: none;
-            -webkit-user-select: none;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: system-ui, -apple-system, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            overflow: hidden;
-            padding: 30px 20px;
-        }
-
-        header {
-            text-align: center;
-            z-index: 10;
-        }
-
-        header h1 {
-            font-size: 20px;
-            font-weight: 600;
-            letter-spacing: 3px;
-            text-transform: uppercase;
-            color: var(--text-main);
-            opacity: 0.9;
-        }
-
-        header p {
-            font-size: 11px;
-            color: var(--text-muted);
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            margin-top: 6px;
-        }
-
-        /* Главный контейнер для горизонтального перебора */
-        .viewport-wrapper {
-            position: relative;
-            width: 100vw;
-            height: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            cursor: grab;
-        }
-
-        .viewport-wrapper:active {
-            cursor: grabbing;
-        }
-
-        /* Направляющая нить по центру */
-        .string-line {
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1) 20%, rgba(255,255,255,0.1) 80%, transparent);
-            z-index: 1;
-            pointer-events: none;
-        }
-
-        /* Контейнер бусин, который двигается */
-        .beads-track {
-            position: absolute;
-            display: flex;
-            align-items: center;
-            gap: 20px; /* Расстояние между бусинами */
-            will-change: transform;
-            z-index: 2;
-        }
-
-        /* Стиль бусины */
-        .bead {
-            width: 70px;
-            height: 110px;
-            border-radius: 16px;
-            background: var(--bead-bg);
-            box-shadow: 
-                10px 10px 20px var(--bead-shadow),
-                -5px -5px 15px rgba(255, 255, 255, 0.03),
-                inset 1px 1px 2px rgba(255,255,255,0.1);
-            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), background 0.3s, box-shadow 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-muted);
-        }
-
-        /* Центральная (активная) бусина */
-        .bead.active {
-            transform: scale(1.15);
-            background: var(--bead-active);
-            color: #fff;
-            box-shadow: 
-                0 0 30px rgba(6, 182, 212, 0.4),
-                inset 1px 1px 3px rgba(255,255,255,0.4);
-        }
-
-        /* Линия прицела по центру экрана */
-        .center-marker {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: linear-gradient(to bottom, transparent, rgba(6, 182, 212, 0.3), transparent);
-            pointer-events: none;
-            z-index: 3;
-        }
-
-        /* Нижний интерфейс */
-        .footer-panel {
-            text-align: center;
-            z-index: 10;
-        }
-
-        .counter {
-            font-size: 64px;
-            font-weight: 700;
-            font-variant-numeric: tabular-nums;
-            letter-spacing: -1px;
-            background: linear-gradient(to bottom, #ffffff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            line-height: 1;
-        }
-
-        .stats {
-            font-size: 12px;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: 10px;
-        }
-
-        .hint {
-            font-size: 11px;
-            color: #334155;
-            margin-top: 15px;
-            letter-spacing: 0.5px;
-        }
-    </style>
+    <title>Shaman Coin Slot</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <h1>Tactile Scroll</h1>
-        <p>Листай влево или вправо для перебора</p>
-    </header>
+    <div class="game-container">
+        <header class="header">
+            <div class="wallet-btn">👛</div>
+            <div class="balance-container">
+                <span class="coin-icon">🪙</span>
+                <span id="balance">0</span>
+            </div>
+            <div class="profile">👤</div>
+        </header>
 
-    <div class="viewport-wrapper" id="viewport">
-        <div class="string-line"></div>
-        <div class="center-marker"></div>
-        <div class="beads-track" id="track">
-            <!-- Бусины сгенерируются кодом динамически -->
+        <div class="shaman-container">
+            <img src="https://via.placeholder.com/200x200?text=Shaman" alt="Shaman" class="shaman-img">
         </div>
+
+        <div class="slot-machine">
+            <div class="bet-badge">СТАВКА X1 ⚡</div>
+            
+            <div class="slots-container">
+                <div class="slot-window" id="slot1">🎰</div>
+                <div class="slot-window" id="slot2">🎰</div>
+                <div class="slot-window" id="slot3">🎰</div>
+            </div>
+
+            <div class="mana-section">
+                <div class="mana-bar-container">
+                    <div class="mana-bar" id="manaBar"></div>
+                    <span class="mana-text" id="manaText">50/50</span>
+                </div>
+                <div class="mana-label">Фулл мана</div>
+            </div>
+
+            <div class="control-panel">
+                <button class="side-btn">🎯</button>
+                <button class="spin-btn" id="spinBtn">SPIN</button>
+                <button class="side-btn">🧪</button>
+            </div>
+        </div>
+
+        <nav class="bottom-nav">
+            <div class="nav-item">📋<span>Задания</span></div>
+            <div class="nav-item">👥<span>Друзья</span></div>
+            <div class="nav-item active">☀️<span>Спин</span></div>
+            <div class="nav-item">⚡<span>Бусты</span></div>
+            <div class="nav-item">⭐<span>Рейтинг</span></div>
+        </nav>
     </div>
 
-    <div class="footer-panel">
-        <div class="counter" id="counter">0</div>
-        <div class="stats">Всего перебрано: <span id="total-count">0</span></div>
-        <div class="hint">Свайп • Колёсико мыши • Стрелки клавиатуры</div>
-    </div>
-
-    <script>
-        const track = document.getElementById('track');
-        const viewport = document.getElementById('viewport');
-        const counterEl = document.getElementById('counter');
-        const totalCountEl = document.getElementById('total-count');
-
-        const BEAD_WIDTH = 70;
-        const BEAD_GAP = 20;
-        const STEP = BEAD_WIDTH + BEAD_GAP; // 90px на одну бусину
-        
-        let currentIndex = 0; // Текущий индекс в фокусе
-        let totalBeadsOvered = parseInt(localStorage.getItem('h_rosary_total')) || 0;
-
-        // Звуковой движок (Web Audio API) для щелчков деревянных четок
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playClickSound() {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(150 + Math.random() * 30, audioCtx.currentTime);
-            osc.frequency.exponentialRampToValueAtTime(20, audioCtx.currentTime + 0.04);
-            
-            gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.04);
-            
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.04);
-        }
-
-        // Генерируем бусины. Делаем массив бесконечным в обе стороны визуально
-        const numBeads = 60; // Количество бусин на ленте
-        const beadsElements = [];
-        
-        function initBeads() {
-            track.innerHTML = '';
-            for (let i = -numBeads; i <= numBeads; i++) {
-                const bead = document.createElement('div');
-                bead.classList.add('bead');
-                // Отображаем красивый цикличный номер на бусинах (например, от 1 до 33)
-                let displayNum = ((Math.abs(i) % 33) === 0 && i !== 0) ? 33 : Math.abs(i) % 33;
-                bead.textContent = i === 0 ? "0" : displayNum;
-                track.appendChild(bead);
-                beadsElements.push({ index: i, el: bead });
-            }
-            updatePosition(false);
-        }
-
-        // Обновление положения ленты и подсветка активной бусины
-        function updatePosition(playNoise = true) {
-            // Центрируем трек относительно выбранного индекса
-            const offset = -currentIndex * STEP;
-            track.style.transform = `translateX(${offset}px)`;
-
-            let indexChanged = false;
-
-            beadsElements.forEach(item => {
-                if (item.index === currentIndex) {
-                    if (!item.el.classList.contains('active')) {
-                        item.el.classList.add('active');
-                        indexChanged = true;
-                    }
-                } else {
-                    item.el.classList.remove('active');
-                }
-            });
-
-            if (indexChanged && playNoise) {
-                totalBeadsOvered++;
-                localStorage.setItem('h_rosary_total', totalBeadsOvered);
-                totalCountEl.textContent = totalBeadsOvered;
-                playClickSound();
-                
-                // Эффект легкой вибрации на смартфонах (если поддерживается)
-                if (navigator.vibrate) navigator.vibrate(10);
-            }
-
-            // Выводим текущее значение (всегда положительное или циклическое)
-            counterEl.textContent = Math.abs(currentIndex);
-        }
-
-        // ЛОГИКА СВАЙПОВ И ТАЩЕНИЯ (Touch & Mouse Drag)
-        let isDragging = false;
-        let startX = 0;
-        let currentTranslate = 0;
-        let prevTranslate = 0;
-
-        viewport.addEventListener('mousedown', dragStart);
-        viewport.addEventListener('touchstart', dragStart, { passive: true });
-        viewport.addEventListener('mousemove', dragMove);
-        viewport.addEventListener('mouseup', dragEnd);
-        viewport.addEventListener('mouseleave', dragEnd);
-        viewport.addEventListener('touchend', dragEnd);
-        viewport.addEventListener('touchmove', dragMove, { passive: true });
-
-        function dragStart(e) {
-            isDragging = true;
-            startX = getPositionX(e);
-            track.style.transition = 'none'; // Отключаем плавность при ручном перетаскивании
-        }
-
-        function dragMove(e) {
-            if (!isDragging) return;
-            const currentX = getPositionX(e);
-            const diff = currentX - startX;
-            
-            // Считаем временное смещение
-            const offset = -currentIndex * STEP + diff;
-            track.style.transform = `translateX(${offset}px)`;
-
-            // Вычисляем, на сколько шагов мы сдвинулись прямо во время перетаскивания
-            const calculatedIndex = Math.round(-offset / STEP);
-            if (calculatedIndex !== currentIndex && calculatedIndex >= -numBeads && calculatedIndex <= numBeads) {
-                currentIndex = calculatedIndex;
-                updatePosition(true);
-            }
-        }
-
-        function dragEnd() {
-            if (!isDragging) return;
-            isDragging = false;
-            track.style.transition = 'transform 0.3s cubic-bezier(0.1, 0.8, 0.2, 1)';
-            updatePosition(false); // Выравниваем ровно по центру
-        }
-
-        function getPositionX(e) {
-            return e.type.includes('mouse') ? e.clientX : e.touches[0].clientX;
-        }
-
-        // КОЛЕСИКО МЫШИ (Scroll wheel)
-        viewport.addEventListener('wheel', (e) => {
-            e.preventDefault();
-            track.style.transition = 'transform 0.2s cubic-bezier(0.1, 0.8, 0.2, 1)';
-            if (e.deltaY > 0 || e.deltaX > 0) {
-                if (currentIndex < numBeads) currentIndex++;
-            } else {
-                if (currentIndex > -numBeads) currentIndex--;
-            }
-            updatePosition(true);
-        }, { passive: false });
-
-        // СТРЕЛКИ НА КЛАВИАТУРЕ
-        document.addEventListener('keydown', (e) => {
-            track.style.transition = 'transform 0.2s cubic-bezier(0.1, 0.8, 0.2, 1)';
-            if (e.key === 'ArrowRight') {
-                if (currentIndex < numBeads) currentIndex++;
-                updatePosition(true);
-            } else if (e.key === 'ArrowLeft') {
-                if (currentIndex > -numBeads) currentIndex--;
-                updatePosition(true);
-            }
-        });
-
-        // Старт приложения
-        totalCountEl.textContent = totalBeadsOvered;
-        initBeads();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
