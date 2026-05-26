@@ -3,547 +3,400 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shaman Coin — Premium Slot</title>
+    <title>Tgeshka VPN — Премиум Анонимность</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-dark: #07080c;
-            --card-glass: rgba(19, 22, 33, 0.85);
-            --accent-orange: #ff9f1c;
-            --mana-cyan: #00b4d8;
-            --border-glow: rgba(255, 255, 255, 0.05);
-            
-            /* Геометрия слота под мобильные экраны */
-            --tile-height: 140px; 
-            --tile-width: 100px;
-        }
-
+        /* Базовые настройки и обнуление */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'SF Pro Display', -apple-system, Roboto, sans-serif;
-            -webkit-user-select: none;
-            user-select: none;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); /* Плавная анимация */
         }
 
         body {
-            background-color: #000;
-            color: #fff;
+            background-color: #050508; /* Более глубокий, элитный черный */
+            color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-        }
-
-        /* Корпус приложения */
-        .app-container {
-            width: 100%;
-            max-width: 412px;
-            height: 880px;
-            background: radial-gradient(circle at top, #1c1f2e 0%, var(--bg-dark) 100%);
+            padding: 20px;
+            overflow-x: hidden;
             position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 24px 20px;
-            border-radius: 36px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.95);
         }
 
-        /* Верхняя панель (Хедер) */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            height: 50px;
-            z-index: 10;
-        }
-
-        .header-btn {
-            width: 44px;
-            height: 44px;
-            background: var(--card-glass);
-            border: 1px solid var(--border-glow);
-            border-radius: 14px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 20px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-
-        .profile-btn {
-            border-radius: 50%;
-            background: #252836;
-            font-size: 22px;
-        }
-
-        .balance-box {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 28px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-        }
-
-        .coin-gold {
-            background: linear-gradient(135deg, #ffe47e, #ffb703);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* Блок Шамана */
-        .shaman-box {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex: 1;
-            margin-bottom: -10px;
-        }
-
-        .shaman-art {
-            width: 220px;
-            height: auto;
-            filter: drop-shadow(0 20px 35px rgba(0, 0, 0, 0.8));
-            animation: floatCharacter 4s ease-in-out infinite;
-        }
-
-        /* ИГРОВОЙ АВТОМАТ */
-        .slot-machine-board {
-            background: var(--card-glass);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
-            border: 1px solid var(--border-glow);
-            border-radius: 32px;
-            padding: 35px 16px 22px 16px;
-            position: relative;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.15), 0 20px 40px rgba(0,0,0,0.7);
-        }
-
-        .badge-bet {
+        /* Мягкое неоновое свечение на фоне */
+        body::before {
+            content: "";
             position: absolute;
-            top: -15px;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, rgba(0,0,0,0) 70%);
+            top: 5%;
             left: 50%;
             transform: translateX(-50%);
-            background: linear-gradient(135deg, #ffb703, #fb8500);
-            padding: 7px 24px;
-            border-radius: 14px;
-            font-weight: 900;
-            font-size: 13px;
-            color: #050608;
-            box-shadow: 0 6px 20px rgba(253, 133, 0, 0.4);
-            letter-spacing: 0.8px;
-            text-transform: uppercase;
+            z-index: 0;
+            pointer-events: none;
         }
 
-        /* Сетка Барабанов */
-        .reels-wrapper {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-top: 5px;
-            margin-bottom: 25px;
-        }
-
-        /* Окно одного барабана */
-        .reel-window {
-            flex: 1;
-            height: var(--tile-height);
-            background: #040508;
-            border-radius: 22px;
-            border: 1px solid rgba(255,255,255,0.04);
-            position: relative;
-            overflow: hidden;
-            /* Внутренние тени для эффекта глубины и закругления барабана */
-            box-shadow: inset 0 12px 24px rgba(0,0,0,0.95), inset 0 -12px 24px rgba(0,0,0,0.95);
-        }
-
-        /* Физическая лента с картинками, которую двигает JS */
-        .reel-strip {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .container {
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            will-change: transform;
+            max-width: 440px;
+            padding: 20px 10px;
+            z-index: 1;
         }
 
-        /* Карточка внутри барабана */
-        .icon-tile {
-            height: var(--tile-height);
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-        }
-
-        .icon-tile img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
-            transition: filter 0.1s ease;
-        }
-
-        /* Индикатор Маны */
-        .mana-wrapper {
-            margin-bottom: 24px;
+        /* Шапка с анимацией появления */
+        .header {
             text-align: center;
+            margin-bottom: 35px;
+            animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .mana-track {
-            width: 100%;
-            height: 26px;
-            background: #050609;
-            border-radius: 13px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
-        }
-
-        .mana-fill {
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, #0077b6, var(--mana-cyan), #90e0ef);
-            box-shadow: 0 0 15px rgba(0, 180, 216, 0.7);
-            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .mana-counter {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 13px;
-            font-weight: 800;
-            letter-spacing: 0.5px;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.9);
-        }
-
-        .mana-title {
-            font-size: 12px;
-            color: #6f7380;
-            margin-top: 6px;
-            font-weight: 500;
-        }
-
-        /* Панель управления */
-        .actions-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .btn-secondary {
-            width: 56px;
-            height: 56px;
-            border-radius: 18px;
-            background: rgba(28, 31, 46, 0.9);
-            border: 1px solid var(--border-glow);
-            color: white;
-            font-size: 22px;
-            cursor: pointer;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.4);
-        }
-
-        .btn-spin-main {
-            flex: 1;
-            height: 58px;
-            background: linear-gradient(135deg, #ffe375, var(--accent-orange));
-            border: none;
-            border-radius: 18px;
-            font-size: 26px;
+        .logo {
+            font-size: 32px;
             font-weight: 900;
-            color: #090a0f;
-            cursor: pointer;
-            box-shadow: 0 7px 25px rgba(255, 159, 28, 0.4);
-            transition: transform 0.05s, box-shadow 0.05s;
-            letter-spacing: 0.5px;
+            letter-spacing: 7px;
             text-transform: uppercase;
+            /* Градиент от чисто-белого к серебру */
+            background: linear-gradient(135deg, #ffffff 40%, #a1a1aa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
         }
 
-        .btn-spin-main:active {
-            transform: scale(0.96);
-            box-shadow: 0 3px 10px rgba(255, 159, 28, 0.2);
+        .tagline {
+            font-size: 13.5px;
+            color: #71717a;
+            font-weight: 400;
+            line-height: 1.5;
+            max-width: 340px;
+            margin: 0 auto;
         }
 
-        .btn-spin-main:disabled {
-            background: linear-gradient(135deg, #252730, #191a21);
-            color: #4a4e5a;
-            box-shadow: none;
-            cursor: not-allowed;
+        /* Сетка преимуществ */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 25px 0 35px 0;
+            animation: fadeIn 1s ease-out 0.2s both;
         }
 
-        /* Нижний Навбар */
-        .bottom-navbar {
+        .feature-badge {
+            background: rgba(255, 255, 255, 0.01);
+            /* Тонкий стеклянный контур */
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            padding: 12px;
+            font-size: 12px;
+            color: #d4d4d8;
+            text-align: center;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+
+        .feature-badge:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #a1a1aa;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            animation: fadeIn 1s ease-out 0.4s both;
+        }
+
+        /* Стили карточек в строгом стиле */
+        .card {
+            background: rgba(18, 18, 24, 0.65);
+            /* Полупрозрачный стеклянный контур */
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 24px;
+            padding: 28px;
+            margin-bottom: 20px;
+            position: relative;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        /* Очередь анимации */
+        .card:nth-child(5) { animation-delay: 0.5s; }
+        .card:nth-child(6) { animation-delay: 0.6s; }
+        .card:nth-child(7) { animation-delay: 0.7s; }
+
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Премиум-стиль для центральной карточки (Space Gray) */
+        .card-popular {
+            background: linear-gradient(145deg, rgba(24, 24, 32, 0.8) 0%, rgba(14, 14, 18, 0.8) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-popular:hover {
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+            transform: translateY(-5px);
+        }
+
+        /* Строгий минималистичный бейдж популярного тарифа */
+        .badge-popular {
+            position: absolute;
+            top: -11px;
+            left: 28px;
+            background: #ffffff;
+            color: #050508;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Хедер внутри карт */
+        .card-header {
             display: flex;
             justify-content: space-between;
-            background: rgba(6, 7, 10, 0.98);
-            padding: 14px 8px;
-            border-top: 1px solid var(--border-glow);
-            margin: 0 -20px -24px -20px;
+            align-items: baseline;
+            margin-bottom: 8px;
         }
 
-        .nav-btn {
-            flex: 1;
+        .plan-duration {
+            font-size: 21px;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+        }
+
+        .plan-price {
+            font-size: 28px;
+            font-weight: 800;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+        }
+
+        .plan-desc {
+            font-size: 13px;
+            color: #71717a;
+            margin-bottom: 24px;
+        }
+
+        .card-popular .plan-desc {
+            color: #a1a1aa;
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-bottom: 24px;
+        }
+
+        /* Список фич */
+        .perks-list {
+            list-style: none;
+            margin-bottom: 28px;
+        }
+
+        .perks-list li {
+            font-size: 13.5px;
+            color: #e4e4e7;
+            margin-bottom: 12px;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            font-size: 20px;
-            color: #4b4f5d;
-            cursor: pointer;
-            transition: color 0.2s ease;
         }
 
-        .nav-btn span {
-            font-size: 11px;
-            margin-top: 5px;
+        /* Кастомный строгий маркер точки */
+        .perks-list li::before {
+            content: "";
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            background-color: #ffffff;
+            border-radius: 50%;
+            margin-right: 12px;
+            opacity: 0.5;
+        }
+
+        .card-popular .perks-list li::before {
+            opacity: 0.9;
+            box-shadow: 0 0 8px #ffffff;
+        }
+
+        /* Ссылки-кнопки в стиле Old Money */
+        .btn {
+            display: block;
+            width: 100%;
+            background: #ffffff;
+            color: #050508;
+            text-align: center;
+            padding: 15px;
+            border-radius: 14px;
+            font-size: 14.5px;
             font-weight: 600;
+            text-decoration: none;
+            box-shadow: 0 4px 12px rgba(255, 255, 255, 0.05);
         }
 
-        .nav-btn.active {
-            color: var(--accent-orange);
+        .btn:hover {
+            background: #e4e4e7;
+            transform: translateY(-1px);
         }
 
-        /* Левитация персонажа */
-        @keyframes floatCharacter {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-12px); }
-            100% { transform: translateY(0px); }
+        /* Матовая кнопка для ХИТА */
+        .btn-premium {
+            background: #ffffff;
+            color: #050508;
+            border: 1px solid #ffffff;
+        }
+
+        .btn-premium:hover {
+            background: transparent;
+            color: #ffffff;
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.1);
+        }
+
+        /* Эффект нажатия */
+        .btn:active, .feature-badge:active {
+            transform: scale(0.97) !important;
+        }
+
+        /* Подвал */
+        .footer {
+            text-align: center;
+            margin-top: 35px;
+            font-size: 13px;
+            color: #414147;
+            animation: fadeIn 1s ease-out 0.9s both;
+        }
+
+        .footer a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.3);
+            padding-bottom: 1px;
+        }
+
+        .footer a:hover {
+            color: #a1a1aa;
+            border-color: #a1a1aa;
+        }
+
+        /* Анимации */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
 <body>
 
-    <div class="app-container">
-        <header class="header">
-            <div class="header-btn">👛</div>
-            <div class="balance-box">
-                <span>🪙</span>
-                <span id="balanceDisplay" class="coin-gold">300</span>
-            </div>
-            <div class="header-btn profile-btn">😎</div>
-        </header>
-
-        <div class="shaman-box">
-            <img src="https://api.dicebear.com/7.x/bottts/svg?seed=shaman&backgroundColor=transparent" alt="Shaman" class="shaman-art">
+    <div class="container">
+        
+        <div class="header">
+            <div class="logo">Tgeshka VPN</div>
+            <div class="tagline">Шифрование и максимальная скорость для вашей полной анонимности</div>
         </div>
 
-        <div class="slot-machine-board">
-            <div class="badge-bet">Ставка x1 ⚡</div>
-            
-            <div class="reels-wrapper">
-                <div class="reel-window"><div class="reel-strip" id="reel1"></div></div>
-                <div class="reel-window"><div class="reel-strip" id="reel2"></div></div>
-                <div class="reel-window"><div class="reel-strip" id="reel3"></div></div>
-            </div>
-
-            <div class="mana-wrapper">
-                <div class="mana-track">
-                    <div class="mana-fill" id="manaBar"></div>
-                    <span class="mana-counter" id="manaText">50/50</span>
-                </div>
-                <div class="mana-title">Фулл мана</div>
-            </div>
-
-            <div class="actions-row">
-                <button class="btn-secondary">🎯</button>
-                <button class="btn-spin-main" id="spinButton">Spin</button>
-                <button class="btn-secondary">🧪</button>
-            </div>
+        <div class="features-grid">
+            <div class="feature-badge">⚡ Безлимитный трафик</div>
+            <div class="feature-badge">🔒 Zero-Logs политика</div>
+            <div class="feature-badge">🌐 VLESS + Reality</div>
+            <div class="feature-badge">🛠️ Поддержка 24/7</div>
         </div>
 
-        <nav class="bottom-navbar">
-            <div class="nav-btn">📋<span>Задания</span></div>
-            <div class="nav-btn">👥<span>Друзья</span></div>
-            <div class="nav-btn active">☀️<span>Спин</span></div>
-            <div class="nav-btn">⚡<span>Бусты</span></div>
-            <div class="nav-btn">⭐<span>Рейтинг</span></div>
-        </nav>
+        <div class="section-title">Выбрать тариф Premium Access:</div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="plan-duration">1 Месяц</span>
+                <span class="plan-price">250 ₽</span>
+            </div>
+            <div class="plan-desc">Для тех, кто хочет протестировать мощь</div>
+            <div class="divider"></div>
+            <ul class="perks-list">
+                <li>Максимальная скорость соединения</li>
+                <li>Поддержка всех типов устройств (iOS, Android)</li>
+                <li>Личный менеджер 24/7</li>
+            </ul>
+            <a href="https://t.me/kaoface" class="btn" target="_blank">Купить доступ</a>
+        </div>
+
+        <div class="card card-popular">
+            <div class="badge-popular">Оптимальный выбор · Экономия 15%</div>
+            <div class="card-header">
+                <span class="plan-duration">6 Месяцев</span>
+                <span class="plan-price">800 ₽</span>
+            </div>
+            <div class="plan-desc">Оптимальный выбор. Экономия 15%</div>
+            <div class="divider"></div>
+            <ul class="perks-list">
+                <li>Все преимущества Premium доступа</li>
+                <li>Высокоскоростные выделенные сервера</li>
+                <li>Полная маскировка трафика (Kill Switch)</li>
+                <li>Приоритетный менеджер 24/7</li>
+            </ul>
+            <a href="https://t.me/kaoface" class="btn btn-premium" target="_blank">Купить доступ</a>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <span class="plan-duration">1 Год</span>
+                <span class="plan-price">1299 ₽</span>
+            </div>
+            <div class="plan-desc">Полная свобода без забот на 365 дней</div>
+            <div class="divider"></div>
+            <ul class="perks-list">
+                <li>Ультра-низкая цена в пересчете за месяц</li>
+                <li>Полный безлимит без ограничений скорости</li>
+                <li>Стабильный обход любых блокировок</li>
+            </ul>
+            <a href="https://t.me/kaoface" class="btn" target="_blank">Купить доступ</a>
+        </div>
+
+        <div class="footer">
+            По вопросам настройки конфигураций пишите: <a href="https://t.me/kaoface" target="_blank">@kaoface</a>
+        </div>
+
     </div>
 
-    <script>
-        // Высококачественные PNG-картинки предметов (Кристалл, Маска, Черепахи-Вишни, Зелье, Звезда)
-        const iconImages = [
-            'https://cdn-icons-png.flaticon.com/512/2311/2311341.png', // Изумруд
-            'https://cdn-icons-png.flaticon.com/512/11514/11514619.png', // Маска тотем
-            'https://cdn-icons-png.flaticon.com/512/3058/3058995.png', // Вишни / Черепки
-            'https://cdn-icons-png.flaticon.com/512/3204/3204284.png', // Синее зелье
-            'https://cdn-icons-png.flaticon.com/512/1828/1828884.png'  // Золотая звезда
-        ];
-
-        let balance = 300;
-        let mana = 50;
-        const maxMana = 50;
-        const tileHeight = 140; // Высота одной картинки
-
-        const spinButton = document.getElementById('spinButton');
-        const balanceDisplay = document.getElementById('balanceDisplay');
-        const manaBar = document.getElementById('manaBar');
-        const manaText = document.getElementById('manaText');
-
-        const reels = [
-            document.getElementById('reel1'),
-            document.getElementById('reel2'),
-            document.getElementById('reel3')
-        ];
-
-        // Структура для контроля состояния каждого барабана
-        const reelStates = reels.map((reel) => ({
-            element: reel,
-            currentY: 0,
-            iconsOrder: []
-        }));
-
-        // Генерация первоначальной и бесшовной ленты элементов
-        function initReels() {
-            reelStates.forEach(state => {
-                state.element.innerHTML = '';
-                state.iconsOrder = [];
-                
-                // Генерируем стартовую ленту из 20 картинок для плавного прокрута
-                for (let i = 0; i < 25; i++) {
-                    const randomIdx = Math.floor(Math.random() * iconImages.length);
-                    state.iconsOrder.push(randomIdx);
-
-                    const tile = document.createElement('div');
-                    tile.className = 'icon-tile';
-                    const img = document.createElement('img');
-                    img.src = iconImages[randomIdx];
-                    tile.appendChild(img);
-                    state.element.appendChild(tile);
-                }
-                // Ставим барабан в начальную точку (показываем первый элемент)
-                state.currentY = 0;
-                state.element.style.transform = `translateY(0px)`;
-            });
-        }
-
-        initReels();
-
-        spinButton.addEventListener('click', () => {
-            if (mana < 1) return;
-
-            mana--;
-            updateManaUI();
-            spinButton.disabled = true;
-
-            // Генерируем скрытый финал (какие индексы картинок должны выиграть)
-            const finalResults = [
-                Math.floor(Math.random() * iconImages.length),
-                Math.floor(Math.random() * iconImages.length),
-                Math.floor(Math.random() * iconImages.length)
-            ];
-
-            // Настройки честного покадрового вращения через JS
-            const spinDuration = 1800; // Общее время кручения
-            const start = performance.now();
-
-            function animateSpins(now) {
-                const elapsed = now - start;
-
-                reelStates.forEach((state, stepIndex) => {
-                    // Рассчитываем скорость для каждого барабана индивидуально для эффекта задержки стопа
-                    const delay = stepIndex * 350; 
-                    let progress = (elapsed - delay) / (spinDuration - delay);
-                    
-                    if (progress < 0) progress = 0;
-                    if (progress > 1) progress = 1;
-
-                    // Если барабан еще крутится
-                    if (progress < 1) {
-                        // Бешеная скорость в пикселях, завязанная на прогресс времени
-                        const speed = 45; 
-                        state.currentY -= speed;
-
-                        // Делаем бесшовный перезапуск ленты при сильном сдвиге, чтобы она никогда не кончалась
-                        if (state.currentY <= -(tileHeight * 15)) {
-                            state.currentY = 0;
-                        }
-
-                        state.element.style.transform = `translateY(${state.currentY}px)`;
-                        // Врубаем динамический блюр через фильтр картинок
-                        state.element.style.filter = 'blur(5px)';
-                    } 
-                    // Момент остановки конкретного барабана
-                    else if (!state.isStoppingFinished) {
-                        // Убираем размытие
-                        state.element.style.filter = 'none';
-
-                        // Переписываем верхние элементы под наш финальный результат
-                        const imgElements = state.element.querySelectorAll('img');
-                        // Индекс 1 — это центральная видимая позиция после отскока
-                        imgElements[1].src = iconImages[finalResults[stepIndex]]; 
-
-                        // Физичный отскок назад (Торможение)
-                        state.element.style.transition = 'transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-                        state.currentY = -tileHeight; 
-                        state.element.style.transform = `translateY(${state.currentY}px)`;
-                        
-                        state.isStoppingFinished = true;
-                    }
-                });
-
-                // Крутим дальше, пока последний барабан не закончит ход
-                if (!reelStates[2].isStoppingFinished) {
-                    requestAnimationFrame(animateSpins);
-                } else {
-                    // Все остановились — считаем баланс
-                    setTimeout(() => {
-                        checkWinResults(finalResults);
-                        
-                        // Сбрасываем триггеры анимации для следующего клика
-                        reelStates.forEach(s => {
-                            s.element.style.transition = 'none';
-                            s.isStoppingFinished = false;
-                        });
-                        spinButton.disabled = false;
-                    }, 500);
-                }
-            }
-
-            // Запуск цикла анимации
-            requestAnimationFrame(animateSpins);
-        });
-
-        function checkWinResults(results) {
-            if (results[0] === results[1] && results[1] === results[2]) {
-                balance += 300; // 3 в ряд
-                // Эффект победной пульсации картинок
-                reels.forEach(r => {
-                    r.style.transform = 'translateY(-140px) scale(1.1)';
-                    setTimeout(() => r.style.transform = 'translateY(-140px) scale(1)', 200);
-                });
-            } else if (results[0] === results[1] || results[1] === results[2] || results[0] === results[2]) {
-                balance += 40; // 2 в ряд
-            }
-            balanceDisplay.innerText = balance;
-        }
-
-        function updateManaUI() {
-            const pct = (mana / maxMana) * 100;
-            manaBar.style.width = `${pct}%`;
-            manaText.innerText = `${mana}/${maxMana}`;
-        }
-
-        // Регенерация энергии
-        setInterval(() => {
-            if (mana < maxMana) {
-                mana++;
-                updateManaUI();
-            }
-        }, 4000);
-    </script>
 </body>
 </html>
