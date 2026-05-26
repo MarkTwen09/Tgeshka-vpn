@@ -2,510 +2,523 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KRAKEN CASINO | Elite Underground</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>KRAKEN | High-End Underground Casino</title>
     <style>
+        :root {
+            --neon-cyan: #00f2fe;
+            --neon-purple: #7928ca;
+            --gold: #f59e0b;
+            --gold-glow: #fbbf24;
+            --bg-dark: #02040a;
+            --card-bg: rgba(10, 15, 30, 0.7);
+        }
+
         * { 
             box-sizing: border-box; 
             margin: 0; 
             padding: 0; 
-            font-family: '-apple-system', BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             user-select: none; 
+            -webkit-tap-highlight-color: transparent;
         }
         
         body { 
-            background: #020617; 
+            background: var(--bg-dark); 
             color: #f8fafc; 
             min-height: 100vh; 
             padding: 15px; 
             background-image: 
-                radial-gradient(circle at 50% 0%, #071930 0%, #020617 80%),
-                radial-gradient(circle at 0% 100%, #0c1524 0%, transparent 50%);
+                radial-gradient(circle at 50% -20%, rgba(0, 242, 254, 0.18) 0%, transparent 60%),
+                radial-gradient(circle at 50% 110%, rgba(121, 40, 202, 0.15) 0%, transparent 60%);
             background-attachment: fixed;
+            overflow-x: hidden;
         }
 
-        /* Дорогая неоновая шапка */
+        /* Элитный Верхний Навибар */
         header { 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            padding: 18px 20px; 
-            background: rgba(3, 7, 18, 0.6); 
-            border: 1px solid rgba(0, 242, 254, 0.15);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 20px; 
+            padding: 16px 24px; 
+            background: rgba(4, 8, 16, 0.75); 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px; 
             margin-bottom: 25px; 
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
         }
 
         .logo { 
-            font-size: 26px; 
+            font-size: 24px; 
             font-weight: 900; 
-            letter-spacing: 4px; 
-            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            letter-spacing: 5px; 
+            background: linear-gradient(135deg, var(--neon-cyan), #4facfe);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-transform: uppercase; 
-            filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.5));
+            filter: drop-shadow(0 0 15px rgba(0, 242, 254, 0.4));
         }
 
         .balance-box { 
-            background: rgba(251, 191, 36, 0.03); 
-            padding: 10px 20px; 
-            border-radius: 30px; 
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.05), rgba(217, 119, 6, 0.05)); 
+            padding: 10px 22px; 
+            border-radius: 40px; 
             font-weight: 800; 
             font-size: 18px;
-            border: 1px solid rgba(251, 191, 36, 0.3); 
-            color: #fbbf24; 
-            box-shadow: 0 0 15px rgba(251, 191, 36, 0.1);
-            transition: all 0.3s ease;
+            border: 1px solid rgba(251, 191, 36, 0.4); 
+            color: var(--gold-glow); 
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .balance-animate {
-            transform: scale(1.15);
-            text-shadow: 0 0 20px #fbbf24;
-        }
-
+        /* Контейнер */
         .container { 
             display: flex; 
             flex-direction: column; 
-            gap: 25px; 
-            max-width: 480px; 
+            gap: 30px; 
+            max-width: 440px; 
             margin: 0 auto; 
         }
 
-        /* Премиум карточки */
+        /* Карточки Нового Поколения */
         .card { 
-            background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(8, 13, 28, 0.95)); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            border-radius: 24px; 
-            padding: 25px; 
+            background: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.04); 
+            border-radius: 32px; 
+            padding: 30px 24px; 
             text-align: center; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6), inset 0 1px 1px rgba(255,255,255,0.05);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.05);
             position: relative;
-            overflow: hidden;
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at 50% 0%, rgba(0, 242, 254, 0.05), transparent 60%);
-            pointer-events: none;
         }
 
         .card-title { 
-            font-size: 19px; 
-            font-weight: 700; 
-            margin-bottom: 20px; 
-            color: #e2e8f0; 
+            font-size: 16px; 
+            font-weight: 800; 
+            margin-bottom: 25px; 
+            color: #94a3b8; 
             text-transform: uppercase; 
-            letter-spacing: 2px;
+            letter-spacing: 3px;
         }
 
-        /* ЭФФЕКТЫ СЛОТОВ: Размытие при вращении */
+        /* СЛОТЫ: Дорогой Механический Барабан */
+        .slots-window {
+            background: #010205;
+            padding: 20px;
+            border-radius: 24px;
+            border: 1px solid rgba(0, 242, 254, 0.15);
+            box-shadow: inset 0 10px 30px rgba(0,0,0,0.9), 0 0 30px rgba(0, 242, 254, 0.03);
+            margin-bottom: 25px;
+        }
+
         .slots-zone { 
             display: flex; 
             justify-content: center; 
-            gap: 15px; 
-            margin: 20px 0; 
-            background: #020617; 
-            padding: 15px; 
-            border-radius: 18px; 
-            border: 1px solid rgba(0, 242, 254, 0.1);
-            box-shadow: inset 0 5px 20px rgba(0,0,0,0.8);
+            gap: 16px; 
         }
 
         .reel { 
-            width: 75px; 
-            height: 85px; 
-            background: linear-gradient(180deg, #0b1329, #050a14); 
-            border-radius: 12px; 
-            font-size: 38px; 
+            width: 85px; 
+            height: 100px; 
+            background: linear-gradient(180deg, #050914 0%, #0a1024 50%, #050914 100%); 
+            border-radius: 16px; 
+            font-size: 44px; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            border: 1px solid rgba(255,255,255,0.03);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: transform 0.1s;
+            border: 1px solid rgba(255,255,255,0.02);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.5);
         }
 
-        /* Класс блёра для анимации слотов */
-        .blur-motion {
-            animation: slotBlur 0.1s infinite alternate;
-            filter: blur(4px) cubic-bezier(0.5, 0, 0.5, 1);
-        }
+        /* Дофаминовое бешеное размытие */
+        .blur-fast { animation: reelSpinFast 0.1s infinite linear; }
+        .blur-medium { animation: reelSpinMedium 0.12s infinite linear; }
+        .blur-slow { animation: reelSpinSlow 0.15s infinite linear; }
 
-        @keyframes slotBlur {
-            0% { transform: translateY(-5px); }
-            100% { transform: translateY(5px); }
-        }
+        @keyframes reelSpinFast { 0% { transform: translateY(-8px); filter: blur(6px); } 100% { transform: translateY(8px); filter: blur(6px); } }
+        @keyframes reelSpinMedium { 0% { transform: translateY(-6px); filter: blur(5px); } 100% { transform: translateY(6px); filter: blur(5px); } }
+        @keyframes reelSpinSlow { 0% { transform: translateY(-4px); filter: blur(4px); } 100% { transform: translateY(4px); filter: blur(4px); } }
 
-        /* ЭФФЕКТЫ КУБИКОВ: Тряска и 3D вращение */
+        /* НАСТОЯЩИЕ 3D КУБИКИ */
         .dice-zone { 
             display: flex; 
             justify-content: center; 
-            gap: 25px; 
-            margin: 20px 0; 
+            gap: 35px; 
+            margin: 25px 0 35px 0; 
+            perspective: 400px;
         }
 
         .dice { 
-            width: 70px; 
-            height: 70px; 
-            background: linear-gradient(135deg, #1e293b, #0f172a); 
-            border: 2px solid rgba(0, 242, 254, 0.3); 
-            border-radius: 16px; 
-            font-size: 32px; 
-            font-weight: bold; 
+            width: 75px; 
+            height: 75px; 
+            background: linear-gradient(135deg, #111c30, #060b14); 
+            border: 1px solid rgba(0, 242, 254, 0.25); 
+            border-radius: 20px; 
+            font-size: 36px; 
+            font-weight: 900; 
             display: flex; 
             align-items: center; 
             justify-content: center; 
-            color: #00f2fe; 
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4), 0 0 15px rgba(0, 242, 254, 0.1);
+            color: var(--neon-cyan); 
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(0, 242, 254, 0.05);
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
         }
 
-        .shake-dice {
-            animation: diceShake 0.5s ease-in-out;
+        .dice-rolling {
+            animation: dice3D 0.6s infinite linear;
         }
 
-        @keyframes diceShake {
-            0% { transform: scale(1) rotate(0deg); }
-            20% { transform: scale(1.2) rotate(-15deg); filter: blur(1px); }
-            40% { transform: scale(1.2) rotate(15deg); }
-            60% { transform: scale(1.1) rotate(-10deg); }
-            80% { transform: scale(1.1) rotate(10deg); }
-            100% { transform: scale(1) rotate(0deg); }
+        @keyframes dice3D {
+            0% { transform: rotateX(0deg) rotateY(0deg) scale(1.1); filter: blur(1px); }
+            50% { transform: rotateX(180deg) rotateY(90deg) scale(1.2); }
+            100% { transform: rotateX(360deg) rotateY(360deg) scale(1.1); }
         }
 
-        /* ЭФФЕКТЫ КОЛЕСА */
-        .wheel-zone { 
-            position: relative; 
-            width: 160px; 
-            height: 160px; 
-            margin: 20px auto; 
+        /* Поля Ставок */
+        .bet-controller {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.03);
+            padding: 6px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
 
-        .wheel-element { 
-            width: 100%; 
-            height: 100%; 
-            border-radius: 50%; 
-            border: 6px solid #0f172a; 
-            background: conic-gradient(
-                #ef4444 0deg 60deg, 
-                #3b82f6 60deg 120deg, 
-                #10b981 120deg 180deg, 
-                #f59e0b 180deg 240deg, 
-                #8b5cf6 240deg 300deg,
-                #ec4899 300deg 360deg
-            ); 
-            box-shadow: 0 0 25px rgba(0, 242, 254, 0.15), inset 0 0 20px rgba(0,0,0,0.6);
-            transition: transform 3.5s cubic-bezier(0.1, 0.8, 0.1, 1); 
+        .bet-btn {
+            background: rgba(255,255,255,0.05);
+            border: none;
+            color: #94a3b8;
+            width: 45px;
+            height: 45px;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
         }
+        .bet-btn:active { background: rgba(255,255,255,0.1); }
 
-        .pointer { 
-            position: absolute; 
-            top: -12px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: 0; 
-            height: 0; 
-            border-left: 12px solid transparent; 
-            border-right: 12px solid transparent; 
-            border-top: 22px solid #00f2fe; 
-            z-index: 5; 
-            filter: drop-shadow(0 2px 8px rgba(0, 242, 254, 0.8));
-        }
-
-        /* Инпуты ставок */
         input[type="number"] { 
-            width: 100%; 
-            background: #020617; 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            border-radius: 14px; 
-            padding: 14px; 
+            background: transparent;
+            border: none;
             color: #fff; 
-            font-size: 18px; 
-            font-weight: 700; 
+            font-size: 22px; 
+            font-weight: 800; 
             text-align: center; 
-            margin-bottom: 15px; 
+            width: 50%;
             outline: none; 
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
-            transition: all 0.3s;
         }
+        /* Убираем стрелочки инпута */
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 
-        input[type="number"]:focus {
-            border-color: #00f2fe;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 15px rgba(0, 242, 254, 0.2);
-        }
-
-        /* Премиум Кнопки */
+        /* Кнопка Действия — Тяжелый Люкс */
         .action-btn { 
             width: 100%; 
-            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%); 
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 100%); 
             border: none; 
-            border-radius: 14px; 
-            padding: 15px; 
-            color: #020617; 
+            border-radius: 20px; 
+            padding: 18px; 
+            color: #010205; 
             font-size: 15px; 
-            font-weight: 800; 
+            font-weight: 900; 
             text-transform: uppercase; 
-            letter-spacing: 1.5px;
+            letter-spacing: 2px;
             cursor: pointer; 
-            box-shadow: 0 5px 20px rgba(0, 242, 254, 0.3);
-            transition: all 0.2s ease;
+            box-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+            transition: all 0.2s;
         }
 
         .action-btn:active {
-            transform: scale(0.97);
-            box-shadow: 0 2px 10px rgba(0, 242, 254, 0.2);
+            transform: scale(0.96);
+            filter: brightness(0.9);
         }
 
         .action-btn:disabled { 
-            background: #1e293b; 
-            color: #475569; 
+            background: #101726; 
+            color: #334155; 
             cursor: not-allowed; 
             box-shadow: none; 
         }
 
-        /* Анимированный текст статуса */
-        .status-text { 
-            margin-top: 15px; 
+        /* Результаты и Дофаминовые Вспышки */
+        .status-pane { 
+            margin-top: 20px; 
             font-size: 15px; 
-            min-height: 20px; 
-            font-weight: 700; 
-            letter-spacing: 0.5px;
-        }
-
-        .win { 
-            color: #10b981; 
-            text-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
-            animation: winPulse 0.4s ease-in-out infinite alternate;
-        }
-        
-        .lose { 
-            color: #ef4444; 
-            text-shadow: 0 0 15px rgba(239, 68, 68, 0.4); 
-        }
-
-        @keyframes winPulse {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.05); }
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 30px;
-            color: #334155;
-            font-size: 11px;
+            min-height: 22px; 
+            font-weight: 800; 
             letter-spacing: 1px;
+            text-transform: uppercase;
         }
+
+        /* ЭКРАН ПОЛНОЙ ПОБЕДЫ (WIN SPLASH) */
+        .win-splash {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(1, 2, 5, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .win-splash.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .splash-box {
+            text-align: center;
+            transform: scale(0.7);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .win-splash.active .splash-box {
+            transform: scale(1);
+        }
+
+        .splash-title {
+            font-size: 32px;
+            font-weight: 900;
+            color: var(--gold-glow);
+            text-shadow: 0 0 30px var(--gold);
+            margin-bottom: 10px;
+            letter-spacing: 3px;
+        }
+
+        .splash-amount {
+            font-size: 46px;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 25px;
+        }
+
+        .splash-close {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 30px;
+            font-weight: 900;
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+
+        /* Тряска экрана для куша */
+        .shake-screen { animation: screenShake 0.4s ease-in-out; }
+        @keyframes screenShake {
+            0%, 100% { transform: translate(0, 0); }
+            20% { transform: translate(-4px, 4px); }
+            40% { transform: translate(4px, -4px); }
+            60% { transform: translate(-4px, -4px); }
+            80% { transform: translate(4px, 4px); }
+        }
+
+        .win-text { color: #10b981; text-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+        .lose-text { color: #ef4444; opacity: 0.7; }
     </style>
 </head>
-<body>
+<body id="screen">
 
-    <header>
-        <div class="logo">Kraken</div>
-        <div class="balance-box" id="balance-container">🪙 <span id="balance">10000</span></div>
-    </header>
-
-    <div class="container">
-        <!-- СЛОТЫ -->
-        <div class="card">
-            <div class="card-title">⚓ Кракен Слот</div>
-            <div class="slots-zone">
-                <div class="reel" id="s1">🐙</div>
-                <div class="reel" id="s2">🐙</div>
-                <div class="reel" id="s3">🐙</div>
-            </div>
-            <input type="number" id="slot-bet" value="100">
-            <button class="action-btn" id="slot-btn" onclick="runSlots()">Запустить автоматы</button>
-            <div class="status-text" id="slot-status"></div>
-        </div>
-
-        <!-- КУБИКИ -->
-        <div class="card">
-            <div class="card-title">🎲 Кости Бездны</div>
-            <div class="dice-zone">
-                <div class="dice" id="d1">1</div>
-                <div class="dice" id="d2">1</div>
-            </div>
-            <input type="number" id="dice-bet" value="100">
-            <button class="action-btn" id="dice-btn" onclick="runDice()">Бросить кости</button>
-            <div class="status-text" id="dice-status"></div>
-        </div>
-
-        <!-- КОЛЕСО -->
-        <div class="card">
-            <div class="card-title">🎡 Колесо Судьбы</div>
-            <div class="wheel-zone">
-                <div class="pointer"></div>
-                <div class="wheel-element" id="wheel-obj"></div>
-            </div>
-            <input type="number" id="wheel-bet" value="100">
-            <button class="action-btn" id="wheel-btn" onclick="runWheel()">Испытать фортуну</button>
-            <div class="status-text" id="wheel-status"></div>
+    <!-- ДОФАМИНОВЫЙ ЭКРАН ПОБЕДЫ -->
+    <div class="win-splash" id="win-splash">
+        <div class="splash-box">
+            <div class="splash-title">💎 КУШ КРАКЕНА 💎</div>
+            <div class="splash-amount" id="splash-money">+0 🪙</div>
+            <button class="splash-close" onclick="closeSplash()">Забрать монеты</button>
         </div>
     </div>
 
-    <footer>
-        © 2026 KRAKEN CASINO | DESIGNED FOR ELITE PLAYERS
-    </footer>
+    <header>
+        <div class="logo">Kraken</div>
+        <div class="balance-box" id="bal-box">🪙 <span id="balance">10000</span></div>
+    </header>
+
+    <div class="container">
+        <!-- УЛЬТИМАТИВНЫЕ СЛОТЫ -->
+        <div class="card">
+            <div class="card-title">⚓ Модернизированный Слот</div>
+            <div class="slots-window">
+                <div class="slots-zone">
+                    <div class="reel" id="s1">🔱</div>
+                    <div class="reel" id="s2">🔱</div>
+                    <div class="reel" id="s3">🔱</div>
+                </div>
+            </div>
+            
+            <div class="bet-controller">
+                <button class="bet-btn" onclick="changeBet('slot-bet', -50)">-</button>
+                <input type="number" id="slot-bet" value="100" readonly>
+                <button class="bet-btn" onclick="changeBet('slot-bet', 50)">+</button>
+            </div>
+
+            <button class="action-btn" id="slot-btn" onclick="playPremiumSlots()">Испытать удачу</button>
+            <div class="status-pane" id="slot-status"></div>
+        </div>
+
+        <!-- ЖИВЫЕ КУБИКИ -->
+        <div class="card">
+            <div class="card-title">🎲 Кости Бездны 7+</div>
+            <div class="dice-zone">
+                <div class="dice" id="d1">5</div>
+                <div class="dice" id="d2">5</div>
+            </div>
+
+            <div class="bet-controller">
+                <button class="bet-btn" onclick="changeBet('dice-bet', -50)">-</button>
+                <input type="number" id="dice-bet" value="100" readonly>
+                <button class="bet-btn" onclick="changeBet('dice-bet', 50)">+</button>
+            </div>
+
+            <button class="action-btn" id="dice-btn" onclick="playPremiumDice()">Бросить кости</button>
+            <div class="status-pane" id="dice-status"></div>
+        </div>
+    </div>
 
     <script>
-        let currentBalance = parseInt(localStorage.getItem('luxury_balance')) || 10000;
-        const slotItems = ['🐙', '💎', '🔱', '🪙', '🏴‍☠️'];
-        const wheelMultipliers = [3, 0, 2, 0.5, 5, 0];
-        let wheelDeg = 0;
+        let balance = parseInt(localStorage.getItem('kraken_pro_balance')) || 10000;
+        const items = ['🐙', '💎', '🔱', '🪙', '🏴‍☠️'];
 
-        function refreshDisplay(isWin = false) { 
-            const balElement = document.getElementById('balance');
-            const balContainer = document.getElementById('balance-container');
-            
-            balElement.textContent = currentBalance.toLocaleString(); 
-            localStorage.setItem('luxury_balance', currentBalance);
-
-            if(isWin) {
-                balContainer.classList.add('balance-animate');
-                setTimeout(() => balContainer.classList.remove('balance-animate'), 400);
-            }
+        function updateUI() {
+            document.getElementById('balance').textContent = balance.toLocaleString();
+            localStorage.setItem('kraken_pro_balance', balance);
         }
-        refreshDisplay();
-        
-        function getValidatedBet(inputId) {
-            const val = parseInt(document.getElementById(inputId).value);
-            if (isNaN(val) || val <= 0 || val > currentBalance) { 
-                alert("Укажите допустимую ставку!"); 
-                return 0; 
-            }
-            return val;
+        updateUI();
+
+        function changeBet(inputId, change) {
+            const input = document.getElementById(inputId);
+            let currentBet = parseInt(input.value);
+            currentBet += change;
+            if (currentBet < 50) currentBet = 50;
+            if (currentBet > 5000) currentBet = 5000;
+            input.value = currentBet;
         }
 
-        // УЛУЧШЕННЫЕ СЛОТЫ
-        function runSlots() {
-            const bet = getValidatedBet('slot-bet'); if (bet === 0) return;
-            currentBalance -= bet; refreshDisplay();
+        function triggerSplash(amount) {
+            document.getElementById('screen').classList.add('shake-screen');
+            document.getElementById('splash-money').textContent = `+${amount.toLocaleString()} 🪙`;
+            document.getElementById('win-splash').classList.add('active');
+            setTimeout(() => {
+                document.getElementById('screen').classList.remove('shake-screen');
+            }, 400);
+        }
+
+        function closeSplash() {
+            document.getElementById('win-splash').classList.remove('active');
+            const box = document.getElementById('bal-box');
+            box.style.transform = "scale(1.3)";
+            setTimeout(() => box.style.transform = "scale(1)", 300);
+        }
+
+        // ЛОГИКА ДОФАМИНОВЫХ СЛОТОВ (С АНИМАЦИЕЙ ЗАДЕРЖКИ)
+        function playPremiumSlots() {
+            const betInput = document.getElementById('slot-bet');
+            const bet = parseInt(betInput.value);
             
-            const btn = document.getElementById('slot-btn'); btn.disabled = true;
+            if (bet > balance) { alert("Недостаточно золота!"); return; }
+            balance -= bet; updateUI();
+
+            const btn = document.getElementById('slot-btn');
+            btn.disabled = true;
+            document.getElementById('slot-status').innerHTML = "Вычисление комбинации...";
+
             const r1 = document.getElementById('s1');
             const r2 = document.getElementById('s2');
             const r3 = document.getElementById('s3');
-            
-            // Включаем сочный эффект размытия движения
-            r1.classList.add('blur-motion');
-            r2.classList.add('blur-motion');
-            r3.classList.add('blur-motion');
-            
-            document.getElementById('slot-status').innerHTML = "Крутим барабаны...";
 
-            let count = 0;
-            const roller = setInterval(() => {
-                r1.textContent = slotItems[Math.floor(Math.random() * slotItems.length)];
-                r2.textContent = slotItems[Math.floor(Math.random() * slotItems.length)];
-                r3.textContent = slotItems[Math.floor(Math.random() * slotItems.length)];
-                count++;
+            r1.classList.add('blur-fast');
+            r2.classList.add('blur-medium');
+            r3.classList.add('blur-slow');
+
+            // Имитируем реальный просчет как на серверах дорогих казино
+            const final1 = items[Math.floor(Math.random() * items.length)];
+            const final2 = items[Math.floor(Math.random() * items.length)];
+            const final3 = items[Math.floor(Math.random() * items.length)];
+
+            // Рваная поочередная остановка барабанов (Эффект Напряжения)
+            setTimeout(() => {
+                r1.classList.remove('blur-fast');
+                r1.textContent = final1;
+            }, 700);
+
+            setTimeout(() => {
+                r2.classList.remove('blur-medium');
+                r2.textContent = final2;
+            }, 1400);
+
+            // Третий барабан крутится дольше всего для создания интриги!
+            setTimeout(() => {
+                r3.classList.remove('blur-slow');
+                r3.textContent = final3;
+
+                const status = document.getElementById('slot-status');
                 
-                if (count > 15) {
-                    clearInterval(roller);
-                    
-                    // Выключаем размытие
-                    r1.classList.remove('blur-motion');
-                    r2.classList.remove('blur-motion');
-                    r3.classList.remove('blur-motion');
-                    
-                    const res1 = slotItems[Math.floor(Math.random() * slotItems.length)];
-                    const res2 = slotItems[Math.floor(Math.random() * slotItems.length)];
-                    const res3 = slotItems[Math.floor(Math.random() * slotItems.length)];
-                    
-                    r1.textContent = res1; r2.textContent = res2; r3.textContent = res3;
-                    const status = document.getElementById('slot-status');
-                    
-                    if (res1 === res2 && res2 === res3) { 
-                        const winAmount = bet * 6; currentBalance += winAmount; 
-                        status.innerHTML = `<span class="win">ДЖЕКПОТ x6! +${winAmount} 🪙</span>`;
-                        refreshDisplay(true);
-                    } else if (res1 === res2 || res2 === res3 || res1 === res3) { 
-                        const winAmount = bet * 2; currentBalance += winAmount; 
-                        status.innerHTML = `<span class="win">ЗОЛОТОЕ СОВПАДЕНИЕ! +${winAmount} 🪙</span>`;
-                        refreshDisplay(true);
-                    } else { 
-                        status.innerHTML = `<span class="lose">Морская пучина забрала ставку</span>`;
-                        refreshDisplay(false);
-                    }
-                    btn.disabled = false;
+                if (final1 === final2 && final2 === final3) {
+                    let win = bet * 10;
+                    balance += win; updateUI();
+                    triggerSplash(win);
+                    status.innerHTML = `<span class="win-text">Джекпот Тритона x10!</span>`;
+                } else if (final1 === final2 || final2 === final3 || final1 === final3) {
+                    let win = bet * 2.5;
+                    balance += win; updateUI();
+                    status.innerHTML = `<span class="win-text">Выигрыш x2.5! +${win} 🪙</span>`;
+                } else {
+                    status.innerHTML = `<span class="lose-text">Бездна забрала ставку</span>`;
                 }
-            }, 70);
+                btn.disabled = false;
+            }, 2300);
         }
 
-        // УЛУЧШЕННЫЕ КУБИКИ
-        function runDice() {
-            const bet = getValidatedBet('dice-bet'); if (bet === 0) return;
-            currentBalance -= bet; refreshDisplay();
+        // ЛОГИКА ПРЕМИУМ КУБИКОВ
+        function playPremiumDice() {
+            const bet = parseInt(document.getElementById('dice-bet').value);
+            if (bet > balance) { alert("Недостаточно золота!"); return; }
+            balance -= bet; updateUI();
 
+            const btn = document.getElementById('dice-btn');
             const d1 = document.getElementById('d1');
             const d2 = document.getElementById('d2');
-            const btn = document.getElementById('dice-btn');
-            
+
             btn.disabled = true;
-            d1.classList.add('shake-dice');
-            d2.classList.add('shake-dice');
-            document.getElementById('dice-status').innerHTML = "Кости брошены...";
+            d1.classList.add('dice-rolling');
+            d2.classList.add('dice-rolling');
+            document.getElementById('dice-status').innerHTML = "Кубики испытывают судьбу...";
 
             setTimeout(() => {
-                d1.classList.remove('shake-dice');
-                d2.classList.remove('shake-dice');
-                
-                const n1 = Math.floor(Math.random() * 6) + 1; 
+                d1.classList.remove('dice-rolling');
+                d2.classList.remove('dice-rolling');
+
+                const n1 = Math.floor(Math.random() * 6) + 1;
                 const n2 = Math.floor(Math.random() * 6) + 1;
-                
-                d1.textContent = n1; d2.textContent = n2;
-                const sum = n1 + n2; 
+
+                d1.textContent = n1;
+                d2.textContent = n2;
+
+                const sum = n1 + n2;
                 const status = document.getElementById('dice-status');
-                
-                if (sum >= 7) { 
-                    const winAmount = Math.floor(bet * 1.9); currentBalance += winAmount; 
-                    status.innerHTML = `<span class="win">ПОБЕДА (Сумма: ${sum})! +${winAmount} 🪙</span>`; 
-                    refreshDisplay(true);
-                } else { 
-                    status.innerHTML = `<span class="lose">ПРОИГРЫШ (Сумма: ${sum} < 7)</span>`; 
-                    refreshDisplay(false);
-                }
-                btn.disabled = false;
-            }, 500);
-        }
 
-        // УЛУЧШЕННОЕ КОЛЕСО
-        function runWheel() {
-            const bet = getValidatedBet('wheel-bet'); if (bet === 0) return;
-            currentBalance -= bet; refreshDisplay();
-            
-            const btn = document.getElementById('wheel-btn'); btn.disabled = true;
-            document.getElementById('wheel-status').innerHTML = "Колесо Судьбы запущено...";
-
-            const targetSector = Math.floor(Math.random() * 360);
-            wheelDeg += (360 * 5) + targetSector; // 5 полных оборотов для солидности
-            
-            document.getElementById('wheel-obj').style.transform = `rotate(${wheelDeg}deg)`;
-
-            setTimeout(() => {
-                const exactAngle = (360 - (wheelDeg % 360)) % 360;
-                const mult = wheelMultipliers[Math.floor(exactAngle / 60)];
-                const winAmount = Math.floor(bet * mult); 
-                currentBalance += winAmount;
-                
-                const status = document.getElementById('wheel-status');
-                if (mult > 1) {
-                    status.innerHTML = `<span class="win">МНОЖИТЕЛЬ x${mult}! +${winAmount} 🪙</span>`;
-                    refreshDisplay(true);
-                } else if (mult > 0) {
-                    status.innerHTML = `<span class="win">ВОЗВРАТ x${mult}! +${winAmount} 🪙</span>`;
-                    refreshDisplay(true);
+                if (sum >= 7) {
+                    let win = Math.floor(bet * 2);
+                    balance += win; updateUI();
+                    if (sum === 12) {
+                        triggerSplash(win); // Максимальный дофамин при дубле шестерок
+                    }
+                    status.innerHTML = `<span class="win-text">Победа! Очки: ${sum} (Планка 7+)</span>`;
                 } else {
-                    status.innerHTML = `<span class="lose">СЕКТОР ZERO! Ставка потеряна</span>`;
-                    refreshDisplay(false);
+                    status.innerHTML = `<span class="lose-text">Поражение. Выпало: ${sum}</span>`;
                 }
                 btn.disabled = false;
-            }, 3500);
+            }, 900);
         }
     </script>
 </body>
