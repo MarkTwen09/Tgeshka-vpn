@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CLICKER EDITION V13.5</title>
+    <title>SO2: CLICKER EDITION V13.5 [INSPECT UPDATE]</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -85,14 +85,32 @@
             50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.25); } 
         }
         
+        /* КРУТЫЕ ЛУЧИ НА ЗАДНЕМ ПЛАНЕ КЕЙСА */
+        .inspect-rays {
+            position: absolute; width: 400px; height: 400px;
+            background: conic-gradient(from 0deg, transparent, var(--rarity-color), transparent 30%, transparent);
+            top: 45%; left: 50%; transform: translate(-50%, -50%);
+            opacity: 0.15; z-index: -2; animation: spinRays 12s linear infinite; pointer-events: none;
+        }
+        @keyframes spinRays { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        /* ИКОНКА ОРУЖИЯ И АНИМАЦИЯ ОСМОТРА */
         .win-item-icon { 
-            font-size: 110px; margin-bottom: 20px; 
+            font-size: 110px; margin-bottom: 20px; cursor: pointer; user-select: none;
             filter: drop-shadow(0 0 30px var(--rarity-color));
-            animation: floating 3s infinite ease-in-out; 
+            animation: floating 3s infinite ease-in-out; transition: transform 0.1s;
         }
         @keyframes floating { 
             0%, 100% { transform: translateY(0) rotate(0deg); } 
-            50% { transform: translateY(-25px) rotate(5deg); } 
+            50% { transform: translateY(-15px) rotate(3deg); } 
+        }
+        /* Анимация полного осмотра (активируется скриптом) */
+        .inspecting { animation: inspectAnim 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards !important; }
+        @keyframes inspectAnim {
+            0% { transform: translateY(0) rotate(0deg) scale(1); }
+            30% { transform: translateY(-20px) rotate(-15deg) scale(1.1); }
+            70% { transform: translateY(-10px) rotate(375deg) scale(1.1); }
+            100% { transform: translateY(0) rotate(360deg) scale(1); }
         }
 
         .roulette-container { height: 130px; background: rgba(0,0,0,0.4); border-radius: 25px; position: relative; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border); }
@@ -148,10 +166,13 @@
 
     <div id="winOverlay" class="overlay">
         <div style="text-align:center; position:relative;">
+            <div id="rarityRays" class="inspect-rays"></div>
             <div id="rarityGlow" class="glow-circle"></div>
-            <div id="winIcon" class="win-item-icon">🔪</div>
+            <!-- Функция inspectWeapon() повешена на клик по пушке -->
+            <div id="winIcon" class="win-item-icon" onclick="inspectWeapon()">🔪</div>
             <h2 id="winName" style="margin:0; font-size: 28px;">Item</h2>
-            <p id="winRarity" style="font-weight:900; letter-spacing:4px; margin:15px 0 40px; font-size: 14px;"></p>
+            <p id="winRarity" style="font-weight:900; letter-spacing:4px; margin:15px 0 50px; font-size: 14px;"></p>
+            <div style="font-size: 10px; opacity: 0.3; margin-bottom: 15px; margin-top: -35px;">Нажми на предмет, чтобы осмотреть</div>
             <button class="btn-main" onclick="takeWin()" style="margin-bottom: 12px;">В инвентарь</button>
             <button class="btn-main" style="background:none; color:rgba(255,255,255,0.3); border: 1px solid var(--border);" id="sellBtnWin" onclick="sellWin()">Продать</button>
         </div>
@@ -283,10 +304,26 @@
             }, 120000);
         }
 
+        // АБСОЛЮТНО ИЗОЛИРОВАННАЯ ФУНКЦИЯ ОСМОТРА ОРУЖИЯ
+        function inspectWeapon() {
+            const icon = document.getElementById('winIcon');
+            if (icon.classList.contains('inspecting')) return;
+            
+            icon.classList.add('inspecting');
+            setTimeout(() => {
+                icon.classList.remove('inspecting');
+            }, 1200);
+        }
+
         function showWin(win) {
             document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
-            document.getElementById('winIcon').innerText = win.i;
-            document.getElementById('winIcon').style.color = `var(--${win.rar})`;
+            document.getElementById('rarityRays').style.setProperty('--rarity-color', `var(--${win.rar})`);
+            
+            const winIcon = document.getElementById('winIcon');
+            winIcon.innerText = win.i;
+            winIcon.style.color = `var(--${win.rar})`;
+            winIcon.classList.remove('inspecting'); // Сброс анимации от прошлого раза
+            
             document.getElementById('winName').innerText = win.name;
             const rt = document.getElementById('winRarity');
             rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
