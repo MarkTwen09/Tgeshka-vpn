@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CLICKER EDITION V13.7 [COMBO UPDATE]</title>
+    <title>SO2: CLICKER EDITION V13.8 [BUGFIX & BALANCED]</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -24,11 +24,13 @@
             display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-y: auto;
         }
 
+        /* Шапка с балансом */
         .header {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); width: 100%; max-width: 480px;
             padding: 15px 20px; border-radius: 32px; border: 1px solid var(--border); margin-bottom: 10px;
             display: flex; justify-content: space-between; align-items: center;
             cursor: pointer; transition: transform 0.1s; position: relative; overflow: hidden;
+            z-index: 10;
         }
         .header:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.07); }
         
@@ -46,7 +48,6 @@
         .balance-item label { font-size: 9px; opacity: 0.5; text-transform: uppercase; }
         .gold-txt { color: var(--accent); } .silver-txt { color: var(--silver); }
 
-        /* Стильный счетчик комбо */
         .combo-badge {
             background: linear-gradient(135deg, #ff0055, #9900ff);
             padding: 4px 10px; border-radius: 10px; font-size: 10px; font-weight: 900;
@@ -163,7 +164,13 @@
             border-radius: 3px 3px 0 0;
         }
 
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,7,12,0.98); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(20px); }
+        /* ФИКС: Окно выигрыша теперь имеет абсолютный приоритет по слоям */
+        .overlay { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #05070c; display: none; align-items: center; 
+            justify-content: center; z-index: 999999 !important; backdrop-filter: blur(25px);
+            padding-top: env(safe-area-inset-top, 40px);
+        }
         .modal { background: #121929; padding: 25px; border-radius: 30px; border: 1px solid var(--border); width: 85%; max-width: 380px; text-align: center; }
         .glow-circle { position: absolute; width: 320px; height: 320px; background: radial-gradient(circle, var(--rarity-color) 0%, transparent 70%); top: 45%; left: 50%; transform: translate(-50%, -50%); opacity: 0.6; filter: blur(50px); z-index: -1; }
         .win-item-icon { font-size: 110px; margin-bottom: 20px; filter: drop-shadow(0 0 30px var(--rarity-color)); animation: floating 3s infinite ease-in-out; }
@@ -172,13 +179,13 @@
 </head>
 <body>
 
-    <div class="header" onclick="clicker(event)">
+    <div class="header" id="mainHeader" onclick="clicker(event)">
         <div class="currency-row">
             <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
             <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
             <div id="comboBadge" class="combo-badge">COMBO x1</div>
         </div>
-        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.7 • kaoface</div>
+        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.8 • kaoface</div>
     </div>
 
     <div class="mission-panel" id="missionBox">
@@ -242,15 +249,24 @@
     </div>
 
     <script>
-        // ОБНОВЛЕНО: Цена квантовых ножей снижена до 10000G
+        // ИСПРАВЛЕНО: Уникальный пул предметов под каждый кейс отдельно
         const SKINS = [
+            // Кейс 100S
             { id: 0, name: "G22 | Casual", rar: "common", p: 5, i: "🔫", currency: "S" },
             { id: 1, name: "USP | Genesis", rar: "uncommon", p: 35, i: "🔫", currency: "S" },
+            // Кейс 250G (Scorpion Collection)
             { id: 2, name: "M4 | Tiger", rar: "rare", p: 120, i: "🔫", currency: "G" },
             { id: 3, name: "AKR | Necro", rar: "epic", p: 480, i: "🔫", currency: "G" },
             { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1200, i: "🎯", currency: "G" },
             { id: 5, name: "Karambit | Gold", rar: "arcane", p: 25000, i: "🔪", currency: "G" },
+            // Кейс 500G (Empire Collection - НОВИНКИ)
+            { id: 10, name: "P350 | Neon Rush", rar: "rare", p: 290, i: "💥", currency: "G" },
+            { id: 11, name: "M4A1 | Bubblegum", rar: "epic", p: 850, i: "🍬", currency: "G" },
+            { id: 12, name: "AWM | Genesis", rar: "legendary", p: 2400, i: "⚡", currency: "G" },
+            { id: 13, name: "M9 | Dragon Glass", rar: "arcane", p: 31000, i: "🗡️", currency: "G" },
+            // Ножевой кейс 1500G
             { id: 6, name: "Butterfly | Star", rar: "arcane", p: 18000, i: "🦋", currency: "G" },
+            // Cyberpunk Box 5000G
             { id: 7, name: "M4A1 | Cyber Net", rar: "epic", p: 950, i: "🪐", currency: "G" },
             { id: 8, name: "AKR | Neon Overdrive", rar: "legendary", p: 2900, i: "⚡", currency: "G" },
             { id: 9, name: "Dual Daggers | Quantum", rar: "arcane", p: 10000, i: "🔮", currency: "G" }
@@ -273,43 +289,34 @@
             mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
         };
 
-        // Локальные переменные комбо системы (не нагружают память)
         let clickCount = 0;
-        let lastClickTime = 0;
         let comboTimeout = null;
 
-        if (state.market.length < SKINS.length) {
-            for (let i = state.market.length; i < SKINS.length; i++) {
-                state.market.push({id: SKINS[i].id, cur: SKINS[i].p, chg: 0, old: SKINS[i].p});
+        // Авто-добавление новых пушек на рынок при первом старте
+        SKINS.forEach(s => {
+            if (!state.market.some(m => m.id === s.id)) {
+                state.market.push({id: s.id, cur: s.p, chg: 0, old: s.p});
             }
-        }
+        });
 
-        // ОБНОВЛЕНО: Новая система комбо-кликов
         function clicker(e) {
-            const now = Date.now();
             clearTimeout(comboTimeout);
-
-            // Считаем скорость кликов
             clickCount++;
             
-            // Вычисляем уровень комбо на основе накликанного
             let multiplier = 1;
             if (clickCount >= 150) multiplier = 5;
             else if (clickCount >= 100) multiplier = 3;
             else if (clickCount >= 50) multiplier = 2;
 
-            // Начисляем буст серебра
             const reward = 0.01 * multiplier;
             state.silver += reward;
 
-            // Показываем плашку комбо
             const badge = document.getElementById('comboBadge');
             if(badge) {
                 badge.innerText = `COMBO x${multiplier}`;
                 if (multiplier > 1) badge.classList.add('active');
             }
 
-            // Анимация вылетающих цифр
             const anim = document.createElement('div');
             anim.className = 'click-anim';
             anim.innerText = `+${reward.toFixed(2)} S`;
@@ -318,7 +325,6 @@
             document.body.appendChild(anim);
             setTimeout(() => anim.remove(), 600);
 
-            // Сброс комбо, если игрок замер на 1.5 секунды
             comboTimeout = setTimeout(() => {
                 clickCount = 0;
                 if(badge) badge.classList.remove('active');
@@ -346,19 +352,18 @@
             updateCasePreview(i);
         }
 
+        // ИСПРАВЛЕНО: Превью показывает только те скины, которые реально лежат в выбранном кейсе
         function updateCasePreview(caseIdx) {
             const previewGrid = document.getElementById('casePreviewGrid');
             if (!previewGrid) return;
             previewGrid.innerHTML = '';
             
             let availableSkins = [];
-            if (caseIdx === 4) {
-                availableSkins = SKINS.filter(s => s.id >= 7);
-            } else if (caseIdx === 3) {
-                availableSkins = SKINS.filter(s => s.rar === 'arcane' && s.id < 7);
-            } else {
-                availableSkins = SKINS.filter(s => s.id < 5);
-            }
+            if (caseIdx === 0) availableSkins = SKINS.filter(s => s.id === 0 || s.id === 1 || s.id === 6); // 100S кейс + тайный нож
+            else if (caseIdx === 1) availableSkins = SKINS.filter(s => s.id >= 2 && s.id <= 5); // 250G Scorpion
+            else if (caseIdx === 2) availableSkins = SKINS.filter(s => s.id >= 10 && s.id <= 13); // 500G Empire
+            else if (caseIdx === 3) availableSkins = SKINS.filter(s => s.rar === 'arcane' && s.id < 7); // Ножи
+            else if (caseIdx === 4) availableSkins = SKINS.filter(s => s.id >= 7 && s.id <= 9); // Cyber Box
 
             availableSkins.forEach(s => {
                 previewGrid.innerHTML += `
@@ -370,7 +375,6 @@
             });
         }
 
-        // ОБНОВЛЕНО: Снятие стоимости 5000G для Cyber Box
         function openCase() {
             const costs = [{s:100}, {g:250}, {g:500}, {g:1500}, {g:5000}];
             const cost = costs[state.curCase];
@@ -384,17 +388,34 @@
             track.style.transition = 'none'; track.style.transform = 'translateX(0)'; track.innerHTML = '';
             let win;
 
+            // ИСПРАВЛЕНО: У каждого кейса теперь своя изолированная математика шансов дропа
             const getSkin = () => {
-                if (state.curCase === 4) {
-                    const rng = Math.random();
-                    if(rng < 0.15) return SKINS[9];
-                    if(rng < 0.45) return SKINS[8];
-                    return SKINS[7];
-                } else {
-                    const rng = Math.random();
-                    if(rng < 0.005) return SKINS[Math.floor(Math.random()*2)+5];
-                    if(rng < 0.06) return SKINS[4]; if(rng < 0.18) return SKINS[3];
-                    return SKINS[Math.floor(Math.random()*3)];
+                const rng = Math.random();
+                if (state.curCase === 0) {
+                    if (rng < 0.002) return SKINS.find(s => s.id === 6); 
+                    if (rng < 0.25) return SKINS.find(s => s.id === 1); 
+                    return SKINS.find(s => s.id === 0); 
+                }
+                else if (state.curCase === 1) {
+                    if (rng < 0.005) return SKINS.find(s => s.id === 5); 
+                    if (rng < 0.07) return SKINS.find(s => s.id === 4);  
+                    if (rng < 0.22) return SKINS.find(s => s.id === 3);  
+                    return SKINS.find(s => s.id === 2);                  
+                }
+                else if (state.curCase === 2) {
+                    if (rng < 0.012) return SKINS.find(s => s.id === 13); 
+                    if (rng < 0.09) return SKINS.find(s => s.id === 12);  
+                    if (rng < 0.26) return SKINS.find(s => s.id === 11);  
+                    return SKINS.find(s => s.id === 10);                  
+                }
+                else if (state.curCase === 3) {
+                    const knives = SKINS.filter(s => s.rar === 'arcane' && s.id < 7);
+                    return knives[Math.floor(Math.random() * knives.length)];
+                }
+                else if (state.curCase === 4) {
+                    if(rng < 0.15) return SKINS.find(s => s.id === 9);  
+                    if(rng < 0.45) return SKINS.find(s => s.id === 8);  
+                    return SKINS.find(s => s.id === 7);                  
                 }
             };
 
@@ -449,7 +470,9 @@
             }, 120000);
         }
 
+        // ФИКС: Скрываем шапку полностью при активации окна выигрыша пушки
         function showWin(win) {
+            document.getElementById('mainHeader').style.display = 'none'; // Полное скрытие
             document.getElementById('rarityGlow').style.background = `radial-gradient(circle, var(--${win.rar}) 0%, transparent 70%)`;
             document.getElementById('winIcon').innerText = win.i;
             document.getElementById('winIcon').style.color = `var(--${win.rar})`;
@@ -461,11 +484,21 @@
             document.getElementById('winOverlay').style.display = 'flex';
         }
 
-        function takeWin() { state.inv.unshift(state.lastWin); document.getElementById('winOverlay').style.display = 'none'; sync(); }
+        // ФИКС: Возвращаем шапку обратно при закрытии окна выигрыша
+        function takeWin() { 
+            state.inv.unshift(state.lastWin); 
+            document.getElementById('winOverlay').style.display = 'none'; 
+            document.getElementById('mainHeader').style.display = 'flex'; // Возвращаем
+            sync(); 
+        }
+        
         function sellWin() { 
             const p = Math.floor(state.market.find(m => m.id === state.lastWin.id).cur * 0.8);
             if(state.lastWin.currency === "G") state.money += p; else state.silver += p;
-            checkMission('sell'); document.getElementById('winOverlay').style.display = 'none'; sync(); 
+            checkMission('sell'); 
+            document.getElementById('winOverlay').style.display = 'none'; 
+            document.getElementById('mainHeader').style.display = 'flex'; // Возвращаем
+            sync(); 
         }
 
         function buyMarket(id) {
@@ -511,6 +544,7 @@
                 mg.innerHTML = '';
                 state.market.forEach(m => {
                     const s = SKINS.find(x => x.id === m.id);
+                    if (!s) return;
                     const col = m.cur >= m.old ? 'price-up' : 'price-down';
                     mg.innerHTML += `<div class="card" onclick="buyMarket(${s.id})"><div class="market-header"><span>${s.i}</span><div class="price-change-row ${col}">${m.chg}%</div></div><div style="font-size:10px">${s.name}</div><b>${m.cur}${s.currency}</b></div>`;
                 });
@@ -532,6 +566,7 @@
         function updateMarket() {
             state.market.forEach(item => {
                 const s = SKINS.find(x => x.id === item.id);
+                if (!s) return;
                 item.old = item.cur;
                 const move = (Math.random() - 0.5) * 0.2;
                 item.cur = Math.max(Math.floor(s.p * (1 + move)), 2);
