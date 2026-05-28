@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CLICKER EDITION V13.6 [PREVIEW UPDATE]</title>
+    <title>SO2: CLICKER EDITION V13.6 [FIXED SCROLL]</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -17,10 +17,12 @@
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        
+        /* ИСПРАВЛЕНО: Убрали overflow: hidden, чтобы страница нормально листалась пальцем вниз */
         body {
             background: var(--bg); background: radial-gradient(circle at 50% -10%, #1a2a4d 0%, #0a0f1b 100%);
             color: white; font-family: 'SF Pro Display', sans-serif; margin: 0; padding: 12px;
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-y: auto;
         }
 
         .header {
@@ -63,7 +65,8 @@
         .view { display: none; width: 100%; max-width: 480px; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 30px; overflow-y: auto; max-height: 50vh; width: 100%; }
+        /* ИСПРАВЛЕНО: Ограничили высоту вкладок инвентаря и рынка, чтобы они прокручивались внутри себя */
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 30px; overflow-y: auto; max-height: 60vh; width: 100%; }
         .card { background: var(--glass); padding: 15px; border-radius: 22px; text-align: center; border: 1px solid var(--border); position: relative; transition: 0.2s; cursor: pointer; }
         .card.selected { border: 2px solid var(--up); box-shadow: 0 0 15px rgba(0,255,136,0.2); }
         
@@ -71,12 +74,10 @@
         .price-change-row { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 900; }
         .price-up { color: var(--up); } .price-down { color: var(--down); }
 
-        /* СЕЛЕКТОР КЕЙСОВ */
         .case-selector { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
         .case-card { background: var(--glass); padding: 12px 8px; border-radius: 15px; border: 1px solid var(--border); text-align: center; cursor: pointer; font-size: 11px; font-weight: bold; transition: all 0.2s ease; }
         .case-card.active { border-color: var(--blue); background: rgba(0, 210, 255, 0.1); }
         
-        /* СТИЛЬ ДЛЯ ИННОВАЦИОННОГО КЕЙСА */
         .case-card.cyber-premium {
             grid-column: span 2;
             border: 1px dashed var(--cyber);
@@ -98,7 +99,6 @@
             50% { border-color: #00ffff; text-shadow: 0 0 8px rgba(0,255,255,0.6); }
         }
 
-        /* РУЛЕТКА И КИБЕР-МОД */
         .roulette-container { height: 130px; background: rgba(0,0,0,0.4); border-radius: 25px; position: relative; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border); transition: 0.3s; }
         .roulette-container.cyber-theme { border-color: var(--cyber); box-shadow: 0 0 15px var(--cyber-glow); background: rgba(20, 0, 15, 0.6); }
         
@@ -106,11 +106,11 @@
         .t-item { min-width: 110px; height: 110px; margin: 0 6px; background: var(--glass); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; border-bottom: 5px solid #333; }
         .pointer { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff3e3e; z-index: 10; transform: translateX(-50%); }
 
-        .btn-main { width: 100%; padding: 18px; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 13px; transition: 0.2s; }
+        /* ИСПРАВЛЕНО: Добавили margin-bottom кнопке, чтобы она не перекрывалась интерфейсом Safari/Chrome */
+        .btn-main { width: 100%; padding: 18px; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 13px; transition: 0.2s; margin-bottom: 40px; }
         .btn-main:disabled { opacity: 0.2; pointer-events: none; }
         .btn-main.cyber-btn { background: linear-gradient(90deg, #ff007f, #7f00ff); color: #fff; box-shadow: 0 0 15px var(--cyber-glow); text-shadow: 0 0 5px #fff; }
 
-        /* БЛОК СТИЛЬНОГО ПРЕДОСМОТРА */
         .preview-container {
             width: 100%;
             background: rgba(255, 255, 255, 0.02);
@@ -243,7 +243,6 @@
             { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1200, i: "🎯", currency: "G" },
             { id: 5, name: "Karambit | Gold", rar: "arcane", p: 25000, i: "🔪", currency: "G" },
             { id: 6, name: "Butterfly | Star", rar: "arcane", p: 18000, i: "🦋", currency: "G" },
-            // Cyberpunk обновления
             { id: 7, name: "M4A1 | Cyber Net", rar: "epic", p: 950, i: "🪐", currency: "G" },
             { id: 8, name: "AKR | Neon Overdrive", rar: "legendary", p: 2900, i: "⚡", currency: "G" },
             { id: 9, name: "Dual Daggers | Quantum", rar: "arcane", p: 35000, i: "🔮", currency: "G" }
@@ -266,7 +265,6 @@
             mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
         };
 
-        // Поддержка и защита старых сохранений
         if (state.market.length < SKINS.length) {
             for (let i = state.market.length; i < SKINS.length; i++) {
                 state.market.push({id: SKINS[i].id, cur: SKINS[i].p, chg: 0, old: SKINS[i].p});
@@ -290,7 +288,6 @@
             document.querySelectorAll('.case-card').forEach(c => c.classList.remove('active'));
             document.getElementById('c'+i).classList.add('active');
 
-            // Неоновый рестайлинг рулетки под кибер-апдейт
             const container = document.getElementById('rContainer');
             const spinBtn = document.getElementById('spinBtn');
             if (container && spinBtn) {
@@ -305,7 +302,6 @@
             updateCasePreview(i);
         }
 
-        // Абсолютно безопасный рендер содержимого кейса
         function updateCasePreview(caseIdx) {
             const previewGrid = document.getElementById('casePreviewGrid');
             if (!previewGrid) return;
@@ -500,7 +496,6 @@
         }
         setInterval(updateMarket, 6000);
         
-        // Стартовый запуск предосмотра для дефолтного кейса
         updateCasePreview(state.curCase);
         sync();
     </script>
