@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CLICKER EDITION V13.5 [CYBER UPDATE]</title>
+    <title>SO2: CLICKER EDITION V13.6 [PREVIEW UPDATE]</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -12,7 +12,6 @@
             --accent: #ffcc00; --silver: #b0c3d9; --blue: #00d2ff;
             --up: #00ff88; --down: #ff4d4d;
             --common: #b0c3d9; --uncommon: #5e98d9; --rare: #4b69ff; --epic: #8847ff; --legendary: #d32ce6; --arcane: #eb4b4b;
-            /* Цвет для инновационного кейса */
             --cyber: #ff007f;
             --cyber-glow: rgba(255, 0, 127, 0.3);
         }
@@ -99,36 +98,70 @@
             50% { border-color: #00ffff; text-shadow: 0 0 8px rgba(0,255,255,0.6); }
         }
 
-        .glow-circle { 
-            position: absolute; width: 320px; height: 320px; 
-            background: radial-gradient(circle, var(--rarity-color) 0%, transparent 70%);
-            top: 45%; left: 50%; transform: translate(-50%, -50%); opacity: 0.6; 
-            filter: blur(50px); z-index: -1; animation: pulseGlow 2.5s infinite ease-in-out; 
-        }
-        @keyframes pulseGlow { 
-            0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); } 
-            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.25); } 
-        }
+        /* РУЛЕТКА И КИБЕР-МОД */
+        .roulette-container { height: 130px; background: rgba(0,0,0,0.4); border-radius: 25px; position: relative; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border); transition: 0.3s; }
+        .roulette-container.cyber-theme { border-color: var(--cyber); box-shadow: 0 0 15px var(--cyber-glow); background: rgba(20, 0, 15, 0.6); }
         
-        .win-item-icon { 
-            font-size: 110px; margin-bottom: 20px; 
-            filter: drop-shadow(0 0 30px var(--rarity-color));
-            animation: floating 3s infinite ease-in-out; 
-        }
-        @keyframes floating { 
-            0%, 100% { transform: translateY(0) rotate(0deg); } 
-            50% { transform: translateY(-25px) rotate(5deg); } 
-        }
-
-        .roulette-container { height: 130px; background: rgba(0,0,0,0.4); border-radius: 25px; position: relative; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border); }
         .track { display: flex; position: absolute; left: 0; top: 10px; transition: transform 6s cubic-bezier(0.1, 0, 0, 1); }
         .t-item { min-width: 110px; height: 110px; margin: 0 6px; background: var(--glass); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; border-bottom: 5px solid #333; }
         .pointer { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff3e3e; z-index: 10; transform: translateX(-50%); }
 
-        .btn-main { width: 100%; padding: 18px; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 13px; }
+        .btn-main { width: 100%; padding: 18px; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 13px; transition: 0.2s; }
         .btn-main:disabled { opacity: 0.2; pointer-events: none; }
+        .btn-main.cyber-btn { background: linear-gradient(90deg, #ff007f, #7f00ff); color: #fff; box-shadow: 0 0 15px var(--cyber-glow); text-shadow: 0 0 5px #fff; }
+
+        /* БЛОК СТИЛЬНОГО ПРЕДОСМОТРА */
+        .preview-container {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+        .preview-title {
+            font-size: 10px;
+            font-weight: 900;
+            opacity: 0.4;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+        .preview-grid {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+        .preview-card {
+            min-width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .preview-card:active { transform: scale(0.9); }
+        .preview-rarity-line {
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            width: 80%;
+            height: 3px;
+            border-radius: 3px 3px 0 0;
+        }
+
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5,7,12,0.98); display: none; align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(20px); }
         .modal { background: #121929; padding: 25px; border-radius: 30px; border: 1px solid var(--border); width: 85%; max-width: 380px; text-align: center; }
+        .glow-circle { position: absolute; width: 320px; height: 320px; background: radial-gradient(circle, var(--rarity-color) 0%, transparent 70%); top: 45%; left: 50%; transform: translate(-50%, -50%); opacity: 0.6; filter: blur(50px); z-index: -1; }
+        .win-item-icon { font-size: 110px; margin-bottom: 20px; filter: drop-shadow(0 0 30px var(--rarity-color)); animation: floating 3s infinite ease-in-out; }
+        @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
     </style>
 </head>
 <body>
@@ -138,7 +171,7 @@
             <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
             <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
         </div>
-        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.5 • kaoface</div>
+        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.6 • kaoface</div>
     </div>
 
     <div class="mission-panel" id="missionBox">
@@ -159,10 +192,16 @@
             <div id="c1" class="case-card active" onclick="setCase(1)">📦 250G</div>
             <div id="c2" class="case-card" onclick="setCase(2)">📦 500G</div>
             <div id="c3" class="case-card" onclick="setCase(3)">🔪 1500G</div>
-            <!-- Инновационный Cyber кейс на всю ширину сетки -->
             <div id="c4" class="case-card cyber-premium" onclick="setCase(4)">🌌 CYBERPUNK BOX • 2000G</div>
         </div>
-        <div class="roulette-container"><div class="pointer"></div><div id="track" class="track"></div></div>
+        
+        <div id="rContainer" class="roulette-container"><div class="pointer"></div><div id="track" class="track"></div></div>
+        
+        <div class="preview-container">
+            <div class="preview-title">Внутри этого кейса:</div>
+            <div id="casePreviewGrid" class="preview-grid"></div>
+        </div>
+
         <button id="spinBtn" class="btn-main" onclick="openCase()">Открыть</button>
     </div>
 
@@ -196,7 +235,6 @@
     </div>
 
     <script>
-        // Базовые скины + новые инновационные скины Cyberpunk коллекции (ID 7, 8, 9)
         const SKINS = [
             { id: 0, name: "G22 | Casual", rar: "common", p: 5, i: "🔫", currency: "S" },
             { id: 1, name: "USP | Genesis", rar: "uncommon", p: 35, i: "🔫", currency: "S" },
@@ -205,8 +243,7 @@
             { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1200, i: "🎯", currency: "G" },
             { id: 5, name: "Karambit | Gold", rar: "arcane", p: 25000, i: "🔪", currency: "G" },
             { id: 6, name: "Butterfly | Star", rar: "arcane", p: 18000, i: "🦋", currency: "G" },
-            
-            // Эксклюзивные Cyberpunk предметы
+            // Cyberpunk обновления
             { id: 7, name: "M4A1 | Cyber Net", rar: "epic", p: 950, i: "🪐", currency: "G" },
             { id: 8, name: "AKR | Neon Overdrive", rar: "legendary", p: 2900, i: "⚡", currency: "G" },
             { id: 9, name: "Dual Daggers | Quantum", rar: "arcane", p: 35000, i: "🔮", currency: "G" }
@@ -224,13 +261,12 @@
             money: parseFloat(localStorage.getItem('v12_money')) || 1000,
             silver: parseFloat(localStorage.getItem('v12_silver')) || 1000,
             inv: JSON.parse(localStorage.getItem('v12_inv')) || [],
-            // Автоматическое развёртывание рынка под новые скины
             market: JSON.parse(localStorage.getItem('v12_market')) || SKINS.map(s => ({id: s.id, cur: s.p, chg: 0, old: s.p})),
             curCase: 1, lastWin: null, selCraft: [],
             mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
         };
 
-        // На случай, если у игрока старый сейв без новых ID рынка — аккуратно добавляем их
+        // Поддержка и защита старых сохранений
         if (state.market.length < SKINS.length) {
             for (let i = state.market.length; i < SKINS.length; i++) {
                 state.market.push({id: SKINS[i].id, cur: SKINS[i].p, chg: 0, old: SKINS[i].p});
@@ -253,10 +289,48 @@
             state.curCase = i;
             document.querySelectorAll('.case-card').forEach(c => c.classList.remove('active'));
             document.getElementById('c'+i).classList.add('active');
+
+            // Неоновый рестайлинг рулетки под кибер-апдейт
+            const container = document.getElementById('rContainer');
+            const spinBtn = document.getElementById('spinBtn');
+            if (container && spinBtn) {
+                if (i === 4) {
+                    container.classList.add('cyber-theme');
+                    spinBtn.classList.add('cyber-btn');
+                } else {
+                    container.classList.remove('cyber-theme');
+                    spinBtn.classList.remove('cyber-btn');
+                }
+            }
+            updateCasePreview(i);
+        }
+
+        // Абсолютно безопасный рендер содержимого кейса
+        function updateCasePreview(caseIdx) {
+            const previewGrid = document.getElementById('casePreviewGrid');
+            if (!previewGrid) return;
+            previewGrid.innerHTML = '';
+            
+            let availableSkins = [];
+            if (caseIdx === 4) {
+                availableSkins = SKINS.filter(s => s.id >= 7);
+            } else if (caseIdx === 3) {
+                availableSkins = SKINS.filter(s => s.rar === 'arcane' && s.id < 7);
+            } else {
+                availableSkins = SKINS.filter(s => s.id < 5);
+            }
+
+            availableSkins.forEach(s => {
+                previewGrid.innerHTML += `
+                    <div class="preview-card" onclick="alert('${s.name} \\nРыночная цена: ${s.p} ${s.currency}')">
+                        ${s.i}
+                        <div class="preview-rarity-line" style="background: var(--${s.rar});"></div>
+                    </div>
+                `;
+            });
         }
 
         function openCase() {
-            // Добавлена стоимость 5-го кейса (Cyberpunk Box = 2000G)
             const costs = [{s:100}, {g:250}, {g:500}, {g:1500}, {g:2000}];
             const cost = costs[state.curCase];
             if(cost.g && state.money < cost.g) return alert("Мало Gold!");
@@ -269,13 +343,12 @@
             track.style.transition = 'none'; track.style.transform = 'translateX(0)'; track.innerHTML = '';
             let win;
 
-            // УМНАЯ СИСТЕМА ДРОПА: Если выбран Cyberpunk Box, крутится только новый контент
             const getSkin = () => {
                 if (state.curCase === 4) {
                     const rng = Math.random();
-                    if(rng < 0.15) return SKINS[9];       // Arcane Quantum Мечи (15%)
-                    if(rng < 0.45) return SKINS[8];       // Legendary Автомат (30%)
-                    return SKINS[7];                      // Epic Винтовка (55%)
+                    if(rng < 0.15) return SKINS[9];
+                    if(rng < 0.45) return SKINS[8];
+                    return SKINS[7];
                 } else {
                     const rng = Math.random();
                     if(rng < 0.005) return SKINS[Math.floor(Math.random()*2)+5];
@@ -321,8 +394,7 @@
             const win = pool[Math.floor(Math.random()*pool.length)];
             state.selCraft.sort((a,b)=>b-a).forEach(i => state.inv.splice(i,1));
             state.selCraft = []; state.lastWin = win; 
-            checkMission('craft');
-            showWin(win); sync();
+            checkMission('craft'); showWin(win); sync();
         }
 
         function claimMission() {
@@ -337,7 +409,7 @@
         }
 
         function showWin(win) {
-            document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
+            document.getElementById('rarityGlow').style.background = `radial-gradient(circle, var(--${win.rar}) 0%, transparent 70%)`;
             document.getElementById('winIcon').innerText = win.i;
             document.getElementById('winIcon').style.color = `var(--${win.rar})`;
             document.getElementById('winName').innerText = win.name;
@@ -427,6 +499,9 @@
             sync();
         }
         setInterval(updateMarket, 6000);
+        
+        // Стартовый запуск предосмотра для дефолтного кейса
+        updateCasePreview(state.curCase);
         sync();
     </script>
 </body>
