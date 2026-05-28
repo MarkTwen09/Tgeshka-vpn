@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CLICKER EDITION V13.6 [FIXED SCROLL]</title>
+    <title>SO2: CLICKER EDITION V13.7 [COMBO UPDATE]</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -18,7 +18,6 @@
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         
-        /* ИСПРАВЛЕНО: Убрали overflow: hidden, чтобы страница нормально листалась пальцем вниз */
         body {
             background: var(--bg); background: radial-gradient(circle at 50% -10%, #1a2a4d 0%, #0a0f1b 100%);
             color: white; font-family: 'SF Pro Display', sans-serif; margin: 0; padding: 12px;
@@ -42,10 +41,19 @@
             100% { transform: translateY(-40px); opacity: 0; }
         }
 
-        .currency-row { display: flex; gap: 15px; }
+        .currency-row { display: flex; gap: 15px; align-items: center; }
         .balance-item { display: flex; flex-direction: column; }
         .balance-item label { font-size: 9px; opacity: 0.5; text-transform: uppercase; }
         .gold-txt { color: var(--accent); } .silver-txt { color: var(--silver); }
+
+        /* Стильный счетчик комбо */
+        .combo-badge {
+            background: linear-gradient(135deg, #ff0055, #9900ff);
+            padding: 4px 10px; border-radius: 10px; font-size: 10px; font-weight: 900;
+            letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(255, 0, 85, 0.4);
+            opacity: 0; transform: scale(0.8); transition: all 0.2s ease;
+        }
+        .combo-badge.active { opacity: 1; transform: scale(1); }
 
         .mission-panel {
             background: rgba(0, 210, 255, 0.05); border: 1px dashed var(--blue);
@@ -65,7 +73,6 @@
         .view { display: none; width: 100%; max-width: 480px; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* ИСПРАВЛЕНО: Ограничили высоту вкладок инвентаря и рынка, чтобы они прокручивались внутри себя */
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 30px; overflow-y: auto; max-height: 60vh; width: 100%; }
         .card { background: var(--glass); padding: 15px; border-radius: 22px; text-align: center; border: 1px solid var(--border); position: relative; transition: 0.2s; cursor: pointer; }
         .card.selected { border: 2px solid var(--up); box-shadow: 0 0 15px rgba(0,255,136,0.2); }
@@ -106,7 +113,6 @@
         .t-item { min-width: 110px; height: 110px; margin: 0 6px; background: var(--glass); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; border-bottom: 5px solid #333; }
         .pointer { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff3e3e; z-index: 10; transform: translateX(-50%); }
 
-        /* ИСПРАВЛЕНО: Добавили margin-bottom кнопке, чтобы она не перекрывалась интерфейсом Safari/Chrome */
         .btn-main { width: 100%; padding: 18px; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 13px; transition: 0.2s; margin-bottom: 40px; }
         .btn-main:disabled { opacity: 0.2; pointer-events: none; }
         .btn-main.cyber-btn { background: linear-gradient(90deg, #ff007f, #7f00ff); color: #fff; box-shadow: 0 0 15px var(--cyber-glow); text-shadow: 0 0 5px #fff; }
@@ -170,8 +176,9 @@
         <div class="currency-row">
             <div class="balance-item"><label>Gold</label><b class="gold-txt"><span id="money">0</span> G</b></div>
             <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
+            <div id="comboBadge" class="combo-badge">COMBO x1</div>
         </div>
-        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.6 • kaoface</div>
+        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.7 • kaoface</div>
     </div>
 
     <div class="mission-panel" id="missionBox">
@@ -192,7 +199,7 @@
             <div id="c1" class="case-card active" onclick="setCase(1)">📦 250G</div>
             <div id="c2" class="case-card" onclick="setCase(2)">📦 500G</div>
             <div id="c3" class="case-card" onclick="setCase(3)">🔪 1500G</div>
-            <div id="c4" class="case-card cyber-premium" onclick="setCase(4)">🌌 CYBERPUNK BOX • 2000G</div>
+            <div id="c4" class="case-card cyber-premium" onclick="setCase(4)">🌌 CYBERPUNK BOX • 5000G</div>
         </div>
         
         <div id="rContainer" class="roulette-container"><div class="pointer"></div><div id="track" class="track"></div></div>
@@ -235,6 +242,7 @@
     </div>
 
     <script>
+        // ОБНОВЛЕНО: Цена квантовых ножей снижена до 10000G
         const SKINS = [
             { id: 0, name: "G22 | Casual", rar: "common", p: 5, i: "🔫", currency: "S" },
             { id: 1, name: "USP | Genesis", rar: "uncommon", p: 35, i: "🔫", currency: "S" },
@@ -245,7 +253,7 @@
             { id: 6, name: "Butterfly | Star", rar: "arcane", p: 18000, i: "🦋", currency: "G" },
             { id: 7, name: "M4A1 | Cyber Net", rar: "epic", p: 950, i: "🪐", currency: "G" },
             { id: 8, name: "AKR | Neon Overdrive", rar: "legendary", p: 2900, i: "⚡", currency: "G" },
-            { id: 9, name: "Dual Daggers | Quantum", rar: "arcane", p: 35000, i: "🔮", currency: "G" }
+            { id: 9, name: "Dual Daggers | Quantum", rar: "arcane", p: 10000, i: "🔮", currency: "G" }
         ];
 
         const MISSIONS = [
@@ -265,21 +273,57 @@
             mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
         };
 
+        // Локальные переменные комбо системы (не нагружают память)
+        let clickCount = 0;
+        let lastClickTime = 0;
+        let comboTimeout = null;
+
         if (state.market.length < SKINS.length) {
             for (let i = state.market.length; i < SKINS.length; i++) {
                 state.market.push({id: SKINS[i].id, cur: SKINS[i].p, chg: 0, old: SKINS[i].p});
             }
         }
 
+        // ОБНОВЛЕНО: Новая система комбо-кликов
         function clicker(e) {
-            state.silver += 0.01;
+            const now = Date.now();
+            clearTimeout(comboTimeout);
+
+            // Считаем скорость кликов
+            clickCount++;
+            
+            // Вычисляем уровень комбо на основе накликанного
+            let multiplier = 1;
+            if (clickCount >= 150) multiplier = 5;
+            else if (clickCount >= 100) multiplier = 3;
+            else if (clickCount >= 50) multiplier = 2;
+
+            // Начисляем буст серебра
+            const reward = 0.01 * multiplier;
+            state.silver += reward;
+
+            // Показываем плашку комбо
+            const badge = document.getElementById('comboBadge');
+            if(badge) {
+                badge.innerText = `COMBO x${multiplier}`;
+                if (multiplier > 1) badge.classList.add('active');
+            }
+
+            // Анимация вылетающих цифр
             const anim = document.createElement('div');
             anim.className = 'click-anim';
-            anim.innerText = '+0.01 S';
+            anim.innerText = `+${reward.toFixed(2)} S`;
             anim.style.left = e.clientX - 20 + 'px';
             anim.style.top = e.clientY - 20 + 'px';
             document.body.appendChild(anim);
             setTimeout(() => anim.remove(), 600);
+
+            // Сброс комбо, если игрок замер на 1.5 секунды
+            comboTimeout = setTimeout(() => {
+                clickCount = 0;
+                if(badge) badge.classList.remove('active');
+            }, 1500);
+
             sync();
         }
 
@@ -326,8 +370,9 @@
             });
         }
 
+        // ОБНОВЛЕНО: Снятие стоимости 5000G для Cyber Box
         function openCase() {
-            const costs = [{s:100}, {g:250}, {g:500}, {g:1500}, {g:2000}];
+            const costs = [{s:100}, {g:250}, {g:500}, {g:1500}, {g:5000}];
             const cost = costs[state.curCase];
             if(cost.g && state.money < cost.g) return alert("Мало Gold!");
             if(cost.s && state.silver < cost.s) return alert("Мало Silver!");
