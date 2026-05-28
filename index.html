@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CLICKER EDITION V13.5 [INSPECT UPDATE]</title>
+    <title>SO2: CLICKER EDITION V13.5 [CYBER UPDATE]</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -12,6 +12,9 @@
             --accent: #ffcc00; --silver: #b0c3d9; --blue: #00d2ff;
             --up: #00ff88; --down: #ff4d4d;
             --common: #b0c3d9; --uncommon: #5e98d9; --rare: #4b69ff; --epic: #8847ff; --legendary: #d32ce6; --arcane: #eb4b4b;
+            /* Цвет для инновационного кейса */
+            --cyber: #ff007f;
+            --cyber-glow: rgba(255, 0, 127, 0.3);
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -21,11 +24,10 @@
             display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow: hidden;
         }
 
-        /* КЛИКЕР-ЗОНА В ШАПКЕ */
         .header {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); width: 100%; max-width: 480px;
             padding: 15px 20px; border-radius: 32px; border: 1px solid var(--border); margin-bottom: 10px;
-            display: flex; justify-content: space-between; align-items: center; width: 100%;
+            display: flex; justify-content: space-between; align-items: center;
             cursor: pointer; transition: transform 0.1s; position: relative; overflow: hidden;
         }
         .header:active { transform: scale(0.98); background: rgba(255, 255, 255, 0.07); }
@@ -70,9 +72,32 @@
         .price-change-row { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 900; }
         .price-up { color: var(--up); } .price-down { color: var(--down); }
 
-        .case-selector { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 15px; }
-        .case-card { background: var(--glass); padding: 8px; border-radius: 15px; border: 1px solid var(--border); text-align: center; cursor: pointer; font-size: 10px; }
+        /* СЕЛЕКТОР КЕЙСОВ */
+        .case-selector { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 15px; }
+        .case-card { background: var(--glass); padding: 12px 8px; border-radius: 15px; border: 1px solid var(--border); text-align: center; cursor: pointer; font-size: 11px; font-weight: bold; transition: all 0.2s ease; }
         .case-card.active { border-color: var(--blue); background: rgba(0, 210, 255, 0.1); }
+        
+        /* СТИЛЬ ДЛЯ ИННОВАЦИОННОГО КЕЙСА */
+        .case-card.cyber-premium {
+            grid-column: span 2;
+            border: 1px dashed var(--cyber);
+            background: linear-gradient(135deg, rgba(255,0,127,0.05) 0%, rgba(0,0,0,0.3) 100%);
+            color: #fff;
+            text-shadow: 0 0 8px var(--cyber-glow);
+            box-shadow: inset 0 0 10px var(--cyber-glow);
+            font-size: 12px;
+            letter-spacing: 1px;
+            animation: cyberPulse 2s infinite ease-in-out;
+        }
+        .case-card.cyber-premium.active {
+            border: 1px solid var(--cyber);
+            background: linear-gradient(135deg, rgba(255,0,127,0.2) 0%, rgba(20,10,30,0.6) 100%);
+            box-shadow: 0 0 15px var(--cyber-glow), inset 0 0 15px var(--cyber-glow);
+        }
+        @keyframes cyberPulse {
+            0%, 100% { border-color: var(--cyber); }
+            50% { border-color: #00ffff; text-shadow: 0 0 8px rgba(0,255,255,0.6); }
+        }
 
         .glow-circle { 
             position: absolute; width: 320px; height: 320px; 
@@ -85,32 +110,14 @@
             50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.25); } 
         }
         
-        /* КРУТЫЕ ЛУЧИ НА ЗАДНЕМ ПЛАНЕ КЕЙСА */
-        .inspect-rays {
-            position: absolute; width: 400px; height: 400px;
-            background: conic-gradient(from 0deg, transparent, var(--rarity-color), transparent 30%, transparent);
-            top: 45%; left: 50%; transform: translate(-50%, -50%);
-            opacity: 0.15; z-index: -2; animation: spinRays 12s linear infinite; pointer-events: none;
-        }
-        @keyframes spinRays { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
-
-        /* ИКОНКА ОРУЖИЯ И АНИМАЦИЯ ОСМОТРА */
         .win-item-icon { 
-            font-size: 110px; margin-bottom: 20px; cursor: pointer; user-select: none;
+            font-size: 110px; margin-bottom: 20px; 
             filter: drop-shadow(0 0 30px var(--rarity-color));
-            animation: floating 3s infinite ease-in-out; transition: transform 0.1s;
+            animation: floating 3s infinite ease-in-out; 
         }
         @keyframes floating { 
             0%, 100% { transform: translateY(0) rotate(0deg); } 
-            50% { transform: translateY(-15px) rotate(3deg); } 
-        }
-        /* Анимация полного осмотра (активируется скриптом) */
-        .inspecting { animation: inspectAnim 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards !important; }
-        @keyframes inspectAnim {
-            0% { transform: translateY(0) rotate(0deg) scale(1); }
-            30% { transform: translateY(-20px) rotate(-15deg) scale(1.1); }
-            70% { transform: translateY(-10px) rotate(375deg) scale(1.1); }
-            100% { transform: translateY(0) rotate(360deg) scale(1); }
+            50% { transform: translateY(-25px) rotate(5deg); } 
         }
 
         .roulette-container { height: 130px; background: rgba(0,0,0,0.4); border-radius: 25px; position: relative; overflow: hidden; margin-bottom: 15px; border: 1px solid var(--border); }
@@ -152,6 +159,8 @@
             <div id="c1" class="case-card active" onclick="setCase(1)">📦 250G</div>
             <div id="c2" class="case-card" onclick="setCase(2)">📦 500G</div>
             <div id="c3" class="case-card" onclick="setCase(3)">🔪 1500G</div>
+            <!-- Инновационный Cyber кейс на всю ширину сетки -->
+            <div id="c4" class="case-card cyber-premium" onclick="setCase(4)">🌌 CYBERPUNK BOX • 2000G</div>
         </div>
         <div class="roulette-container"><div class="pointer"></div><div id="track" class="track"></div></div>
         <button id="spinBtn" class="btn-main" onclick="openCase()">Открыть</button>
@@ -166,13 +175,10 @@
 
     <div id="winOverlay" class="overlay">
         <div style="text-align:center; position:relative;">
-            <div id="rarityRays" class="inspect-rays"></div>
             <div id="rarityGlow" class="glow-circle"></div>
-            <!-- Функция inspectWeapon() повешена на клик по пушке -->
-            <div id="winIcon" class="win-item-icon" onclick="inspectWeapon()">🔪</div>
+            <div id="winIcon" class="win-item-icon">🔪</div>
             <h2 id="winName" style="margin:0; font-size: 28px;">Item</h2>
-            <p id="winRarity" style="font-weight:900; letter-spacing:4px; margin:15px 0 50px; font-size: 14px;"></p>
-            <div style="font-size: 10px; opacity: 0.3; margin-bottom: 15px; margin-top: -35px;">Нажми на предмет, чтобы осмотреть</div>
+            <p id="winRarity" style="font-weight:900; letter-spacing:4px; margin:15px 0 40px; font-size: 14px;"></p>
             <button class="btn-main" onclick="takeWin()" style="margin-bottom: 12px;">В инвентарь</button>
             <button class="btn-main" style="background:none; color:rgba(255,255,255,0.3); border: 1px solid var(--border);" id="sellBtnWin" onclick="sellWin()">Продать</button>
         </div>
@@ -190,6 +196,7 @@
     </div>
 
     <script>
+        // Базовые скины + новые инновационные скины Cyberpunk коллекции (ID 7, 8, 9)
         const SKINS = [
             { id: 0, name: "G22 | Casual", rar: "common", p: 5, i: "🔫", currency: "S" },
             { id: 1, name: "USP | Genesis", rar: "uncommon", p: 35, i: "🔫", currency: "S" },
@@ -197,7 +204,12 @@
             { id: 3, name: "AKR | Necro", rar: "epic", p: 480, i: "🔫", currency: "G" },
             { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1200, i: "🎯", currency: "G" },
             { id: 5, name: "Karambit | Gold", rar: "arcane", p: 25000, i: "🔪", currency: "G" },
-            { id: 6, name: "Butterfly | Star", rar: "arcane", p: 18000, i: "🦋", currency: "G" }
+            { id: 6, name: "Butterfly | Star", rar: "arcane", p: 18000, i: "🦋", currency: "G" },
+            
+            // Эксклюзивные Cyberpunk предметы
+            { id: 7, name: "M4A1 | Cyber Net", rar: "epic", p: 950, i: "🪐", currency: "G" },
+            { id: 8, name: "AKR | Neon Overdrive", rar: "legendary", p: 2900, i: "⚡", currency: "G" },
+            { id: 9, name: "Dual Daggers | Quantum", rar: "arcane", p: 35000, i: "🔮", currency: "G" }
         ];
 
         const MISSIONS = [
@@ -212,10 +224,18 @@
             money: parseFloat(localStorage.getItem('v12_money')) || 1000,
             silver: parseFloat(localStorage.getItem('v12_silver')) || 1000,
             inv: JSON.parse(localStorage.getItem('v12_inv')) || [],
+            // Автоматическое развёртывание рынка под новые скины
             market: JSON.parse(localStorage.getItem('v12_market')) || SKINS.map(s => ({id: s.id, cur: s.p, chg: 0, old: s.p})),
             curCase: 1, lastWin: null, selCraft: [],
             mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
         };
+
+        // На случай, если у игрока старый сейв без новых ID рынка — аккуратно добавляем их
+        if (state.market.length < SKINS.length) {
+            for (let i = state.market.length; i < SKINS.length; i++) {
+                state.market.push({id: SKINS[i].id, cur: SKINS[i].p, chg: 0, old: SKINS[i].p});
+            }
+        }
 
         function clicker(e) {
             state.silver += 0.01;
@@ -236,22 +256,34 @@
         }
 
         function openCase() {
-            const costs = [{s:100}, {g:250}, {g:500}, {g:1500}];
+            // Добавлена стоимость 5-го кейса (Cyberpunk Box = 2000G)
+            const costs = [{s:100}, {g:250}, {g:500}, {g:1500}, {g:2000}];
             const cost = costs[state.curCase];
             if(cost.g && state.money < cost.g) return alert("Мало Gold!");
             if(cost.s && state.silver < cost.s) return alert("Мало Silver!");
             if(cost.g) state.money -= cost.g; else state.silver -= cost.s;
             if(state.curCase === 0) checkMission('open_silver');
             sync();
+            
             const track = document.getElementById('track');
             track.style.transition = 'none'; track.style.transform = 'translateX(0)'; track.innerHTML = '';
             let win;
+
+            // УМНАЯ СИСТЕМА ДРОПА: Если выбран Cyberpunk Box, крутится только новый контент
             const getSkin = () => {
-                const rng = Math.random();
-                if(rng < 0.005) return SKINS[Math.floor(Math.random()*2)+5];
-                if(rng < 0.06) return SKINS[4]; if(rng < 0.18) return SKINS[3];
-                return SKINS[Math.floor(Math.random()*3)];
+                if (state.curCase === 4) {
+                    const rng = Math.random();
+                    if(rng < 0.15) return SKINS[9];       // Arcane Quantum Мечи (15%)
+                    if(rng < 0.45) return SKINS[8];       // Legendary Автомат (30%)
+                    return SKINS[7];                      // Epic Винтовка (55%)
+                } else {
+                    const rng = Math.random();
+                    if(rng < 0.005) return SKINS[Math.floor(Math.random()*2)+5];
+                    if(rng < 0.06) return SKINS[4]; if(rng < 0.18) return SKINS[3];
+                    return SKINS[Math.floor(Math.random()*3)];
+                }
             };
+
             for(let i=0; i<60; i++) {
                 const s = getSkin(); if(i === 52) win = s;
                 track.innerHTML += `<div class="t-item" style="border-bottom-color:var(--${s.rar})">${s.i}</div>`;
@@ -304,26 +336,10 @@
             }, 120000);
         }
 
-        // АБСОЛЮТНО ИЗОЛИРОВАННАЯ ФУНКЦИЯ ОСМОТРА ОРУЖИЯ
-        function inspectWeapon() {
-            const icon = document.getElementById('winIcon');
-            if (icon.classList.contains('inspecting')) return;
-            
-            icon.classList.add('inspecting');
-            setTimeout(() => {
-                icon.classList.remove('inspecting');
-            }, 1200);
-        }
-
         function showWin(win) {
             document.getElementById('rarityGlow').style.setProperty('--rarity-color', `var(--${win.rar})`);
-            document.getElementById('rarityRays').style.setProperty('--rarity-color', `var(--${win.rar})`);
-            
-            const winIcon = document.getElementById('winIcon');
-            winIcon.innerText = win.i;
-            winIcon.style.color = `var(--${win.rar})`;
-            winIcon.classList.remove('inspecting'); // Сброс анимации от прошлого раза
-            
+            document.getElementById('winIcon').innerText = win.i;
+            document.getElementById('winIcon').style.color = `var(--${win.rar})`;
             document.getElementById('winName').innerText = win.name;
             const rt = document.getElementById('winRarity');
             rt.innerText = win.rar.toUpperCase(); rt.style.color = `var(--${win.rar})`;
@@ -363,6 +379,7 @@
             localStorage.setItem('v12_money', state.money); 
             localStorage.setItem('v12_silver', state.silver);
             localStorage.setItem('v12_inv', JSON.stringify(state.inv)); 
+            localStorage.setItem('v12_market', JSON.stringify(state.market));
             localStorage.setItem('v12_mission', JSON.stringify(state.mission));
             const m = MISSIONS[state.mission.typeIdx];
             if (state.mission.cooldown) {
