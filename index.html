@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>SO2: CLICKER EDITION V13.8 [BUGFIX & BALANCED]</title>
+    <title>SO2: CLICKER EDITION V13.9 [PROMOCODES]</title>
     <style>
         :root {
             --bg: #0a0f1b;
@@ -24,7 +24,6 @@
             display: flex; flex-direction: column; align-items: center; min-height: 100vh; overflow-y: auto;
         }
 
-        /* Шапка с балансом */
         .header {
             background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); width: 100%; max-width: 480px;
             padding: 15px 20px; border-radius: 32px; border: 1px solid var(--border); margin-bottom: 10px;
@@ -114,7 +113,7 @@
         .t-item { min-width: 110px; height: 110px; margin: 0 6px; background: var(--glass); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 40px; border-bottom: 5px solid #333; }
         .pointer { position: absolute; left: 50%; width: 3px; height: 100%; background: #ff3e3e; z-index: 10; transform: translateX(-50%); }
 
-        .btn-main { width: 100%; padding: 18px; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 13px; transition: 0.2s; margin-bottom: 40px; }
+        .btn-main { width: 100%; padding: 18px; border: none; border-radius: 20px; font-weight: 900; cursor: pointer; background: var(--accent); color: #000; text-transform: uppercase; font-size: 13px; transition: 0.2s; margin-bottom: 20px; }
         .btn-main:disabled { opacity: 0.2; pointer-events: none; }
         .btn-main.cyber-btn { background: linear-gradient(90deg, #ff007f, #7f00ff); color: #fff; box-shadow: 0 0 15px var(--cyber-glow); text-shadow: 0 0 5px #fff; }
 
@@ -164,7 +163,52 @@
             border-radius: 3px 3px 0 0;
         }
 
-        /* ФИКС: Окно выигрыша теперь имеет абсолютный приоритет по слоям */
+        /* НОВЫЙ СТИЛЬ: Красивый и аккуратный блок промокодов */
+        .promo-container {
+            width: 100%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.01) 0%, rgba(255,255,255,0.04) 100%);
+            border: 1px dashed rgba(0, 210, 255, 0.3);
+            border-radius: 20px;
+            padding: 14px;
+            margin-bottom: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .promo-row {
+            display: flex;
+            gap: 8px;
+        }
+        .promo-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 0 14px;
+            color: #fff;
+            font-size: 13px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            transition: all 0.2s;
+        }
+        .promo-input:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 10px rgba(0, 210, 255, 0.2);
+        }
+        .promo-btn {
+            background: var(--blue);
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 18px;
+            font-size: 11px;
+            font-weight: 900;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .promo-btn:active { transform: scale(0.95); opacity: 0.8; }
+
         .overlay { 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
             background: #05070c; display: none; align-items: center; 
@@ -185,7 +229,7 @@
             <div class="balance-item"><label>Silver</label><b class="silver-txt"><span id="silver">0</span> S</b></div>
             <div id="comboBadge" class="combo-badge">COMBO x1</div>
         </div>
-        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.8 • kaoface</div>
+        <div style="font-size: 10px; opacity: 0.4; text-align: right;">ТАПАЙ ТУТ<br>V13.9 • kaoface</div>
     </div>
 
     <div class="mission-panel" id="missionBox">
@@ -217,6 +261,14 @@
         </div>
 
         <button id="spinBtn" class="btn-main" onclick="openCase()">Открыть</button>
+
+        <div class="promo-container">
+            <div style="font-size: 10px; font-weight: 900; opacity: 0.4; letter-spacing: 1px; text-transform: uppercase;">Система промокодов</div>
+            <div class="promo-row">
+                <input type="text" id="promoInput" class="promo-input" placeholder="Введите промокод..." autocomplete="off">
+                <button class="promo-btn" onclick="activatePromo()">Ввод</button>
+            </div>
+        </div>
     </div>
 
     <div id="inv" class="view"><div id="invGrid" class="grid"></div></div>
@@ -249,24 +301,18 @@
     </div>
 
     <script>
-        // ИСПРАВЛЕНО: Уникальный пул предметов под каждый кейс отдельно
         const SKINS = [
-            // Кейс 100S
             { id: 0, name: "G22 | Casual", rar: "common", p: 5, i: "🔫", currency: "S" },
             { id: 1, name: "USP | Genesis", rar: "uncommon", p: 35, i: "🔫", currency: "S" },
-            // Кейс 250G (Scorpion Collection)
             { id: 2, name: "M4 | Tiger", rar: "rare", p: 120, i: "🔫", currency: "G" },
             { id: 3, name: "AKR | Necro", rar: "epic", p: 480, i: "🔫", currency: "G" },
             { id: 4, name: "AWM | Scratch", rar: "legendary", p: 1200, i: "🎯", currency: "G" },
             { id: 5, name: "Karambit | Gold", rar: "arcane", p: 25000, i: "🔪", currency: "G" },
-            // Кейс 500G (Empire Collection - НОВИНКИ)
             { id: 10, name: "P350 | Neon Rush", rar: "rare", p: 290, i: "💥", currency: "G" },
             { id: 11, name: "M4A1 | Bubblegum", rar: "epic", p: 850, i: "🍬", currency: "G" },
             { id: 12, name: "AWM | Genesis", rar: "legendary", p: 2400, i: "⚡", currency: "G" },
             { id: 13, name: "M9 | Dragon Glass", rar: "arcane", p: 31000, i: "🗡️", currency: "G" },
-            // Ножевой кейс 1500G
             { id: 6, name: "Butterfly | Star", rar: "arcane", p: 18000, i: "🦋", currency: "G" },
-            // Cyberpunk Box 5000G
             { id: 7, name: "M4A1 | Cyber Net", rar: "epic", p: 950, i: "🪐", currency: "G" },
             { id: 8, name: "AKR | Neon Overdrive", rar: "legendary", p: 2900, i: "⚡", currency: "G" },
             { id: 9, name: "Dual Daggers | Quantum", rar: "arcane", p: 10000, i: "🔮", currency: "G" }
@@ -286,18 +332,56 @@
             inv: JSON.parse(localStorage.getItem('v12_inv')) || [],
             market: JSON.parse(localStorage.getItem('v12_market')) || SKINS.map(s => ({id: s.id, cur: s.p, chg: 0, old: s.p})),
             curCase: 1, lastWin: null, selCraft: [],
-            mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false }
+            mission: JSON.parse(localStorage.getItem('v12_mission')) || { typeIdx: 0, progress: 0, cooldown: false },
+            // Хранение активированных кодов, чтобы исключить повторное использование
+            usedPromos: JSON.parse(localStorage.getItem('v12_used_promos')) || []
         };
 
         let clickCount = 0;
         let comboTimeout = null;
 
-        // Авто-добавление новых пушек на рынок при первом старте
         SKINS.forEach(s => {
             if (!state.market.some(m => m.id === s.id)) {
                 state.market.push({id: s.id, cur: s.p, chg: 0, old: s.p});
             }
         });
+
+        // НОВЫЙ МОДУЛЬ: Логика проверки и активации промокодов
+        function activatePromo() {
+            const input = document.getElementById('promoInput');
+            if(!input) return;
+            const code = input.value.trim();
+
+            if(!code) {
+                alert("Поле ввода пустое!");
+                return;
+            }
+
+            if(state.usedPromos.includes(code)) {
+                alert("Этот промокод уже был активирован ранее!");
+                input.value = '';
+                return;
+            }
+
+            if(code === "2026") {
+                state.money += 5000;
+                state.usedPromos.push(code);
+                alert("Промокод успешно активирован! Получено +5,000 Gold 🪙");
+            } 
+            else if(code === "2026 Leto") {
+                state.silver += 5000;
+                state.usedPromos.push(code);
+                alert("Промокод успешно активирован! Получено +5,000 Silver 🔘");
+            } 
+            else {
+                alert("Такого промокода не существует или допущена ошибка!");
+                return;
+            }
+
+            localStorage.setItem('v12_used_promos', JSON.stringify(state.usedPromos));
+            input.value = '';
+            sync();
+        }
 
         function clicker(e) {
             clearTimeout(comboTimeout);
@@ -352,18 +436,17 @@
             updateCasePreview(i);
         }
 
-        // ИСПРАВЛЕНО: Превью показывает только те скины, которые реально лежат в выбранном кейсе
         function updateCasePreview(caseIdx) {
             const previewGrid = document.getElementById('casePreviewGrid');
             if (!previewGrid) return;
             previewGrid.innerHTML = '';
             
             let availableSkins = [];
-            if (caseIdx === 0) availableSkins = SKINS.filter(s => s.id === 0 || s.id === 1 || s.id === 6); // 100S кейс + тайный нож
-            else if (caseIdx === 1) availableSkins = SKINS.filter(s => s.id >= 2 && s.id <= 5); // 250G Scorpion
-            else if (caseIdx === 2) availableSkins = SKINS.filter(s => s.id >= 10 && s.id <= 13); // 500G Empire
-            else if (caseIdx === 3) availableSkins = SKINS.filter(s => s.rar === 'arcane' && s.id < 7); // Ножи
-            else if (caseIdx === 4) availableSkins = SKINS.filter(s => s.id >= 7 && s.id <= 9); // Cyber Box
+            if (caseIdx === 0) availableSkins = SKINS.filter(s => s.id === 0 || s.id === 1 || s.id === 6); 
+            else if (caseIdx === 1) availableSkins = SKINS.filter(s => s.id >= 2 && s.id <= 5); 
+            else if (caseIdx === 2) availableSkins = SKINS.filter(s => s.id >= 10 && s.id <= 13); 
+            else if (caseIdx === 3) availableSkins = SKINS.filter(s => s.rar === 'arcane' && s.id < 7); 
+            else if (caseIdx === 4) availableSkins = SKINS.filter(s => s.id >= 7 && s.id <= 9); 
 
             availableSkins.forEach(s => {
                 previewGrid.innerHTML += `
@@ -388,7 +471,6 @@
             track.style.transition = 'none'; track.style.transform = 'translateX(0)'; track.innerHTML = '';
             let win;
 
-            // ИСПРАВЛЕНО: У каждого кейса теперь своя изолированная математика шансов дропа
             const getSkin = () => {
                 const rng = Math.random();
                 if (state.curCase === 0) {
@@ -470,9 +552,8 @@
             }, 120000);
         }
 
-        // ФИКС: Скрываем шапку полностью при активации окна выигрыша пушки
         function showWin(win) {
-            document.getElementById('mainHeader').style.display = 'none'; // Полное скрытие
+            document.getElementById('mainHeader').style.display = 'none'; 
             document.getElementById('rarityGlow').style.background = `radial-gradient(circle, var(--${win.rar}) 0%, transparent 70%)`;
             document.getElementById('winIcon').innerText = win.i;
             document.getElementById('winIcon').style.color = `var(--${win.rar})`;
@@ -484,11 +565,10 @@
             document.getElementById('winOverlay').style.display = 'flex';
         }
 
-        // ФИКС: Возвращаем шапку обратно при закрытии окна выигрыша
         function takeWin() { 
             state.inv.unshift(state.lastWin); 
             document.getElementById('winOverlay').style.display = 'none'; 
-            document.getElementById('mainHeader').style.display = 'flex'; // Возвращаем
+            document.getElementById('mainHeader').style.display = 'flex'; 
             sync(); 
         }
         
@@ -497,7 +577,7 @@
             if(state.lastWin.currency === "G") state.money += p; else state.silver += p;
             checkMission('sell'); 
             document.getElementById('winOverlay').style.display = 'none'; 
-            document.getElementById('mainHeader').style.display = 'flex'; // Возвращаем
+            document.getElementById('mainHeader').style.display = 'flex'; 
             sync(); 
         }
 
