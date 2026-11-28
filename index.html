@@ -1,59 +1,70 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <title>NEON DASH 3D</title>
 <style>
-html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:Arial,sans-serif;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
-canvas{display:block;position:fixed;inset:0;width:100%;height:100%}
-#hud{position:fixed;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top) + 8px) 14px 0;color:#fff;pointer-events:none;text-shadow:0 0 8px #0ff;font-size:15px;z-index:2}
+html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:Arial,sans-serif;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:none}
+canvas{display:block;position:fixed;left:0;top:0;width:100%;height:100%}
+#hud{position:fixed;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top) + 8px) 14px 0;color:#fff;pointer-events:none;text-shadow:0 0 8px #0ff;font-size:15px;z-index:3}
 #bar{height:8px;background:#ffffff30;border-radius:6px;overflow:hidden;margin-top:5px}
 #fill{height:100%;width:0;background:linear-gradient(90deg,#0ff,#f0f)}
-#msg{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;background:#000c;padding:0 16px}
-#msg h1{font-size:min(11vw,64px);margin:0 0 10px;letter-spacing:4px;text-shadow:0 0 20px #0ff,0 0 40px #f0f}
-#msg p{font-size:min(4vw,18px);opacity:.9;margin:6px 0}
-#btn{margin-top:18px;padding:16px 44px;font-size:22px;font-weight:bold;color:#fff;background:linear-gradient(90deg,#00c8ff,#d000ff);border:0;border-radius:40px;box-shadow:0 0 25px #0ff8}
-#err{color:#ff6;font-size:14px}
-#tap{position:fixed;inset:0;z-index:1}
+#tap{position:fixed;left:0;top:0;right:0;bottom:0;z-index:2}
+#msg{position:fixed;left:0;top:0;right:0;bottom:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;background:#000a;padding:0 16px}
+#msg h1{font-size:10vw;margin:0 0 10px;letter-spacing:4px;text-shadow:0 0 20px #0ff,0 0 40px #f0f}
+#msg p{font-size:4vw;opacity:.9;margin:6px 0}
+#btn{margin-top:18px;padding:16px 44px;font-size:22px;font-weight:bold;color:#fff;background:linear-gradient(90deg,#00c8ff,#d000ff);border:0;border-radius:40px;box-shadow:0 0 25px #0ff8;-webkit-appearance:none}
+#dbg{position:fixed;left:0;right:0;bottom:0;z-index:9;color:#ff6;background:#000c;font-size:12px;padding:6px;display:none;white-space:pre-wrap;pointer-events:none}
 </style></head><body>
 <div id="hud"><div style="display:flex;justify-content:space-between"><span id="att">Попытка 1</span><span id="pct">0%</span><span id="best">Рекорд 0%</span></div><div id="bar"><div id="fill"></div></div></div>
 <div id="tap"></div>
 <div id="msg"><h1>NEON DASH 3D</h1>
-<p>Тап по экрану (или пробел) — прыжок.<br>В режиме корабля — держи палец.</p>
+<p>Тап по экрану — прыжок.<br>В режиме корабля — держи палец.</p>
 <p>Шипы убивают · на блоки можно приземляться · жёлтые площадки подбрасывают<br>Фиолетовый портал = корабль, зелёный = куб</p>
-<button id="btn">▶ ИГРАТЬ</button><p id="err"></p></div>
+<button id="btn" type="button">▶ ИГРАТЬ</button></div>
+<div id="dbg"></div>
 
 <script>
-function loadThree(urls,cb){
-  var i=0;(function next(){
-    if(i>=urls.length){cb(false);return}
-    var s=document.createElement('script');s.src=urls[i++];
-    s.onload=function(){cb(true)};s.onerror=next;document.head.appendChild(s);
-  })();
+var GO=false,READY=false,hold=false;
+function dbg(s){var d=document.getElementById('dbg');d.style.display='block';d.textContent+=s+'\n'}
+window.onerror=function(m,u,l){dbg('Ошибка: '+m+' (стр.'+l+')')};
+function go(e){
+  if(e&&e.preventDefault)e.preventDefault();
+  if(GO)return;GO=true;
+  document.getElementById('msg').style.display='none';
+  if(!READY)dbg('Загрузка 3D-движка…');
+  if(window.initAudio)window.initAudio();
 }
+var b=document.getElementById('btn');
+b.onclick=go;b.ontouchend=go;b.onpointerup=go;
 document.addEventListener('touchmove',function(e){e.preventDefault()},{passive:false});
-document.addEventListener('gesturestart',function(e){e.preventDefault()});
-document.getElementById('err').textContent='Загрузка 3D-движка…';
-loadThree([
- 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
- 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js',
- 'https://unpkg.com/three@0.128.0/build/three.min.js'
-],function(ok){
-  if(!ok){document.getElementById('err').textContent='Не удалось загрузить Three.js. Проверь интернет и обнови страницу.';return}
-  document.getElementById('err').textContent='';
-  try{main()}catch(e){document.getElementById('err').textContent='Ошибка: '+e.message}
+var tap=document.getElementById('tap');
+function dn(e){if(e&&e.preventDefault)e.preventDefault();hold=true;if(window.initAudio)window.initAudio()}
+function upf(e){if(e&&e.preventDefault)e.preventDefault();hold=false}
+tap.addEventListener('touchstart',dn,{passive:false});tap.addEventListener('touchend',upf,{passive:false});
+tap.addEventListener('touchcancel',upf,{passive:false});tap.addEventListener('mousedown',dn);window.addEventListener('mouseup',upf);
+window.addEventListener('keydown',function(e){if(e.code=='Space'||e.code=='ArrowUp'){e.preventDefault();go();hold=true;if(window.initAudio)window.initAudio()}});
+window.addEventListener('keyup',function(e){if(e.code=='Space'||e.code=='ArrowUp')hold=false});
+
+function loadThree(urls,cb){var i=0;(function next(){
+  if(i>=urls.length){cb(false);return}
+  var s=document.createElement('script');s.src=urls[i++];s.onload=function(){cb(true)};s.onerror=next;document.head.appendChild(s)})()}
+loadThree(['https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js','https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js','https://unpkg.com/three@0.128.0/build/three.min.js'],function(ok){
+  if(!ok){dbg('Не удалось загрузить Three.js. Проверь интернет.');return}
+  try{main();READY=true;if(GO){document.getElementById('dbg').style.display='none';document.getElementById('dbg').textContent=''}}
+  catch(e){dbg('Ошибка запуска: '+e.message)}
 });
 
 function main(){
 var mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||innerWidth<700;
-var renderer=new THREE.WebGLRenderer({antialias:!mobile,powerPreference:'high-performance'});
-renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,mobile?1.5:2));
+var renderer=new THREE.WebGLRenderer({antialias:false});
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,mobile?1.5:2));
 renderer.shadowMap.enabled=!mobile;
-document.body.prepend(renderer.domElement);
+document.body.insertBefore(renderer.domElement,document.body.firstChild);
 var scene=new THREE.Scene();
 var cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,300);
+scene.background=new THREE.Color(0x110022);
 scene.fog=new THREE.Fog(0x110022,30,100);
-scene.add(new THREE.AmbientLight(0xffffff,.6));
+scene.add(new THREE.AmbientLight(0xffffff,.7));
 var sun=new THREE.DirectionalLight(0xffffff,1);sun.position.set(-6,16,12);
 if(!mobile){sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);var sc=sun.shadow.camera;sc.left=-30;sc.right=30;sc.top=30;sc.bottom=-30;sc.far=80}
 scene.add(sun);scene.add(sun.target);
@@ -91,7 +102,7 @@ var spikeMat=new THREE.MeshStandardMaterial({color:0xff1155,emissive:0x660022,ro
 var group=new THREE.Group();scene.add(group);
 blocks.forEach(function(b){
   var g=new THREE.BoxGeometry(b.w,b.h,1),m=new THREE.Mesh(g,blockMat);
-  m.position.set(b.x+b.w/2,b.y+b.h/2,0);m.castShadow=m.receiveShadow=true;
+  m.position.set(b.x+b.w/2,b.y+b.h/2,0);m.castShadow=true;m.receiveShadow=true;
   m.add(new THREE.LineSegments(new THREE.EdgesGeometry(g),edgeMat));group.add(m);
 });
 var spG=new THREE.ConeGeometry(.5,1,4);spG.rotateY(Math.PI/4);
@@ -110,20 +121,20 @@ portals.forEach(function(p){
   var col=p.type=='ship'?0xcc33ff:0x33ff66;
   var m=new THREE.Mesh(new THREE.TorusGeometry(1.8,.18,12,32),new THREE.MeshBasicMaterial({color:col}));
   m.position.set(p.x+.5,1.8,0);m.rotation.y=Math.PI/2;
-  var inner=new THREE.Mesh(new THREE.CircleGeometry(1.6,24),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.18,side:THREE.DoubleSide}));
-  m.add(inner);group.add(m);portMesh.push(m);
+  m.add(new THREE.Mesh(new THREE.CircleGeometry(1.6,24),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.18,side:THREE.DoubleSide})));
+  group.add(m);portMesh.push(m);
 });
 var fin=new THREE.Mesh(new THREE.BoxGeometry(1,40,12),new THREE.MeshBasicMaterial({color:0xffffff}));
 fin.position.set(END,20,0);scene.add(fin);
 
-var floor=new THREE.Mesh(new THREE.PlaneGeometry(2000,200),new THREE.MeshStandardMaterial({color:0x08001a,roughness:.3,metalness:.5}));
-floor.rotation.x=-Math.PI/2;floor.position.set(500,-.001,0);floor.receiveShadow=true;scene.add(floor);
+var floor=new THREE.Mesh(new THREE.PlaneGeometry(2000,200),new THREE.MeshStandardMaterial({color:0x10002a,roughness:.5,metalness:.3}));
+floor.rotation.x=-Math.PI/2;floor.position.set(500,-.01,0);floor.receiveShadow=true;scene.add(floor);
 var grid=new THREE.GridHelper(2000,1000,0x00ffff,0x5500aa);grid.position.set(500,0,0);scene.add(grid);
-var decor=[],dG=new THREE.BoxGeometry(2,1,2);
-for(i=0;i<(mobile?90:160);i++){
+var decor=[],dG=new THREE.BoxGeometry(2,1,2),NDEC=mobile?90:160;
+for(i=0;i<NDEC;i++){
   var h=4+rnd()*26,side=i%2?1:-1;
   var m=new THREE.Mesh(dG,new THREE.MeshStandardMaterial({color:0x220055,emissive:0xff00ff,emissiveIntensity:.25}));
-  m.scale.y=h;m.position.set(i*(END/(mobile?45:80))+rnd()*4,h/2,side*(10+rnd()*22));
+  m.scale.y=h;m.position.set(i*(END/NDEC)+rnd()*4,h/2,side*(10+rnd()*22));
   m.userData.ph=rnd()*6;scene.add(m);decor.push(m);
 }
 var stG=new THREE.BufferGeometry(),sp=[];
@@ -140,7 +151,6 @@ cubeMesh.add(face);cubeMesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(c
 var shipMesh=new THREE.Mesh(new THREE.ConeGeometry(.5,1.4,4),new THREE.MeshStandardMaterial({color:0xff66ff,emissive:0x880088}));
 shipMesh.rotation.z=-Math.PI/2;shipMesh.castShadow=true;
 var shipHolder=new THREE.Group();shipHolder.add(shipMesh);
-player.add(cubeMesh);
 var partG=new THREE.BoxGeometry(.18,.18,.18),parts=[];
 function burst(px,py,col,n,spd){
   for(var k=0;k<n;k++){
@@ -151,31 +161,6 @@ function burst(px,py,col,n,spd){
 }
 
 var ac,beatT=0,nIdx=0,notes=[55,55,65.4,49,55,55,73.4,49];
+window.initAudio=function(){try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext)();if(ac.state=='suspended')ac.resume()}catch(e){}};
 function beep(f,d,type,v){
-  if(!ac)return;try{
-  var o=ac.createOscillator(),g=ac.createGain();o.type=type||'sine';o.frequency.value=f;
-  g.gain.setValueAtTime(v||.1,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);
-  o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}
-}
-function music(dt){
-  beatT+=dt;var bl=60/140/2;
-  while(beatT>=bl){beatT-=bl;beep(notes[nIdx%8]*2,.18,'sawtooth',.05);if(nIdx%2==0)beep(60,.15,'sine',.22);if(nIdx%4==2)beep(1800,.04,'square',.02);nIdx++}
-}
-
-var SPEED=10.4,G=58,JV=15.5;
-var px,py,vy,mode,grounded,hold=false,dead,deadT,attempts=0,best=0,started=false,won=false,t=0,rot,shake=0;
-function reset(){
-  px=0;py=0;vy=0;mode='cube';grounded=true;dead=false;deadT=0;won=false;rot=0;attempts++;
-  portals.forEach(function(p){p.used=false});
-  while(player.children.length)player.remove(player.children[0]);
-  player.add(cubeMesh);player.visible=true;
-  document.getElementById('att').textContent='Попытка '+attempts;
-}
-reset();
-function die(){
-  if(dead)return;dead=true;deadT=0;player.visible=false;
-  burst(px,py+.5,0x00ffcc,40,9);burst(px,py+.5,0xff00ff,25,9);beep(90,.4,'sawtooth',.25);beep(45,.5,'square',.15);
-  best=Math.max(best,Math.floor(px/END*100));document.getElementById('best').textContent='Рекорд '+best+'%';shake=.6;
-}
-function initAudio(){
-  try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext
+  if(!ac)return;try{var o=ac.createOscillator(),g=ac.createGain();o.type=
