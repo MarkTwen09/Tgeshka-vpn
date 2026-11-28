@@ -1,195 +1,181 @@
 <!DOCTYPE html>
 <html lang="ru"><head><meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>NEON DASH 3D</title>
 <style>
-html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:Arial,sans-serif;user-select:none;touch-action:none}
-canvas{display:block}
-#hud{position:fixed;top:0;left:0;right:0;padding:12px 18px;color:#fff;pointer-events:none;text-shadow:0 0 8px #0ff}
-#bar{height:10px;background:#ffffff30;border-radius:6px;overflow:hidden;margin-top:6px}
+html,body{margin:0;height:100%;overflow:hidden;background:#000;font-family:Arial,sans-serif;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none;overscroll-behavior:none}
+canvas{display:block;position:fixed;inset:0;width:100%;height:100%}
+#hud{position:fixed;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top) + 8px) 14px 0;color:#fff;pointer-events:none;text-shadow:0 0 8px #0ff;font-size:15px;z-index:2}
+#bar{height:8px;background:#ffffff30;border-radius:6px;overflow:hidden;margin-top:5px}
 #fill{height:100%;width:0;background:linear-gradient(90deg,#0ff,#f0f)}
-#msg{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;background:#000a;cursor:pointer}
-#msg h1{font-size:64px;margin:0;letter-spacing:6px;text-shadow:0 0 20px #0ff,0 0 40px #f0f}
-#msg p{font-size:18px;opacity:.85}
+#msg{position:fixed;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;text-align:center;background:#000c;padding:0 16px}
+#msg h1{font-size:min(11vw,64px);margin:0 0 10px;letter-spacing:4px;text-shadow:0 0 20px #0ff,0 0 40px #f0f}
+#msg p{font-size:min(4vw,18px);opacity:.9;margin:6px 0}
+#btn{margin-top:18px;padding:16px 44px;font-size:22px;font-weight:bold;color:#fff;background:linear-gradient(90deg,#00c8ff,#d000ff);border:0;border-radius:40px;box-shadow:0 0 25px #0ff8}
+#err{color:#ff6;font-size:14px}
+#tap{position:fixed;inset:0;z-index:1}
 </style></head><body>
 <div id="hud"><div style="display:flex;justify-content:space-between"><span id="att">Попытка 1</span><span id="pct">0%</span><span id="best">Рекорд 0%</span></div><div id="bar"><div id="fill"></div></div></div>
-<div id="msg"><h1>NEON DASH 3D</h1><p>Пробел / ЛКМ / тап — прыжок (в режиме корабля — удерживай)<br>Шипы убивают, блоки можно приземляться сверху, жёлтые площадки подбрасывают<br>Фиолетовый портал = корабль, зелёный = куб</p><p><b>Нажми, чтобы начать</b></p></div>
-<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js"}}</script>
-<script type="module">
-import * as THREE from 'three';
-const R=innerWidth/innerHeight;
-const renderer=new THREE.WebGLRenderer({antialias:true});
-renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.shadowMap.enabled=true;document.body.prepend(renderer.domElement);
-const scene=new THREE.Scene();
-const cam=new THREE.PerspectiveCamera(60,R,.1,400);
-scene.fog=new THREE.Fog(0x110022,30,110);
-scene.add(new THREE.AmbientLight(0xffffff,.55));
-const sun=new THREE.DirectionalLight(0xffffff,1.1);sun.position.set(-6,16,12);sun.castShadow=true;
-sun.shadow.mapSize.set(1024,1024);Object.assign(sun.shadow.camera,{left:-30,right:30,top:30,bottom:-30,far:80});
-scene.add(sun,sun.target);
-const pl=new THREE.PointLight(0x00ffff,60,30);scene.add(pl);
+<div id="tap"></div>
+<div id="msg"><h1>NEON DASH 3D</h1>
+<p>Тап по экрану (или пробел) — прыжок.<br>В режиме корабля — держи палец.</p>
+<p>Шипы убивают · на блоки можно приземляться · жёлтые площадки подбрасывают<br>Фиолетовый портал = корабль, зелёный = куб</p>
+<button id="btn">▶ ИГРАТЬ</button><p id="err"></p></div>
 
-// ---------- seeded RNG & level ----------
-let seed=1337;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
-const blocks=[],spikes=[],pads=[],portals=[];
-const B=(x,y,w=1,h=1)=>blocks.push({x,y,w,h});
-const S=(x,y=0)=>spikes.push({x,y});
-let x=22;
+<script>
+function loadThree(urls,cb){
+  var i=0;(function next(){
+    if(i>=urls.length){cb(false);return}
+    var s=document.createElement('script');s.src=urls[i++];
+    s.onload=function(){cb(true)};s.onerror=next;document.head.appendChild(s);
+  })();
+}
+document.addEventListener('touchmove',function(e){e.preventDefault()},{passive:false});
+document.addEventListener('gesturestart',function(e){e.preventDefault()});
+document.getElementById('err').textContent='Загрузка 3D-движка…';
+loadThree([
+ 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js',
+ 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js',
+ 'https://unpkg.com/three@0.128.0/build/three.min.js'
+],function(ok){
+  if(!ok){document.getElementById('err').textContent='Не удалось загрузить Three.js. Проверь интернет и обнови страницу.';return}
+  document.getElementById('err').textContent='';
+  try{main()}catch(e){document.getElementById('err').textContent='Ошибка: '+e.message}
+});
+
+function main(){
+var mobile=/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||innerWidth<700;
+var renderer=new THREE.WebGLRenderer({antialias:!mobile,powerPreference:'high-performance'});
+renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,mobile?1.5:2));
+renderer.shadowMap.enabled=!mobile;
+document.body.prepend(renderer.domElement);
+var scene=new THREE.Scene();
+var cam=new THREE.PerspectiveCamera(60,innerWidth/innerHeight,.1,300);
+scene.fog=new THREE.Fog(0x110022,30,100);
+scene.add(new THREE.AmbientLight(0xffffff,.6));
+var sun=new THREE.DirectionalLight(0xffffff,1);sun.position.set(-6,16,12);
+if(!mobile){sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);var sc=sun.shadow.camera;sc.left=-30;sc.right=30;sc.top=30;sc.bottom=-30;sc.far=80}
+scene.add(sun);scene.add(sun.target);
+var pl=new THREE.PointLight(0x00ffff,1.3,30);scene.add(pl);
+
+var seed=1337;function rnd(){return(seed=(seed*16807)%2147483647)/2147483647}
+var blocks=[],spikes=[],pads=[],portals=[];
+function B(x,y,w,h){blocks.push({x:x,y:y,w:w||1,h:h||1})}
+function S(x,y){spikes.push({x:x,y:y||0})}
+var x=22;
 function sec(){
-  const t=Math.floor(rnd()*7);
+  var t=Math.floor(rnd()*7);
   if(t==0){S(x);x+=7}
   else if(t==1){S(x);S(x+1);x+=8}
   else if(t==2){S(x);S(x+1);S(x+2);x+=9}
   else if(t==3){B(x,0);S(x+3);x+=9}
-  else if(t==4){B(x,0);B(x+1,0);B(x+1,1);B(x+2,0);B(x+2,1);B(x+2,2);S(x+3);S(x+4);x+=10}
-  else if(t==5){pads.push({x,y:0});B(x+5,0,3,3);S(x+3);x+=12}
-  else {B(x,0,3,1);S(x+3);S(x+4);B(x+7,0,2,2);x+=12}
+  else if(t==4){B(x,0);B(x+1,0,1,2);B(x+2,0,1,3);S(x+3);S(x+4);x+=10}
+  else if(t==5){pads.push({x:x,y:0});B(x+5,0,3,3);S(x+3);x+=12}
+  else{B(x,0,3,1);S(x+3);S(x+4);B(x+7,0,2,2);x+=12}
 }
 function ship(len){
-  portals.push({x,y:0,type:'ship'});x+=8;const x0=x;
-  for(let i=0;i<len;i+=4){
-    const c=4.6+2.2*Math.sin(i*.35)+(rnd()-.5);const gap=4.6;
-    const fl=c-gap/2,ce=c+gap/2;
+  portals.push({x:x,y:0,type:'ship'});x+=8;var x0=x;
+  for(var i=0;i<len;i+=4){
+    var c=4.6+2.2*Math.sin(i*.35)+(rnd()-.5),gap=4.6,fl=c-gap/2,ce=c+gap/2;
     B(x0+i,0,2,fl);B(x0+i,ce,2,9.4-ce);
   }
-  x=x0+len+4;portals.push({x,y:0,type:'cube'});x+=8;
+  x=x0+len+4;portals.push({x:x,y:0,type:'cube'});x+=8;
 }
-for(let i=0;i<4;i++)sec();
-ship(60);
-for(let i=0;i<5;i++)sec();
-ship(80);
-for(let i=0;i<6;i++)sec();
-const END=x+10;
+var i;for(i=0;i<4;i++)sec();ship(60);for(i=0;i<5;i++)sec();ship(80);for(i=0;i<6;i++)sec();
+var END=x+10;
 
-// ---------- world ----------
-const edgeMat=new THREE.LineBasicMaterial({color:0xffffff});
-const blockMat=new THREE.MeshStandardMaterial({color:0x2200aa,emissive:0x110055,roughness:.4,metalness:.3});
-const spikeMat=new THREE.MeshStandardMaterial({color:0xff1155,emissive:0x660022,roughness:.3});
-const group=new THREE.Group();scene.add(group);
-for(const b of blocks){
-  const g=new THREE.BoxGeometry(b.w,b.h,1);
-  const m=new THREE.Mesh(g,blockMat);m.position.set(b.x+b.w/2,b.y+b.h/2,0);m.castShadow=m.receiveShadow=true;
-  const e=new THREE.LineSegments(new THREE.EdgesGeometry(g),edgeMat);m.add(e);group.add(m);
-}
-const spG=new THREE.ConeGeometry(.5,1,4);spG.rotateY(Math.PI/4);
-for(const s of spikes){
-  const m=new THREE.Mesh(spG,spikeMat);m.scale.set(1,1,1);m.position.set(s.x+.5,s.y+.5,0);m.castShadow=true;
-  m.add(new THREE.LineSegments(new THREE.EdgesGeometry(spG),new THREE.LineBasicMaterial({color:0xffaaaa})));
-  group.add(m);
-}
-const padMesh=[];
-for(const p of pads){
-  const m=new THREE.Mesh(new THREE.CylinderGeometry(.45,.5,.2,16),new THREE.MeshStandardMaterial({color:0xffee00,emissive:0xaa8800}));
+var edgeMat=new THREE.LineBasicMaterial({color:0xffffff});
+var blockMat=new THREE.MeshStandardMaterial({color:0x2200aa,emissive:0x110055,roughness:.4,metalness:.3});
+var spikeMat=new THREE.MeshStandardMaterial({color:0xff1155,emissive:0x660022,roughness:.3});
+var group=new THREE.Group();scene.add(group);
+blocks.forEach(function(b){
+  var g=new THREE.BoxGeometry(b.w,b.h,1),m=new THREE.Mesh(g,blockMat);
+  m.position.set(b.x+b.w/2,b.y+b.h/2,0);m.castShadow=m.receiveShadow=true;
+  m.add(new THREE.LineSegments(new THREE.EdgesGeometry(g),edgeMat));group.add(m);
+});
+var spG=new THREE.ConeGeometry(.5,1,4);spG.rotateY(Math.PI/4);
+var spEdge=new THREE.EdgesGeometry(spG),spLine=new THREE.LineBasicMaterial({color:0xffaaaa});
+spikes.forEach(function(s){
+  var m=new THREE.Mesh(spG,spikeMat);m.position.set(s.x+.5,s.y+.5,0);m.castShadow=true;
+  m.add(new THREE.LineSegments(spEdge,spLine));group.add(m);
+});
+var padMesh=[];
+pads.forEach(function(p){
+  var m=new THREE.Mesh(new THREE.CylinderGeometry(.45,.5,.2,16),new THREE.MeshStandardMaterial({color:0xffee00,emissive:0xaa8800}));
   m.position.set(p.x+.5,.1,0);group.add(m);padMesh.push(m);
-}
-const portMesh=[];
-for(const p of portals){
-  const col=p.type=='ship'?0xcc33ff:0x33ff66;
-  const m=new THREE.Mesh(new THREE.TorusGeometry(1.8,.18,12,32),new THREE.MeshBasicMaterial({color:col}));
-  m.position.set(p.x+.5,p.type=='ship'?1.8:1.8,0);m.rotation.y=Math.PI/2;
-  const inner=new THREE.Mesh(new THREE.CircleGeometry(1.6,24),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.18,side:2}));
-  inner.rotation.y=0;m.add(inner);m.position.y=p.type=='ship'?1.8:1.8;group.add(m);portMesh.push(m);
-}
-// finish
-const fin=new THREE.Mesh(new THREE.BoxGeometry(1,40,12),new THREE.MeshBasicMaterial({color:0xffffff}));
+});
+var portMesh=[];
+portals.forEach(function(p){
+  var col=p.type=='ship'?0xcc33ff:0x33ff66;
+  var m=new THREE.Mesh(new THREE.TorusGeometry(1.8,.18,12,32),new THREE.MeshBasicMaterial({color:col}));
+  m.position.set(p.x+.5,1.8,0);m.rotation.y=Math.PI/2;
+  var inner=new THREE.Mesh(new THREE.CircleGeometry(1.6,24),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:.18,side:THREE.DoubleSide}));
+  m.add(inner);group.add(m);portMesh.push(m);
+});
+var fin=new THREE.Mesh(new THREE.BoxGeometry(1,40,12),new THREE.MeshBasicMaterial({color:0xffffff}));
 fin.position.set(END,20,0);scene.add(fin);
 
-// floor, ceiling grid, decor
-const floorMat=new THREE.MeshStandardMaterial({color:0x08001a,roughness:.2,metalness:.8});
-const floor=new THREE.Mesh(new THREE.PlaneGeometry(2000,200),floorMat);floor.rotation.x=-Math.PI/2;floor.position.set(500,-.001,0);floor.receiveShadow=true;scene.add(floor);
-const grid=new THREE.GridHelper(2000,2000,0x00ffff,0x5500aa);grid.scale.z=.1;grid.position.set(500,0,0);grid.scale.set(1,1,1);scene.add(grid);
-const decor=[];
-const dG=new THREE.BoxGeometry(2,1,2);
-for(let i=0;i<160;i++){
-  const h=4+rnd()*26;const side=i%2?1:-1;
-  const m=new THREE.Mesh(dG,new THREE.MeshStandardMaterial({color:0x220055,emissive:0xff00ff,emissiveIntensity:.25}));
-  m.scale.y=h;m.position.set(i*(END/80)+rnd()*4,h/2,side*(10+rnd()*22));
+var floor=new THREE.Mesh(new THREE.PlaneGeometry(2000,200),new THREE.MeshStandardMaterial({color:0x08001a,roughness:.3,metalness:.5}));
+floor.rotation.x=-Math.PI/2;floor.position.set(500,-.001,0);floor.receiveShadow=true;scene.add(floor);
+var grid=new THREE.GridHelper(2000,1000,0x00ffff,0x5500aa);grid.position.set(500,0,0);scene.add(grid);
+var decor=[],dG=new THREE.BoxGeometry(2,1,2);
+for(i=0;i<(mobile?90:160);i++){
+  var h=4+rnd()*26,side=i%2?1:-1;
+  var m=new THREE.Mesh(dG,new THREE.MeshStandardMaterial({color:0x220055,emissive:0xff00ff,emissiveIntensity:.25}));
+  m.scale.y=h;m.position.set(i*(END/(mobile?45:80))+rnd()*4,h/2,side*(10+rnd()*22));
   m.userData.ph=rnd()*6;scene.add(m);decor.push(m);
 }
-const stG=new THREE.BufferGeometry();const sp=[];
-for(let i=0;i<1500;i++)sp.push(rnd()*END*1.2,10+rnd()*60,(rnd()-.5)*120);
+var stG=new THREE.BufferGeometry(),sp=[];
+for(i=0;i<800;i++)sp.push(rnd()*END*1.2,10+rnd()*60,(rnd()-.5)*120);
 stG.setAttribute('position',new THREE.Float32BufferAttribute(sp,3));
-scene.add(new THREE.Points(stG,new THREE.PointsMaterial({size:.4,color:0xffffff,fog:false})));
+scene.add(new THREE.Points(stG,new THREE.PointsMaterial({size:.5,color:0xffffff,fog:false})));
 
-// ---------- player ----------
-const player=new THREE.Group();scene.add(player);
-const cubeG=new THREE.BoxGeometry(.9,.9,.9);
-const cubeMesh=new THREE.Mesh(cubeG,new THREE.MeshStandardMaterial({color:0x00ffcc,emissive:0x008866,roughness:.3,metalness:.4}));
+var player=new THREE.Group();scene.add(player);
+var cubeG=new THREE.BoxGeometry(.9,.9,.9);
+var cubeMesh=new THREE.Mesh(cubeG,new THREE.MeshStandardMaterial({color:0x00ffcc,emissive:0x008866,roughness:.3,metalness:.4}));
 cubeMesh.castShadow=true;
-const face=new THREE.Mesh(new THREE.BoxGeometry(.5,.2,.05),new THREE.MeshBasicMaterial({color:0x001111}));face.position.set(.1,.1,.46);
-cubeMesh.add(face,new THREE.LineSegments(new THREE.EdgesGeometry(cubeG),new THREE.LineBasicMaterial({color:0xffffff})));
-const shipMesh=new THREE.Mesh(new THREE.ConeGeometry(.5,1.4,4),new THREE.MeshStandardMaterial({color:0xff66ff,emissive:0x880088}));
+var face=new THREE.Mesh(new THREE.BoxGeometry(.5,.2,.05),new THREE.MeshBasicMaterial({color:0x001111}));face.position.set(.1,.1,.46);
+cubeMesh.add(face);cubeMesh.add(new THREE.LineSegments(new THREE.EdgesGeometry(cubeG),new THREE.LineBasicMaterial({color:0xffffff})));
+var shipMesh=new THREE.Mesh(new THREE.ConeGeometry(.5,1.4,4),new THREE.MeshStandardMaterial({color:0xff66ff,emissive:0x880088}));
 shipMesh.rotation.z=-Math.PI/2;shipMesh.castShadow=true;
+var shipHolder=new THREE.Group();shipHolder.add(shipMesh);
 player.add(cubeMesh);
-const trail=[];
-const partG=new THREE.BoxGeometry(.18,.18,.18);
-const parts=[];
-function burst(px,py,col,n=40,sp=9){
-  for(let i=0;i<n;i++){
-    const m=new THREE.Mesh(partG,new THREE.MeshBasicMaterial({color:col,transparent:true}));
+var partG=new THREE.BoxGeometry(.18,.18,.18),parts=[];
+function burst(px,py,col,n,spd){
+  for(var k=0;k<n;k++){
+    var m=new THREE.Mesh(partG,new THREE.MeshBasicMaterial({color:col,transparent:true}));
     m.position.set(px,py,0);scene.add(m);
-    parts.push({m,v:new THREE.Vector3((Math.random()-.5)*sp,Math.random()*sp,(Math.random()-.5)*sp),life:1});
+    parts.push({m:m,v:new THREE.Vector3((Math.random()-.5)*spd,Math.random()*spd,(Math.random()-.5)*spd),life:1,g:1});
   }
 }
 
-// ---------- audio ----------
-let ac,beatT=0;
-function beep(f,d,type='sine',v=.15){
-  if(!ac)return;const o=ac.createOscillator(),g=ac.createGain();
-  o.type=type;o.frequency.value=f;g.gain.setValueAtTime(v,ac.currentTime);
-  g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d);
+var ac,beatT=0,nIdx=0,notes=[55,55,65.4,49,55,55,73.4,49];
+function beep(f,d,type,v){
+  if(!ac)return;try{
+  var o=ac.createOscillator(),g=ac.createGain();o.type=type||'sine';o.frequency.value=f;
+  g.gain.setValueAtTime(v||.1,ac.currentTime);g.gain.exponentialRampToValueAtTime(.001,ac.currentTime+d);
+  o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+d)}catch(e){}
 }
-const notes=[55,55,65.4,49,55,55,73.4,49];let nIdx=0;
 function music(dt){
-  beatT+=dt;const bl=60/140/2;
-  while(beatT>=bl){beatT-=bl;beep(notes[nIdx%8]*2,.18,'sawtooth',.06);if(nIdx%2==0)beep(60,.15,'sine',.25);if(nIdx%4==2)beep(1800,.04,'square',.03);nIdx++}
+  beatT+=dt;var bl=60/140/2;
+  while(beatT>=bl){beatT-=bl;beep(notes[nIdx%8]*2,.18,'sawtooth',.05);if(nIdx%2==0)beep(60,.15,'sine',.22);if(nIdx%4==2)beep(1800,.04,'square',.02);nIdx++}
 }
 
-// ---------- game state ----------
-const SPEED=10.4,G=58,JV=15.5;
-let px,py,vy,mode,grounded,hold,dead,deadT,attempts=0,best=0,started=false,won=false,t=0,rot,flip;
+var SPEED=10.4,G=58,JV=15.5;
+var px,py,vy,mode,grounded,hold=false,dead,deadT,attempts=0,best=0,started=false,won=false,t=0,rot,shake=0;
 function reset(){
   px=0;py=0;vy=0;mode='cube';grounded=true;dead=false;deadT=0;won=false;rot=0;attempts++;
-  player.clear();player.add(cubeMesh);cubeMesh.visible=true;player.visible=true;
+  portals.forEach(function(p){p.used=false});
+  while(player.children.length)player.remove(player.children[0]);
+  player.add(cubeMesh);player.visible=true;
   document.getElementById('att').textContent='Попытка '+attempts;
 }
 reset();
 function die(){
   if(dead)return;dead=true;deadT=0;player.visible=false;
-  burst(px,py+.5,0x00ffcc,50);burst(px,py+.5,0xff00ff,30);beep(90,.4,'sawtooth',.3);beep(45,.5,'square',.2);
-  best=Math.max(best,Math.floor(px/END*100));document.getElementById('best').textContent='Рекорд '+best+'%';
-  shake=.6;
+  burst(px,py+.5,0x00ffcc,40,9);burst(px,py+.5,0xff00ff,25,9);beep(90,.4,'sawtooth',.25);beep(45,.5,'square',.15);
+  best=Math.max(best,Math.floor(px/END*100));document.getElementById('best').textContent='Рекорд '+best+'%';shake=.6;
 }
-let shake=0;
-function press(v){hold=v;if(v&&!ac){try{ac=new (window.AudioContext||window.webkitAudioContext)()}catch(e){}}}
-addEventListener('keydown',e=>{if(['Space','ArrowUp','KeyW'].includes(e.code)){e.preventDefault();press(true);start()}});
-addEventListener('keyup',e=>{if(['Space','ArrowUp','KeyW'].includes(e.code))press(false)});
-addEventListener('pointerdown',()=>{press(true);start()});addEventListener('pointerup',()=>press(false));
-function start(){if(!started){started=true;document.getElementById('msg').style.display='none'}}
-addEventListener('resize',()=>{renderer.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix()});
-
-const hs=.45;
-function overlap(ax0,ay0,ax1,ay1,bx0,by0,bx1,by1){return ax0<bx1&&ax1>bx0&&ay0<by1&&ay1>by0}
-function step(dt){
-  px+=SPEED*dt;
-  const prevY=py;
-  if(mode=='cube'){
-    if(grounded&&hold){vy=JV;grounded=false;beep(520,.08,'triangle',.08)}
-    vy-=G*dt;py+=vy*dt;grounded=false;
-    if(py<=0){py=0;vy=0;grounded=true}
-  }else{
-    const a=hold?34:-34;vy+=a*dt;vy=Math.max(-10,Math.min(10,vy));py+=vy*dt;
-    if(py<0){py=0;vy=0}if(py>8.5){py=8.5;vy=0}
-  }
-  const x0=px-hs,x1=px+hs;
-  for(const b of blocks){
-    if(b.x>px+3||b.x+b.w<px-3)continue;
-    if(overlap(x0,py,x1,py+.9,b.x,b.y,b.x+b.w,b.y+b.h)){
-      const top=b.y+b.h;
-      if(mode=='cube'&&vy<=0&&prevY>=top-.25){py=top;vy=0;grounded=true}
-      else{die();return}
-    }
-  }
-  for(const s o
-    
+function initAudio(){
+  try{if(!ac)ac=new (window.AudioContext||window.webkitAudioContext
